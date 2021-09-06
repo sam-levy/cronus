@@ -25,15 +25,15 @@ config :sig, Sig.Mailer, adapter: Swoosh.Adapters.Local
 # Swoosh API client is needed for adapters other than SMTP.
 config :swoosh, :api_client, false
 
-config :sig_web,
+config :sig_live,
   ecto_repos: [Sig.Repo],
   generators: [context_app: :sig, binary_id: true]
 
 # Configures the endpoint
-config :sig_web, SigWeb.Endpoint,
+config :sig_live, SigLive.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "l64vxOgBKO85N2kT80nKMlV5oHxyn20Z8lMpn3JvBq1x4z0Len426OLzDrWAU/5Y",
-  render_errors: [view: SigWeb.ErrorView, accepts: ~w(html json), layout: false],
+  render_errors: [view: SigLive.ErrorView, accepts: ~w(html json), layout: false],
   pubsub_server: Sig.PubSub,
   live_view: [signing_salt: "sv2e1ui5"]
 
@@ -42,7 +42,7 @@ config :esbuild,
   version: "0.12.18",
   default: [
     args: ~w(js/app.js --bundle --target=es2016 --outdir=../priv/static/assets),
-    cd: Path.expand("../apps/sig_web/assets", __DIR__),
+    cd: Path.expand("../apps/sig_live/assets", __DIR__),
     env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
   ]
 

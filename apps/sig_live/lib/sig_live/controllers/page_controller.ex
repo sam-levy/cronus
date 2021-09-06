@@ -1,5 +1,5 @@
-defmodule SigWeb.PageController do
-  use SigWeb, :controller
+defmodule SigLive.PageController do
+  use SigLive, :controller
 
   def index(conn, _params) do
     render(conn, "index.html")

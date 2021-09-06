@@ -1,5 +1,5 @@
-defmodule SigWeb.PageControllerTest do
-  use SigWeb.ConnCase
+defmodule SigLive.PageControllerTest do
+  use SigLive.ConnCase
 
   test "GET /", %{conn: conn} do
     conn = get(conn, "/")

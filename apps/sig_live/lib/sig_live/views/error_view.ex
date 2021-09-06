@@ -1,5 +1,5 @@
-defmodule SigWeb.ErrorView do
-  use SigWeb, :view
+defmodule SigLive.ErrorView do
+  use SigLive, :view
 
   # If you want to customize a particular status code
   # for a certain format, you may uncomment below.

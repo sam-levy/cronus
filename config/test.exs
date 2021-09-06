@@ -15,7 +15,7 @@ config :sig, Sig.Repo,
 
 # We don't run a server during test. If one is required,
 # you can enable the server option below.
-config :sig_web, SigWeb.Endpoint,
+config :sig_live, SigLive.Endpoint,
   http: [ip: {127, 0, 0, 1}, port: 4002],
   server: false
 

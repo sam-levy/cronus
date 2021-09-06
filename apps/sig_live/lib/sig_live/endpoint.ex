@@ -1,12 +1,12 @@
-defmodule SigWeb.Endpoint do
-  use Phoenix.Endpoint, otp_app: :sig_web
+defmodule SigLive.Endpoint do
+  use Phoenix.Endpoint, otp_app: :sig_live
 
   # The session will be stored in the cookie and signed,
   # this means its contents can be read but not tampered with.
   # Set :encryption_salt if you would also like to encrypt it.
   @session_options [
     store: :cookie,
-    key: "_sig_web_key",
+    key: "_sig_live_key",
     signing_salt: "plPaQwND"
   ]
 
@@ -18,7 +18,7 @@ defmodule SigWeb.Endpoint do
   # when deploying your static files in production.
   plug Plug.Static,
     at: "/",
-    from: :sig_web,
+    from: :sig_live,
     gzip: false,
     only: ~w(assets fonts images favicon.ico robots.txt)
 
@@ -28,7 +28,7 @@ defmodule SigWeb.Endpoint do
     socket "/phoenix/live_reload/socket", Phoenix.LiveReloader.Socket
     plug Phoenix.LiveReloader
     plug Phoenix.CodeReloader
-    plug Phoenix.Ecto.CheckRepoStatus, otp_app: :sig_web
+    plug Phoenix.Ecto.CheckRepoStatus, otp_app: :sig_live
   end
 
   plug Phoenix.LiveDashboard.RequestLogger,
@@ -46,5 +46,5 @@ defmodule SigWeb.Endpoint do
   plug Plug.MethodOverride
   plug Plug.Head
   plug Plug.Session, @session_options
-  plug SigWeb.Router
+  plug SigLive.Router
 end

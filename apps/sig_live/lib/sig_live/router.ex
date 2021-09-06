@@ -1,11 +1,11 @@
-defmodule SigWeb.Router do
-  use SigWeb, :router
+defmodule SigLive.Router do
+  use SigLive, :router
 
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
     plug :fetch_live_flash
-    plug :put_root_layout, {SigWeb.LayoutView, :root}
+    plug :put_root_layout, {SigLive.LayoutView, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
   end
@@ -14,14 +14,14 @@ defmodule SigWeb.Router do
     plug :accepts, ["json"]
   end
 
-  scope "/", SigWeb do
+  scope "/", SigLive do
     pipe_through :browser
 
     get "/", PageController, :index
   end
 
   # Other scopes may use custom stacks.
-  # scope "/api", SigWeb do
+  # scope "/api", SigLive do
   #   pipe_through :api
   # end
 
@@ -37,7 +37,7 @@ defmodule SigWeb.Router do
 
     scope "/" do
       pipe_through :browser
-      live_dashboard "/dashboard", metrics: SigWeb.Telemetry
+      live_dashboard "/dashboard", metrics: SigLive.Telemetry
     end
   end
 

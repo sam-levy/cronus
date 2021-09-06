@@ -1,12 +1,12 @@
-defmodule SigWeb do
+defmodule SigLive do
   @moduledoc """
   The entrypoint for defining your web interface, such
   as controllers, views, channels and so on.
 
   This can be used in your application as:
 
-      use SigWeb, :controller
-      use SigWeb, :view
+      use SigLive, :controller
+      use SigLive, :view
 
   The definitions below will be executed for every view,
   controller, etc, so keep them short and clean, focused
@@ -19,19 +19,19 @@ defmodule SigWeb do
 
   def controller do
     quote do
-      use Phoenix.Controller, namespace: SigWeb
+      use Phoenix.Controller, namespace: SigLive
 
       import Plug.Conn
-      import SigWeb.Gettext
-      alias SigWeb.Router.Helpers, as: Routes
+      import SigLive.Gettext
+      alias SigLive.Router.Helpers, as: Routes
     end
   end
 
   def view do
     quote do
       use Phoenix.View,
-        root: "lib/sig_web/templates",
-        namespace: SigWeb
+        root: "lib/sig_live/templates",
+        namespace: SigLive
 
       # Import convenience functions from controllers
       import Phoenix.Controller,
@@ -45,7 +45,7 @@ defmodule SigWeb do
   def live_view do
     quote do
       use Phoenix.LiveView,
-        layout: {SigWeb.LayoutView, "live.html"}
+        layout: {SigLive.LayoutView, "live.html"}
 
       unquote(view_helpers())
     end
@@ -72,7 +72,7 @@ defmodule SigWeb do
   def channel do
     quote do
       use Phoenix.Channel
-      import SigWeb.Gettext
+      import SigLive.Gettext
     end
   end
 
@@ -87,9 +87,9 @@ defmodule SigWeb do
       # Import basic rendering functionality (render, render_layout, etc)
       import Phoenix.View
 
-      import SigWeb.ErrorHelpers
-      import SigWeb.Gettext
-      alias SigWeb.Router.Helpers, as: Routes
+      import SigLive.ErrorHelpers
+      import SigLive.Gettext
+      alias SigLive.Router.Helpers, as: Routes
     end
   end
 

@@ -1,5 +1,5 @@
-defmodule SigWeb.LayoutView do
-  use SigWeb, :view
+defmodule SigLive.LayoutView do
+  use SigLive, :view
 
   # Phoenix LiveDashboard is available only in development by default,
   # so we instruct Elixir to not warn if the dashboard route is missing.

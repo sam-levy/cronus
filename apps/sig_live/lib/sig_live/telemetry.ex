@@ -1,4 +1,4 @@
-defmodule SigWeb.Telemetry do
+defmodule SigLive.Telemetry do
   use Supervisor
   import Telemetry.Metrics
 
@@ -65,7 +65,7 @@ defmodule SigWeb.Telemetry do
     [
       # A module, function and arguments to be invoked periodically.
       # This function must call :telemetry.execute/3 and a metric must be added above.
-      # {SigWeb, :count_users, []}
+      # {SigLive, :count_users, []}
     ]
   end
 end

@@ -1,9 +1,9 @@
-defmodule SigWeb.MixProject do
+defmodule SigLive.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :sig_web,
+      app: :sig_live,
       version: "0.1.0",
       build_path: "../../_build",
       config_path: "../../config/config.exs",
@@ -23,7 +23,7 @@ defmodule SigWeb.MixProject do
   # Type `mix help compile.app` for more information.
   def application do
     [
-      mod: {SigWeb.Application, []},
+      mod: {SigLive.Application, []},
       extra_applications: [:logger, :runtime_tools]
     ]
   end

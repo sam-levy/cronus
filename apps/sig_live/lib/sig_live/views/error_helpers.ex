@@ -1,4 +1,4 @@
-defmodule SigWeb.ErrorHelpers do
+defmodule SigLive.ErrorHelpers do
   @moduledoc """
   Conveniences for translating and building error messages.
   """
@@ -39,9 +39,9 @@ defmodule SigWeb.ErrorHelpers do
     # should be written to the errors.po file. The :count option is
     # set by Ecto and indicates we should also apply plural rules.
     if count = opts[:count] do
-      Gettext.dngettext(SigWeb.Gettext, "errors", msg, msg, count, opts)
+      Gettext.dngettext(SigLive.Gettext, "errors", msg, msg, count, opts)
     else
-      Gettext.dgettext(SigWeb.Gettext, "errors", msg, opts)
+      Gettext.dgettext(SigLive.Gettext, "errors", msg, opts)
     end
   end
 end
