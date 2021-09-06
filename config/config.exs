@@ -13,6 +13,12 @@ import Config
 config :sig,
   ecto_repos: [Sig.Repo]
 
+# Database configuration
+config :sig, Sig.Repo,
+  migration_primary_key: [type: :binary_id],
+  migration_foreign_key: [type: :binary_id],
+  migration_timestamps: [type: :utc_datetime_usec]
+
 # Configures the mailer
 #
 # By default it uses the "Local" adapter which stores the emails
