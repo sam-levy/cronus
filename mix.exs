@@ -1,4 +1,4 @@
-defmodule Sig.Umbrella.MixProject do
+defmodule Cronus.MixProject do
   use Mix.Project
 
   def project do
