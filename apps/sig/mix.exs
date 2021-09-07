@@ -41,7 +41,10 @@ defmodule Sig.MixProject do
       {:postgrex, ">= 0.0.0"},
       {:jason, "~> 1.2"},
       {:swoosh, "~> 1.3"},
-      {:faker, "~> 0.16.0"}
+      {:faker, "~> 0.16.0"},
+      {:ecto_enum, "~> 1.4"},
+      {:ecto_enum_migration, "~> 0.3.3"},
+      {:brazilian_documents, "~> 0.2.1"}
     ]
   end
 
