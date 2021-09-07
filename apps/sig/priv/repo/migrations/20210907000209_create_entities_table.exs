@@ -3,6 +3,8 @@ defmodule Sig.Repo.Migrations.CreateEntitiesTable do
 
   def change do
     create table(:entities) do
+      add :organization_id, references(:organizations)
+
       timestamps()
     end
   end

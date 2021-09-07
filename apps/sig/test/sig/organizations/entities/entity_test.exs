@@ -6,6 +6,8 @@ defmodule Sig.Organizations.Entities.EntityTest do
 
   describe "new_individual_changeset/1" do
     test "valid params" do
+      organzation_id = UUID.generate()
+
       individual_params = %{
         name: Faker.Person.name(),
         cpf: BrazilianDocuments.generate_cpf(),
@@ -13,6 +15,7 @@ defmodule Sig.Organizations.Entities.EntityTest do
       }
 
       entity_params = %{
+        organization_id: organzation_id,
         individual: individual_params
       }
 
@@ -20,7 +23,12 @@ defmodule Sig.Organizations.Entities.EntityTest do
 
       assert changeset.valid?
 
-      assert changeset.changes.individual.changes == %{
+      assert %{
+        organization_id: ^organzation_id,
+        individual: individual_changeset
+      } = changeset.changes
+
+      assert individual_changeset.changes == %{
                name: individual_params[:name],
                cpf: individual_params[:cpf],
                gender: String.to_atom(individual_params[:gender])
@@ -33,7 +41,8 @@ defmodule Sig.Organizations.Entities.EntityTest do
       refute changeset.valid?
 
       assert errors_on(changeset) == %{
-               individual: ["can't be blank"],
+               organization_id: ["can't be blank"],
+               individual: ["can't be blank"]
              }
     end
   end
