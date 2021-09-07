@@ -4,6 +4,8 @@ defmodule Sig.Schema do
       use Ecto.Schema
 
       import Ecto.Changeset
+      import EctoEnum
+      import BrazilianDocuments.Changeset, only: [validate_cpf: 2, validate_cnpj: 2]
 
       @primary_key {:id, :binary_id, autogenerate: true}
       @foreign_key_type :binary_id
