@@ -16,10 +16,10 @@ defmodule Sig.Organizations.Entities.Individual do
     timestamps()
   end
 
-  @new_fields [:entity_id, :name, :gender, :cpf]
+  @new_fields [:name, :gender, :cpf]
   @edit_fields [:name, :gender]
 
-  def new_changeset(target \\ %__MODULE__{}, attrs) do
+  def new_changeset(%__MODULE__{} = target, attrs) do
     target
     |> cast(attrs, @new_fields)
     |> validate_required(@new_fields)
