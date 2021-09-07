@@ -19,11 +19,13 @@ defmodule Sig.DataCase do
   using do
     quote do
       alias Sig.Repo
+      alias Ecto.UUID
 
       import Ecto
       import Ecto.Changeset
       import Ecto.Query
       import Sig.DataCase
+      import Sig.Factory
     end
   end
 
