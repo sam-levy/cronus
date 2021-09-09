@@ -11,11 +11,11 @@ defmodule Sig.Organizations.Entities.EntityTest do
       individual_params = %{
         name: Faker.Person.name(),
         cpf: BrazilianDocuments.generate_cpf(),
-        gender: random_enum_value(Gender)
+        gender: random_enum_value(Gender),
+        organization_id: organzation_id
       }
 
       entity_params = %{
-        organization_id: organzation_id,
         individual: individual_params
       }
 
@@ -24,14 +24,14 @@ defmodule Sig.Organizations.Entities.EntityTest do
       assert changeset.valid?
 
       assert %{
-        organization_id: ^organzation_id,
-        individual: individual_changeset
-      } = changeset.changes
+               individual: individual_changeset
+             } = changeset.changes
 
       assert individual_changeset.changes == %{
                name: individual_params[:name],
                cpf: individual_params[:cpf],
-               gender: String.to_atom(individual_params[:gender])
+               gender: String.to_atom(individual_params[:gender]),
+               organization_id: organzation_id
              }
     end
 
@@ -41,30 +41,8 @@ defmodule Sig.Organizations.Entities.EntityTest do
       refute changeset.valid?
 
       assert errors_on(changeset) == %{
-               organization_id: ["can't be blank"],
                individual: ["can't be blank"]
              }
-    end
-
-    test "organization assoc constraint" do
-      individual_params = %{
-        name: Faker.Person.name(),
-        cpf: BrazilianDocuments.generate_cpf(),
-        gender: random_enum_value(Gender)
-      }
-
-      entity_params = %{
-        organization_id: UUID.generate(),
-        individual: individual_params
-      }
-
-      assert {:error, changeset} =
-        entity_params
-        |> Entity.new_individual_changeset()
-        |> Repo.insert()
-
-      refute changeset.valid?
-      assert errors_on(changeset) == %{organization: ["does not exist"]}
     end
   end
 end
