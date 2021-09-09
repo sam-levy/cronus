@@ -4,33 +4,36 @@ defmodule Sig.Organizations.Entities.IndividualTest do
   alias Sig.Organizations.Entities.Individual
   alias Sig.Organizations.Entities.Individual.Gender
 
-  describe "new_changeset/2" do
-    test "valid params" do
-      params = %{
+  describe "create_changeset/1" do
+    test "valid attrs" do
+      attrs = %{
+        entity_id: UUID.generate(),
         name: Faker.Person.name(),
         cpf: BrazilianDocuments.generate_cpf(),
         gender: random_enum_value(Gender),
         organization_id: UUID.generate()
       }
 
-      assert changeset = Individual.new_changeset(%Individual{}, params)
+      assert changeset = Individual.create_changeset(attrs)
 
       assert changeset.valid?
 
       assert changeset.changes == %{
-               name: params[:name],
-               cpf: params[:cpf],
-               gender: String.to_atom(params[:gender]),
-               organization_id: params[:organization_id]
+               entity_id: attrs[:entity_id],
+               name: attrs[:name],
+               cpf: attrs[:cpf],
+               gender: String.to_atom(attrs[:gender]),
+               organization_id: attrs[:organization_id]
              }
     end
 
-    test "missing required params" do
-      assert changeset = Individual.new_changeset(%Individual{}, %{})
+    test "missing required attrs" do
+      assert changeset = Individual.create_changeset(%{})
 
       refute changeset.valid?
 
       assert errors_on(changeset) == %{
+               entity_id: ["can't be blank"],
                name: ["can't be blank"],
                cpf: ["can't be blank"],
                gender: ["can't be blank"],
@@ -38,19 +41,21 @@ defmodule Sig.Organizations.Entities.IndividualTest do
              }
     end
 
-    test "invalid params types" do
-      params = %{
+    test "invalid attrs types" do
+      attrs = %{
+        entity_id: :invalid,
         name: :invalid,
         cpf: :invalid,
         gender: 1,
         organization_id: :invalid
       }
 
-      assert changeset = Individual.new_changeset(%Individual{}, params)
+      assert changeset = Individual.create_changeset(attrs)
 
       refute changeset.valid?
 
       assert errors_on(changeset) == %{
+               entity_id: ["is invalid"],
                name: ["is invalid"],
                cpf: ["is invalid"],
                gender: ["is invalid"],
@@ -61,14 +66,15 @@ defmodule Sig.Organizations.Entities.IndividualTest do
     test "string fields length greater than accepted" do
       {:ok, formated_cpf} = BrazilianDocuments.generate_cpf() |> BrazilianDocuments.format_cpf()
 
-      params = %{
+      attrs = %{
+        entity_id: UUID.generate(),
         name: String.duplicate("a", 256),
         cpf: formated_cpf,
         gender: random_enum_value(Gender),
         organization_id: UUID.generate()
       }
 
-      assert changeset = Individual.new_changeset(%Individual{}, params)
+      assert changeset = Individual.create_changeset(attrs)
 
       refute changeset.valid?
 
@@ -79,14 +85,15 @@ defmodule Sig.Organizations.Entities.IndividualTest do
     end
 
     test "invalid cpf" do
-      params = %{
+      attrs = %{
+        entity_id: UUID.generate(),
         name: Faker.Person.name(),
         cpf: "00887718061",
         gender: random_enum_value(Gender),
         organization_id: UUID.generate()
       }
 
-      assert changeset = Individual.new_changeset(%Individual{}, params)
+      assert changeset = Individual.create_changeset(attrs)
 
       refute changeset.valid?
       assert errors_on(changeset) == %{cpf: ["has invalid cpf"]}
@@ -100,7 +107,8 @@ defmodule Sig.Organizations.Entities.IndividualTest do
 
       entity = insert(:entity)
 
-      params = %{
+      attrs = %{
+        entity_id: entity.id,
         name: Faker.Person.name(),
         cpf: cpf,
         gender: random_enum_value(Gender),
@@ -108,9 +116,8 @@ defmodule Sig.Organizations.Entities.IndividualTest do
       }
 
       assert {:error, changeset} =
-               %Individual{}
-               |> Individual.new_changeset(params)
-               |> put_change(:entity_id, entity.id)
+               attrs
+               |> Individual.create_changeset()
                |> Repo.insert()
 
       refute changeset.valid?
@@ -120,7 +127,8 @@ defmodule Sig.Organizations.Entities.IndividualTest do
     test "entity assoc constraint" do
       organization = insert(:organization)
 
-      params = %{
+      attrs = %{
+        entity_id: UUID.generate(),
         name: Faker.Person.name(),
         cpf: BrazilianDocuments.generate_cpf(),
         gender: random_enum_value(Gender),
@@ -128,9 +136,8 @@ defmodule Sig.Organizations.Entities.IndividualTest do
       }
 
       assert {:error, changeset} =
-               %Individual{}
-               |> Individual.new_changeset(params)
-               |> put_change(:entity_id, UUID.generate())
+               attrs
+               |> Individual.create_changeset()
                |> Repo.insert()
 
       refute changeset.valid?
@@ -140,7 +147,8 @@ defmodule Sig.Organizations.Entities.IndividualTest do
     test "organization assoc constraint" do
       entity = insert(:entity)
 
-      params = %{
+      attrs = %{
+        entity_id: entity.id,
         name: Faker.Person.name(),
         cpf: BrazilianDocuments.generate_cpf(),
         gender: random_enum_value(Gender),
@@ -148,9 +156,8 @@ defmodule Sig.Organizations.Entities.IndividualTest do
       }
 
       assert {:error, changeset} =
-               %Individual{}
-               |> Individual.new_changeset(params)
-               |> put_change(:entity_id, entity.id)
+               attrs
+               |> Individual.create_changeset()
                |> Repo.insert()
 
       refute changeset.valid?
@@ -158,54 +165,54 @@ defmodule Sig.Organizations.Entities.IndividualTest do
     end
   end
 
-  describe "edit_changeset/2" do
-    test "valid params" do
+  describe "update_changeset/2" do
+    test "valid attrs" do
       individual = insert(:individual, gender: :male)
 
-      params = %{
+      attrs = %{
         name: "New Name",
         gender: :other
       }
 
-      assert changeset = Individual.edit_changeset(individual, params)
+      assert changeset = Individual.update_changeset(individual, attrs)
 
       assert changeset.valid?
 
       assert changeset.changes == %{
-               name: params[:name],
-               gender: params[:gender]
+               name: attrs[:name],
+               gender: attrs[:gender]
              }
     end
 
-    test "ignores non permitted params" do
+    test "ignores non permitted attrs" do
       individual = insert(:individual, gender: :female)
 
-      params = %{
+      attrs = %{
         name: "New Name",
         cpf: BrazilianDocuments.generate_cpf(),
         gender: :other,
         organization_id: UUID.generate()
       }
 
-      assert changeset = Individual.edit_changeset(individual, params)
+      assert changeset = Individual.update_changeset(individual, attrs)
 
       assert changeset.valid?
 
       assert changeset.changes == %{
-               name: params[:name],
-               gender: params[:gender]
+               name: attrs[:name],
+               gender: attrs[:gender]
              }
     end
 
-    test "invalid params types" do
+    test "invalid attrs types" do
       individual = insert(:individual, gender: :female)
 
-      params = %{
+      attrs = %{
         name: :invalid,
         gender: 1
       }
 
-      assert changeset = Individual.edit_changeset(individual, params)
+      assert changeset = Individual.update_changeset(individual, attrs)
 
       refute changeset.valid?
 
@@ -218,12 +225,12 @@ defmodule Sig.Organizations.Entities.IndividualTest do
     test "string fields length greater than 255 chars" do
       individual = insert(:individual, gender: :male)
 
-      params = %{
+      attrs = %{
         name: String.duplicate("a", 256),
         gender: :other
       }
 
-      assert changeset = Individual.edit_changeset(individual, params)
+      assert changeset = Individual.update_changeset(individual, attrs)
 
       refute changeset.valid?
       assert errors_on(changeset) == %{name: ["should be at most 255 character(s)"]}

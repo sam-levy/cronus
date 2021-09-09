@@ -19,23 +19,23 @@ defmodule Sig.Organizations.Entities.Individual do
     timestamps()
   end
 
-  @new_fields [:name, :gender, :cpf, :organization_id]
-  @edit_fields [:name, :gender]
+  @create_fields [:entity_id, :name, :gender, :cpf, :organization_id]
+  @update_fields [:name, :gender]
 
-  def new_changeset(%__MODULE__{} = target, attrs) do
-    target
-    |> cast(attrs, @new_fields)
-    |> validate_required(@new_fields)
+  def create_changeset(attrs) do
+    %__MODULE__{}
+    |> cast(attrs, @create_fields)
+    |> validate_required(@create_fields)
     |> base_validations()
     |> validate_cpf(:cpf)
     |> validate_length(:cpf, max: 11)
     |> unique_constraint([:cpf, :organization_id])
   end
 
-  def edit_changeset(%__MODULE__{} = target, attrs) do
+  def update_changeset(%__MODULE__{} = target, attrs) do
     target
-    |> cast(attrs, @edit_fields)
-    |> validate_required(@edit_fields)
+    |> cast(attrs, @update_fields)
+    |> validate_required(@update_fields)
     |> base_validations()
   end
 
