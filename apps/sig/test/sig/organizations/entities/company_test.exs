@@ -390,5 +390,47 @@ defmodule Sig.Organizations.Entities.CompanyTest do
       refute changeset.valid?
       assert errors_on(changeset) == %{organization: ["does not exist"]}
     end
+
+    test "rise Ecto.ConstraintError when registration_name is NOT NULL" do
+      entity = insert(:entity)
+      organization = insert(:organization)
+      registration_name = Faker.Company.name()
+
+      params = %{
+        trade_name: Faker.Company.name(),
+        organization_id: organization.id
+      }
+
+      assert_raise Ecto.ConstraintError,
+                   ~r/companies_registration_name_and_cnpj_required_if_not_virtual/,
+                   fn ->
+                     %Company{}
+                     |> Company.new_virtual_changeset(params)
+                     |> put_change(:entity_id, entity.id)
+                     |> put_change(:registration_name, registration_name)
+                     |> Repo.insert()
+                   end
+    end
+
+    test "rise Ecto.ConstraintError when cnpj is NOT NULL" do
+      entity = insert(:entity)
+      organization = insert(:organization)
+      cnpj = BrazilianDocuments.generate_cnpj()
+
+      params = %{
+        trade_name: Faker.Company.name(),
+        organization_id: organization.id
+      }
+
+      assert_raise Ecto.ConstraintError,
+                   ~r/companies_registration_name_and_cnpj_required_if_not_virtual/,
+                   fn ->
+                     %Company{}
+                     |> Company.new_virtual_changeset(params)
+                     |> put_change(:entity_id, entity.id)
+                     |> put_change(:cnpj, cnpj)
+                     |> Repo.insert()
+                   end
+    end
   end
 end
