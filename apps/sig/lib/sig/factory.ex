@@ -1,4 +1,5 @@
 defmodule Sig.Factory do
+  use Sig.Factories.CompanyFactory
   use Sig.Factories.EntityFactory
   use Sig.Factories.IndividualFactory
   use Sig.Factories.OrganizationFactory
