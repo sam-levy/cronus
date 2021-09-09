@@ -9,7 +9,8 @@ defmodule Sig.Factories.IndividualFactory do
           entity: build(:entity),
           name: sequence(&"individual_name#{&1}"),
           cpf: BrazilianDocuments.generate_cpf(),
-          gender: random_enum_value(Gender)
+          gender: random_enum_value(Gender),
+          organization: build(:organization)
         }
       end
     end

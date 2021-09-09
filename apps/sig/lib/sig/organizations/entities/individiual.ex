@@ -2,6 +2,7 @@ defmodule Sig.Organizations.Entities.Individual do
   use Sig.Schema
 
   alias Sig.Organizations.Entities.Entity
+  alias Sig.Organizations.Organization
 
   defenum(Gender, :gender, [:male, :female, :other])
 
@@ -13,10 +14,12 @@ defmodule Sig.Organizations.Entities.Individual do
     field :cpf, :string
     field :gender, Gender
 
+    belongs_to :organization, Organization
+
     timestamps()
   end
 
-  @new_fields [:name, :gender, :cpf]
+  @new_fields [:name, :gender, :cpf, :organization_id]
   @edit_fields [:name, :gender]
 
   def new_changeset(%__MODULE__{} = target, attrs) do
@@ -25,7 +28,8 @@ defmodule Sig.Organizations.Entities.Individual do
     |> validate_required(@new_fields)
     |> base_validations()
     |> validate_cpf(:cpf)
-    |> unique_constraint(:cpf)
+    |> validate_length(:cpf, max: 11)
+    |> unique_constraint([:cpf, :organization_id])
   end
 
   def edit_changeset(%__MODULE__{} = target, attrs) do
@@ -39,5 +43,6 @@ defmodule Sig.Organizations.Entities.Individual do
     changeset
     |> validate_length(:name, max: 255)
     |> assoc_constraint(:entity)
+    |> assoc_constraint(:organization)
   end
 end

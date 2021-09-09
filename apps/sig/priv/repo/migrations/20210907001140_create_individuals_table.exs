@@ -12,10 +12,11 @@ defmodule Sig.Repo.Migrations.CreateIndividualsTable do
       add :cpf, :string, size: 11, null: false
       add :gender, :gender, null: false
 
+      add :organization_id, references(:organizations), null: false
+
       timestamps()
     end
 
-    # TODO: Remove and use a trigger with a storage procedure for real multitenancy
-    create unique_index(:individuals, :cpf)
+    create unique_index(:individuals, [:cpf, :organization_id])
   end
 end
