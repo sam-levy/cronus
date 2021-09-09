@@ -50,4 +50,21 @@ defmodule Sig.DataCase do
       end)
     end)
   end
+
+  @doc """
+  A helper that drops a key from changeset changes.
+
+      iex> changeset = change(%Post{author: "bar"}, %{title: "foo"})
+      iex> changeset.changes
+      %{title: "foo"}
+      iex> changeset = drop_change(changeset, :title)
+      iex> changeset.changes
+      %{}
+
+  """
+  def drop_change(changeset, field) do
+    changes = Map.delete(changeset.changes, field)
+
+    %{changeset | changes: changes}
+  end
 end
