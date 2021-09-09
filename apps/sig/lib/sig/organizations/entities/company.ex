@@ -18,11 +18,11 @@ defmodule Sig.Organizations.Entities.Company do
     timestamps()
   end
 
-  @real_company_fields [:trade_name, :registration_name, :cnpj, :organization_id]
-  @virtual_company_fields [:trade_name, :organization_id]
+  @real_company_fields [:entity_id, :trade_name, :organization_id, :registration_name, :cnpj]
+  @virtual_company_fields [:entity_id, :trade_name, :organization_id]
 
-  def new_real_changeset(%__MODULE__{} = target, attrs) do
-    target
+  def create_real_changeset(attrs) do
+    %__MODULE__{}
     |> cast(attrs, @real_company_fields)
     |> validate_required(@real_company_fields)
     |> base_validations()
@@ -33,8 +33,8 @@ defmodule Sig.Organizations.Entities.Company do
     |> unique_constraint([:registration_name, :organization_id])
   end
 
-  def new_virtual_changeset(%__MODULE__{} = target, attrs) do
-    target
+  def create_virtual_changeset(attrs) do
+    %__MODULE__{}
     |> cast(attrs, @virtual_company_fields)
     |> validate_required(@virtual_company_fields)
     |> base_validations()
