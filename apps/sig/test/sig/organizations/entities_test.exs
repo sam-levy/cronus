@@ -5,23 +5,22 @@ defmodule Sig.Organizations.EntitiesTest do
   alias Sig.Organizations.Entities.{Entity, Individual}
   alias Sig.Organizations.Entities.Individual.Gender
 
-  describe "create_individual/1" do
-    test "creates an individual with and entity" do
+  describe "create_organization_individual/2" do
+    test "creates an individual with an entity" do
       organization = insert(:organization)
 
       attrs = %{
         name: Faker.Person.name(),
         cpf: BrazilianDocuments.generate_cpf(),
-        gender: random_enum_value(Gender),
-        organization_id: organization.id
+        gender: random_enum_value(Gender)
       }
 
-      assert {:ok, individual} = Entities.create_individual(attrs)
+      assert {:ok, individual} = Entities.create_organization_individual(organization.id, attrs)
 
       assert Repo.get_by(Individual,
                entity_id: individual.entity_id,
+               organization_id: organization.id,
                cpf: attrs.cpf,
-               organization_id: attrs.organization_id,
                name: attrs.name,
                gender: attrs.gender
              )
@@ -30,13 +29,14 @@ defmodule Sig.Organizations.EntitiesTest do
     end
 
     test "invalid attrs" do
-      assert {:error, changeset} = Entities.create_individual(%{})
+      organization = insert(:organization)
+
+      assert {:error, changeset} = Entities.create_organization_individual(organization.id, %{})
 
       assert errors_on(changeset) == %{
                cpf: ["can't be blank"],
                gender: ["can't be blank"],
-               name: ["can't be blank"],
-               organization_id: ["can't be blank"]
+               name: ["can't be blank"]
              }
     end
   end
@@ -73,6 +73,30 @@ defmodule Sig.Organizations.EntitiesTest do
       assert errors_on(changeset) == %{
                gender: ["is invalid"]
              }
+    end
+  end
+
+  describe "list_organization_individuals/1" do
+    test "list individuals from an organization" do
+      organization = insert(:organization)
+      individuals = insert_list(2, :individual, organization: organization)
+
+      assert return = Entities.list_organization_individuals(organization.id)
+
+      assert Enum.count(return) == 2
+
+      returned_ids = Enum.map(return, & &1.entity_id)
+
+      assert Enum.all?(individuals, &(&1.entity_id in returned_ids))
+    end
+
+    test "do not list individulas from a different organization" do
+      organization = insert(:organization)
+      insert(:individual, organization: organization)
+
+      another_organization = insert(:organization)
+
+      assert Entities.list_organization_individuals(another_organization.id) == []
     end
   end
 end
