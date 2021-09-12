@@ -59,6 +59,31 @@ defmodule SigLive do
     end
   end
 
+  def surface_live_view do
+    quote do
+      use Surface.LiveView,
+        layout: {SigLive.LayoutView, "live.html"}
+
+      unquote(view_helpers())
+    end
+  end
+
+  def surface_component do
+    quote do
+      use Surface.Component
+
+      unquote(view_helpers())
+    end
+  end
+
+  def surface_live_component do
+    quote do
+      use Surface.LiveComponent
+
+      unquote(view_helpers())
+    end
+  end
+
   def router do
     quote do
       use Phoenix.Router
@@ -86,6 +111,9 @@ defmodule SigLive do
 
       # Import basic rendering functionality (render, render_layout, etc)
       import Phoenix.View
+
+      # Import custom view helpers
+      import SigLive.ViewHelpers
 
       import SigLive.ErrorHelpers
       import SigLive.Gettext

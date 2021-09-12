@@ -1,7 +1,8 @@
-defmodule Sig.Organizations.Entities.Entity do
+defmodule Sig.Entities.Entity do
   use Sig.Schema
 
-  alias Sig.Organizations.Entities.{Company, Individual}
+  alias Sig.Entities.Companies.Company
+  alias Sig.Entities.Individuals.Individual
 
   schema "entities" do
     has_one :individual, Individual, on_replace: :update

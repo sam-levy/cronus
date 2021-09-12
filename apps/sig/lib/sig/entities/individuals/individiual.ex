@@ -1,7 +1,9 @@
-defmodule Sig.Organizations.Entities.Individual do
+defmodule Sig.Entities.Individuals.Individual do
   use Sig.Schema
 
-  alias Sig.Organizations.Entities.Entity
+  alias BrazilianDocuments.Types.CPF
+
+  alias Sig.Entities.Entity
   alias Sig.Organizations.Organization
 
   defenum(Gender, :gender, [:male, :female, :other])
@@ -11,7 +13,7 @@ defmodule Sig.Organizations.Entities.Individual do
     belongs_to :entity, Entity, primary_key: true
 
     field :name, :string
-    field :cpf, :string
+    field :cpf, CPF
     field :gender, Gender
 
     belongs_to :organization, Organization
@@ -22,13 +24,15 @@ defmodule Sig.Organizations.Entities.Individual do
   @create_fields [:entity_id, :name, :gender, :cpf, :organization_id]
   @update_fields [:name, :gender]
 
+  def cast_params(params) do
+    cast(%__MODULE__{}, params, @create_fields ++ @update_fields).changes
+  end
+
   def create_changeset(attrs) do
     %__MODULE__{}
     |> cast(attrs, @create_fields)
     |> validate_required(@create_fields)
     |> base_validations()
-    |> validate_cpf(:cpf)
-    |> validate_length(:cpf, max: 11)
     |> unique_constraint([:cpf, :organization_id])
   end
 

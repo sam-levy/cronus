@@ -1,7 +1,9 @@
-defmodule Sig.Organizations.Entities.Company do
+defmodule Sig.Entities.Companies.Company do
   use Sig.Schema
 
-  alias Sig.Organizations.Entities.Entity
+  alias BrazilianDocuments.Types.CNPJ
+
+  alias Sig.Entities.Entity
   alias Sig.Organizations.Organization
 
   @primary_key false
@@ -11,7 +13,7 @@ defmodule Sig.Organizations.Entities.Company do
     field :is_virtual, :boolean, default: false
     field :trade_name, :string
     field :registration_name, :string
-    field :cnpj, :string
+    field :cnpj, CNPJ
 
     belongs_to :organization, Organization
 
@@ -26,8 +28,6 @@ defmodule Sig.Organizations.Entities.Company do
     |> cast(attrs, @real_company_fields)
     |> validate_required(@real_company_fields)
     |> base_validations()
-    |> validate_cnpj(:cnpj)
-    |> validate_length(:cnpj, max: 14)
     |> validate_length(:registration_name, max: 255)
     |> unique_constraint([:cnpj, :organization_id])
     |> unique_constraint([:registration_name, :organization_id])

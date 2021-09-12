@@ -1,11 +1,31 @@
-# Script for populating the database. You can run it as:
-#
-#     mix run priv/repo/seeds.exs
-#
-# Inside the script, you can read and write to any of your
-# repositories directly:
-#
-#     Sig.Repo.insert!(%Sig.SomeSchema{})
-#
-# We recommend using the bang functions (`insert!`, `update!`
-# and so on) as they will fail if something goes wrong.
+alias Sig.Repo
+
+# Organization
+alias Sig.Organizations.Organization
+
+organization =
+  %{name: "Acme"}
+  |> Organization.changeset()
+  |> Repo.insert!()
+
+# Individuals
+alias Sig.Entities
+alias Sig.Entities.Individuals.Individual.Gender
+
+attrs = %{
+  name: "Samuel Levy",
+  cpf: "34110230829",
+  gender: :male
+}
+
+{:ok, samuel} = Entities.create_individual(organization.id, attrs)
+
+Enum.map(1..5, fn _ ->
+  attrs = %{
+    name: Faker.Name.first_name() <> " " <> Faker.Name.last_name(),
+    cpf: BrazilianDocuments.generate_cpf(),
+    gender: Enum.random(Gender.__valid_values__())
+  }
+
+  {:ok, _individual} = Entities.create_individual(organization.id, attrs)
+end)

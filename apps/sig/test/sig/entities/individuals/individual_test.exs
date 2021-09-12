@@ -1,8 +1,39 @@
-defmodule Sig.Organizations.Entities.IndividualTest do
+defmodule Sig.Entities.Individuals.IndividualTest do
   use Sig.DataCase
 
-  alias Sig.Organizations.Entities.Individual
-  alias Sig.Organizations.Entities.Individual.Gender
+  alias BrazilianDocuments.Types.CPF
+
+  alias Sig.Entities.Individuals.Individual
+  alias Sig.Entities.Individuals.Individual.Gender
+
+  describe "cast_params/1" do
+    test "cast params" do
+      params = %{
+        "cpf" => BrazilianDocuments.generate_cpf(),
+        "name" => Faker.Person.name(),
+        "gender" =>  random_enum_value(Gender)
+      }
+
+      assert Individual.cast_params(params) == %{
+        cpf: %CPF{number: params["cpf"]},
+        name: params["name"],
+        gender: String.to_atom(params["gender"]),
+      }
+    end
+
+    test "filters valid params" do
+      params = %{
+        "cnpj" => BrazilianDocuments.generate_cnpj(),
+        "name" => Faker.Person.name(),
+        "gender" =>  random_enum_value(Gender)
+      }
+
+      assert Individual.cast_params(params) == %{
+        name: params["name"],
+        gender: String.to_atom(params["gender"])
+      }
+    end
+  end
 
   describe "create_changeset/1" do
     test "valid attrs" do
@@ -21,7 +52,7 @@ defmodule Sig.Organizations.Entities.IndividualTest do
       assert changeset.changes == %{
                entity_id: attrs[:entity_id],
                name: attrs[:name],
-               cpf: attrs[:cpf],
+               cpf: %CPF{number: attrs[:cpf]},
                gender: String.to_atom(attrs[:gender]),
                organization_id: attrs[:organization_id]
              }
@@ -64,12 +95,10 @@ defmodule Sig.Organizations.Entities.IndividualTest do
     end
 
     test "string fields length greater than accepted" do
-      {:ok, formated_cpf} = BrazilianDocuments.generate_cpf() |> BrazilianDocuments.format_cpf()
-
       attrs = %{
         entity_id: UUID.generate(),
         name: String.duplicate("a", 256),
-        cpf: formated_cpf,
+        cpf: BrazilianDocuments.generate_cpf(),
         gender: random_enum_value(Gender),
         organization_id: UUID.generate()
       }
@@ -80,8 +109,25 @@ defmodule Sig.Organizations.Entities.IndividualTest do
 
       assert errors_on(changeset) == %{
                name: ["should be at most 255 character(s)"],
-               cpf: ["should be at most 11 character(s)"]
              }
+    end
+
+    test "filters cpf digit characters" do
+      cpf = BrazilianDocuments.generate_cpf()
+      {:ok, formatted_cpf} = BrazilianDocuments.format_cpf(cpf)
+
+      attrs = %{
+        entity_id: UUID.generate(),
+        name: Faker.Person.name(),
+        cpf: formatted_cpf,
+        gender: random_enum_value(Gender),
+        organization_id: UUID.generate()
+      }
+
+      assert changeset = Individual.create_changeset(attrs)
+
+      assert changeset.valid?
+      assert changeset.changes.cpf == %CPF{number: cpf}
     end
 
     test "invalid cpf" do
@@ -96,7 +142,7 @@ defmodule Sig.Organizations.Entities.IndividualTest do
       assert changeset = Individual.create_changeset(attrs)
 
       refute changeset.valid?
-      assert errors_on(changeset) == %{cpf: ["has invalid cpf"]}
+      assert errors_on(changeset) == %{cpf: ["is invalid"]}
     end
 
     test "[cpf, organization_id] unique constraint" do

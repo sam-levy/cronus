@@ -1,8 +1,8 @@
 defmodule Sig.Factories.IndividualFactory do
   defmacro __using__(_opts \\ []) do
     quote do
-      alias Sig.Organizations.Entities.Individual
-      alias Sig.Organizations.Entities.Individual.Gender
+      alias Sig.Entities.Individuals.Individual
+      alias Sig.Entities.Individuals.Individual.Gender
 
       def factory(:individual) do
         %Individual{

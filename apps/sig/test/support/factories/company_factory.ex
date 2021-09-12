@@ -1,7 +1,7 @@
 defmodule Sig.Factories.CompanyFactory do
   defmacro __using__(_opts \\ []) do
     quote do
-      alias Sig.Organizations.Entities.Company
+      alias Sig.Entities.Companies.Company
 
       def factory(:company) do
         %Company{

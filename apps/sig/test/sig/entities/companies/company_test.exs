@@ -1,7 +1,9 @@
-defmodule Sig.Organizations.Entities.CompanyTest do
+defmodule Sig.Entities.Companies.CompanyTest do
   use Sig.DataCase
 
-  alias Sig.Organizations.Entities.Company
+  alias BrazilianDocuments.Types.CNPJ
+
+  alias Sig.Entities.Companies.Company
 
   describe "create_real_changeset/1" do
     test "valid attrs" do
@@ -21,7 +23,7 @@ defmodule Sig.Organizations.Entities.CompanyTest do
                entity_id: attrs[:entity_id],
                trade_name: attrs[:trade_name],
                registration_name: attrs[:registration_name],
-               cnpj: attrs[:cnpj],
+               cnpj: %CNPJ{number: attrs[:cnpj]},
                organization_id: attrs[:organization_id]
              }
     end
@@ -63,14 +65,11 @@ defmodule Sig.Organizations.Entities.CompanyTest do
     end
 
     test "string fields length greater than accepted" do
-      {:ok, formated_cnpj} =
-        BrazilianDocuments.generate_cnpj() |> BrazilianDocuments.format_cnpj()
-
       attrs = %{
         entity_id: UUID.generate(),
         trade_name: String.duplicate("a", 256),
         registration_name: String.duplicate("a", 256),
-        cnpj: formated_cnpj,
+        cnpj: BrazilianDocuments.generate_cnpj(),
         organization_id: UUID.generate()
       }
 
@@ -80,9 +79,26 @@ defmodule Sig.Organizations.Entities.CompanyTest do
 
       assert errors_on(changeset) == %{
                trade_name: ["should be at most 255 character(s)"],
-               registration_name: ["should be at most 255 character(s)"],
-               cnpj: ["should be at most 14 character(s)"]
+               registration_name: ["should be at most 255 character(s)"]
              }
+    end
+
+    test "filters cnpj digit characters" do
+      cnpj = BrazilianDocuments.generate_cnpj()
+      {:ok, formatted_cnpj} = BrazilianDocuments.format_cnpj(cnpj)
+
+      attrs = %{
+        entity_id: UUID.generate(),
+        trade_name: Faker.Company.name(),
+        registration_name: Faker.Company.name(),
+        cnpj: formatted_cnpj,
+        organization_id: UUID.generate()
+      }
+
+      assert changeset = Company.create_real_changeset(attrs)
+
+      assert changeset.valid?
+      assert changeset.changes.cnpj == %CNPJ{number: cnpj}
     end
 
     test "invalid cnpj" do
@@ -97,7 +113,7 @@ defmodule Sig.Organizations.Entities.CompanyTest do
       assert changeset = Company.create_real_changeset(attrs)
 
       refute changeset.valid?
-      assert errors_on(changeset) == %{cnpj: ["has invalid cnpj"]}
+      assert errors_on(changeset) == %{cnpj: ["is invalid"]}
     end
 
     test "[cnpj, organization_id] unique constraint" do
