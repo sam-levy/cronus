@@ -1,13 +1,19 @@
 defmodule Sig.Accounts.User do
   use Ecto.Schema
+
   import Ecto.Changeset
-  @primary_key {:id, :binary_id, autogenerate: true}
-  @foreign_key_type :binary_id
+
+  alias Sig.Entities.Individuals.Individual
+
   schema "users" do
+    field :organization_id, :binary_id, primary_key: true
+
     field :email, :string
     field :password, :string, virtual: true, redact: true
     field :hashed_password, :string, redact: true
     field :confirmed_at, :naive_datetime
+
+    belongs_to :individual, Individual, references: :entity_id
 
     timestamps()
   end
