@@ -11,17 +11,16 @@ defmodule Sig.Entities.Individuals.Individual do
   @primary_key false
   schema "individuals" do
     belongs_to :entity, Entity, primary_key: true
+    belongs_to :organization, Organization, primary_key: true
 
     field :name, :string
     field :cpf, CPF
     field :gender, Gender
 
-    belongs_to :organization, Organization
-
     timestamps()
   end
 
-  @create_fields [:entity_id, :name, :gender, :cpf, :organization_id]
+  @create_fields [:entity_id, :organization_id, :name, :gender, :cpf]
   @update_fields [:name, :gender]
 
   def cast_params(params) do
@@ -32,7 +31,7 @@ defmodule Sig.Entities.Individuals.Individual do
     %__MODULE__{}
     |> cast(attrs, @create_fields)
     |> validate_required(@create_fields)
-    |> base_validations()
+    |> validate_length(:name, max: 255)
     |> unique_constraint([:cpf, :organization_id])
   end
 
@@ -40,13 +39,6 @@ defmodule Sig.Entities.Individuals.Individual do
     target
     |> cast(attrs, @update_fields)
     |> validate_required(@update_fields)
-    |> base_validations()
-  end
-
-  defp base_validations(changeset) do
-    changeset
     |> validate_length(:name, max: 255)
-    |> assoc_constraint(:entity)
-    |> assoc_constraint(:organization)
   end
 end

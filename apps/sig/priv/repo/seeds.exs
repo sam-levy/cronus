@@ -13,6 +13,7 @@ alias Sig.Entities
 alias Sig.Entities.Individuals.Individual.Gender
 
 attrs = %{
+  organization_id: organization.id,
   name: "Samuel Levy",
   cpf: "34110230829",
   gender: :male
@@ -22,7 +23,8 @@ attrs = %{
 
 Enum.map(1..5, fn _ ->
   attrs = %{
-    name: Faker.Name.first_name() <> " " <> Faker.Name.last_name(),
+    organization_id: organization.id,
+    name: Faker.Person.first_name() <> " " <> Faker.Person.last_name(),
     cpf: BrazilianDocuments.generate_cpf(),
     gender: Enum.random(Gender.__valid_values__())
   }

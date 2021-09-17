@@ -3,14 +3,15 @@ defmodule Sig.Repo.Migrations.CreateCompaniesTable do
 
   def change do
     create table(:companies, primary_key: false) do
-      add :entity_id, references(:entities), primary_key: true
+      add :entity_id, references(:entities, with: [organization_id: :organization_id]),
+        primary_key: true
+
+      add :organization_id, references(:organizations), primary_key: true
 
       add :is_virtual, :boolean, null: false, default: false
       add :trade_name, :string, null: false
       add :registration_name, :string
       add :cnpj, :string, size: 14
-
-      add :organization_id, references(:organizations), null: false
 
       timestamps()
     end

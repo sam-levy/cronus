@@ -9,19 +9,18 @@ defmodule Sig.Entities.Companies.Company do
   @primary_key false
   schema "companies" do
     belongs_to :entity, Entity, primary_key: true
+    belongs_to :organization, Organization, primary_key: true
 
     field :is_virtual, :boolean, default: false
     field :trade_name, :string
     field :registration_name, :string
     field :cnpj, CNPJ
 
-    belongs_to :organization, Organization
-
     timestamps()
   end
 
-  @real_company_fields [:entity_id, :trade_name, :organization_id, :registration_name, :cnpj]
-  @virtual_company_fields [:entity_id, :trade_name, :organization_id]
+  @real_company_fields [:entity_id, :organization_id, :trade_name, :registration_name, :cnpj]
+  @virtual_company_fields [:entity_id, :organization_id, :trade_name]
 
   def create_real_changeset(attrs) do
     %__MODULE__{}
@@ -45,7 +44,5 @@ defmodule Sig.Entities.Companies.Company do
     changeset
     |> validate_length(:trade_name, max: 255)
     |> unique_constraint([:trade_name, :organization_id])
-    |> assoc_constraint(:entity)
-    |> assoc_constraint(:organization)
   end
 end

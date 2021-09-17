@@ -1,8 +1,6 @@
 defmodule Sig.Entities.IndividualsTest do
   use Sig.DataCase
 
-  import Phoenix.ChannelTest
-
   alias BrazilianDocuments.Types.CPF
 
   alias Sig.Entities.Entity
@@ -17,14 +15,14 @@ defmodule Sig.Entities.IndividualsTest do
       params = %{
         "cpf" => BrazilianDocuments.generate_cpf(),
         "name" => Faker.Person.name(),
-        "gender" =>  random_enum_value(Gender)
+        "gender" => random_enum_value(Gender)
       }
 
       assert Individuals.cast_individual_params(params) == %{
-        cpf: %CPF{number: params["cpf"]},
-        name: params["name"],
-        gender: String.to_atom(params["gender"]),
-      }
+               cpf: %CPF{number: params["cpf"]},
+               name: params["name"],
+               gender: String.to_atom(params["gender"])
+             }
     end
   end
 
@@ -38,7 +36,7 @@ defmodule Sig.Entities.IndividualsTest do
   end
 
   describe "list_organization_individuals/1" do
-    test "list individuals from an organization" do
+    test "lists individuals from an organization" do
       organization = insert(:organization)
       individuals = insert_list(2, :individual, organization: organization)
 
@@ -51,7 +49,7 @@ defmodule Sig.Entities.IndividualsTest do
       assert Enum.all?(individuals, &(&1.entity_id in returned_ids))
     end
 
-    test "do not list individulas from a different organization" do
+    test "do not list individulas from another organization" do
       organization = insert(:organization)
       insert(:individual, organization: organization)
 
@@ -85,7 +83,8 @@ defmodule Sig.Entities.IndividualsTest do
 
       insert(:individual, cpf: cpf, organization: right_organization)
 
-      assert Individuals.fetch_individual_by_cpf(wrong_organization.id, cpf) == {:error, :not_found}
+      assert Individuals.fetch_individual_by_cpf(wrong_organization.id, cpf) ==
+               {:error, :not_found}
     end
 
     test "wrong cpf" do
@@ -96,12 +95,13 @@ defmodule Sig.Entities.IndividualsTest do
       _right_individual = insert(:individual, cpf: cpf, organization: right_organization)
       wrong_individual = insert(:individual, organization: wrong_organization)
 
-      assert Individuals.fetch_individual_by_cpf(right_organization.id, wrong_individual.cpf) == {:error, :not_found}
+      assert Individuals.fetch_individual_by_cpf(right_organization.id, wrong_individual.cpf) ==
+               {:error, :not_found}
     end
   end
 
   describe "create_individual/2" do
-    test "creates an individual with an entity" do
+    test "creates individual with entity" do
       organization = insert(:organization)
 
       attrs = %{
@@ -120,7 +120,10 @@ defmodule Sig.Entities.IndividualsTest do
                gender: attrs.gender
              )
 
-      assert Repo.get(Entity, individual.entity_id)
+      assert Repo.get_by(Entity,
+               id: individual.entity_id,
+               organization_id: organization.id
+             )
     end
 
     test "invalid attrs" do
@@ -148,8 +151,9 @@ defmodule Sig.Entities.IndividualsTest do
       assert {:ok, _return} = Individuals.update_individual(individual, attrs)
 
       assert Repo.get_by(Individual,
-               cpf: individual.cpf,
+               entity_id: individual.entity_id,
                organization_id: individual.organization_id,
+               cpf: individual.cpf,
                name: attrs.name,
                gender: attrs.gender
              )
@@ -178,7 +182,11 @@ defmodule Sig.Entities.IndividualsTest do
 
       assert Individuals.subscribe_to_organization_individuals(organization.id) == :ok
 
-      Phoenix.PubSub.broadcast(Sig.PubSub, topic, {:updated_organization_individuals, :individuals})
+      Phoenix.PubSub.broadcast(
+        Sig.PubSub,
+        topic,
+        {:updated_organization_individuals, :individuals}
+      )
 
       assert_receive {:updated_organization_individuals, :individuals}
     end
@@ -201,7 +209,8 @@ defmodule Sig.Entities.IndividualsTest do
       assert Enum.count(received_individuals) == 2
 
       Enum.each(individuals, fn individual ->
-        assert received_individual = Enum.find(received_individuals, & &1.entity_id == individual.entity_id)
+        assert received_individual =
+                 Enum.find(received_individuals, &(&1.entity_id == individual.entity_id))
 
         assert received_individual.organization_id == individual.organization_id
       end)

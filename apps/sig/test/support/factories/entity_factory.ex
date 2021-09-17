@@ -4,7 +4,9 @@ defmodule Sig.Factories.EntityFactory do
       alias Sig.Entities.Entity
 
       def factory(:entity) do
-        %Entity{}
+        %Entity{
+          organization: build(:organization)
+        }
       end
     end
   end
