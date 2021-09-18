@@ -11,18 +11,17 @@ defmodule SigLive.Router do
     plug :protect_from_forgery
     plug :put_secure_browser_headers
     plug :fetch_current_user
+    plug SigLive.Plugs.FetchOrg
   end
 
   pipeline :api do
     plug :accepts, ["json"]
   end
 
-  scope "/", SigLive do
-    pipe_through :browser
+  scope "/orgs/:org_id", SigLive do
+    pipe_through [:browser, :require_authenticated_user]
 
-    scope "/orgs/:org_id" do
-      live "/individuals", Individuals.Index, :individuals
-    end
+    live "/individuals", Individuals.Index, :individuals
   end
 
   if Mix.env() in [:dev, :test] do

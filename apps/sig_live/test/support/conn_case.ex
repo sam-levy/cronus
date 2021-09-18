@@ -23,7 +23,9 @@ defmodule SigLive.ConnCase do
       import Plug.Conn
       import Phoenix.ConnTest
       import SigLive.ConnCase
+      import Sig.Factory
 
+      alias Ecto.UUID
       alias SigLive.Router.Helpers, as: Routes
 
       # The default endpoint for testing
