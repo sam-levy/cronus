@@ -20,7 +20,7 @@ defmodule SigLive.Router do
   scope "/", SigLive do
     pipe_through :browser
 
-    scope "/organizations/:organization_id" do
+    scope "/orgs/:org_id" do
       live "/individuals", Individuals.Index, :individuals
     end
   end

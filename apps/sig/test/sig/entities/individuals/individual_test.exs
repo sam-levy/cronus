@@ -7,28 +7,42 @@ defmodule Sig.Entities.Individuals.IndividualTest do
   alias Sig.Entities.Individuals.Individual.Gender
 
   describe "individuals table constraints" do
-    test "entity foreign_key_constraint" do
-      organization = insert(:organization)
+    test "entity_id not_null_violation" do
+      org = insert(:org)
 
       individual = %Individual{
-        entity_id: UUID.generate(),
-        organization_id: organization.id,
+        org_id: org.id,
         name: Faker.Person.name(),
         cpf: BrazilianDocuments.generate_cpf(),
         gender: random_enum_value(Gender)
       }
 
-      assert_raise Ecto.ConstraintError,
-                   ~r/individuals_entity_id_fkey \(foreign_key_constraint\)/,
+      assert_raise Postgrex.Error,
+                   ~r/\(not_null_violation\) null value in column "entity_id" of relation "individuals" violates not-null constraint/,
                    fn -> Repo.insert(individual) end
     end
 
-    test "organization foreign_key_constraint" do
+    test "org_id not_null_violation" do
       entity = insert(:entity)
 
       individual = %Individual{
         entity_id: entity.id,
-        organization_id: UUID.generate(),
+        name: Faker.Person.name(),
+        cpf: BrazilianDocuments.generate_cpf(),
+        gender: random_enum_value(Gender)
+      }
+
+      assert_raise Postgrex.Error,
+                   ~r/\(not_null_violation\) null value in column "org_id" of relation "individuals" violates not-null constraint/,
+                   fn -> Repo.insert(individual) end
+    end
+
+    test "entity_id foreign_key_constraint" do
+      org = insert(:org)
+
+      individual = %Individual{
+        entity_id: UUID.generate(),
+        org_id: org.id,
         name: Faker.Person.name(),
         cpf: BrazilianDocuments.generate_cpf(),
         gender: random_enum_value(Gender)
@@ -39,24 +53,40 @@ defmodule Sig.Entities.Individuals.IndividualTest do
                    fn -> Repo.insert(individual) end
     end
 
-    test "[cpf, organization_id] unique_constraint" do
-      cpf = BrazilianDocuments.generate_cpf()
-
-      organization = insert(:organization)
-      insert(:individual, organization: organization, cpf: cpf)
-
-      entity = insert(:entity, organization: organization)
+    test "org_id foreign_key_constraint" do
+      entity = insert(:entity)
 
       individual = %Individual{
         entity_id: entity.id,
-        organization_id: organization.id,
+        org_id: UUID.generate(),
+        name: Faker.Person.name(),
+        cpf: BrazilianDocuments.generate_cpf(),
+        gender: random_enum_value(Gender)
+      }
+
+      assert_raise Ecto.ConstraintError,
+                   ~r/individuals_entity_id_fkey \(foreign_key_constraint\)/,
+                   fn -> Repo.insert(individual) end
+    end
+
+    test "[cpf, org_id] unique_constraint" do
+      cpf = BrazilianDocuments.generate_cpf()
+
+      org = insert(:org)
+      insert(:individual, org: org, cpf: cpf)
+
+      entity = insert(:entity, org: org)
+
+      individual = %Individual{
+        entity_id: entity.id,
+        org_id: org.id,
         name: Faker.Person.name(),
         cpf: cpf,
         gender: random_enum_value(Gender)
       }
 
       assert_raise Ecto.ConstraintError,
-                   ~r/individuals_cpf_organization_id_index \(unique_constraint\)/,
+                   ~r/individuals_cpf_org_id_index \(unique_constraint\)/,
                    fn -> Repo.insert(individual) end
     end
   end
@@ -94,7 +124,7 @@ defmodule Sig.Entities.Individuals.IndividualTest do
     test "valid attrs" do
       attrs = %{
         entity_id: UUID.generate(),
-        organization_id: UUID.generate(),
+        org_id: UUID.generate(),
         name: Faker.Person.name(),
         cpf: BrazilianDocuments.generate_cpf(),
         gender: random_enum_value(Gender)
@@ -106,7 +136,7 @@ defmodule Sig.Entities.Individuals.IndividualTest do
 
       assert changeset.changes == %{
                entity_id: attrs[:entity_id],
-               organization_id: attrs[:organization_id],
+               org_id: attrs[:org_id],
                name: attrs[:name],
                cpf: %CPF{number: attrs[:cpf]},
                gender: String.to_atom(attrs[:gender])
@@ -120,7 +150,7 @@ defmodule Sig.Entities.Individuals.IndividualTest do
 
       assert errors_on(changeset) == %{
                entity_id: ["can't be blank"],
-               organization_id: ["can't be blank"],
+               org_id: ["can't be blank"],
                name: ["can't be blank"],
                cpf: ["can't be blank"],
                gender: ["can't be blank"]
@@ -130,7 +160,7 @@ defmodule Sig.Entities.Individuals.IndividualTest do
     test "invalid attrs types" do
       attrs = %{
         entity_id: :invalid,
-        organization_id: :invalid,
+        org_id: :invalid,
         name: :invalid,
         cpf: :invalid,
         gender: 1
@@ -142,7 +172,7 @@ defmodule Sig.Entities.Individuals.IndividualTest do
 
       assert errors_on(changeset) == %{
                entity_id: ["is invalid"],
-               organization_id: ["is invalid"],
+               org_id: ["is invalid"],
                name: ["is invalid"],
                cpf: ["is invalid"],
                gender: ["is invalid"]
@@ -152,7 +182,7 @@ defmodule Sig.Entities.Individuals.IndividualTest do
     test "string fields length greater than 255 chars" do
       attrs = %{
         entity_id: UUID.generate(),
-        organization_id: UUID.generate(),
+        org_id: UUID.generate(),
         name: String.duplicate("a", 256),
         cpf: BrazilianDocuments.generate_cpf(),
         gender: random_enum_value(Gender)
@@ -173,7 +203,7 @@ defmodule Sig.Entities.Individuals.IndividualTest do
 
       attrs = %{
         entity_id: UUID.generate(),
-        organization_id: UUID.generate(),
+        org_id: UUID.generate(),
         name: Faker.Person.name(),
         cpf: formatted_cpf,
         gender: random_enum_value(Gender)
@@ -188,7 +218,7 @@ defmodule Sig.Entities.Individuals.IndividualTest do
     test "invalid cpf" do
       attrs = %{
         entity_id: UUID.generate(),
-        organization_id: UUID.generate(),
+        org_id: UUID.generate(),
         name: Faker.Person.name(),
         cpf: "00887718061",
         gender: random_enum_value(Gender)
@@ -200,17 +230,17 @@ defmodule Sig.Entities.Individuals.IndividualTest do
       assert errors_on(changeset) == %{cpf: ["is invalid"]}
     end
 
-    test "[cpf, organization_id] unique constraint" do
+    test "[cpf, org_id] unique constraint" do
       cpf = BrazilianDocuments.generate_cpf()
 
-      organization = insert(:organization)
-      insert(:individual, organization: organization, cpf: cpf)
+      org = insert(:org)
+      insert(:individual, org: org, cpf: cpf)
 
-      entity = insert(:entity, organization: organization)
+      entity = insert(:entity, org: org)
 
       attrs = %{
         entity_id: entity.id,
-        organization_id: organization.id,
+        org_id: org.id,
         name: Faker.Person.name(),
         cpf: cpf,
         gender: random_enum_value(Gender)
@@ -284,7 +314,7 @@ defmodule Sig.Entities.Individuals.IndividualTest do
         name: "New Name",
         cpf: BrazilianDocuments.generate_cpf(),
         gender: :other,
-        organization_id: UUID.generate()
+        org_id: UUID.generate()
       }
 
       assert changeset = Individual.update_changeset(individual, attrs)

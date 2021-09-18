@@ -4,12 +4,12 @@ defmodule Sig.Factories.CompanyFactory do
       alias Sig.Entities.Companies.Company
 
       def factory(:company, attrs) do
-        organization = Keyword.get(attrs, :organization, insert(:organization))
-        entity = Keyword.get(attrs, :entity, insert(:entity, organization: organization))
+        org = Keyword.get(attrs, :org, insert(:org))
+        entity = Keyword.get(attrs, :entity, insert(:entity, org: org))
 
         %Company{
           entity: entity,
-          organization: organization,
+          org: org,
           trade_name: Faker.Company.name(),
           registration_name: Faker.Company.name(),
           cnpj: BrazilianDocuments.generate_cnpj()

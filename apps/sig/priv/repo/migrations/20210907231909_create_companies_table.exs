@@ -3,10 +3,8 @@ defmodule Sig.Repo.Migrations.CreateCompaniesTable do
 
   def change do
     create table(:companies, primary_key: false) do
-      add :entity_id, references(:entities, with: [organization_id: :organization_id]),
-        primary_key: true
-
-      add :organization_id, references(:organizations), primary_key: true
+      add :entity_id, references(:entities, with: [org_id: :org_id]), primary_key: true
+      add :org_id, references(:orgs), primary_key: true
 
       add :is_virtual, :boolean, null: false, default: false
       add :trade_name, :string, null: false
@@ -16,9 +14,9 @@ defmodule Sig.Repo.Migrations.CreateCompaniesTable do
       timestamps()
     end
 
-    create unique_index(:companies, [:trade_name, :organization_id])
-    create unique_index(:companies, [:registration_name, :organization_id])
-    create unique_index(:companies, [:cnpj, :organization_id])
+    create unique_index(:companies, [:trade_name, :org_id])
+    create unique_index(:companies, [:registration_name, :org_id])
+    create unique_index(:companies, [:cnpj, :org_id])
 
     create constraint(:companies, :companies_registration_name_and_cnpj_required_if_not_virtual,
              check: """

@@ -5,12 +5,12 @@ defmodule Sig.Factories.IndividualFactory do
       alias Sig.Entities.Individuals.Individual.Gender
 
       def factory(:individual, attrs) do
-        organization = Keyword.get(attrs, :organization, insert(:organization))
-        entity = Keyword.get(attrs, :entity, insert(:entity, organization: organization))
+        org = Keyword.get(attrs, :org, insert(:org))
+        entity = Keyword.get(attrs, :entity, insert(:entity, org: org))
 
         %Individual{
           entity: entity,
-          organization: organization,
+          org: org,
           name: sequence(&"individual_name#{&1}"),
           cpf: BrazilianDocuments.generate_cpf(),
           gender: random_enum_value(Gender)

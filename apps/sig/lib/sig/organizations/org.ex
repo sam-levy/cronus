@@ -1,7 +1,7 @@
-defmodule Sig.Organizations.Organization do
+defmodule Sig.Organizations.Org do
   use Sig.Schema
 
-  schema "organizations" do
+  schema "orgs" do
     field :name, :string
 
     timestamps()

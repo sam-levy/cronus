@@ -2,7 +2,7 @@ defmodule Sig.Factory do
   use Sig.Factories.CompanyFactory
   use Sig.Factories.EntityFactory
   use Sig.Factories.IndividualFactory
-  use Sig.Factories.OrganizationFactory
+  use Sig.Factories.OrgFactory
 
   def build(factory_name, attributes \\ []) do
     factory_name |> factory(attributes) |> struct(attributes)

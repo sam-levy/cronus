@@ -6,10 +6,8 @@ defmodule Sig.Repo.Migrations.CreateIndividualsTable do
     create_type(:gender, [:male, :female, :other])
 
     create table(:individuals, primary_key: false) do
-      add :entity_id, references(:entities, with: [organization_id: :organization_id]),
-        primary_key: true
-
-      add :organization_id, references(:organizations), primary_key: true
+      add :entity_id, references(:entities, with: [org_id: :org_id]), primary_key: true
+      add :org_id, references(:orgs), primary_key: true
 
       add :name, :string, null: false
       add :cpf, :string, size: 11, null: false
@@ -18,6 +16,6 @@ defmodule Sig.Repo.Migrations.CreateIndividualsTable do
       timestamps()
     end
 
-    create unique_index(:individuals, [:cpf, :organization_id])
+    create unique_index(:individuals, [:cpf, :org_id])
   end
 end

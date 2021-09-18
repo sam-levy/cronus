@@ -1,8 +1,8 @@
-defmodule Sig.Repo.Migrations.CreateOrganizationsTable do
+defmodule Sig.Repo.Migrations.CreateOrgsTable do
   use Ecto.Migration
 
   def change do
-    create table(:organizations) do
+    create table(:orgs) do
       add :name, :string, null: false
 
       timestamps()

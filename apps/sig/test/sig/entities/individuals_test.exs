@@ -35,12 +35,12 @@ defmodule Sig.Entities.IndividualsTest do
     end
   end
 
-  describe "list_organization_individuals/1" do
-    test "lists individuals from an organization" do
-      organization = insert(:organization)
-      individuals = insert_list(2, :individual, organization: organization)
+  describe "list_individuals/1" do
+    test "lists individuals from an org" do
+      org = insert(:org)
+      individuals = insert_list(2, :individual, org: org)
 
-      assert return = Individuals.list_organization_individuals(organization.id)
+      assert return = Individuals.list_individuals(org.id)
 
       assert Enum.count(return) == 2
 
@@ -49,60 +49,60 @@ defmodule Sig.Entities.IndividualsTest do
       assert Enum.all?(individuals, &(&1.entity_id in returned_ids))
     end
 
-    test "do not list individulas from another organization" do
-      organization = insert(:organization)
-      insert(:individual, organization: organization)
+    test "do not list individuals from another org" do
+      org = insert(:org)
+      insert(:individual, org: org)
 
-      another_organization = insert(:organization)
+      another_org = insert(:org)
 
-      assert Individuals.list_organization_individuals(another_organization.id) == []
+      assert Individuals.list_individuals(another_org.id) == []
     end
   end
 
   describe "fetch_individual_by_cpf/2" do
     test "fetches individual by cpf" do
       cpf = BrazilianDocuments.generate_cpf()
-      organization = insert(:organization)
+      org = insert(:org)
 
-      individual = insert(:individual, cpf: cpf, organization: organization)
+      individual = insert(:individual, cpf: cpf, org: org)
 
-      insert(:individual, organization: organization)
+      insert(:individual, org: org)
       insert(:individual)
 
-      assert {:ok, return} = Individuals.fetch_individual_by_cpf(organization.id, cpf)
+      assert {:ok, return} = Individuals.fetch_individual_by_cpf(org.id, cpf)
 
       assert return.entity_id == individual.entity_id
       assert return.cpf == %CPF{number: individual.cpf}
-      assert return.organization_id == individual.organization.id
+      assert return.org_id == individual.org.id
     end
 
-    test "wrong organization" do
+    test "do not fetch individual from another org" do
       cpf = BrazilianDocuments.generate_cpf()
-      right_organization = insert(:organization)
-      wrong_organization = insert(:organization)
+      right_org = insert(:org)
+      wrong_org = insert(:org)
 
-      insert(:individual, cpf: cpf, organization: right_organization)
+      insert(:individual, cpf: cpf, org: right_org)
 
-      assert Individuals.fetch_individual_by_cpf(wrong_organization.id, cpf) ==
+      assert Individuals.fetch_individual_by_cpf(wrong_org.id, cpf) ==
                {:error, :not_found}
     end
 
-    test "wrong cpf" do
+    test "do not fetch individual with another cpf" do
       cpf = BrazilianDocuments.generate_cpf()
-      right_organization = insert(:organization)
-      wrong_organization = insert(:organization)
+      right_org = insert(:org)
+      wrong_org = insert(:org)
 
-      _right_individual = insert(:individual, cpf: cpf, organization: right_organization)
-      wrong_individual = insert(:individual, organization: wrong_organization)
+      _right_individual = insert(:individual, cpf: cpf, org: right_org)
+      wrong_individual = insert(:individual, org: wrong_org)
 
-      assert Individuals.fetch_individual_by_cpf(right_organization.id, wrong_individual.cpf) ==
+      assert Individuals.fetch_individual_by_cpf(right_org.id, wrong_individual.cpf) ==
                {:error, :not_found}
     end
   end
 
   describe "create_individual/2" do
     test "creates individual with entity" do
-      organization = insert(:organization)
+      org = insert(:org)
 
       attrs = %{
         name: Faker.Person.name(),
@@ -110,11 +110,11 @@ defmodule Sig.Entities.IndividualsTest do
         gender: random_enum_value(Gender)
       }
 
-      assert {:ok, individual} = Individuals.create_individual(organization.id, attrs)
+      assert {:ok, individual} = Individuals.create_individual(org.id, attrs)
 
       assert Repo.get_by(Individual,
                entity_id: individual.entity_id,
-               organization_id: organization.id,
+               org_id: org.id,
                cpf: attrs.cpf,
                name: attrs.name,
                gender: attrs.gender
@@ -122,20 +122,32 @@ defmodule Sig.Entities.IndividualsTest do
 
       assert Repo.get_by(Entity,
                id: individual.entity_id,
-               organization_id: organization.id
+               org_id: org.id
              )
     end
 
     test "invalid attrs" do
-      organization = insert(:organization)
+      org = insert(:org)
 
-      assert {:error, changeset} = Individuals.create_individual(organization.id, %{})
+      assert {:error, changeset} = Individuals.create_individual(org.id, %{})
 
       assert errors_on(changeset) == %{
                cpf: ["can't be blank"],
                gender: ["can't be blank"],
                name: ["can't be blank"]
              }
+    end
+
+    test "raises if org does not exist" do
+      attrs = %{
+        name: Faker.Person.name(),
+        cpf: BrazilianDocuments.generate_cpf(),
+        gender: random_enum_value(Gender)
+      }
+
+      assert_raise Ecto.ConstraintError,
+      ~r/entities_org_id_fkey \(foreign_key_constraint\)/,
+      fn -> Individuals.create_individual(UUID.generate(), attrs) end
     end
   end
 
@@ -152,7 +164,7 @@ defmodule Sig.Entities.IndividualsTest do
 
       assert Repo.get_by(Individual,
                entity_id: individual.entity_id,
-               organization_id: individual.organization_id,
+               org_id: individual.org_id,
                cpf: individual.cpf,
                name: attrs.name,
                gender: attrs.gender
@@ -175,36 +187,36 @@ defmodule Sig.Entities.IndividualsTest do
     end
   end
 
-  describe "subscribe_to_organization_individuals/1" do
-    test "subscribes to organization individuals topic" do
-      organization = insert(:organization)
-      topic = "organization_id:" <> organization.id <> ":individuals"
+  describe "subscribe_to_individuals/1" do
+    test "subscribes to individuals topic" do
+      org = insert(:org)
+      topic = "org_id:" <> org.id <> ":individuals"
 
-      assert Individuals.subscribe_to_organization_individuals(organization.id) == :ok
+      assert Individuals.subscribe_to_individuals(org.id) == :ok
 
       Phoenix.PubSub.broadcast(
         Sig.PubSub,
         topic,
-        {:updated_organization_individuals, :individuals}
+        {:updated_org_individuals, :individuals}
       )
 
-      assert_receive {:updated_organization_individuals, :individuals}
+      assert_receive {:updated_org_individuals, :individuals}
     end
   end
 
-  describe "broadcast_organization_individuals/1" do
+  describe "broadcast_individuals/1" do
     test "broadcasts individuals from an organization" do
-      organization = insert(:organization)
-      individuals = insert_list(2, :individual, organization: organization)
+      org = insert(:org)
+      individuals = insert_list(2, :individual, org: org)
       _wrong_individuals = insert_list(2, :individual)
 
-      topic = "organization_id:" <> organization.id <> ":individuals"
+      topic = "org_id:" <> org.id <> ":individuals"
 
       @endpoint.subscribe(topic)
 
-      assert Individuals.broadcast_organization_individuals(organization.id) == :ok
+      assert Individuals.broadcast_individuals(org.id) == :ok
 
-      assert_receive {:updated_organization_individuals, received_individuals}
+      assert_receive {:updated_org_individuals, received_individuals}
 
       assert Enum.count(received_individuals) == 2
 
@@ -212,7 +224,7 @@ defmodule Sig.Entities.IndividualsTest do
         assert received_individual =
                  Enum.find(received_individuals, &(&1.entity_id == individual.entity_id))
 
-        assert received_individual.organization_id == individual.organization_id
+        assert received_individual.org_id == individual.org_id
       end)
 
       @endpoint.unsubscribe(topic)

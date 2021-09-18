@@ -6,7 +6,7 @@ defmodule Sig.Accounts.User do
   alias Sig.Entities.Individuals.Individual
 
   schema "users" do
-    field :organization_id, :binary_id, primary_key: true
+    field :org_id, :binary_id, primary_key: true
 
     field :email, :string
     field :password, :string, virtual: true, redact: true

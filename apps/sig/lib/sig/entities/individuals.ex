@@ -15,13 +15,13 @@ defmodule Sig.Entities.Individuals do
     Individual.create_changeset(attrs)
   end
 
-  def list_organization_individuals(organization_id) do
+  def list_individuals(org_id) do
     Individual
-    |> where(organization_id: ^organization_id)
+    |> where(org_id: ^org_id)
     |> Repo.all()
   end
 
-  def fetch_individual_by_cpf(organization_id, cpf) do
+  def fetch_individual_by_cpf(org_id, cpf) do
     cpf =
       cpf
       |> String.trim()
@@ -29,7 +29,7 @@ defmodule Sig.Entities.Individuals do
 
     if BrazilianDocuments.valid_cpf?(cpf) do
       Individual
-      |> where(organization_id: ^organization_id)
+      |> where(org_id: ^org_id)
       |> where(cpf: ^cpf)
       |> Repo.one()
       |> as_result()
@@ -38,13 +38,13 @@ defmodule Sig.Entities.Individuals do
     end
   end
 
-  def create_individual(organization_id, attrs) do
+  def create_individual(org_id, attrs) do
     Multi.new()
-    |> Multi.insert(:create_entity, %Entity{organization_id: organization_id})
+    |> Multi.insert(:create_entity, %Entity{org_id: org_id})
     |> Multi.insert(:create_individual, fn %{create_entity: entity} ->
       attrs
-      |> Map.put(:organization_id, organization_id)
       |> Map.put(:entity_id, entity.id)
+      |> Map.put(:org_id, org_id)
       |> Individual.create_changeset()
     end)
     |> Repo.transaction()
@@ -57,19 +57,19 @@ defmodule Sig.Entities.Individuals do
     |> Repo.update()
   end
 
-  def subscribe_to_organization_individuals(organization_id) do
-    Phoenix.PubSub.subscribe(Sig.PubSub, topic(organization_id))
+  def subscribe_to_individuals(org_id) do
+    Phoenix.PubSub.subscribe(Sig.PubSub, topic(org_id))
   end
 
-  def broadcast_organization_individuals(organization_id) do
+  def broadcast_individuals(org_id) do
     Phoenix.PubSub.broadcast(
       Sig.PubSub,
-      topic(organization_id),
-      {:updated_organization_individuals, list_organization_individuals(organization_id)}
+      topic(org_id),
+      {:updated_org_individuals, list_individuals(org_id)}
     )
   end
 
-  defp topic(organization_id), do: "organization_id:" <> organization_id <> ":individuals"
+  defp topic(org_id), do: "org_id:" <> org_id <> ":individuals"
 
   defp as_result(%Individual{} = individual), do: {:ok, individual}
   defp as_result({:ok, %{create_individual: individual}}), do: {:ok, individual}

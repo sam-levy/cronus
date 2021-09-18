@@ -6,12 +6,42 @@ defmodule Sig.Entities.Companies.CompanyTest do
   alias Sig.Entities.Companies.Company
 
   describe "companies table constraints" do
-    test "entity foreign_key_constraint" do
-      organization = insert(:organization)
+    test "entity_id not_null_violation" do
+      org = insert(:org)
+
+      company = %Company{
+        org_id: org.id,
+        trade_name: Faker.Company.name(),
+        registration_name: Faker.Company.name(),
+        cnpj: BrazilianDocuments.generate_cnpj()
+      }
+
+      assert_raise Postgrex.Error,
+                   ~r/\(not_null_violation\) null value in column "entity_id" of relation "companies" violates not-null constraint/,
+                   fn -> Repo.insert(company) end
+    end
+
+    test "org_id not_null_violation" do
+      entity = insert(:entity)
+
+      company = %Company{
+        entity_id: entity.id,
+        trade_name: Faker.Company.name(),
+        registration_name: Faker.Company.name(),
+        cnpj: BrazilianDocuments.generate_cnpj()
+      }
+
+      assert_raise Postgrex.Error,
+                   ~r/\(not_null_violation\) null value in column "org_id" of relation "companies" violates not-null constraint/,
+                   fn -> Repo.insert(company) end
+    end
+
+    test "entity_id foreign_key_constraint" do
+      org = insert(:org)
 
       company = %Company{
         entity_id: UUID.generate(),
-        organization_id: organization.id,
+        org_id: org.id,
         trade_name: Faker.Company.name(),
         registration_name: Faker.Company.name(),
         cnpj: BrazilianDocuments.generate_cnpj()
@@ -22,12 +52,12 @@ defmodule Sig.Entities.Companies.CompanyTest do
                    fn -> Repo.insert(company) end
     end
 
-    test "organization foreign_key_constraint" do
+    test "org_id foreign_key_constraint" do
       entity = insert(:entity)
 
       company = %Company{
         entity_id: entity.id,
-        organization_id: UUID.generate(),
+        org_id: UUID.generate(),
         trade_name: Faker.Company.name(),
         registration_name: Faker.Company.name(),
         cnpj: BrazilianDocuments.generate_cnpj()
@@ -39,13 +69,13 @@ defmodule Sig.Entities.Companies.CompanyTest do
     end
 
     test "registration_name not null constraint when is_virtual is false" do
-      organization = insert(:organization)
-      entity = insert(:entity, organization: organization)
+      org = insert(:org)
+      entity = insert(:entity, org: org)
 
       company = %Company{
         is_virtual: false,
         entity_id: entity.id,
-        organization_id: organization.id,
+        org_id: org.id,
         trade_name: Faker.Company.name(),
         cnpj: BrazilianDocuments.generate_cnpj()
       }
@@ -56,13 +86,13 @@ defmodule Sig.Entities.Companies.CompanyTest do
     end
 
     test "cnpj not null constraint when is_virtual is false" do
-      organization = insert(:organization)
-      entity = insert(:entity, organization: organization)
+      org = insert(:org)
+      entity = insert(:entity, org: org)
 
       company = %Company{
         is_virtual: false,
         entity_id: entity.id,
-        organization_id: organization.id,
+        org_id: org.id,
         trade_name: Faker.Company.name(),
         registration_name: Faker.Company.name()
       }
@@ -72,66 +102,66 @@ defmodule Sig.Entities.Companies.CompanyTest do
                    fn -> Repo.insert(company) end
     end
 
-    test "[registration_name, organization_id] unique_constraint" do
+    test "[registration_name, org_id] unique_constraint" do
       registration_name = Faker.Company.name()
 
-      organization = insert(:organization)
-      insert(:company, registration_name: registration_name, organization: organization)
+      org = insert(:org)
+      insert(:company, registration_name: registration_name, org: org)
 
-      entity = insert(:entity, organization: organization)
+      entity = insert(:entity, org: org)
 
       company = %Company{
         entity_id: entity.id,
-        organization_id: organization.id,
+        org_id: org.id,
         trade_name: Faker.Company.name(),
         registration_name: registration_name,
         cnpj: BrazilianDocuments.generate_cnpj()
       }
 
       assert_raise Ecto.ConstraintError,
-                   ~r/companies_registration_name_organization_id_index \(unique_constraint\)/,
+                   ~r/companies_registration_name_org_id_index \(unique_constraint\)/,
                    fn -> Repo.insert(company) end
     end
 
-    test "[trade_name, organization_id] unique_constraint" do
+    test "[trade_name, org_id] unique_constraint" do
       trade_name = Faker.Company.name()
 
-      organization = insert(:organization)
-      insert(:company, trade_name: trade_name, organization: organization)
+      org = insert(:org)
+      insert(:company, trade_name: trade_name, org: org)
 
-      entity = insert(:entity, organization: organization)
+      entity = insert(:entity, org: org)
 
       company = %Company{
         entity_id: entity.id,
-        organization_id: organization.id,
+        org_id: org.id,
         trade_name: trade_name,
         registration_name: Faker.Company.name(),
         cnpj: BrazilianDocuments.generate_cnpj()
       }
 
       assert_raise Ecto.ConstraintError,
-                   ~r/companies_trade_name_organization_id_index \(unique_constraint\)/,
+                   ~r/companies_trade_name_org_id_index \(unique_constraint\)/,
                    fn -> Repo.insert(company) end
     end
 
-    test "[cnpj, organization_id] unique_constraint" do
+    test "[cnpj, org_id] unique_constraint" do
       cnpj = BrazilianDocuments.generate_cnpj()
 
-      organization = insert(:organization)
-      insert(:company, cnpj: cnpj, organization: organization)
+      org = insert(:org)
+      insert(:company, cnpj: cnpj, org: org)
 
-      entity = insert(:entity, organization: organization)
+      entity = insert(:entity, org: org)
 
       company = %Company{
         entity_id: entity.id,
-        organization_id: organization.id,
+        org_id: org.id,
         trade_name: Faker.Company.name(),
         registration_name: Faker.Company.name(),
         cnpj: cnpj
       }
 
       assert_raise Ecto.ConstraintError,
-                   ~r/companies_cnpj_organization_id_index \(unique_constraint\)/,
+                   ~r/companies_cnpj_org_id_index \(unique_constraint\)/,
                    fn -> Repo.insert(company) end
     end
   end
@@ -140,7 +170,7 @@ defmodule Sig.Entities.Companies.CompanyTest do
     test "valid attrs" do
       attrs = %{
         entity_id: UUID.generate(),
-        organization_id: UUID.generate(),
+        org_id: UUID.generate(),
         trade_name: Faker.Company.name(),
         registration_name: Faker.Company.name(),
         cnpj: BrazilianDocuments.generate_cnpj()
@@ -152,7 +182,7 @@ defmodule Sig.Entities.Companies.CompanyTest do
 
       assert changeset.changes == %{
                entity_id: attrs[:entity_id],
-               organization_id: attrs[:organization_id],
+               org_id: attrs[:org_id],
                trade_name: attrs[:trade_name],
                registration_name: attrs[:registration_name],
                cnpj: %CNPJ{number: attrs[:cnpj]}
@@ -166,7 +196,7 @@ defmodule Sig.Entities.Companies.CompanyTest do
 
       assert errors_on(changeset) == %{
                entity_id: ["can't be blank"],
-               organization_id: ["can't be blank"],
+               org_id: ["can't be blank"],
                trade_name: ["can't be blank"],
                registration_name: ["can't be blank"],
                cnpj: ["can't be blank"]
@@ -176,7 +206,7 @@ defmodule Sig.Entities.Companies.CompanyTest do
     test "invalid attrs types" do
       attrs = %{
         entity_id: :invalid,
-        organization_id: :invalid,
+        org_id: :invalid,
         trade_name: :invalid,
         registration_name: :invalid,
         cnpj: :invalid
@@ -188,7 +218,7 @@ defmodule Sig.Entities.Companies.CompanyTest do
 
       assert errors_on(changeset) == %{
                entity_id: ["is invalid"],
-               organization_id: ["is invalid"],
+               org_id: ["is invalid"],
                trade_name: ["is invalid"],
                registration_name: ["is invalid"],
                cnpj: ["is invalid"]
@@ -198,7 +228,7 @@ defmodule Sig.Entities.Companies.CompanyTest do
     test "string fields length greater than 255 chars" do
       attrs = %{
         entity_id: UUID.generate(),
-        organization_id: UUID.generate(),
+        org_id: UUID.generate(),
         trade_name: String.duplicate("a", 256),
         registration_name: String.duplicate("a", 256),
         cnpj: BrazilianDocuments.generate_cnpj()
@@ -220,7 +250,7 @@ defmodule Sig.Entities.Companies.CompanyTest do
 
       attrs = %{
         entity_id: UUID.generate(),
-        organization_id: UUID.generate(),
+        org_id: UUID.generate(),
         trade_name: Faker.Company.name(),
         registration_name: Faker.Company.name(),
         cnpj: formatted_cnpj
@@ -235,7 +265,7 @@ defmodule Sig.Entities.Companies.CompanyTest do
     test "invalid cnpj" do
       attrs = %{
         entity_id: UUID.generate(),
-        organization_id: UUID.generate(),
+        org_id: UUID.generate(),
         trade_name: Faker.Company.name(),
         registration_name: Faker.Company.name(),
         cnpj: "47689156000196"
@@ -247,17 +277,17 @@ defmodule Sig.Entities.Companies.CompanyTest do
       assert errors_on(changeset) == %{cnpj: ["is invalid"]}
     end
 
-    test "[registration_name, organization_id] unique constraint" do
+    test "[registration_name, org_id] unique constraint" do
       registration_name = Faker.Company.name()
 
-      organization = insert(:organization)
-      insert(:company, registration_name: registration_name, organization: organization)
+      org = insert(:org)
+      insert(:company, registration_name: registration_name, org: org)
 
-      entity = insert(:entity, organization: organization)
+      entity = insert(:entity, org: org)
 
       attrs = %{
         entity_id: entity.id,
-        organization_id: organization.id,
+        org_id: org.id,
         trade_name: Faker.Company.name(),
         registration_name: registration_name,
         cnpj: BrazilianDocuments.generate_cnpj()
@@ -272,17 +302,17 @@ defmodule Sig.Entities.Companies.CompanyTest do
       assert errors_on(changeset) == %{registration_name: ["has already been taken"]}
     end
 
-    test "[trade_name, organization_id] unique constraint" do
+    test "[trade_name, org_id] unique constraint" do
       trade_name = Faker.Company.name()
 
-      organization = insert(:organization)
-      insert(:company, trade_name: trade_name, organization: organization)
+      org = insert(:org)
+      insert(:company, trade_name: trade_name, org: org)
 
-      entity = insert(:entity, organization: organization)
+      entity = insert(:entity, org: org)
 
       attrs = %{
         entity_id: entity.id,
-        organization_id: organization.id,
+        org_id: org.id,
         trade_name: trade_name,
         registration_name: Faker.Company.name(),
         cnpj: BrazilianDocuments.generate_cnpj()
@@ -297,17 +327,17 @@ defmodule Sig.Entities.Companies.CompanyTest do
       assert errors_on(changeset) == %{trade_name: ["has already been taken"]}
     end
 
-    test "[cnpj, organization_id] unique constraint" do
+    test "[cnpj, org_id] unique constraint" do
       cnpj = BrazilianDocuments.generate_cnpj()
 
-      organization = insert(:organization)
-      insert(:company, cnpj: cnpj, organization: organization)
+      org = insert(:org)
+      insert(:company, cnpj: cnpj, org: org)
 
-      entity = insert(:entity, organization: organization)
+      entity = insert(:entity, org: org)
 
       attrs = %{
         entity_id: entity.id,
-        organization_id: organization.id,
+        org_id: org.id,
         trade_name: Faker.Company.name(),
         registration_name: Faker.Company.name(),
         cnpj: cnpj
@@ -327,7 +357,7 @@ defmodule Sig.Entities.Companies.CompanyTest do
     test "valid attrs" do
       attrs = %{
         entity_id: UUID.generate(),
-        organization_id: UUID.generate(),
+        org_id: UUID.generate(),
         trade_name: Faker.Company.name()
       }
 
@@ -337,7 +367,7 @@ defmodule Sig.Entities.Companies.CompanyTest do
 
       assert changeset.changes == %{
                entity_id: attrs[:entity_id],
-               organization_id: attrs[:organization_id],
+               org_id: attrs[:org_id],
                trade_name: attrs[:trade_name],
                is_virtual: true
              }
@@ -350,7 +380,7 @@ defmodule Sig.Entities.Companies.CompanyTest do
 
       assert errors_on(changeset) == %{
                entity_id: ["can't be blank"],
-               organization_id: ["can't be blank"],
+               org_id: ["can't be blank"],
                trade_name: ["can't be blank"]
              }
     end
@@ -358,7 +388,7 @@ defmodule Sig.Entities.Companies.CompanyTest do
     test "invalid attrs types" do
       attrs = %{
         entity_id: :invalid,
-        organization_id: :invalid,
+        org_id: :invalid,
         trade_name: :invalid
       }
 
@@ -368,7 +398,7 @@ defmodule Sig.Entities.Companies.CompanyTest do
 
       assert errors_on(changeset) == %{
                entity_id: ["is invalid"],
-               organization_id: ["is invalid"],
+               org_id: ["is invalid"],
                trade_name: ["is invalid"]
              }
     end
@@ -376,7 +406,7 @@ defmodule Sig.Entities.Companies.CompanyTest do
     test "string fields length greater than 255 chars" do
       attrs = %{
         entity_id: UUID.generate(),
-        organization_id: UUID.generate(),
+        org_id: UUID.generate(),
         trade_name: String.duplicate("a", 256)
       }
 
@@ -392,7 +422,7 @@ defmodule Sig.Entities.Companies.CompanyTest do
     test "ignores real company attrs" do
       attrs = %{
         entity_id: UUID.generate(),
-        organization_id: UUID.generate(),
+        org_id: UUID.generate(),
         trade_name: Faker.Company.name(),
         registration_name: Faker.Company.name(),
         cnpj: BrazilianDocuments.generate_cnpj()
@@ -404,23 +434,23 @@ defmodule Sig.Entities.Companies.CompanyTest do
 
       assert changeset.changes == %{
                entity_id: attrs[:entity_id],
-               organization_id: attrs[:organization_id],
+               org_id: attrs[:org_id],
                trade_name: attrs[:trade_name],
                is_virtual: true
              }
     end
 
-    test "[trade_name, organization_id] unique constraint" do
+    test "[trade_name, org_id] unique constraint" do
       trade_name = Faker.Company.name()
 
-      organization = insert(:organization)
-      insert(:company, trade_name: trade_name, organization: organization)
+      org = insert(:org)
+      insert(:company, trade_name: trade_name, org: org)
 
-      entity = insert(:entity, organization: organization)
+      entity = insert(:entity, org: org)
 
       attrs = %{
         entity_id: entity.id,
-        organization_id: organization.id,
+        org_id: org.id,
         trade_name: trade_name
       }
 

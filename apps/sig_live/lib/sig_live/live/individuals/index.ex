@@ -6,12 +6,12 @@ defmodule SigLive.Individuals.Index do
 	alias SigLive.Individuals.New
 
   @impl true
-  def mount(%{"organization_id" => organization_id}, _session, socket) do
-		if connected?(socket), do: Entities.subscribe_to_organization_individuals(organization_id)
+  def mount(%{"org_id" => org_id}, _session, socket) do
+		if connected?(socket), do: Entities.subscribe_to_individuals(org_id)
 
 		socket = assign(socket,
-			organization_id: organization_id,
-			individuals: Entities.list_organization_individuals(organization_id),
+			org_id: org_id,
+			individuals: Entities.list_individuals(org_id),
 			new_individual_modal_open: false
 		)
 
@@ -19,7 +19,7 @@ defmodule SigLive.Individuals.Index do
   end
 
 	@impl true
-  def handle_info({:updated_organization_individuals, individuals}, socket) do
+  def handle_info({:updated_org_individuals, individuals}, socket) do
 		{:noreply, assign(socket, individuals: individuals)}
 	end
 
@@ -45,7 +45,7 @@ defmodule SigLive.Individuals.Index do
 			:if={@new_individual_modal_open}
 			id="new_individual_modal"
 			close="toggle_new_individual_modal"
-			{=@organization_id}
+			{=@org_id}
 		/>
 
 		<div class="min-w-screen min-h-screen bg-gray-200 flex justify-center">

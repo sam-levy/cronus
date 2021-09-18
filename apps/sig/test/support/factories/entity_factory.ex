@@ -5,7 +5,7 @@ defmodule Sig.Factories.EntityFactory do
 
       def factory(:entity) do
         %Entity{
-          organization: build(:organization)
+          org: build(:org)
         }
       end
     end
