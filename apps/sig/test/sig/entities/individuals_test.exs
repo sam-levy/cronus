@@ -36,17 +36,14 @@ defmodule Sig.Entities.IndividualsTest do
   end
 
   describe "list_individuals/1" do
-    test "lists individuals from an org" do
+    test "lists individuals from an org ordered by name" do
       org = insert(:org)
-      individuals = insert_list(2, :individual, org: org)
 
-      assert return = Individuals.list_individuals(org.id)
+      insert(:individual, name: "Bugs Bunny", org: org)
+      insert(:individual, name: "Daffy Duck", org: org)
 
-      assert Enum.count(return) == 2
-
-      returned_ids = Enum.map(return, & &1.entity_id)
-
-      assert Enum.all?(individuals, &(&1.entity_id in returned_ids))
+      assert [%Individual{name: "Bugs Bunny"}, %Individual{name: "Daffy Duck"}] =
+               Individuals.list_individuals(org.id)
     end
 
     test "do not list individuals from another org" do
@@ -146,8 +143,8 @@ defmodule Sig.Entities.IndividualsTest do
       }
 
       assert_raise Ecto.ConstraintError,
-      ~r/entities_org_id_fkey \(foreign_key_constraint\)/,
-      fn -> Individuals.create_individual(UUID.generate(), attrs) end
+                   ~r/entities_org_id_fkey \(foreign_key_constraint\)/,
+                   fn -> Individuals.create_individual(UUID.generate(), attrs) end
     end
   end
 

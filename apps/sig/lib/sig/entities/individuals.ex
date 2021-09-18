@@ -18,6 +18,7 @@ defmodule Sig.Entities.Individuals do
   def list_individuals(org_id) do
     Individual
     |> where(org_id: ^org_id)
+    |> order_by(:name)
     |> Repo.all()
   end
 
