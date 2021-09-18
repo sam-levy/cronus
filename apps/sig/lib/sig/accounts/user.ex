@@ -1,17 +1,14 @@
 defmodule Sig.Accounts.User do
-  use Ecto.Schema
-
-  import Ecto.Changeset
+  use Sig.Schema
 
   alias Sig.Entities.Individuals.Individual
 
   schema "users" do
-    field :org_id, :binary_id, primary_key: true
-
     field :email, :string
     field :password, :string, virtual: true, redact: true
     field :hashed_password, :string, redact: true
     field :confirmed_at, :naive_datetime
+    field :org_id, :binary_id
 
     belongs_to :individual, Individual, references: :entity_id
 
@@ -37,7 +34,8 @@ defmodule Sig.Accounts.User do
   """
   def registration_changeset(user, attrs, opts \\ []) do
     user
-    |> cast(attrs, [:email, :password])
+    |> cast(attrs, [:email, :password, :individual_id, :org_id])
+    |> validate_required([:individual_id, :org_id])
     |> validate_email()
     |> validate_password(opts)
   end

@@ -7,6 +7,25 @@ defmodule Sig.Entities.Individuals.IndividualTest do
   alias Sig.Entities.Individuals.Individual.Gender
 
   describe "individuals table constraints" do
+    test "[entity_id, org_id] individuals_pkey unique_constraint" do
+      org = insert(:org)
+      entity = insert(:entity, org: org)
+
+      _existing_individual = insert(:individual, entity: entity, org: org)
+
+      individual = %Individual{
+        entity_id: entity.id,
+        org_id: org.id,
+        name: Faker.Person.name(),
+        cpf: BrazilianDocuments.generate_cpf(),
+        gender: random_enum_value(Gender)
+      }
+
+      assert_raise Ecto.ConstraintError,
+                   ~r/individuals_pkey \(unique_constraint\)/,
+                   fn -> Repo.insert(individual) end
+    end
+
     test "entity_id not_null_violation" do
       org = insert(:org)
 

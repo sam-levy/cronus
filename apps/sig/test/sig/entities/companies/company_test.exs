@@ -6,6 +6,25 @@ defmodule Sig.Entities.Companies.CompanyTest do
   alias Sig.Entities.Companies.Company
 
   describe "companies table constraints" do
+    test "[entity_id, org_id] companies_pkey unique_constraint" do
+      org = insert(:org)
+      entity = insert(:entity, org: org)
+
+      _existing_company = insert(:company, entity: entity, org: org)
+
+      company = %Company{
+        entity_id: entity.id,
+        org_id: org.id,
+        trade_name: Faker.Company.name(),
+        registration_name: Faker.Company.name(),
+        cnpj: BrazilianDocuments.generate_cnpj()
+      }
+
+      assert_raise Ecto.ConstraintError,
+                   ~r/companies_pkey \(unique_constraint\)/,
+                   fn -> Repo.insert(company) end
+    end
+
     test "entity_id not_null_violation" do
       org = insert(:org)
 

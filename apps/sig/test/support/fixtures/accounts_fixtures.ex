@@ -4,13 +4,28 @@ defmodule Sig.AccountsFixtures do
   entities via the `Sig.Accounts` context.
   """
 
+  import Sig.Factory
+
   def unique_user_email, do: "user#{System.unique_integer()}@example.com"
   def valid_user_password, do: "hello world!"
 
-  def valid_user_attributes(attrs \\ %{}) do
+  def valid_user_attributes(attrs \\ %{})
+
+  def valid_user_attributes(attrs) when is_list(attrs) do
+    attrs
+    |> Enum.into(%{})
+    |> valid_user_attributes()
+  end
+
+  def valid_user_attributes(attrs) when is_map(attrs) do
+    org = Map.get(attrs, :org, insert(:org))
+    individual = Map.get(attrs, :individual, insert(:individual, org: org))
+
     Enum.into(attrs, %{
       email: unique_user_email(),
-      password: valid_user_password()
+      password: valid_user_password(),
+      org_id: org.id,
+      individual_id: individual.entity_id
     })
   end
 
