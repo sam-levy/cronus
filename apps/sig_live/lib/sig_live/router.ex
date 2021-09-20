@@ -26,7 +26,7 @@ defmodule SigLive.Router do
   scope "/orgs/:org_id", SigLive do
     pipe_through [:browser, :org_authorization]
 
-    live "/individuals", Individuals.Index, :individuals
+    live "/individuals", Individuals.Index
   end
 
   if Mix.env() in [:dev, :test] do
