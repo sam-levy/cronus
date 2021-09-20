@@ -505,4 +505,26 @@ defmodule Sig.AccountsTest do
       refute inspect(%User{password: "123456"}) =~ "password: \"123456\""
     end
   end
+
+  describe "authorized_org_user?/2" do
+    test "when user is authorized" do
+      org = insert(:org)
+      org_roles = %{org.id => :regular}
+
+      user = user_fixture(org: org, org_roles: org_roles)
+
+      assert Accounts.authorized_org_user?(org, user)
+    end
+
+    test "when user is not authorized" do
+      org_1 = insert(:org)
+      org_roles = %{org_1.id => :admin}
+
+      user = user_fixture(org: org_1, org_roles: org_roles)
+
+      org_2 = insert(:org)
+
+      refute Accounts.authorized_org_user?(org_2, user)
+    end
+  end
 end

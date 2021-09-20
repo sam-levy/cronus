@@ -2,6 +2,7 @@ defmodule Sig.Accounts.User do
   use Sig.Schema
 
   alias Sig.Entities.Individuals.Individual
+  alias Sig.Organizations.EctoTypes.OrgUserRoles
 
   schema "users" do
     field :email, :string
@@ -9,6 +10,8 @@ defmodule Sig.Accounts.User do
     field :hashed_password, :string, redact: true
     field :confirmed_at, :naive_datetime
     field :org_id, :binary_id
+
+    field :org_roles, OrgUserRoles, default: %{}
 
     belongs_to :individual, Individual, references: :entity_id
 
@@ -34,7 +37,7 @@ defmodule Sig.Accounts.User do
   """
   def registration_changeset(user, attrs, opts \\ []) do
     user
-    |> cast(attrs, [:email, :password, :individual_id, :org_id])
+    |> cast(attrs, [:email, :password, :individual_id, :org_id, :org_roles])
     |> validate_required([:individual_id, :org_id])
     |> validate_email()
     |> validate_password(opts)

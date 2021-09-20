@@ -8,6 +8,11 @@ main_org =
   |> Org.changeset()
   |> Repo.insert!()
 
+another_org =
+  %{name: "Dunder Mifflin"}
+  |> Org.changeset()
+  |> Repo.insert!()
+
 # Individuals
 alias Sig.Entities
 alias Sig.Entities.Individuals.Individual.Gender
@@ -39,7 +44,10 @@ attrs = %{
   email: "samulevy@gmail.com",
   password: "hello world!",
   individual_id: samuel.entity_id,
-  org_id: samuel.org_id
+  org_id: samuel.org_id,
+  org_roles: %{
+    main_org.id => :admin
+  }
 }
 
 {:ok, user_samuel} = Accounts.register_user(attrs)

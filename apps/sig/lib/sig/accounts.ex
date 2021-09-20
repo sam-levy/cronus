@@ -7,6 +7,7 @@ defmodule Sig.Accounts do
   alias Sig.Repo
 
   alias Sig.Accounts.{User, UserToken, UserNotifier}
+  alias Sig.Organizations.Org
 
   ## Database getters
 
@@ -346,5 +347,9 @@ defmodule Sig.Accounts do
       {:ok, %{user: user}} -> {:ok, user}
       {:error, :user, changeset, _} -> {:error, changeset}
     end
+  end
+
+  def authorized_org_user?(%Org{} = org, %User{} = user) do
+    Map.has_key?(user.org_roles, org.id)
   end
 end

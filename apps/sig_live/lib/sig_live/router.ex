@@ -11,15 +11,20 @@ defmodule SigLive.Router do
     plug :protect_from_forgery
     plug :put_secure_browser_headers
     plug :fetch_current_user
-    plug SigLive.Plugs.FetchOrg
   end
 
   pipeline :api do
     plug :accepts, ["json"]
   end
 
+  pipeline :org_authorization do
+    plug SigLive.Plugs.FetchOrg
+    plug :require_authenticated_user
+    plug SigLive.Plugs.AuthorizeOrgUser
+  end
+
   scope "/orgs/:org_id", SigLive do
-    pipe_through [:browser, :require_authenticated_user]
+    pipe_through [:browser, :org_authorization]
 
     live "/individuals", Individuals.Index, :individuals
   end

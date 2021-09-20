@@ -8,6 +8,7 @@ defmodule Sig.Repo.Migrations.CreateUsersAuthTables do
       add :email, :citext, null: false
       add :hashed_password, :string, null: false
       add :confirmed_at, :naive_datetime
+      add :org_roles, :map, default: %{}, null: false
 
       add :org_id, references(:orgs), null: false
       add :individual_id, references(:entities, with: [org_id: :org_id]), null: false
