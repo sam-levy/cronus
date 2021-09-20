@@ -1,4 +1,4 @@
-defmodule Sig.Organizations.OrganizationTest do
+defmodule Sig.Organizations.OrgTest do
   use Sig.DataCase
 
   alias Sig.Organizations.Org
