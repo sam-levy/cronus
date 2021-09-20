@@ -48,49 +48,47 @@ defmodule SigLive.Individuals.Index do
 			{=@org_id}
 		/>
 
-		<div class="min-w-screen min-h-screen bg-gray-200 flex justify-center">
-			<div class="w-full lg:w-5/6">
-				<div class="bg-white shadow-lg my-6 rounded-lg">
-					<table class="min-w-max w-full table-auto ">
-						<thead>
-							<div class="flex justify-between items-center py-3 px-6">
-								<h1 class="text-gray-500 font-medium tracking-wider">Pessoas</h1>
+		<table class="w-full bg-white shadow-lg my-7">
+			<thead class="sticky top-0">
+				<tr class="bg-white">
+					<th colspan="2">
+						<div class="flex justify-between items-center py-3 px-6">
+							<span class="text-gray-500 font-medium tracking-wider">Pessoas</span>
 
-								<button
-									:on-click="toggle_new_individual_modal"
-									class="hover:bg-blue-200 hover:text-blue-800 group flex items-center rounded-md bg-blue-100 text-blue-600 text-sm font-medium px-4 py-2"
-								>
-									<svg class="group-hover:text-light-blue-600 text-light-blue-500 mr-2" width="12" height="20" fill="currentColor">
-										<path fill-rule="evenodd" clip-rule="evenodd" d="M6 5a1 1 0 011 1v3h3a1 1 0 110 2H7v3a1 1 0 11-2 0v-3H2a1 1 0 110-2h3V6a1 1 0 011-1z"/>
-									</svg>
+							<button
+								:on-click="toggle_new_individual_modal"
+								class="hover:bg-blue-200 hover:text-blue-800 group flex items-center rounded-md bg-blue-100 text-blue-600 text-sm font-medium px-4 py-2"
+							>
+								<svg class="group-hover:text-light-blue-600 text-light-blue-500 mr-2" width="12" height="20" fill="currentColor">
+									<path fill-rule="evenodd" clip-rule="evenodd" d="M6 5a1 1 0 011 1v3h3a1 1 0 110 2H7v3a1 1 0 11-2 0v-3H2a1 1 0 110-2h3V6a1 1 0 011-1z"/>
+								</svg>
 
-									Adicionar
-								</button>
-							</div>
+								Adicionar
+							</button>
+						</div>
+					</th>
+				</tr>
 
-							<tr class="bg-gray-50 uppercase text-xs font-medium text-gray-500 tracking-wider">
-								<th class="py-3 px-6 text-left">Nome</th>
-								<th class="py-3 px-6 text-left">CPF</th>
-							</tr>
-						</thead>
+				<tr class="bg-gray-50 uppercase text-xs font-medium text-gray-500 tracking-wider">
+					<th class="py-3 px-6 text-left">Nome</th>
+					<th class="py-3 px-6 text-left">CPF</th>
+				</tr>
+			</thead>
 
-						<tbody class="text-gray-600 text-sm font-light">
-							{#for individual <- @individuals}
-								<tr class="border-b border-gray-200 hover:bg-gray-50">
-									<td class="py-3 px-6 text-left">
-										<span>{individual.name}</span>
-									</td>
+			<tbody class="text-gray-600 text-sm font-light">
+				{#for individual <- @individuals}
+					<tr class="border-b border-gray-200 hover:bg-gray-50">
+						<td class="py-3 px-6 text-left">
+							<span>{individual.name}</span>
+						</td>
 
-									<td class="py-3 px-6 text-left">
-										<span>{format_cpf(individual.cpf)}</span>
-									</td>
-								</tr>
-							{/for}
-						</tbody>
-					</table>
-				</div>
-			</div>
-		</div>
+						<td class="py-3 px-6 text-left">
+							<span>{format_cpf(individual.cpf)}</span>
+						</td>
+					</tr>
+				{/for}
+			</tbody>
+		</table>
     """
   end
 end
