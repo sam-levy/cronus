@@ -20,7 +20,7 @@ defmodule SigLive.Individuals.New do
   prop close, :event, required: true
   prop org_id, :string, required: true
 
-  data gender_options, :map, default: Gender.__enums__
+  data gender_options, :map, default: Gender.__enums__()
   data cpf, :string, default: nil
   data changeset, :struct, default: nil
   data message, :string, default: nil
@@ -88,7 +88,7 @@ defmodule SigLive.Individuals.New do
           <Field name={:cpf} class={field_class()}>
             <Label class={label_class()}>CPF</Label>
             <TextInput class={text_input_class()} value={format_cpf_in_changeset(@changeset)} opts={readonly: true}/>
-            <ErrorTag class="error"/>
+            <ErrorTag class={error_tag_class()}/>
           </Field>
 
           <Field name={:name} class={field_class()}>
@@ -100,7 +100,7 @@ defmodule SigLive.Individuals.New do
           <Field name={:gender}>
             <Label class={label_class()}>Sexo</Label>
             <Select class={text_input_class()} options={@gender_options} prompt=""/>
-            <ErrorTag class="error"/>
+            <ErrorTag class={error_tag_class()}/>
           </Field>
 
           <div class="mt-5 flex justify-end">
@@ -126,7 +126,7 @@ defmodule SigLive.Individuals.New do
   end
 
   defp error_tag_class() do
-    "text-red text-xs italic"
+    "text-red-600 text-sm italic"
   end
 
   defp submit_class() do
