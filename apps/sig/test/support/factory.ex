@@ -4,6 +4,7 @@ defmodule Sig.Factory do
   use Sig.Factories.IndividualFactory
   use Sig.Factories.OrgFactory
   use Sig.Factories.UserFactory
+  use Sig.Factories.BankAccountFactory
 
   def build(factory_name, attributes \\ []) do
     factory_name |> factory(attributes) |> struct(attributes)
