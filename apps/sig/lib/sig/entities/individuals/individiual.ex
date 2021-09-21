@@ -20,25 +20,23 @@ defmodule Sig.Entities.Individuals.Individual do
     timestamps()
   end
 
-  @create_fields [:entity_id, :org_id, :name, :gender, :cpf]
-  @update_fields [:name, :gender]
+  @fields [:entity_id, :org_id, :cpf, :name, :gender]
 
   def cast_params(params) do
-    cast(%__MODULE__{}, params, @create_fields ++ @update_fields).changes
+    cast(%__MODULE__{}, params, @fields).changes
   end
 
   def create_changeset(attrs) do
     %__MODULE__{}
-    |> cast(attrs, @create_fields)
-    |> validate_required(@create_fields)
+    |> cast(attrs, @fields)
+    |> validate_required(@fields)
     |> validate_length(:name, max: 255)
     |> unique_constraint([:cpf, :org_id])
   end
 
   def update_changeset(%__MODULE__{} = target, attrs) do
     target
-    |> cast(attrs, @update_fields)
-    |> validate_required(@update_fields)
+    |> cast(attrs, [:name, :gender])
     |> validate_length(:name, max: 255)
   end
 end
