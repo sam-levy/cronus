@@ -5,6 +5,7 @@ defmodule Sig.Schema do
 
       import Ecto.Changeset
       import EctoEnum
+      import Sig.Changeset
 
       @primary_key {:id, :binary_id, autogenerate: true}
       @foreign_key_type :binary_id
