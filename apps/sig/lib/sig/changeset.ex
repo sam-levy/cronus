@@ -1,5 +1,5 @@
 defmodule Sig.Changeset do
-  import Ecto.Changeset, only: [validate_change: 3]
+  import Ecto.Changeset
 
   alias Sig.Finance.Banks
 
@@ -15,5 +15,35 @@ defmodule Sig.Changeset do
         end
       end
     )
+  end
+
+  def validate_required_if(
+        changeset,
+        conditional_field,
+        conditional_field_value,
+        fields_to_validate
+      ) do
+    case fetch_change(changeset, conditional_field) do
+      {:ok, value} when value == conditional_field_value ->
+        validate_required(changeset, fields_to_validate)
+
+      _ ->
+        changeset
+    end
+  end
+
+  def drop_change_if(
+        changeset,
+        conditional_field,
+        conditional_field_value,
+        field_to_drop
+      ) do
+    case fetch_field(changeset, conditional_field) do
+      {_, value} when value == conditional_field_value ->
+        put_change(changeset, field_to_drop, nil)
+
+      _ ->
+        changeset
+    end
   end
 end
