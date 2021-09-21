@@ -8,7 +8,7 @@ main_org =
   |> Org.changeset()
   |> Repo.insert!()
 
-another_org =
+_another_org =
   %{name: "Dunder Mifflin"}
   |> Org.changeset()
   |> Repo.insert!()
@@ -50,4 +50,4 @@ attrs = %{
   }
 }
 
-{:ok, user_samuel} = Accounts.register_user(attrs)
+{:ok, _user_samuel} = Accounts.register_user(attrs)
