@@ -31,6 +31,8 @@ defmodule Sig.Factory do
     |> Enum.random()
   end
 
+  def random_string_number, do: 100..1000000 |> Enum.random() |> to_string()
+
   defp sequence(fun) when is_function(fun, 1) do
     fun.(System.unique_integer([:positive, :monotonic]))
   end

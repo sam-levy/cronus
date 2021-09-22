@@ -12,9 +12,9 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
         org_id: entity.org_id,
         entity_id: entity.id,
         type: random_enum_value(BankAccountType),
-        routing_number: "123",
-        branch_number: "456",
-        number: "789",
+        routing_number: random_string_number(),
+        branch_number: random_string_number(),
+        number: random_string_number(),
         is_primary: true
       }
 
@@ -27,9 +27,9 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
       account = %Account{
         entity_id: entity.id,
         type: random_enum_value(BankAccountType),
-        routing_number: "123",
-        branch_number: "456",
-        number: "789",
+        routing_number: random_string_number(),
+        branch_number: random_string_number(),
+        number: random_string_number(),
         is_primary: true
       }
 
@@ -45,9 +45,9 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
         org_id: UUID.generate(),
         entity_id: entity.id,
         type: random_enum_value(BankAccountType),
-        routing_number: "123",
-        branch_number: "456",
-        number: "789",
+        routing_number: random_string_number(),
+        branch_number: random_string_number(),
+        number: random_string_number(),
         is_primary: true
       }
 
@@ -62,9 +62,9 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
       account = %Account{
         org_id: org.id,
         type: random_enum_value(BankAccountType),
-        routing_number: "123",
-        branch_number: "456",
-        number: "789",
+        routing_number: random_string_number(),
+        branch_number: random_string_number(),
+        number: random_string_number(),
         is_primary: true
       }
 
@@ -80,9 +80,9 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
         org_id: org.id,
         entity_id: UUID.generate(),
         type: random_enum_value(BankAccountType),
-        routing_number: "123",
-        branch_number: "456",
-        number: "789",
+        routing_number: random_string_number(),
+        branch_number: random_string_number(),
+        number: random_string_number(),
         is_primary: true
       }
 
@@ -98,9 +98,9 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
         org_id: existing_account.org_id,
         entity_id: existing_account.entity_id,
         type: random_enum_value(BankAccountType),
-        routing_number: "123",
-        branch_number: "456",
-        number: "789",
+        routing_number: random_string_number(),
+        branch_number: random_string_number(),
+        number: random_string_number(),
         is_primary: false,
         pix_key: String.upcase(existing_account.pix_key)
       }
@@ -141,9 +141,9 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
         org_id: primary_bank_account.org_id,
         entity_id: primary_bank_account.entity_id,
         type: random_enum_value(BankAccountType),
-        routing_number: "123",
-        branch_number: "456",
-        number: "789",
+        routing_number: random_string_number(),
+        branch_number: random_string_number(),
+        number: random_string_number(),
         is_primary: true
       }
 
@@ -160,9 +160,9 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
         entity_id: UUID.generate(),
         type: random_enum_value(BankAccountType),
         routing_number: random_bank_routing_number(),
-        branch_number: "123",
+        branch_number: random_string_number(),
         other_info: %{"OP" => "001"},
-        number: "456",
+        number: random_string_number(),
         pix_key: "pix_key",
         is_active: false,
         is_primary: false,
@@ -267,8 +267,8 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
         entity_id: UUID.generate(),
         type: random_enum_value(BankAccountType),
         routing_number: "invalid",
-        branch_number: "123",
-        number: "456",
+        branch_number: random_string_number(),
+        number: random_string_number(),
         is_primary: true
       }
 
@@ -287,8 +287,8 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
         entity_id: UUID.generate(),
         type: random_enum_value(BankAccountType),
         routing_number: random_bank_routing_number(),
-        branch_number: "123",
-        number: "456",
+        branch_number: random_string_number(),
+        number: random_string_number(),
         is_primary: true,
         pix_key: "pix key"
       }
@@ -310,8 +310,8 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
         entity_id: existing_account.entity_id,
         type: random_enum_value(BankAccountType),
         routing_number: random_bank_routing_number(),
-        branch_number: "123",
-        number: "456",
+        branch_number: random_string_number(),
+        number: random_string_number(),
         is_primary: false,
         pix_key: existing_account.pix_key
       }
@@ -454,9 +454,9 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
         org_id: UUID.generate(),
         type: random_enum_value(BankAccountType),
         routing_number: random_bank_routing_number(),
-        branch_number: "123",
+        branch_number: random_string_number(),
         other_info: %{"OP" => "001"},
-        number: "456",
+        number: random_string_number(),
         is_joint_account: true
       }
 
