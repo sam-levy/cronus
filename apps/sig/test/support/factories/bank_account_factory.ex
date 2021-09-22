@@ -12,9 +12,11 @@ defmodule Sig.Factories.BankAccountFactory do
 
       def factory(:bank_account, attrs) do
         org = Keyword.get(attrs, :org, insert(:org))
+        entity = Keyword.get(attrs, :entity, insert(:entity, org: org))
 
         %Account{
           org: org,
+          entity: entity,
           type: random_enum_value(BankAccountType),
           routing_number: random_bank_routing_number(),
           branch_number: sequence(&"branch_number_#{&1}"),

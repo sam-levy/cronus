@@ -1,6 +1,7 @@
 defmodule Sig.Finance.Banks.Accounts.Account do
   use Sig.Schema
 
+  alias Sig.Entities.Entity
   alias Sig.Organizations.Org
 
   defenum(BankAccountType, :bank_account_type, [
@@ -11,6 +12,7 @@ defmodule Sig.Finance.Banks.Accounts.Account do
 
   schema "bank_accounts" do
     belongs_to :org, Org, primary_key: true
+    belongs_to :entity, Entity, primary_key: true
 
     field :type, BankAccountType
     field :routing_number, :string
@@ -24,7 +26,7 @@ defmodule Sig.Finance.Banks.Accounts.Account do
     timestamps()
   end
 
-  @create_required_fields [:org_id, :type, :routing_number, :branch_number, :number]
+  @create_required_fields [:org_id, :entity_id, :type, :routing_number, :branch_number, :number]
   @create_fields @create_required_fields ++ [:pix_key, :other_info, :is_active, :is_joint_account]
 
   def create_changeset(attrs) do
@@ -34,7 +36,7 @@ defmodule Sig.Finance.Banks.Accounts.Account do
     |> validate_routing_number(:routing_number)
     |> validate_length(:branch_number, max: 255)
     |> validate_length(:number, max: 255)
-    |> pix_key_validations()
+    |> validate_pix_key()
     |> unique_constraint([:routing_number, :branch_number, :number, :org_id],
       name: :bank_accounts_org_id_account
     )
@@ -43,12 +45,12 @@ defmodule Sig.Finance.Banks.Accounts.Account do
   def update_changeset(%__MODULE__{} = target, attrs) do
     target
     |> cast(attrs, [:pix_key, :is_active])
-    |> pix_key_validations()
+    |> validate_pix_key()
   end
 
-  defp pix_key_validations(changeset) do
+  defp validate_pix_key(changeset) do
     changeset
-    |> validate_format(:pix_key, ~r/^\S*$/, message: "can not have white spaces")
+    |> validate_format(:pix_key, ~r/^\S*$/, message: "can't have white spaces")
     |> validate_length(:pix_key, max: 255)
     |> unique_constraint([:pix_key, :org_id])
   end

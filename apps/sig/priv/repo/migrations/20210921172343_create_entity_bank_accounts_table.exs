@@ -8,7 +8,10 @@ defmodule Sig.Repo.Migrations.CreateEntityBankAccountsTable do
     create table(:entities_bank_accounts, primary_key: false) do
       add :org_id, references(:orgs), primary_key: true
       add :entity_id, references(:entities, with: [org_id: :org_id]), primary_key: true
-      add :bank_account_id, references(:bank_accounts, with: [org_id: :org_id]), primary_key: true
+
+      add :bank_account_id,
+          references(:bank_accounts, with: [org_id: :org_id, entity_id: :entity_id]),
+          primary_key: true
 
       add :is_primary, :boolean, null: false, default: false
       add :is_active, :boolean, null: false, default: true

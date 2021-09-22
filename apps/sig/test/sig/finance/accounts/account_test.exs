@@ -6,7 +6,10 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
 
   describe "bank_accounts table constraints" do
     test "org_id not_null_violation" do
+      entity = insert(:entity)
+
       account = %Account{
+        entity_id: entity.id,
         type: random_enum_value(BankAccountType),
         routing_number: "123",
         branch_number: "456",
@@ -19,8 +22,11 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
     end
 
     test "org_id foreign_key_constraint" do
+      entity = insert(:entity)
+
       account = %Account{
         org_id: UUID.generate(),
+        entity_id: entity.id,
         type: random_enum_value(BankAccountType),
         routing_number: "123",
         branch_number: "456",
@@ -32,11 +38,45 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
                    fn -> Repo.insert(account) end
     end
 
-    test "[org_id, pix_key] citext unique_constraint" do
+    test "entity_id not_null_violation" do
+      org = insert(:org)
+
+      account = %Account{
+        org_id: org.id,
+        type: random_enum_value(BankAccountType),
+        routing_number: "123",
+        branch_number: "456",
+        number: "789"
+      }
+
+      assert_raise Postgrex.Error,
+                   ~r/\(not_null_violation\) null value in column "entity_id" of relation "bank_accounts" violates not-null constraint/,
+                   fn -> Repo.insert(account) end
+    end
+
+    test "entity_id foreign_key_constraint" do
+      org = insert(:org)
+
+      account = %Account{
+        org_id: org.id,
+        entity_id: UUID.generate(),
+        type: random_enum_value(BankAccountType),
+        routing_number: "123",
+        branch_number: "456",
+        number: "789"
+      }
+
+      assert_raise Ecto.ConstraintError,
+                   ~r/bank_accounts_entity_id_fkey \(foreign_key_constraint\)/,
+                   fn -> Repo.insert(account) end
+    end
+
+    test "[pix_key, org_id] citext unique_constraint" do
       existing_account = insert(:bank_account, pix_key: "pix_key")
 
       account = %Account{
         org_id: existing_account.org_id,
+        entity_id: existing_account.entity_id,
         type: random_enum_value(BankAccountType),
         routing_number: "123",
         branch_number: "456",
@@ -49,7 +89,7 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
                    fn -> Repo.insert(account) end
     end
 
-    test "[:org_id, :routing_number, :branch_number, :number] citext unique_constraint" do
+    test "[:routing_number, :branch_number, :number, :org_id] citext unique_constraint" do
       existing_account = insert(:bank_account,
         routing_number: "routing_number",
         branch_number: "branch_number",
@@ -58,6 +98,7 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
 
       account = %Account{
         org_id: existing_account.org_id,
+        entity_id: existing_account.entity_id,
         type: random_enum_value(BankAccountType),
         routing_number: String.upcase(existing_account.routing_number),
         branch_number: String.upcase(existing_account.branch_number),
@@ -74,6 +115,7 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
     test "valid attrs" do
       attrs = %{
         org_id: UUID.generate(),
+        entity_id: UUID.generate(),
         type: random_enum_value(BankAccountType),
         routing_number: random_bank_routing_number(),
         branch_number: "123",
@@ -90,6 +132,7 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
 
       assert changeset.changes == %{
         org_id: attrs[:org_id],
+        entity_id: attrs[:entity_id],
         type: String.to_atom(attrs[:type]),
         routing_number: attrs[:routing_number],
         branch_number: attrs[:branch_number],
@@ -108,6 +151,7 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
 
       assert errors_on(changeset) == %{
         org_id: ["can't be blank"],
+        entity_id: ["can't be blank"],
         type: ["can't be blank"],
         routing_number: ["can't be blank"],
         branch_number: ["can't be blank"],
@@ -118,6 +162,7 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
     test "invalid attrs types" do
       attrs = %{
         org_id: :invalid,
+        entity_id: :invalid,
         type: 1,
         routing_number: :invalid,
         branch_number: :invalid,
@@ -134,6 +179,7 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
 
       assert errors_on(changeset) == %{
         org_id: ["is invalid"],
+        entity_id: ["is invalid"],
         type: ["is invalid"],
         routing_number: ["is invalid"],
         branch_number: ["is invalid"],
@@ -148,6 +194,7 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
     test "string fields length greater than 255 chars" do
       attrs = %{
         org_id: UUID.generate(),
+        entity_id: UUID.generate(),
         type: random_enum_value(BankAccountType),
         routing_number: random_bank_routing_number(),
         branch_number: String.duplicate("a", 256),
@@ -169,6 +216,7 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
     test "invalid bank routing number" do
       attrs = %{
         org_id: UUID.generate(),
+        entity_id: UUID.generate(),
         type: random_enum_value(BankAccountType),
         routing_number: "invalid",
         branch_number: "123",
@@ -187,6 +235,7 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
     test "pix key with white spaces" do
       attrs = %{
         org_id: UUID.generate(),
+        entity_id: UUID.generate(),
         type: random_enum_value(BankAccountType),
         routing_number: random_bank_routing_number(),
         branch_number: "123",
@@ -199,16 +248,16 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
       refute changeset.valid?
 
       assert errors_on(changeset) == %{
-        pix_key: ["can not have white spaces"],
+        pix_key: ["can't have white spaces"],
       }
     end
 
     test "[pix_key, org_id] unique constraint" do
-      org = insert(:org)
-      existing_account = insert(:bank_account, org: org)
+      existing_account = insert(:bank_account)
 
       attrs = %{
-        org_id: org.id,
+        org_id: existing_account.org_id,
+        entity_id: existing_account.entity_id,
         type: random_enum_value(BankAccountType),
         routing_number: random_bank_routing_number(),
         branch_number: "123",
@@ -225,18 +274,16 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
       assert errors_on(changeset) == %{pix_key: ["has already been taken"]}
     end
 
-    test "[:org_id, :routing_number, :branch_number, :number] unique constraint" do
-      org = insert(:org)
-
+    test "[:routing_number, :branch_number, :number, :org_id] unique constraint" do
       existing_account = insert(:bank_account,
-        org: org,
         routing_number: random_bank_routing_number(),
         branch_number: "branch_number",
         number: "number"
       )
 
       attrs = %{
-        org_id: org.id,
+        org_id: existing_account.org_id,
+        entity_id: existing_account.entity_id,
         type: random_enum_value(BankAccountType),
         routing_number: String.upcase(existing_account.routing_number),
         branch_number: String.upcase(existing_account.branch_number),
@@ -319,7 +366,7 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
       refute changeset.valid?
 
       assert errors_on(changeset) == %{
-              pix_key: ["can not have white spaces"],
+              pix_key: ["can't have white spaces"],
             }
     end
 

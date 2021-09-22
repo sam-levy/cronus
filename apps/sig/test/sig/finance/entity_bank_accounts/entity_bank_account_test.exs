@@ -6,13 +6,11 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccountTest do
 
   describe "entities_bank_accounts table constraints" do
     test "insertion" do
-      org = insert(:org)
-      entity = insert(:entity, org: org)
-      bank_account = insert(:bank_account, org: org)
+      bank_account = insert(:bank_account)
 
       entity_bank_account = %EntityBankAccount{
-        org_id: org.id,
-        entity_id: entity.id,
+        org_id: bank_account.org_id,
+        entity_id: bank_account.entity_id,
         bank_account_id: bank_account.id
       }
 
@@ -20,12 +18,10 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccountTest do
     end
 
     test "org_id not_null_violation" do
-      org = insert(:org)
-      entity = insert(:entity, org: org)
-      bank_account = insert(:bank_account, org: org)
+      bank_account = insert(:bank_account)
 
       entity_bank_account = %EntityBankAccount{
-        entity_id: entity.id,
+        entity_id: bank_account.entity_id,
         bank_account_id: bank_account.id
       }
 
@@ -35,13 +31,11 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccountTest do
     end
 
     test "org_id foreign_key_constraint" do
-      org = insert(:org)
-      entity = insert(:entity, org: org)
-      bank_account = insert(:bank_account, org: org)
+      bank_account = insert(:bank_account)
 
       entity_bank_account = %EntityBankAccount{
         org_id: UUID.generate(),
-        entity_id: entity.id,
+        entity_id: bank_account.entity_id,
         bank_account_id: bank_account.id
       }
 
@@ -51,11 +45,10 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccountTest do
     end
 
     test "entity_id not_null_violation" do
-      org = insert(:org)
-      bank_account = insert(:bank_account, org: org)
+      bank_account = insert(:bank_account)
 
       entity_bank_account = %EntityBankAccount{
-        org_id: org.id,
+        org_id: bank_account.org_id,
         bank_account_id: bank_account.id
       }
 
@@ -65,11 +58,10 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccountTest do
     end
 
     test "entity_id foreign_key_constraint" do
-      org = insert(:org)
-      bank_account = insert(:bank_account, org: org)
+      bank_account = insert(:bank_account)
 
       entity_bank_account = %EntityBankAccount{
-        org_id: org.id,
+        org_id: bank_account.org_id,
         entity_id: UUID.generate(),
         bank_account_id: bank_account.id
       }
@@ -80,11 +72,10 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccountTest do
     end
 
     test "bank_account_id not_null_violation" do
-      org = insert(:org)
-      entity = insert(:entity, org: org)
+      entity = insert(:entity)
 
       entity_bank_account = %EntityBankAccount{
-        org_id: org.id,
+        org_id: entity.org_id,
         entity_id: entity.id
       }
 
@@ -94,11 +85,10 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccountTest do
     end
 
     test "bank_account_id foreign_key_constraint" do
-      org = insert(:org)
-      entity = insert(:entity, org: org)
+      entity = insert(:entity)
 
       entity_bank_account = %EntityBankAccount{
-        org_id: org.id,
+        org_id: entity.org_id,
         entity_id: entity.id,
         bank_account_id: UUID.generate()
       }
@@ -112,7 +102,7 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccountTest do
       org = insert(:org)
       entity = insert(:entity, org: org)
 
-      primary_bank_account = insert(:bank_account, org: org)
+      primary_bank_account = insert(:bank_account, org: org, entity: entity)
 
       _primary_entity_bank_account =
         insert(:entity_bank_account,
@@ -122,7 +112,7 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccountTest do
           is_primary: true
         )
 
-      another_bank_account = insert(:bank_account, org: org)
+      another_bank_account = insert(:bank_account, org: org, entity: entity)
 
       entity_bank_account = %EntityBankAccount{
         org_id: org.id,
@@ -137,13 +127,11 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccountTest do
     end
 
     test "relationship_with_holder_not_null_when_is_holder_false constraint when is_holder is false" do
-      org = insert(:org)
-      entity = insert(:entity, org: org)
-      bank_account = insert(:bank_account, org: org)
+      bank_account = insert(:bank_account)
 
       entity_bank_account = %EntityBankAccount{
-        org_id: org.id,
-        entity_id: entity.id,
+        org_id: bank_account.org_id,
+        entity_id: bank_account.entity_id,
         bank_account_id: bank_account.id,
         is_holder: false
       }
@@ -154,13 +142,11 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccountTest do
     end
 
     test "relationship_with_holder_not_null_when_is_holder_false constraint when is_holder is true" do
-      org = insert(:org)
-      entity = insert(:entity, org: org)
-      bank_account = insert(:bank_account, org: org)
+      bank_account = insert(:bank_account)
 
       entity_bank_account = %EntityBankAccount{
-        org_id: org.id,
-        entity_id: entity.id,
+        org_id: bank_account.org_id,
+        entity_id: bank_account.entity_id,
         bank_account_id: bank_account.id,
         is_holder: true,
         relationship_with_holder: :partner
