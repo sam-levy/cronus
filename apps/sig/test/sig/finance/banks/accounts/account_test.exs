@@ -302,7 +302,7 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
     end
 
     test "[pix_key, org_id] unique constraint" do
-      existing_account = insert(:bank_account, is_primary: true)
+      existing_account = insert(:bank_account, is_primary: true, pix_key: "pix_key")
 
       attrs = %{
         org_id: existing_account.org_id,
@@ -474,7 +474,7 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
       org = insert(:org)
 
       account_1 = insert(:bank_account, org: org, is_active: true)
-      account_2 = insert(:bank_account, org: org, is_active: false)
+      account_2 = insert(:bank_account, org: org, is_active: false, pix_key: "pix_key_ac_2")
 
       attrs = %{
         pix_key: account_2.pix_key
