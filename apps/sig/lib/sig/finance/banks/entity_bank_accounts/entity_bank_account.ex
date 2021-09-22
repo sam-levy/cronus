@@ -18,7 +18,6 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccount do
     belongs_to :bank_account, Account, primary_key: true
 
     field :is_primary, :boolean, default: false
-    field :is_active, :boolean, default: true
     field :is_joint_account_holder, :boolean, default: true
     field :relationship_with_holder, RelationshipWithHolder
 
@@ -27,7 +26,7 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccount do
 
   @create_required_fields [:org_id, :entity_id, :bank_account_id]
   @create_fields @create_required_fields ++
-                   [:is_primary, :is_active, :is_joint_account_holder, :relationship_with_holder]
+                   [:is_primary, :is_joint_account_holder, :relationship_with_holder]
 
   def create_changeset(attrs) do
     %__MODULE__{}
@@ -38,7 +37,7 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccount do
   end
 
   def update_changeset(%__MODULE__{} = target, attrs) do
-    cast(target, attrs, [:is_primary, :is_active])
+    cast(target, attrs, [:is_primary])
   end
 
   # TODO: Create a DB trigger with a stored procedure to

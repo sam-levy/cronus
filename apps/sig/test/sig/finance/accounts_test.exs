@@ -1,4 +1,4 @@
-defmodule Sig.Finance.Banks.EntityBankAccountsTest do
+defmodule Sig.Finance.Banks.AccountsTest do
   use Sig.DataCase
 
   alias Sig.Finance.Banks.Accounts

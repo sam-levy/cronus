@@ -165,7 +165,6 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccountTest do
         entity_id: UUID.generate(),
         bank_account_id: UUID.generate(),
         is_primary: true,
-        is_active: false,
         is_joint_account_holder: false,
         relationship_with_holder: random_enum_value(RelationshipWithHolder)
       }
@@ -179,7 +178,6 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccountTest do
                entity_id: attrs[:entity_id],
                bank_account_id: attrs[:bank_account_id],
                is_primary: attrs[:is_primary],
-               is_active: attrs[:is_active],
                is_joint_account_holder: attrs[:is_joint_account_holder],
                relationship_with_holder: String.to_atom(attrs[:relationship_with_holder])
              }
@@ -217,7 +215,6 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccountTest do
         entity_id: :invalid,
         bank_account_id: :invalid,
         is_primary: :invalid,
-        is_active: :invalid,
         is_joint_account_holder: :invalid,
         relationship_with_holder: :invalid
       }
@@ -231,7 +228,6 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccountTest do
                entity_id: ["is invalid"],
                bank_account_id: ["is invalid"],
                is_primary: ["is invalid"],
-               is_active: ["is invalid"],
                is_joint_account_holder: ["is invalid"],
                relationship_with_holder: ["is invalid"]
              }
@@ -262,37 +258,23 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccountTest do
     test "valid attrs" do
       entity_bank_account = insert(:entity_bank_account, is_primary: false, is_active: true)
 
-      attrs = %{
-        is_primary: true,
-        is_active: false
-      }
+      attrs = %{is_primary: true}
 
       assert changeset = EntityBankAccount.update_changeset(entity_bank_account, attrs)
 
       assert changeset.valid?
-
-      assert changeset.changes == %{
-               is_primary: attrs[:is_primary],
-               is_active: attrs[:is_active]
-             }
+      assert changeset.changes == %{is_primary: attrs[:is_primary]}
     end
 
     test "invalid attrs types" do
       entity_bank_account = insert(:entity_bank_account)
 
-      attrs = %{
-        is_primary: :invalid,
-        is_active: :invalid
-      }
+      attrs = %{is_primary: :invalid}
 
       assert changeset = EntityBankAccount.update_changeset(entity_bank_account, attrs)
 
       refute changeset.valid?
-
-      assert errors_on(changeset) == %{
-               is_primary: ["is invalid"],
-               is_active: ["is invalid"]
-             }
+      assert errors_on(changeset) == %{is_primary: ["is invalid"]}
     end
 
     test "ignores non permitted attrs" do
@@ -300,7 +282,6 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccountTest do
 
       attrs = %{
         is_primary: true,
-        is_active: false,
         org_id: UUID.generate(),
         entity_id: UUID.generate(),
         bank_account_id: UUID.generate(),
@@ -311,11 +292,7 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccountTest do
       assert changeset = EntityBankAccount.update_changeset(entity_bank_account, attrs)
 
       assert changeset.valid?
-
-      assert changeset.changes == %{
-               is_primary: attrs[:is_primary],
-               is_active: attrs[:is_active]
-             }
+      assert changeset.changes == %{is_primary: attrs[:is_primary]}
     end
   end
 end

@@ -14,7 +14,6 @@ defmodule Sig.Repo.Migrations.CreateEntityBankAccountsTable do
           primary_key: true
 
       add :is_primary, :boolean, null: false, default: false
-      add :is_active, :boolean, null: false, default: true
       add :is_joint_account_holder, :boolean, null: false, default: true
       add :relationship_with_holder, :relationship_with_bank_account_holder
 
