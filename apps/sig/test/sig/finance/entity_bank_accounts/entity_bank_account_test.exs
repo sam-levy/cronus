@@ -126,34 +126,34 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccountTest do
                    fn -> Repo.insert(entity_bank_account) end
     end
 
-    test "relationship_with_holder_not_null_when_is_holder_false constraint when is_holder is false" do
+    test "relationship_with_holder_conditional_constaint constraint when is_joint_account_holder is false" do
       bank_account = insert(:bank_account)
 
       entity_bank_account = %EntityBankAccount{
         org_id: bank_account.org_id,
         entity_id: bank_account.entity_id,
         bank_account_id: bank_account.id,
-        is_holder: false
+        is_joint_account_holder: false
       }
 
       assert_raise Ecto.ConstraintError,
-                   ~r/relationship_with_holder_not_null_when_is_holder_false \(check_constraint\)/,
+                   ~r/relationship_with_holder_conditional_constaint \(check_constraint\)/,
                    fn -> Repo.insert(entity_bank_account) end
     end
 
-    test "relationship_with_holder_not_null_when_is_holder_false constraint when is_holder is true" do
+    test "relationship_with_holder_conditional_constaint constraint when is_joint_account_holder is true" do
       bank_account = insert(:bank_account)
 
       entity_bank_account = %EntityBankAccount{
         org_id: bank_account.org_id,
         entity_id: bank_account.entity_id,
         bank_account_id: bank_account.id,
-        is_holder: true,
+        is_joint_account_holder: true,
         relationship_with_holder: :partner
       }
 
       assert_raise Ecto.ConstraintError,
-                   ~r/relationship_with_holder_not_null_when_is_holder_false \(check_constraint\)/,
+                   ~r/relationship_with_holder_conditional_constaint \(check_constraint\)/,
                    fn -> Repo.insert(entity_bank_account) end
     end
   end
@@ -166,7 +166,7 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccountTest do
         bank_account_id: UUID.generate(),
         is_primary: true,
         is_active: false,
-        is_holder: false,
+        is_joint_account_holder: false,
         relationship_with_holder: random_enum_value(RelationshipWithHolder)
       }
 
@@ -180,7 +180,7 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccountTest do
                bank_account_id: attrs[:bank_account_id],
                is_primary: attrs[:is_primary],
                is_active: attrs[:is_active],
-               is_holder: attrs[:is_holder],
+               is_joint_account_holder: attrs[:is_joint_account_holder],
                relationship_with_holder: String.to_atom(attrs[:relationship_with_holder])
              }
     end
@@ -197,12 +197,12 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccountTest do
              }
     end
 
-    test "relationship_with_bank_account_holder required when is_holder is false" do
+    test "relationship_with_bank_account_holder required when is_joint_account_holder is false" do
       attrs = %{
         org_id: UUID.generate(),
         entity_id: UUID.generate(),
         bank_account_id: UUID.generate(),
-        is_holder: false
+        is_joint_account_holder: false
       }
 
       assert changeset = EntityBankAccount.create_changeset(attrs)
@@ -218,7 +218,7 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccountTest do
         bank_account_id: :invalid,
         is_primary: :invalid,
         is_active: :invalid,
-        is_holder: :invalid,
+        is_joint_account_holder: :invalid,
         relationship_with_holder: :invalid
       }
 
@@ -232,17 +232,17 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccountTest do
                bank_account_id: ["is invalid"],
                is_primary: ["is invalid"],
                is_active: ["is invalid"],
-               is_holder: ["is invalid"],
+               is_joint_account_holder: ["is invalid"],
                relationship_with_holder: ["is invalid"]
              }
     end
 
-    test "drops relationship_with_bank_account_holder when is_holder" do
+    test "drops relationship_with_bank_account_holder when is_joint_account_holder" do
       attrs = %{
         org_id: UUID.generate(),
         entity_id: UUID.generate(),
         bank_account_id: UUID.generate(),
-        is_holder: true,
+        is_joint_account_holder: true,
         relationship_with_holder: random_enum_value(RelationshipWithHolder)
       }
 
@@ -304,7 +304,7 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccountTest do
         org_id: UUID.generate(),
         entity_id: UUID.generate(),
         bank_account_id: UUID.generate(),
-        is_holder: false,
+        is_joint_account_holder: false,
         relationship_with_holder: random_enum_value(RelationshipWithHolder)
       }
 

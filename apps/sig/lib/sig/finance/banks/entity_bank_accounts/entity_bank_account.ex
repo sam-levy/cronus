@@ -19,7 +19,7 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccount do
 
     field :is_primary, :boolean, default: false
     field :is_active, :boolean, default: true
-    field :is_holder, :boolean, default: true
+    field :is_joint_account_holder, :boolean, default: true
     field :relationship_with_holder, RelationshipWithHolder
 
     timestamps()
@@ -27,14 +27,14 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccount do
 
   @create_required_fields [:org_id, :entity_id, :bank_account_id]
   @create_fields @create_required_fields ++
-                   [:is_primary, :is_active, :is_holder, :relationship_with_holder]
+                   [:is_primary, :is_active, :is_joint_account_holder, :relationship_with_holder]
 
   def create_changeset(attrs) do
     %__MODULE__{}
     |> cast(attrs, @create_fields)
     |> validate_required(@create_required_fields)
-    |> validate_required_if(:is_holder, false, [:relationship_with_holder])
-    |> drop_change_if(:is_holder, true, :relationship_with_holder)
+    |> validate_required_if(:is_joint_account_holder, false, [:relationship_with_holder])
+    |> drop_change_if(:is_joint_account_holder, true, :relationship_with_holder)
   end
 
   def update_changeset(%__MODULE__{} = target, attrs) do

@@ -33,26 +33,26 @@ defmodule Sig.ChangesetTest do
   describe "validate_required_if/4" do
     test "when meets condition and fields are present" do
       data = %{}
-      types = %{is_holder: :boolean, relationship_with_holder: :string}
-      params = %{is_holder: false, relationship_with_holder: "child"}
+      types = %{is_joint_account_holder: :boolean, relationship_with_holder: :string}
+      params = %{is_joint_account_holder: false, relationship_with_holder: "child"}
 
       changeset =
         {data, types}
         |> Ecto.Changeset.cast(params, Map.keys(types))
-        |> Sig.Changeset.validate_required_if(:is_holder, false, [:relationship_with_holder])
+        |> Sig.Changeset.validate_required_if(:is_joint_account_holder, false, [:relationship_with_holder])
 
       assert changeset.valid?
     end
 
     test "when meets condition and fields are not present" do
       data = %{}
-      types = %{is_holder: :boolean, relationship_with_holder: :string}
-      params = %{is_holder: false}
+      types = %{is_joint_account_holder: :boolean, relationship_with_holder: :string}
+      params = %{is_joint_account_holder: false}
 
       changeset =
         {data, types}
         |> Ecto.Changeset.cast(params, Map.keys(types))
-        |> Sig.Changeset.validate_required_if(:is_holder, false, [:relationship_with_holder])
+        |> Sig.Changeset.validate_required_if(:is_joint_account_holder, false, [:relationship_with_holder])
 
       refute changeset.valid?
       assert errors_on(changeset) == %{relationship_with_holder: ["can't be blank"]}
@@ -60,13 +60,13 @@ defmodule Sig.ChangesetTest do
 
     test "ignores if condition is not met" do
       data = %{}
-      types = %{is_holder: :boolean, relationship_with_holder: :string}
-      params = %{is_holder: true}
+      types = %{is_joint_account_holder: :boolean, relationship_with_holder: :string}
+      params = %{is_joint_account_holder: true}
 
       changeset =
         {data, types}
         |> Ecto.Changeset.cast(params, Map.keys(types))
-        |> Sig.Changeset.validate_required_if(:is_holder, false, [:relationship_with_holder])
+        |> Sig.Changeset.validate_required_if(:is_joint_account_holder, false, [:relationship_with_holder])
 
       assert changeset.valid?
     end
@@ -75,33 +75,33 @@ defmodule Sig.ChangesetTest do
   describe "drop_change_if/4" do
     test "drops field if condition is met" do
       data = %{}
-      types = %{is_holder: :boolean, relationship_with_holder: :string}
-      params = %{is_holder: true, relationship_with_holder: "child"}
+      types = %{is_joint_account_holder: :boolean, relationship_with_holder: :string}
+      params = %{is_joint_account_holder: true, relationship_with_holder: "child"}
 
       changeset =
         {data, types}
         |> Ecto.Changeset.cast(params, Map.keys(types))
-        |> Sig.Changeset.drop_change_if(:is_holder, true, :relationship_with_holder)
+        |> Sig.Changeset.drop_change_if(:is_joint_account_holder, true, :relationship_with_holder)
 
       assert changeset.valid?
 
-      assert changeset.changes == %{is_holder: true}
+      assert changeset.changes == %{is_joint_account_holder: true}
     end
 
     test "keeps field if condition is not met" do
       data = %{}
-      types = %{is_holder: :boolean, relationship_with_holder: :string}
-      params = %{is_holder: false, relationship_with_holder: "child"}
+      types = %{is_joint_account_holder: :boolean, relationship_with_holder: :string}
+      params = %{is_joint_account_holder: false, relationship_with_holder: "child"}
 
       changeset =
         {data, types}
         |> Ecto.Changeset.cast(params, Map.keys(types))
-        |> Sig.Changeset.drop_change_if(:is_holder, true, :relationship_with_holder)
+        |> Sig.Changeset.drop_change_if(:is_joint_account_holder, true, :relationship_with_holder)
 
       assert changeset.valid?
 
       assert changeset.changes == %{
-        is_holder: false,
+        is_joint_account_holder: false,
         relationship_with_holder: "child"
       }
     end

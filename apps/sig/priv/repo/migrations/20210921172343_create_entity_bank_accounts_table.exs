@@ -15,7 +15,7 @@ defmodule Sig.Repo.Migrations.CreateEntityBankAccountsTable do
 
       add :is_primary, :boolean, null: false, default: false
       add :is_active, :boolean, null: false, default: true
-      add :is_holder, :boolean, null: false, default: true
+      add :is_joint_account_holder, :boolean, null: false, default: true
       add :relationship_with_holder, :relationship_with_bank_account_holder
 
       timestamps()
@@ -30,9 +30,9 @@ defmodule Sig.Repo.Migrations.CreateEntityBankAccountsTable do
 
     create constraint(
              :entities_bank_accounts,
-             :relationship_with_holder_not_null_when_is_holder_false,
+             :relationship_with_holder_conditional_constaint,
              check: """
-             CASE WHEN is_holder = false THEN
+             CASE WHEN is_joint_account_holder = false THEN
                relationship_with_holder IS NOT NULL
              ELSE
                relationship_with_holder IS NULL
