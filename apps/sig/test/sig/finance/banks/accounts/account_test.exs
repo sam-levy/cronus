@@ -2,7 +2,6 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
   use Sig.DataCase
 
   alias Sig.Finance.Banks.Accounts.Account
-  alias Sig.Finance.Banks.Accounts.Account.BankAccountType
 
   describe "bank_accounts table constraints" do
     test "insertion" do
@@ -11,7 +10,7 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
       account = %Account{
         org_id: entity.org_id,
         entity_id: entity.id,
-        type: random_enum_value(BankAccountType),
+        type: random_enum_value(:bank_account_type),
         routing_number: random_string_number(),
         branch_number: random_string_number(),
         number: random_string_number(),
@@ -26,7 +25,7 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
 
       account = %Account{
         entity_id: entity.id,
-        type: random_enum_value(BankAccountType),
+        type: random_enum_value(:bank_account_type),
         routing_number: random_string_number(),
         branch_number: random_string_number(),
         number: random_string_number(),
@@ -44,7 +43,7 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
       account = %Account{
         org_id: UUID.generate(),
         entity_id: entity.id,
-        type: random_enum_value(BankAccountType),
+        type: random_enum_value(:bank_account_type),
         routing_number: random_string_number(),
         branch_number: random_string_number(),
         number: random_string_number(),
@@ -61,7 +60,7 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
 
       account = %Account{
         org_id: org.id,
-        type: random_enum_value(BankAccountType),
+        type: random_enum_value(:bank_account_type),
         routing_number: random_string_number(),
         branch_number: random_string_number(),
         number: random_string_number(),
@@ -79,7 +78,7 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
       account = %Account{
         org_id: org.id,
         entity_id: UUID.generate(),
-        type: random_enum_value(BankAccountType),
+        type: random_enum_value(:bank_account_type),
         routing_number: random_string_number(),
         branch_number: random_string_number(),
         number: random_string_number(),
@@ -97,7 +96,7 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
       account = %Account{
         org_id: existing_account.org_id,
         entity_id: existing_account.entity_id,
-        type: random_enum_value(BankAccountType),
+        type: random_enum_value(:bank_account_type),
         routing_number: random_string_number(),
         branch_number: random_string_number(),
         number: random_string_number(),
@@ -122,7 +121,7 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
       account = %Account{
         org_id: existing_account.org_id,
         entity_id: existing_account.entity_id,
-        type: random_enum_value(BankAccountType),
+        type: random_enum_value(:bank_account_type),
         routing_number: String.upcase(existing_account.routing_number),
         branch_number: String.upcase(existing_account.branch_number),
         number: String.upcase(existing_account.number),
@@ -140,7 +139,7 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
       account = %Account{
         org_id: primary_bank_account.org_id,
         entity_id: primary_bank_account.entity_id,
-        type: random_enum_value(BankAccountType),
+        type: random_enum_value(:bank_account_type),
         routing_number: random_string_number(),
         branch_number: random_string_number(),
         number: random_string_number(),
@@ -158,11 +157,11 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
       attrs = %{
         org_id: UUID.generate(),
         entity_id: UUID.generate(),
-        type: random_enum_value(BankAccountType),
+        type: random_enum_value(:bank_account_type),
         routing_number: random_bank_routing_number(),
         branch_number: random_string_number(),
-        other_info: %{"OP" => "001"},
         number: random_string_number(),
+        other_info: %{"OP" => "001"},
         pix_key: "pix_key",
         is_active: false,
         is_primary: false,
@@ -179,8 +178,8 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
                type: String.to_atom(attrs[:type]),
                routing_number: attrs[:routing_number],
                branch_number: attrs[:branch_number],
-               other_info: attrs[:other_info],
                number: attrs[:number],
+               other_info: attrs[:other_info],
                pix_key: attrs[:pix_key],
                is_active: attrs[:is_active],
                is_primary: attrs[:is_primary],
@@ -211,8 +210,8 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
         type: 1,
         routing_number: :invalid,
         branch_number: :invalid,
-        other_info: :invalid,
         number: :invalid,
+        other_info: :invalid,
         pix_key: :invalid,
         is_active: :invalid,
         is_primary: :invalid,
@@ -229,8 +228,8 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
                type: ["is invalid"],
                routing_number: ["is invalid"],
                branch_number: ["is invalid"],
-               other_info: ["is invalid"],
                number: ["is invalid"],
+               other_info: ["is invalid"],
                pix_key: ["is invalid"],
                is_active: ["is invalid"],
                is_primary: ["is invalid"],
@@ -242,7 +241,7 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
       attrs = %{
         org_id: UUID.generate(),
         entity_id: UUID.generate(),
-        type: random_enum_value(BankAccountType),
+        type: random_enum_value(:bank_account_type),
         routing_number: random_bank_routing_number(),
         branch_number: String.duplicate("a", 256),
         number: String.duplicate("a", 256),
@@ -265,7 +264,7 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
       attrs = %{
         org_id: UUID.generate(),
         entity_id: UUID.generate(),
-        type: random_enum_value(BankAccountType),
+        type: random_enum_value(:bank_account_type),
         routing_number: "invalid",
         branch_number: random_string_number(),
         number: random_string_number(),
@@ -285,7 +284,7 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
       attrs = %{
         org_id: UUID.generate(),
         entity_id: UUID.generate(),
-        type: random_enum_value(BankAccountType),
+        type: random_enum_value(:bank_account_type),
         routing_number: random_bank_routing_number(),
         branch_number: random_string_number(),
         number: random_string_number(),
@@ -308,7 +307,7 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
       attrs = %{
         org_id: existing_account.org_id,
         entity_id: existing_account.entity_id,
-        type: random_enum_value(BankAccountType),
+        type: random_enum_value(:bank_account_type),
         routing_number: random_bank_routing_number(),
         branch_number: random_string_number(),
         number: random_string_number(),
@@ -337,7 +336,7 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
       attrs = %{
         org_id: existing_account.org_id,
         entity_id: existing_account.entity_id,
-        type: random_enum_value(BankAccountType),
+        type: random_enum_value(:bank_account_type),
         routing_number: String.upcase(existing_account.routing_number),
         branch_number: String.upcase(existing_account.branch_number),
         number: String.upcase(existing_account.number),
@@ -452,11 +451,11 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
         is_active: true,
         is_primary: true,
         org_id: UUID.generate(),
-        type: random_enum_value(BankAccountType),
+        type: random_enum_value(:bank_account_type),
         routing_number: random_bank_routing_number(),
         branch_number: random_string_number(),
-        other_info: %{"OP" => "001"},
         number: random_string_number(),
+        other_info: %{"OP" => "001"},
         is_joint_account: true
       }
 
