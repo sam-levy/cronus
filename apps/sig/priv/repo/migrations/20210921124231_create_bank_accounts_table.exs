@@ -15,6 +15,7 @@ defmodule Sig.Repo.Migrations.CreateBankAccountsTable do
       add :number, :citext, null: false
       add :other_info, :map, null: false, default: %{}
       add :is_active, :boolean, null: false, default: true
+      add :is_primary, :boolean, null: false
       add :is_joint_account, :boolean, null: false, default: false
       add :pix_key, :citext
 
@@ -27,6 +28,13 @@ defmodule Sig.Repo.Migrations.CreateBankAccountsTable do
       :bank_accounts,
       [:routing_number, :branch_number, :number, :org_id],
       name: :bank_accounts_org_id_account
+    )
+
+    create unique_index(
+      :bank_accounts,
+      [:is_primary, :entity_id, :org_id],
+      where: "is_primary = true",
+      name: :bank_accounts_is_primary
     )
   end
 end

@@ -21,12 +21,22 @@ defmodule Sig.Finance.Banks.Accounts.Account do
     field :other_info, :map, default: %{}
     field :pix_key, :string
     field :is_active, :boolean, default: true
+    field :is_primary, :boolean
     field :is_joint_account, :boolean, default: false
 
     timestamps()
   end
 
-  @create_required_fields [:org_id, :entity_id, :type, :routing_number, :branch_number, :number]
+  @create_required_fields [
+    :org_id,
+    :entity_id,
+    :type,
+    :routing_number,
+    :branch_number,
+    :number,
+    :is_primary
+  ]
+
   @create_fields @create_required_fields ++ [:pix_key, :other_info, :is_active, :is_joint_account]
 
   def create_changeset(attrs) do
@@ -44,7 +54,7 @@ defmodule Sig.Finance.Banks.Accounts.Account do
 
   def update_changeset(%__MODULE__{} = target, attrs) do
     target
-    |> cast(attrs, [:pix_key, :is_active])
+    |> cast(attrs, [:pix_key, :is_active, :is_primary])
     |> validate_pix_key()
   end
 
