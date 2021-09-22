@@ -18,8 +18,8 @@ defmodule SigLive.Router do
   end
 
   pipeline :org_authorization do
-    plug SigLive.Plugs.FetchOrg
     plug :require_authenticated_user
+    plug SigLive.Plugs.FetchOrg
     plug SigLive.Plugs.AuthorizeOrgUser
   end
 
