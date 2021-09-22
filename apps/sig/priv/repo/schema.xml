@@ -253,13 +253,21 @@
 <part>id</part>
 </key>
 </table>
-<table x="1530" y="740" name="companies">
+<table x="1529" y="740" name="companies">
 <row name="id" null="1" autoincrement="1">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
 <row name="org_id" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
 <default>NULL</default><relation table="orgs*" row="id" />
+</row>
+<row name="entity_id" null="1" autoincrement="0">
+<datatype>INTEGER</datatype>
+<default>NULL</default><relation table="entities" row="id" />
+</row>
+<row name="is_org_owned#" null="0" autoincrement="0">
+<datatype>BOOLEAN</datatype>
+<default>'false'</default><comment>Add later when needed</comment>
 </row>
 <row name="registration_name" null="1" autoincrement="0">
 <datatype>VARCHAR</datatype>
@@ -273,10 +281,6 @@
 <row name="is_virtual" null="1" autoincrement="0">
 <datatype>BOOLEAN</datatype>
 <default>NULL</default></row>
-<row name="entity_id" null="1" autoincrement="0">
-<datatype>INTEGER</datatype>
-<default>NULL</default><relation table="entities" row="id" />
-</row>
 <key type="PRIMARY" name="">
 <part>id</part>
 </key>
@@ -310,7 +314,7 @@
 <part>id</part>
 </key>
 </table>
-<table x="1232" y="1589" name="bills">
+<table x="1199" y="1590" name="bills">
 <row name="id" null="1" autoincrement="1">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
@@ -377,7 +381,11 @@
 <part>id</part>
 </key>
 </table>
-<table x="1555" y="1539" name="bank_accounts">
+<table x="1468" y="1514" name="bank_accounts">
+<row name="entity_id" null="1" autoincrement="0">
+<datatype>INTEGER</datatype>
+<default>NULL</default><relation table="entities" row="id" />
+</row>
 <row name="id" null="1" autoincrement="1">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
@@ -387,17 +395,17 @@
 <row name="type" null="1" autoincrement="0">
 <datatype>VARCHAR</datatype>
 <default>NULL</default></row>
-<row name="agency" null="1" autoincrement="0">
+<row name="routing_number" null="1" autoincrement="0">
+<datatype>INTEGER</datatype>
+<default>NULL</default></row>
+<row name="branch_number" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
 <row name="number" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
-<row name="other" null="1" autoincrement="0">
+<row name="other_info" null="1" autoincrement="0">
 <datatype>VARCHAR</datatype>
-<default>NULL</default></row>
-<row name="credit_limit" null="1" autoincrement="0">
-<datatype>INTEGER</datatype>
 <default>NULL</default></row>
 <row name="pix_key" null="1" autoincrement="0">
 <datatype>VARCHAR</datatype>
@@ -408,15 +416,16 @@
 <row name="is_joint_account" null="1" autoincrement="0">
 <datatype>BOOLEAN</datatype>
 <default>NULL</default></row>
-<row name="routing_number" null="1" autoincrement="0">
+<row name="credit_limit#" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
-<default>NULL</default></row>
+<default>NULL</default><comment>Add later when needed</comment>
+</row>
 <key type="PRIMARY" name="">
 <part>id</part>
 </key>
 </table>
-<table x="1493" y="1310" name="entity_bank_accounts">
-<row name="org_id" null="1" autoincrement="0">
+<table x="1526" y="1285" name="entity_bank_accounts">
+<row name="org_id" null="0" autoincrement="0">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
 <row name="entity_id" null="1" autoincrement="0">
@@ -427,17 +436,17 @@
 <datatype>INTEGER</datatype>
 <default>NULL</default><relation table="bank_accounts" row="id" />
 </row>
-<row name="is_holder" null="1" autoincrement="0">
-<datatype>BOOLEAN</datatype>
-<default>NULL</default></row>
-<row name="bond_type_with_holder" null="1" autoincrement="0">
-<datatype>INTEGER</datatype>
-<default>NULL</default></row>
 <row name="is_primary" null="1" autoincrement="0">
 <datatype>BOOLEAN</datatype>
 <default>NULL</default></row>
 <row name="is_active" null="1" autoincrement="0">
 <datatype>BOOLEAN</datatype>
+<default>NULL</default></row>
+<row name="is_joint_account_holder" null="1" autoincrement="0">
+<datatype>BOOLEAN</datatype>
+<default>NULL</default></row>
+<row name="relationship_with_holder" null="1" autoincrement="0">
+<datatype>INTEGER</datatype>
 <default>NULL</default></row>
 <key type="PRIMARY" name="">
 </key>
@@ -548,7 +557,7 @@
 <part>id</part>
 </key>
 </table>
-<table x="2078" y="1722" name="financial_transactions">
+<table x="2082" y="1708" name="financial_transactions">
 <row name="id" null="1" autoincrement="1">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
@@ -704,7 +713,7 @@
 <part>id</part>
 </key>
 </table>
-<table x="1205" y="1413" name="invoice_bills">
+<table x="1182" y="1415" name="invoice_bills">
 <row name="invoice_id" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
 <default>NULL</default><relation table="invoices" row="id" />
@@ -716,7 +725,7 @@
 <key type="PRIMARY" name="">
 </key>
 </table>
-<table x="2383" y="1796" name="payables">
+<table x="2384" y="1797" name="payables">
 <row name="id" null="1" autoincrement="1">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
