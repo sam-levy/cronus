@@ -26,21 +26,21 @@ defmodule Sig.Entities.Companies.Company do
     %__MODULE__{}
     |> cast(attrs, @real_company_fields)
     |> validate_required(@real_company_fields)
-    |> base_validations()
+    |> validate_trade_name()
     |> validate_length(:registration_name, max: 255)
-    |> unique_constraint([:cnpj, :org_id])
     |> unique_constraint([:registration_name, :org_id])
+    |> unique_constraint([:cnpj, :org_id])
   end
 
   def create_virtual_changeset(attrs) do
     %__MODULE__{}
     |> cast(attrs, @virtual_company_fields)
     |> validate_required(@virtual_company_fields)
-    |> base_validations()
+    |> validate_trade_name()
     |> put_change(:is_virtual, true)
   end
 
-  defp base_validations(changeset) do
+  defp validate_trade_name(changeset) do
     changeset
     |> validate_length(:trade_name, max: 255)
     |> unique_constraint([:trade_name, :org_id])
