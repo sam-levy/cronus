@@ -14,7 +14,7 @@ defmodule Sig.Factories.BankAccountFactory do
         org = Keyword.get(attrs, :org, insert(:org))
 
         %Account{
-          org_id: org.id,
+          org: org,
           type: random_enum_value(BankAccountType),
           routing_number: random_bank_routing_number(),
           branch_number: sequence(&"branch_number_#{&1}"),

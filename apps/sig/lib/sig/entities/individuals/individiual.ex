@@ -10,8 +10,8 @@ defmodule Sig.Entities.Individuals.Individual do
 
   @primary_key false
   schema "individuals" do
-    belongs_to :entity, Entity, primary_key: true
     belongs_to :org, Org, primary_key: true
+    belongs_to :entity, Entity, primary_key: true
 
     field :name, :string
     field :cpf, CPF
@@ -20,7 +20,7 @@ defmodule Sig.Entities.Individuals.Individual do
     timestamps()
   end
 
-  @fields [:entity_id, :org_id, :cpf, :name, :gender]
+  @fields [:org_id, :entity_id, :cpf, :name, :gender]
 
   def cast_params(params) do
     cast(%__MODULE__{}, params, @fields).changes

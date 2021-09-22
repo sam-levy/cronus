@@ -8,10 +8,10 @@ defmodule Sig.Factories.EntityBankAccountFactory do
       def factory(:entity_bank_account, attrs) do
         org = Keyword.get(attrs, :org, insert(:org))
         entity = Keyword.get(attrs, :entity, insert(:entity, org: org))
-        bank_account = Keyword.get(attrs, :bank_account, insert(:bank_account, org_id: org.id))
+        bank_account = Keyword.get(attrs, :bank_account, insert(:bank_account, org: org))
 
         %EntityBankAccount{
-          org_id: org.id,
+          org: org,
           entity: entity,
           bank_account: bank_account
         }

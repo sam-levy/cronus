@@ -3,8 +3,8 @@ defmodule Sig.Repo.Migrations.CreateCompaniesTable do
 
   def change do
     create table(:companies, primary_key: false) do
-      add :entity_id, references(:entities, with: [org_id: :org_id]), primary_key: true
       add :org_id, references(:orgs), primary_key: true
+      add :entity_id, references(:entities, with: [org_id: :org_id]), primary_key: true
 
       add :is_virtual, :boolean, null: false, default: false
       add :trade_name, :string, null: false

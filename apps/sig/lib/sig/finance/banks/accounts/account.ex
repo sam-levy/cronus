@@ -1,6 +1,8 @@
 defmodule Sig.Finance.Banks.Accounts.Account do
   use Sig.Schema
 
+  alias Sig.Organizations.Org
+
   defenum(BankAccountType, :bank_account_type, [
     :checking_account,
     :savings_account,
@@ -8,7 +10,7 @@ defmodule Sig.Finance.Banks.Accounts.Account do
   ])
 
   schema "bank_accounts" do
-    field :org_id, :binary_id, primary_key: true
+    belongs_to :org, Org, primary_key: true
 
     field :type, BankAccountType
     field :routing_number, :string

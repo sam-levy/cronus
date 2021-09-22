@@ -3,6 +3,7 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccount do
 
   alias Sig.Entities.Entity
   alias Sig.Finance.Banks.Accounts.Account
+  alias Sig.Organizations.Org
 
   defenum(RelationshipWithHolder, :relationship_with_bank_account_holder, [
     :child,
@@ -12,7 +13,7 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccount do
 
   @primary_key false
   schema "entities_bank_accounts" do
-    field :org_id, :binary_id, primary_key: true
+    belongs_to :org, Org, primary_key: true
     belongs_to :entity, Entity, primary_key: true
     belongs_to :bank_account, Account, primary_key: true
 

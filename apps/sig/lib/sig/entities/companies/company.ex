@@ -8,8 +8,8 @@ defmodule Sig.Entities.Companies.Company do
 
   @primary_key false
   schema "companies" do
-    belongs_to :entity, Entity, primary_key: true
     belongs_to :org, Org, primary_key: true
+    belongs_to :entity, Entity, primary_key: true
 
     field :is_virtual, :boolean, default: false
     field :trade_name, :string
@@ -19,8 +19,8 @@ defmodule Sig.Entities.Companies.Company do
     timestamps()
   end
 
-  @real_company_fields [:entity_id, :org_id, :trade_name, :registration_name, :cnpj]
-  @virtual_company_fields [:entity_id, :org_id, :trade_name]
+  @real_company_fields [:org_id, :entity_id, :trade_name, :registration_name, :cnpj]
+  @virtual_company_fields [:org_id, :entity_id, :trade_name]
 
   def create_real_changeset(attrs) do
     %__MODULE__{}
