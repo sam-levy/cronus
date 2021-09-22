@@ -18,23 +18,21 @@ alias Sig.Entities
 alias Sig.Entities.Individuals.Individual.Gender
 
 attrs = %{
-  org_id: main_org.id,
   name: "Samuel Levy",
   cpf: "34110230829",
   gender: :male
 }
 
-{:ok, samuel} = Entities.create_individual(main_org.id, attrs)
+{:ok, samuel} = Entities.create_individual(main_org, attrs)
 
 Enum.map(1..5, fn _ ->
   attrs = %{
-    org_id: main_org.id,
     name: Faker.Person.first_name() <> " " <> Faker.Person.last_name(),
     cpf: BrazilianDocuments.generate_cpf(),
     gender: Enum.random(Gender.__valid_values__())
   }
 
-  {:ok, _individual} = Entities.create_individual(main_org.id, attrs)
+  {:ok, _individual} = Entities.create_individual(main_org, attrs)
 end)
 
 # Users

@@ -41,8 +41,10 @@ defmodule Sig.Entities.IndividualsTest do
       insert(:individual, name: "Bugs Bunny", org: org)
       insert(:individual, name: "Daffy Duck", org: org)
 
-      assert [%Individual{name: "Bugs Bunny"}, %Individual{name: "Daffy Duck"}] =
-               Individuals.list_individuals(org.id)
+      assert [
+        %Individual{name: "Bugs Bunny"},
+        %Individual{name: "Daffy Duck"}
+      ] = Individuals.list_individuals(org)
     end
 
     test "do not list individuals from another org" do
@@ -51,7 +53,7 @@ defmodule Sig.Entities.IndividualsTest do
 
       another_org = insert(:org)
 
-      assert Individuals.list_individuals(another_org.id) == []
+      assert Individuals.list_individuals(another_org) == []
     end
   end
 
@@ -65,7 +67,7 @@ defmodule Sig.Entities.IndividualsTest do
       insert(:individual, org: org)
       insert(:individual)
 
-      assert {:ok, return} = Individuals.fetch_individual_by_cpf(org.id, cpf)
+      assert {:ok, return} = Individuals.fetch_individual_by_cpf(org, cpf)
 
       assert return.entity_id == individual.entity_id
       assert return.cpf == %CPF{number: individual.cpf}
@@ -74,24 +76,24 @@ defmodule Sig.Entities.IndividualsTest do
 
     test "do not fetch individual from another org" do
       cpf = BrazilianDocuments.generate_cpf()
-      right_org = insert(:org)
-      wrong_org = insert(:org)
+      org = insert(:org)
+      insert(:individual, cpf: cpf, org: org)
 
-      insert(:individual, cpf: cpf, org: right_org)
+      another_org = insert(:org)
 
-      assert Individuals.fetch_individual_by_cpf(wrong_org.id, cpf) ==
+      assert Individuals.fetch_individual_by_cpf(another_org, cpf) ==
                {:error, :not_found}
     end
 
     test "do not fetch individual with another cpf" do
       cpf = BrazilianDocuments.generate_cpf()
-      right_org = insert(:org)
-      wrong_org = insert(:org)
+      org = insert(:org)
+      another_org = insert(:org)
 
-      _right_individual = insert(:individual, cpf: cpf, org: right_org)
-      wrong_individual = insert(:individual, org: wrong_org)
+      _individual = insert(:individual, cpf: cpf, org: org)
+      another_individual = insert(:individual, org: another_org)
 
-      assert Individuals.fetch_individual_by_cpf(right_org.id, wrong_individual.cpf) ==
+      assert Individuals.fetch_individual_by_cpf(org, another_individual.cpf) ==
                {:error, :not_found}
     end
   end
@@ -106,7 +108,7 @@ defmodule Sig.Entities.IndividualsTest do
         gender: random_enum_value(:gender)
       }
 
-      assert {:ok, individual} = Individuals.create_individual(org.id, attrs)
+      assert {:ok, individual} = Individuals.create_individual(org, attrs)
 
       assert Repo.get_by(Individual,
                entity_id: individual.entity_id,
@@ -125,25 +127,13 @@ defmodule Sig.Entities.IndividualsTest do
     test "invalid attrs" do
       org = insert(:org)
 
-      assert {:error, changeset} = Individuals.create_individual(org.id, %{})
+      assert {:error, changeset} = Individuals.create_individual(org, %{})
 
       assert errors_on(changeset) == %{
                cpf: ["can't be blank"],
                gender: ["can't be blank"],
                name: ["can't be blank"]
              }
-    end
-
-    test "raises if org does not exist" do
-      attrs = %{
-        name: Faker.Person.name(),
-        cpf: BrazilianDocuments.generate_cpf(),
-        gender: random_enum_value(:gender)
-      }
-
-      assert_raise Ecto.ConstraintError,
-                   ~r/entities_org_id_fkey \(foreign_key_constraint\)/,
-                   fn -> Individuals.create_individual(UUID.generate(), attrs) end
     end
   end
 
@@ -188,7 +178,7 @@ defmodule Sig.Entities.IndividualsTest do
       org = insert(:org)
       topic = "org_id:" <> org.id <> ":individuals"
 
-      assert Individuals.subscribe_to_individuals(org.id) == :ok
+      assert Individuals.subscribe_to_individuals(org) == :ok
 
       Phoenix.PubSub.broadcast(
         Sig.PubSub,
@@ -210,7 +200,7 @@ defmodule Sig.Entities.IndividualsTest do
 
       @endpoint.subscribe(topic)
 
-      assert Individuals.broadcast_individuals(org.id) == :ok
+      assert Individuals.broadcast_individuals(org) == :ok
 
       assert_receive {:updated_org_individuals, received_individuals}
 

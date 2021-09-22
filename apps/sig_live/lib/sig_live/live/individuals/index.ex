@@ -1,17 +1,18 @@
 defmodule SigLive.Individuals.Index do
   use SigLive, :surface_live_view
+	on_mount SigLive.InitAssigns
 
   alias Sig.Entities
-
 	alias SigLive.Individuals.New
 
   @impl true
-  def mount(%{"org_id" => org_id}, _session, socket) do
-		if connected?(socket), do: Entities.subscribe_to_individuals(org_id)
+  def mount(_params, _session, socket) do
+		%{org: org} = socket.assigns
+
+		if connected?(socket), do: Entities.subscribe_to_individuals(org)
 
 		socket = assign(socket,
-			org_id: org_id,
-			individuals: Entities.list_individuals(org_id),
+			individuals: Entities.list_individuals(org),
 			new_individual_modal_open: false
 		)
 
@@ -45,7 +46,7 @@ defmodule SigLive.Individuals.Index do
 			:if={@new_individual_modal_open}
 			id="new_individual_modal"
 			close="toggle_new_individual_modal"
-			{=@org_id}
+			{=@org}
 		/>
 
 		<table class="w-full bg-white shadow-lg my-7">

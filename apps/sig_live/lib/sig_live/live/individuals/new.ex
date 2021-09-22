@@ -18,7 +18,7 @@ defmodule SigLive.Individuals.New do
   alias SigLive.Components.Modal
 
   prop close, :event, required: true
-  prop org_id, :string, required: true
+  prop org, :struct, required: true
 
   data gender_options, :map, default: Gender.__enums__()
   data cpf, :string, default: nil
@@ -32,7 +32,7 @@ defmodule SigLive.Individuals.New do
 
   @impl true
   def handle_event("fetch_individual_by_cpf", %{"validate_cpf" => %{"cpf" => cpf}}, socket) do
-    case Entities.fetch_individual_by_cpf(socket.assigns.org_id, cpf) do
+    case Entities.fetch_individual_by_cpf(socket.assigns.org, cpf) do
       {:ok, individual} ->
         handle_found_individual(individual, socket)
 
@@ -46,12 +46,12 @@ defmodule SigLive.Individuals.New do
 
   @impl true
   def handle_event("save", %{"individual" => individual_params}, socket) do
-    org_id = socket.assigns.org_id
+    org = socket.assigns.org
     attrs = Entities.cast_individual_params(individual_params)
 
-    case Entities.create_individual(org_id, attrs) do
+    case Entities.create_individual(org, attrs) do
       {:ok, _individual} ->
-        Entities.broadcast_individuals(org_id)
+        Entities.broadcast_individuals(org)
         send(self(), "individual_created")
         {:noreply, socket}
 
