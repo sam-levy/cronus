@@ -13,8 +13,12 @@ defmodule Sig.Factories.IndividualFactory do
           org: org,
           name: sequence(&"individual_name#{&1}"),
           cpf: BrazilianDocuments.generate_cpf(),
-          gender: random_enum_value(Gender)
+          gender: random_enum_value(:gender)
         }
+      end
+
+      def random_enum_value(:gender) do
+        random_enum_value(Gender)
       end
     end
   end

@@ -4,7 +4,6 @@ defmodule Sig.Entities.Individuals.IndividualTest do
   alias BrazilianDocuments.Types.CPF
 
   alias Sig.Entities.Individuals.Individual
-  alias Sig.Entities.Individuals.Individual.Gender
 
   describe "individuals table constraints" do
     test "[entity_id, org_id] individuals_pkey unique_constraint" do
@@ -18,7 +17,7 @@ defmodule Sig.Entities.Individuals.IndividualTest do
         entity_id: entity.id,
         name: Faker.Person.name(),
         cpf: BrazilianDocuments.generate_cpf(),
-        gender: random_enum_value(Gender)
+        gender: random_enum_value(:gender)
       }
 
       assert_raise Ecto.ConstraintError,
@@ -33,7 +32,7 @@ defmodule Sig.Entities.Individuals.IndividualTest do
         org_id: org.id,
         name: Faker.Person.name(),
         cpf: BrazilianDocuments.generate_cpf(),
-        gender: random_enum_value(Gender)
+        gender: random_enum_value(:gender)
       }
 
       assert_raise Postgrex.Error,
@@ -48,7 +47,7 @@ defmodule Sig.Entities.Individuals.IndividualTest do
         entity_id: entity.id,
         name: Faker.Person.name(),
         cpf: BrazilianDocuments.generate_cpf(),
-        gender: random_enum_value(Gender)
+        gender: random_enum_value(:gender)
       }
 
       assert_raise Postgrex.Error,
@@ -64,7 +63,7 @@ defmodule Sig.Entities.Individuals.IndividualTest do
         entity_id: UUID.generate(),
         name: Faker.Person.name(),
         cpf: BrazilianDocuments.generate_cpf(),
-        gender: random_enum_value(Gender)
+        gender: random_enum_value(:gender)
       }
 
       assert_raise Ecto.ConstraintError,
@@ -80,7 +79,7 @@ defmodule Sig.Entities.Individuals.IndividualTest do
         entity_id: entity.id,
         name: Faker.Person.name(),
         cpf: BrazilianDocuments.generate_cpf(),
-        gender: random_enum_value(Gender)
+        gender: random_enum_value(:gender)
       }
 
       assert_raise Ecto.ConstraintError,
@@ -101,7 +100,7 @@ defmodule Sig.Entities.Individuals.IndividualTest do
         entity_id: entity.id,
         name: Faker.Person.name(),
         cpf: cpf,
-        gender: random_enum_value(Gender)
+        gender: random_enum_value(:gender)
       }
 
       assert_raise Ecto.ConstraintError,
@@ -115,7 +114,7 @@ defmodule Sig.Entities.Individuals.IndividualTest do
       params = %{
         "cpf" => BrazilianDocuments.generate_cpf(),
         "name" => Faker.Person.name(),
-        "gender" => random_enum_value(Gender)
+        "gender" => random_enum_value(:gender)
       }
 
       assert Individual.cast_params(params) == %{
@@ -129,7 +128,7 @@ defmodule Sig.Entities.Individuals.IndividualTest do
       params = %{
         "cnpj" => BrazilianDocuments.generate_cnpj(),
         "name" => Faker.Person.name(),
-        "gender" => random_enum_value(Gender)
+        "gender" => random_enum_value(:gender)
       }
 
       assert Individual.cast_params(params) == %{
@@ -146,7 +145,7 @@ defmodule Sig.Entities.Individuals.IndividualTest do
         entity_id: UUID.generate(),
         name: Faker.Person.name(),
         cpf: BrazilianDocuments.generate_cpf(),
-        gender: random_enum_value(Gender)
+        gender: random_enum_value(:gender)
       }
 
       assert changeset = Individual.create_changeset(attrs)
@@ -204,7 +203,7 @@ defmodule Sig.Entities.Individuals.IndividualTest do
         entity_id: UUID.generate(),
         name: String.duplicate("a", 256),
         cpf: BrazilianDocuments.generate_cpf(),
-        gender: random_enum_value(Gender)
+        gender: random_enum_value(:gender)
       }
 
       assert changeset = Individual.create_changeset(attrs)
@@ -225,7 +224,7 @@ defmodule Sig.Entities.Individuals.IndividualTest do
         entity_id: UUID.generate(),
         name: Faker.Person.name(),
         cpf: formatted_cpf,
-        gender: random_enum_value(Gender)
+        gender: random_enum_value(:gender)
       }
 
       assert changeset = Individual.create_changeset(attrs)
@@ -240,7 +239,7 @@ defmodule Sig.Entities.Individuals.IndividualTest do
         entity_id: UUID.generate(),
         name: Faker.Person.name(),
         cpf: "00887718061",
-        gender: random_enum_value(Gender)
+        gender: random_enum_value(:gender)
       }
 
       assert changeset = Individual.create_changeset(attrs)
@@ -262,7 +261,7 @@ defmodule Sig.Entities.Individuals.IndividualTest do
         entity_id: entity.id,
         name: Faker.Person.name(),
         cpf: cpf,
-        gender: random_enum_value(Gender)
+        gender: random_enum_value(:gender)
       }
 
       assert {:error, changeset} =

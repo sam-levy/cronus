@@ -6,7 +6,6 @@ defmodule Sig.Entities.IndividualsTest do
   alias Sig.Entities.Entity
   alias Sig.Entities.Individuals
   alias Sig.Entities.Individuals.Individual
-  alias Sig.Entities.Individuals.Individual.Gender
 
   @endpoint SigLive.Endpoint
 
@@ -15,7 +14,7 @@ defmodule Sig.Entities.IndividualsTest do
       params = %{
         "cpf" => BrazilianDocuments.generate_cpf(),
         "name" => Faker.Person.name(),
-        "gender" => random_enum_value(Gender)
+        "gender" => random_enum_value(:gender)
       }
 
       assert Individuals.cast_individual_params(params) == %{
@@ -104,7 +103,7 @@ defmodule Sig.Entities.IndividualsTest do
       attrs = %{
         name: Faker.Person.name(),
         cpf: BrazilianDocuments.generate_cpf(),
-        gender: random_enum_value(Gender)
+        gender: random_enum_value(:gender)
       }
 
       assert {:ok, individual} = Individuals.create_individual(org.id, attrs)
@@ -139,7 +138,7 @@ defmodule Sig.Entities.IndividualsTest do
       attrs = %{
         name: Faker.Person.name(),
         cpf: BrazilianDocuments.generate_cpf(),
-        gender: random_enum_value(Gender)
+        gender: random_enum_value(:gender)
       }
 
       assert_raise Ecto.ConstraintError,
