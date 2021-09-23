@@ -2,7 +2,6 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccountTest do
   use Sig.DataCase
 
   alias Sig.Finance.Banks.EntityBankAccounts.EntityBankAccount
-  alias Sig.Finance.Banks.EntityBankAccounts.EntityBankAccount.RelationshipWithHolder
 
   describe "entities_bank_accounts table constraints" do
     test "insertion" do
@@ -166,7 +165,7 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccountTest do
         bank_account_id: UUID.generate(),
         is_primary: true,
         is_joint_account_holder: false,
-        relationship_with_holder: random_enum_value(RelationshipWithHolder)
+        relationship_with_holder: random_enum_value(:relationship_with_holder)
       }
 
       assert changeset = EntityBankAccount.create_changeset(attrs)
@@ -179,7 +178,7 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccountTest do
                bank_account_id: attrs[:bank_account_id],
                is_primary: attrs[:is_primary],
                is_joint_account_holder: attrs[:is_joint_account_holder],
-               relationship_with_holder: String.to_atom(attrs[:relationship_with_holder])
+               relationship_with_holder: attrs[:relationship_with_holder]
              }
     end
 
@@ -239,7 +238,7 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccountTest do
         entity_id: UUID.generate(),
         bank_account_id: UUID.generate(),
         is_joint_account_holder: true,
-        relationship_with_holder: random_enum_value(RelationshipWithHolder)
+        relationship_with_holder: random_enum_value(:relationship_with_holder)
       }
 
       assert changeset = EntityBankAccount.create_changeset(attrs)
@@ -286,7 +285,7 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccountTest do
         entity_id: UUID.generate(),
         bank_account_id: UUID.generate(),
         is_joint_account_holder: false,
-        relationship_with_holder: random_enum_value(RelationshipWithHolder)
+        relationship_with_holder: random_enum_value(:relationship_with_holder)
       }
 
       assert changeset = EntityBankAccount.update_changeset(entity_bank_account, attrs)

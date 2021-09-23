@@ -27,7 +27,7 @@ defmodule Sig.Factory do
 
   def random_enum_value(enum) do
     enum.__valid_values__()
-    |> Enum.filter(&is_binary/1)
+    |> Enum.filter(&is_atom/1)
     |> Enum.random()
   end
 

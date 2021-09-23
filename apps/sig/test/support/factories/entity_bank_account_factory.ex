@@ -4,6 +4,7 @@ defmodule Sig.Factories.EntityBankAccountFactory do
       alias Sig.Finance.Banks
       alias Sig.Finance.Banks.Accounts.Account
       alias Sig.Finance.Banks.EntityBankAccounts.EntityBankAccount
+      alias Sig.Finance.Banks.EntityBankAccounts.EntityBankAccount.RelationshipWithHolder
 
       def factory(:entity_bank_account, attrs) do
         org = Keyword.get(attrs, :org, insert(:org))
@@ -17,6 +18,10 @@ defmodule Sig.Factories.EntityBankAccountFactory do
           entity: entity,
           bank_account: bank_account
         }
+      end
+
+      def random_enum_value(:relationship_with_holder) do
+        random_enum_value(RelationshipWithHolder)
       end
     end
   end

@@ -20,7 +20,7 @@ defmodule Sig.Entities.IndividualsTest do
       assert Individuals.cast_individual_params(params) == %{
                cpf: %CPF{number: params["cpf"]},
                name: params["name"],
-               gender: String.to_atom(params["gender"])
+               gender: params["gender"]
              }
     end
   end

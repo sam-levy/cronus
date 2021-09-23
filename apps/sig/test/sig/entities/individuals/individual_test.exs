@@ -120,7 +120,7 @@ defmodule Sig.Entities.Individuals.IndividualTest do
       assert Individual.cast_params(params) == %{
                cpf: %CPF{number: params["cpf"]},
                name: params["name"],
-               gender: String.to_atom(params["gender"])
+               gender: params["gender"]
              }
     end
 
@@ -133,7 +133,7 @@ defmodule Sig.Entities.Individuals.IndividualTest do
 
       assert Individual.cast_params(params) == %{
                name: params["name"],
-               gender: String.to_atom(params["gender"])
+               gender: params["gender"]
              }
     end
   end
@@ -157,7 +157,7 @@ defmodule Sig.Entities.Individuals.IndividualTest do
                entity_id: attrs[:entity_id],
                name: attrs[:name],
                cpf: %CPF{number: attrs[:cpf]},
-               gender: String.to_atom(attrs[:gender])
+               gender: attrs[:gender]
              }
     end
 
