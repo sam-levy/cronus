@@ -134,21 +134,28 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
     end
 
     test "bank_accounts_is_primary unique_constraint" do
-      primary_bank_account = insert(:bank_account, is_primary: true)
+      org = insert(:org)
+      entity_1 = insert(:entity, org: org)
+      entity_2 = insert(:entity, org: org)
 
-      account = %Account{
-        org_id: primary_bank_account.org_id,
-        entity_id: primary_bank_account.entity_id,
+      # Allow is_primary = true for different entities from the same org
+      _entity_1_primary = insert(:bank_account, org: org, entity: entity_1, is_primary: true)
+      _entity_2_primary = insert(:bank_account, org: org, entity: entity_2, is_primary: true)
+
+      entity_2_duplicated_primary = %Account{
+        org_id: org.id,
+        entity_id: entity_2.id,
+        is_primary: true,
         type: random_enum_value(:bank_account_type),
         routing_number: random_string_number(),
         branch_number: random_string_number(),
-        number: random_string_number(),
-        is_primary: true
+        number: random_string_number()
       }
 
+      # Rises if is_primary = true for a second account of an entity with a primary account
       assert_raise Ecto.ConstraintError,
                    ~r/bank_accounts_is_primary \(unique_constraint\)/,
-                   fn -> Repo.insert(account) end
+                   fn -> Repo.insert(entity_2_duplicated_primary) end
     end
   end
 
