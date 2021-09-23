@@ -70,4 +70,34 @@ defmodule Sig.Finance.Banks.EntityBankAccountsTest do
       assert EntityBankAccounts.list_by_entity_with_account(entity) == []
     end
   end
+
+  describe "get_entity_primary/1" do
+    test "gets the entity primary EntityBankAccount" do
+      org = insert(:org)
+      entity = insert(:entity, org: org)
+
+      %{bank_account_id: primary_eba_account_id} =
+        insert(:entity_bank_account, org: org, entity: entity, is_primary: true)
+
+      insert(:entity_bank_account, org: org, entity: entity, is_primary: false)
+
+      assert %EntityBankAccount{bank_account_id: ^primary_eba_account_id} =
+               EntityBankAccounts.get_entity_primary(entity)
+    end
+
+    test "when entity doesn't have a primary EntityBankAccount" do
+      org = insert(:org)
+      entity = insert(:entity, org: org)
+
+      insert(:entity_bank_account, org: org, entity: entity, is_primary: false)
+
+      assert EntityBankAccounts.get_entity_primary(entity) == nil
+    end
+
+    test "when entity doesn't have any EntityBankAccount" do
+      entity = insert(:entity)
+
+      assert EntityBankAccounts.get_entity_primary(entity) == nil
+    end
+  end
 end

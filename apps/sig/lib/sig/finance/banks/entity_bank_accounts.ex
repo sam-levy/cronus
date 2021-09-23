@@ -21,6 +21,13 @@ defmodule Sig.Finance.Banks.EntityBankAccounts do
     |> Repo.all()
   end
 
+  def get_entity_primary(%Entity{} = entity) do
+    entity
+    |> query_by_entity()
+    |> where(is_primary: true)
+    |> Repo.one()
+  end
+
   defp query_by_entity(entity) do
     EntityBankAccount
     |> where(org_id: ^entity.org_id)
