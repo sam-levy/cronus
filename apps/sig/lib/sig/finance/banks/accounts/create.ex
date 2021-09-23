@@ -1,6 +1,4 @@
 defmodule Sig.Finance.Banks.Accounts.Create do
-  import Ecto.Query
-
   alias Ecto.Multi
 
   alias Sig.Entities.Entity
@@ -17,54 +15,52 @@ defmodule Sig.Finance.Banks.Accounts.Create do
       |> Map.put(:entity_id, entity.id)
 
     Multi.new()
-    |> Multi.run(:existing_accounts, fn _, _ -> fetch_existing_accounts(entity) end)
-    |> Multi.run(:existing_ebas, fn _, _ -> fetch_existing_ebas(entity) end)
-    |> Multi.merge(&update_existing_ebas(&1, attrs))
-    |> Multi.merge(&update_existing_accounts(&1, attrs))
+    |> Multi.run(:existing_primary_account, fn _, _ ->
+      {:ok, Accounts.get_entity_primary(entity)}
+    end)
+    |> Multi.run(:existing_primary_eba, fn _, _ ->
+      {:ok, EntityBankAccounts.get_entity_primary(entity)}
+    end)
+    |> Multi.merge(&update_existing_account(&1, attrs))
+    |> Multi.merge(&update_existing_eba(&1, attrs))
     |> Multi.insert(:create_account, &account_changeset(&1, attrs))
     |> Repo.transaction()
     |> as_result()
   end
 
-  defp fetch_existing_accounts(entity), do: {:ok, Accounts.list_by_entity(entity)}
+  defp update_existing_account(%{existing_primary_account: nil}, _attrs), do: Multi.new()
 
-  defp fetch_existing_ebas(entity), do: {:ok, EntityBankAccounts.list_by_entity(entity)}
+  defp update_existing_account(
+         %{existing_primary_account: existing_primary_account},
+         %{is_primary: true} = _attrs
+       ) do
+    changeset = Account.update_changeset(existing_primary_account, %{is_primary: false})
 
-  defp update_existing_ebas(%{existing_ebas: []}, _attrs), do: Multi.new()
-
-  defp update_existing_ebas(_, %{is_primary: false} = _attrs), do: Multi.new()
-
-  defp update_existing_ebas(%{existing_ebas: existing_ebas}, _attrs) do
-    to_update =
-      EntityBankAccount
-      |> where([eba], eba.org_id in ^Enum.map(existing_ebas, & &1.org_id))
-      |> where([eba], eba.bank_account_id in ^Enum.map(existing_ebas, & &1.bank_account_id))
-      |> update(set: [is_primary: false])
-
-    Multi.update_all(Multi.new(), :update_existing_entity_accounts, to_update, [])
+    Multi.update(Multi.new(), :update_existing_account, changeset)
   end
 
-  defp update_existing_accounts(_, %{is_primary: false} = _attrs), do: Multi.new()
+  defp update_existing_account(_changes, _attrs), do: Multi.new()
 
-  defp update_existing_accounts(%{existing_accounts: []}, _attrs), do: Multi.new()
+  defp update_existing_eba(%{existing_primary_eba: nil}, _attrs), do: Multi.new()
 
-  defp update_existing_accounts(%{existing_accounts: existing_accounts}, _attrs) do
-    to_update =
-      Account
-      |> where([account], account.org_id in ^Enum.map(existing_accounts, & &1.org_id))
-      |> where([account], account.id in ^Enum.map(existing_accounts, & &1.id))
-      |> update(set: [is_primary: false])
+  defp update_existing_eba(
+         %{existing_primary_eba: existing_primary_eba},
+         %{is_primary: true} = _attrs
+       ) do
+    changeset = EntityBankAccount.update_changeset(existing_primary_eba, %{is_primary: false})
 
-    Multi.update_all(Multi.new(), :update_existing_accounts, to_update, [])
+    Multi.update(Multi.new(), :update_existing_eba, changeset)
   end
 
-  def account_changeset(%{existing_accounts: [], existing_ebas: []}, attrs) do
+  defp update_existing_eba(_changes, _attrs), do: Multi.new()
+
+  defp account_changeset(%{existing_primary_account: nil, existing_primary_eba: nil}, attrs) do
     attrs
     |> Map.put(:is_primary, true)
     |> Account.create_changeset()
   end
 
-  def account_changeset(_, attrs), do: Account.create_changeset(attrs)
+  defp account_changeset(_, attrs), do: Account.create_changeset(attrs)
 
   defp as_result({:ok, %{create_account: account}}), do: {:ok, account}
   defp as_result({:error, _operation, reason, _changes}), do: {:error, reason}
