@@ -3,9 +3,8 @@ defmodule Sig.Finance.Banks.Accounts.Create do
 
   alias Sig.Entities.Entity
   alias Sig.Finance.Banks.Accounts
-  alias Sig.Finance.Banks.Accounts.Account
   alias Sig.Finance.Banks.EntityBankAccounts
-  alias Sig.Finance.Banks.EntityBankAccounts.EntityBankAccount
+  alias Sig.Finance.Banks.Accounts.Account
   alias Sig.Repo
 
   def call(%Entity{} = entity, %{} = attrs) do
@@ -16,43 +15,15 @@ defmodule Sig.Finance.Banks.Accounts.Create do
 
     Multi.new()
     |> Multi.run(:existing_primary_account, fn _, _ ->
-      {:ok, Accounts.get_entity_primary(entity)}
+      Accounts.maybe_set_existing_primary_account_to_false(entity, attrs)
     end)
     |> Multi.run(:existing_primary_eba, fn _, _ ->
-      {:ok, EntityBankAccounts.get_entity_primary(entity)}
+      EntityBankAccounts.maybe_set_existing_primary_eba_to_false(entity, attrs)
     end)
-    |> Multi.merge(&update_existing_account(&1, attrs))
-    |> Multi.merge(&update_existing_eba(&1, attrs))
     |> Multi.insert(:create_account, &account_changeset(&1, attrs))
     |> Repo.transaction()
     |> as_result()
   end
-
-  defp update_existing_account(%{existing_primary_account: nil}, _attrs), do: Multi.new()
-
-  defp update_existing_account(
-         %{existing_primary_account: existing_primary_account},
-         %{is_primary: true} = _attrs
-       ) do
-    changeset = Account.update_changeset(existing_primary_account, %{is_primary: false})
-
-    Multi.update(Multi.new(), :update_existing_account, changeset)
-  end
-
-  defp update_existing_account(_changes, _attrs), do: Multi.new()
-
-  defp update_existing_eba(%{existing_primary_eba: nil}, _attrs), do: Multi.new()
-
-  defp update_existing_eba(
-         %{existing_primary_eba: existing_primary_eba},
-         %{is_primary: true} = _attrs
-       ) do
-    changeset = EntityBankAccount.update_changeset(existing_primary_eba, %{is_primary: false})
-
-    Multi.update(Multi.new(), :update_existing_eba, changeset)
-  end
-
-  defp update_existing_eba(_changes, _attrs), do: Multi.new()
 
   defp account_changeset(%{existing_primary_account: nil, existing_primary_eba: nil}, attrs) do
     attrs

@@ -3,7 +3,10 @@ defmodule Sig.Finance.Banks.Accounts do
 
   alias Sig.Entities.Entity
   alias Sig.Finance.Banks.Accounts.Account
+  alias Sig.Finance.Banks.Accounts.BackUpdater
   alias Sig.Repo
+
+  defdelegate maybe_set_existing_primary_account_to_false(entity, attrs), to: BackUpdater
 
   def list_by_entity(%Entity{} = entity) do
     entity
