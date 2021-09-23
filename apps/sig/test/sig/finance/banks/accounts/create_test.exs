@@ -66,7 +66,7 @@ defmodule Sig.Finance.Banks.Accounts.CreateTest do
                })
              )
 
-      # Asserts existing account is_primary field was switched to false
+      # Asserts existing primary account is_primary field was switched to false
       assert Repo.get_by(Account,
                id: existing_primary_account.id,
                org_id: org.id,
@@ -93,7 +93,7 @@ defmodule Sig.Finance.Banks.Accounts.CreateTest do
                })
              )
 
-      # Asserts existing EntityBankAccount is_primary field was switched to false
+      # Asserts existing primary EntityBankAccount is_primary field was switched to false
       assert Repo.get_by(EntityBankAccount,
                org_id: org.id,
                entity_id: entity.id,
@@ -120,7 +120,7 @@ defmodule Sig.Finance.Banks.Accounts.CreateTest do
                })
              )
 
-      # Asserts existing account is_primary field was NOT switched to false
+      # Asserts existing primary account is_primary field was NOT switched to false
       assert Repo.get_by(Account,
                id: existing_primary_account.id,
                org_id: org.id,
@@ -147,7 +147,7 @@ defmodule Sig.Finance.Banks.Accounts.CreateTest do
                })
              )
 
-      # Asserts existing EntityBankAccount is_primary field was NOT switched to false
+      # Asserts existing primary EntityBankAccount is_primary field was NOT switched to false
       assert Repo.get_by(EntityBankAccount,
                org_id: org.id,
                entity_id: entity.id,
@@ -165,8 +165,15 @@ defmodule Sig.Finance.Banks.Accounts.CreateTest do
 
       attrs = attrs_for(:bank_account, is_primary: false)
 
+      assert {:ok, %Account{} = return} = Create.call(entity, attrs)
+
       # Asserts new account was inserted with is_primary switched to true
-      assert {:ok, %Account{is_primary: true}} = Create.call(entity, attrs)
+      assert Repo.get_by(Account,
+        id: return.id,
+        org_id: entity.org_id,
+        entity_id: entity.id,
+        is_primary: true
+      )
 
       # Asserts existing account is_primary field remains false
       assert Repo.get_by(Account,
@@ -190,8 +197,15 @@ defmodule Sig.Finance.Banks.Accounts.CreateTest do
 
       attrs = attrs_for(:bank_account, is_primary: false)
 
+      assert {:ok, %Account{} = return} = Create.call(entity, attrs)
+
       # Asserts new account was inserted with is_primary switched to true
-      assert {:ok, %Account{is_primary: true}} = Create.call(entity, attrs)
+      assert Repo.get_by(Account,
+               id: return.id,
+               org_id: entity.org_id,
+               entity_id: entity.id,
+               is_primary: true
+             )
     end
   end
 end
