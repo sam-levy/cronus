@@ -9,15 +9,23 @@ defmodule Sig.Factories.BankAccountFactory do
         org = Keyword.get(attrs, :org, insert(:org))
         entity = Keyword.get(attrs, :entity, insert(:entity, org: org))
 
-        %Account{
-          org: org,
-          entity: entity,
+        struct(
+          %Account{
+            org: org,
+            entity: entity
+          },
+          attrs_for(:bank_account, attrs)
+        )
+      end
+
+      def attrs_for(:bank_account, attrs) do
+        Enum.into(attrs, %{
           type: random_enum_value(:bank_account_type),
           routing_number: random_bank_routing_number(),
           branch_number: sequence(&"branch_number_#{&1}"),
           number: sequence(&"account_number_#{&1}"),
           is_primary: false
-        }
+        })
       end
 
       def random_bank_routing_number do
