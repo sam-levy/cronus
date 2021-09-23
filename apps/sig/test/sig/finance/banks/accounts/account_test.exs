@@ -171,20 +171,7 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
       assert changeset = Account.create_changeset(attrs)
 
       assert changeset.valid?
-
-      assert changeset.changes == %{
-               org_id: attrs[:org_id],
-               entity_id: attrs[:entity_id],
-               type: String.to_atom(attrs[:type]),
-               routing_number: attrs[:routing_number],
-               branch_number: attrs[:branch_number],
-               number: attrs[:number],
-               other_info: attrs[:other_info],
-               pix_key: attrs[:pix_key],
-               is_active: attrs[:is_active],
-               is_primary: attrs[:is_primary],
-               is_joint_account: attrs[:is_joint_account]
-             }
+      assert changeset.changes == attrs
     end
 
     test "missing required attrs" do
@@ -355,7 +342,7 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
 
   describe "update_changeset/2" do
     test "valid attrs" do
-      existing_bank_account = insert(:bank_account, is_primary: true)
+      existing_bank_account = insert(:bank_account, is_primary: false)
 
       account =
         insert(:bank_account,
@@ -369,17 +356,13 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
       attrs = %{
         pix_key: "new_pix_key",
         is_active: true,
-        is_primary: false
+        is_primary: true
       }
 
       assert changeset = Account.update_changeset(account, attrs)
 
       assert changeset.valid?
-
-      assert changeset.changes == %{
-               pix_key: attrs[:pix_key],
-               is_active: attrs[:is_active]
-             }
+      assert changeset.changes == attrs
     end
 
     test "invalid attrs types" do
