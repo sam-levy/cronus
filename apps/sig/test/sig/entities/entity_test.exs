@@ -6,7 +6,7 @@ defmodule Sig.Entities.EntityTest do
   describe "entities table constraints" do
     test "org_id not_null_violation" do
       entity = %Entity{
-        type: :physical
+        type: :individual
       }
 
       assert_raise Postgrex.Error,
@@ -17,7 +17,7 @@ defmodule Sig.Entities.EntityTest do
     test "org_id foreign_key_constraint" do
       entity = %Entity{
         org_id: UUID.generate(),
-        type: :physical
+        type: :individual
       }
 
       assert_raise Ecto.ConstraintError,

@@ -42,7 +42,7 @@ defmodule Sig.Entities.Individuals do
 
   def create_individual(%Org{} = org, %{} = attrs) do
     Multi.new()
-    |> Multi.insert(:create_entity, %Entity{org_id: org.id, type: :physical})
+    |> Multi.insert(:create_entity, %Entity{org_id: org.id, type: :individual})
     |> Multi.insert(:create_individual, fn %{create_entity: entity} ->
       attrs
       |> Map.put(:org_id, org.id)

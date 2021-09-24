@@ -5,15 +5,15 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccount do
   alias Sig.Finance.Banks.Accounts.Account
   alias Sig.Organizations.Org
 
-  @physical_person_relationships [:child, :spouse, :partner]
-  @physical_legal_person_relationships [:company_owner]
+  @individual_person_relationships [:child, :spouse, :partner]
+  @individual_legal_person_relationships [:company_owner]
   @legal_legal_person_relationships [:same_owner_company]
 
   defenum(
     RelationshipWithHolder,
     :relationship_with_bank_account_holder,
-    @physical_person_relationships ++
-      @physical_legal_person_relationships ++
+    @individual_person_relationships ++
+      @individual_legal_person_relationships ++
       @legal_legal_person_relationships
   )
 
@@ -49,8 +49,8 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccount do
     cast(target, attrs, [:is_primary])
   end
 
-  def physical_person_relationships, do: @physical_person_relationships
-  def physical_legal_person_relationships, do: @physical_legal_person_relationships
+  def individual_person_relationships, do: @individual_person_relationships
+  def individual_legal_person_relationships, do: @individual_legal_person_relationships
   def legal_legal_person_relationships, do: @legal_legal_person_relationships
 
   # TODO: Create a DB trigger with a stored procedure to

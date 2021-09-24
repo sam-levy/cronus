@@ -50,11 +50,11 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.Create do
 
   defp validate_relationship(
          _,
-         %{account: %{entity: %{type: :physical}} = _account},
-         %{type: :physical} = _entity,
+         %{account: %{entity: %{type: :individual}} = _account},
+         %{type: :individual} = _entity,
          attrs
        ) do
-    if attrs.relationship_with_holder in EntityBankAccount.physical_person_relationships() do
+    if attrs.relationship_with_holder in EntityBankAccount.individual_person_relationships() do
       {:ok, true}
     else
       {:error, "invalid relationship with holder"}
@@ -63,11 +63,11 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.Create do
 
   defp validate_relationship(
          _,
-         %{account: %{entity: %{type: :physical}} = _account},
+         %{account: %{entity: %{type: :individual}} = _account},
          %{type: :legal} = _entity,
          attrs
        ) do
-    if attrs.relationship_with_holder in EntityBankAccount.physical_legal_person_relationships() do
+    if attrs.relationship_with_holder in EntityBankAccount.individual_legal_person_relationships() do
       {:ok, true}
     else
       {:error, "invalid relationship with holder"}
@@ -77,10 +77,10 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.Create do
   defp validate_relationship(
          _,
          %{account: %{entity: %{type: :legal}} = _account},
-         %{type: :physical} = _entity,
+         %{type: :individual} = _entity,
          attrs
        ) do
-    if attrs.relationship_with_holder in EntityBankAccount.physical_legal_person_relationships() do
+    if attrs.relationship_with_holder in EntityBankAccount.individual_legal_person_relationships() do
       {:ok, true}
     else
       {:error, "invalid relationship with holder"}

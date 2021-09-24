@@ -121,7 +121,7 @@ defmodule Sig.Entities.IndividualsTest do
       assert Repo.get_by(Entity,
                id: individual.entity_id,
                org_id: org.id,
-               type: :physical
+               type: :individual
              )
     end
 
