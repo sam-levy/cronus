@@ -7,7 +7,6 @@ defmodule Sig.Repo.Migrations.CreateBankAccountsTable do
 
     create table(:bank_accounts) do
       add :org_id, references(:orgs), primary_key: true
-      add :entity_id, references(:entities, with: [org_id: :org_id]), primary_key: true
 
       add :type, :bank_account_type, null: false
       add :routing_number, :citext, null: false
@@ -18,6 +17,8 @@ defmodule Sig.Repo.Migrations.CreateBankAccountsTable do
       add :is_primary, :boolean, null: false
       add :is_joint_account, :boolean, null: false, default: false
       add :pix_key, :citext
+
+      add :entity_id, references(:entities, with: [org_id: :org_id]), null: false
 
       timestamps()
     end

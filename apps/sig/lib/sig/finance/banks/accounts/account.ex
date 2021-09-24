@@ -12,7 +12,6 @@ defmodule Sig.Finance.Banks.Accounts.Account do
 
   schema "bank_accounts" do
     belongs_to :org, Org, primary_key: true
-    belongs_to :entity, Entity, primary_key: true
 
     field :type, BankAccountType
     field :routing_number, :string
@@ -24,17 +23,19 @@ defmodule Sig.Finance.Banks.Accounts.Account do
     field :is_primary, :boolean
     field :is_joint_account, :boolean, default: false
 
+    belongs_to :entity, Entity
+
     timestamps()
   end
 
   @create_required_fields [
     :org_id,
-    :entity_id,
     :type,
     :routing_number,
     :branch_number,
     :number,
-    :is_primary
+    :is_primary,
+    :entity_id
   ]
 
   @create_fields @create_required_fields ++ [:pix_key, :other_info, :is_active, :is_joint_account]
@@ -47,6 +48,7 @@ defmodule Sig.Finance.Banks.Accounts.Account do
     |> validate_length(:branch_number, max: 255)
     |> validate_length(:number, max: 255)
     |> validate_pix_key()
+    |> assoc_constraint(:entity)
     |> unique_constraint([:routing_number, :branch_number, :number, :org_id],
       name: :bank_accounts_org_id_account
     )
