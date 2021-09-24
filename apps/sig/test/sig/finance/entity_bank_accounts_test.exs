@@ -71,7 +71,7 @@ defmodule Sig.Finance.Banks.EntityBankAccountsTest do
     end
   end
 
-  describe "get_entity_primary/1" do
+  describe "fetch_entity_primary/1" do
     test "gets the entity primary EntityBankAccount" do
       org = insert(:org)
       entity = insert(:entity, org: org)
@@ -81,8 +81,8 @@ defmodule Sig.Finance.Banks.EntityBankAccountsTest do
 
       insert(:entity_bank_account, org: org, entity: entity, is_primary: false)
 
-      assert %EntityBankAccount{bank_account_id: ^primary_eba_account_id} =
-               EntityBankAccounts.get_entity_primary(entity)
+      assert {:ok, %EntityBankAccount{bank_account_id: ^primary_eba_account_id}} =
+               EntityBankAccounts.fetch_entity_primary(entity)
     end
 
     test "when entity doesn't have a primary EntityBankAccount" do
@@ -91,13 +91,13 @@ defmodule Sig.Finance.Banks.EntityBankAccountsTest do
 
       insert(:entity_bank_account, org: org, entity: entity, is_primary: false)
 
-      assert EntityBankAccounts.get_entity_primary(entity) == nil
+      assert EntityBankAccounts.fetch_entity_primary(entity) == {:error, :not_found}
     end
 
     test "when entity doesn't have any EntityBankAccount" do
       entity = insert(:entity)
 
-      assert EntityBankAccounts.get_entity_primary(entity) == nil
+      assert EntityBankAccounts.fetch_entity_primary(entity) == {:error, :not_found}
     end
   end
 end
