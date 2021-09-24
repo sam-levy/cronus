@@ -2,11 +2,8 @@ defmodule Sig.Finance.Banks.EntityBankAccounts do
   import Ecto.Query
 
   alias Sig.Entities.Entity
-  alias Sig.Finance.Banks.EntityBankAccounts.BackUpdater
   alias Sig.Finance.Banks.EntityBankAccounts.EntityBankAccount
   alias Sig.Repo
-
-  defdelegate maybe_set_existing_primary_eba_to_false(entity, attrs), to: BackUpdater
 
   def list_by_entity(%Entity{} = entity) do
     entity
