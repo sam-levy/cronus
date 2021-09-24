@@ -258,7 +258,7 @@ defmodule Sig.Finance.Banks.Accounts.UpdateTest do
              )
     end
 
-    test "sets itself is_primary to true when there are no primary accounts or primary EntityBankAccount" do
+    test "sets itself is_primary to true when entity has no primary accounts or primary EntityBankAccount" do
       org = insert(:org)
       entity = insert(:entity, org: org)
 
@@ -309,7 +309,7 @@ defmodule Sig.Finance.Banks.Accounts.UpdateTest do
              )
     end
 
-    test "sets itself is_primary to true when there are no accounts or EntityBankAccount" do
+    test "sets itself is_primary to true when entity has no accounts or EntityBankAccount" do
       entity = insert(:entity)
 
       account =
