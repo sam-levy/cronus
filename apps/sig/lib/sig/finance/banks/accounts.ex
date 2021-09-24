@@ -3,8 +3,13 @@ defmodule Sig.Finance.Banks.Accounts do
 
   alias Sig.Entities.Entity
   alias Sig.Finance.Banks.Accounts.Account
+  alias Sig.Finance.Banks.Accounts.Create
+  alias Sig.Finance.Banks.Accounts.Update
   alias Sig.Organizations.Org
   alias Sig.Repo
+
+  defdelegate create(entity, attrs), to: Create, as: :call
+  defdelegate update(account, attrs), to: Update, as: :call
 
   def list_by_entity(%Entity{} = entity) do
     entity

@@ -2,8 +2,13 @@ defmodule Sig.Finance.Banks.EntityBankAccounts do
   import Ecto.Query
 
   alias Sig.Entities.Entity
+  alias Sig.Finance.Banks.EntityBankAccounts.Create
   alias Sig.Finance.Banks.EntityBankAccounts.EntityBankAccount
+  alias Sig.Finance.Banks.EntityBankAccounts.Update
   alias Sig.Repo
+
+  defdelegate create(entity, attrs), to: Create, as: :call
+  defdelegate update(eba, attrs), to: Update, as: :call
 
   def list_by_entity(%Entity{} = entity) do
     entity
