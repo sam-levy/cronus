@@ -54,7 +54,7 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.Create do
          %{type: :individual} = _entity,
          attrs
        ) do
-    if attrs.relationship_with_holder in EntityBankAccount.individual_person_relationships() do
+    if attrs.relationship_with_holder in EntityBankAccount.individuals_relationships() do
       {:ok, true}
     else
       {:error, "invalid relationship with holder"}
@@ -67,7 +67,7 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.Create do
          %{type: :company} = _entity,
          attrs
        ) do
-    if attrs.relationship_with_holder in EntityBankAccount.individual_company_person_relationships() do
+    if attrs.relationship_with_holder in EntityBankAccount.individual_company_relationships() do
       {:ok, true}
     else
       {:error, "invalid relationship with holder"}
@@ -80,7 +80,7 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.Create do
          %{type: :individual} = _entity,
          attrs
        ) do
-    if attrs.relationship_with_holder in EntityBankAccount.individual_company_person_relationships() do
+    if attrs.relationship_with_holder in EntityBankAccount.individual_company_relationships() do
       {:ok, true}
     else
       {:error, "invalid relationship with holder"}
@@ -93,7 +93,7 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.Create do
          %{type: :company} = _entity,
          attrs
        ) do
-    if attrs.relationship_with_holder in EntityBankAccount.company_company_person_relationships() do
+    if attrs.relationship_with_holder in EntityBankAccount.companies_relationships() do
       {:ok, true}
     else
       {:error, "invalid relationship with holder"}
