@@ -7,12 +7,8 @@ defmodule Sig.Finance.Banks.Accounts.UpdateTest do
 
   describe "call/3" do
     test "updates a bank account" do
-      entity = insert(:entity)
-
       account =
         insert(:bank_account,
-          org: entity.org,
-          entity: entity,
           pix_key: "pix_key",
           is_active: false,
           is_primary: false
@@ -24,25 +20,21 @@ defmodule Sig.Finance.Banks.Accounts.UpdateTest do
         is_primary: true
       }
 
-      assert {:ok, %Account{}} = Update.call(entity, account, attrs)
+      assert {:ok, %Account{}} = Update.call(account, attrs)
 
       assert Repo.get_by(
                Account,
                Enum.into(attrs, %{
                  id: account.id,
-                 org_id: entity.org_id,
-                 entity_id: entity.id
+                 org_id: account.org_id,
+                 entity_id: account.entity_id
                })
              )
     end
 
     test "only updates allowed fields" do
-      entity = insert(:entity)
-
       account =
         insert(:bank_account,
-          org: entity.org,
-          entity: entity,
           type: random_enum_value(:bank_account_type),
           routing_number: random_bank_routing_number(),
           branch_number: random_string_number(),
@@ -60,15 +52,15 @@ defmodule Sig.Finance.Banks.Accounts.UpdateTest do
         is_primary: true
       }
 
-      assert {:ok, %Account{}} = Update.call(entity, account, attrs)
+      assert {:ok, %Account{}} = Update.call(account, attrs)
 
       assert updated_account =
                Repo.get_by(
                  Account,
                  Enum.into(attrs, %{
-                   id: account.id,
-                   org_id: entity.org_id,
-                   entity_id: entity.id
+                  id: account.id,
+                  org_id: account.org_id,
+                  entity_id: account.entity_id
                  })
                )
 
@@ -81,9 +73,7 @@ defmodule Sig.Finance.Banks.Accounts.UpdateTest do
     end
 
     test "invalid attrs" do
-      entity = insert(:entity)
-
-      account = insert(:bank_account, org: entity.org, entity: entity, is_primary: true)
+      account = insert(:bank_account, is_primary: true)
 
       attrs = %{
         pix_key: :invalid,
@@ -91,7 +81,7 @@ defmodule Sig.Finance.Banks.Accounts.UpdateTest do
         is_primary: :invalid
       }
 
-      assert {:error, changeset} = Update.call(entity, account, attrs)
+      assert {:error, changeset} = Update.call(account, attrs)
 
       assert %Account{} = changeset.data
 
@@ -120,7 +110,7 @@ defmodule Sig.Finance.Banks.Accounts.UpdateTest do
         is_primary: true
       }
 
-      assert {:ok, %Account{}} = Update.call(entity, account, attrs)
+      assert {:ok, %Account{}} = Update.call(account, attrs)
 
       # Asserts account was updated
       assert Repo.get_by(
@@ -159,7 +149,7 @@ defmodule Sig.Finance.Banks.Accounts.UpdateTest do
         is_primary: true
       }
 
-      assert {:ok, %Account{}} = Update.call(entity, account, attrs)
+      assert {:ok, %Account{}} = Update.call(account, attrs)
 
       # Asserts account was updated
       assert Repo.get_by(
@@ -198,7 +188,7 @@ defmodule Sig.Finance.Banks.Accounts.UpdateTest do
         is_primary: false
       }
 
-      assert {:ok, %Account{}} = Update.call(entity, account, attrs)
+      assert {:ok, %Account{}} = Update.call(account, attrs)
 
       # Asserts account was updated
       assert Repo.get_by(
@@ -237,7 +227,7 @@ defmodule Sig.Finance.Banks.Accounts.UpdateTest do
         is_primary: false
       }
 
-      assert {:ok, %Account{}} = Update.call(entity, account, attrs)
+      assert {:ok, %Account{}} = Update.call(account, attrs)
 
       # Asserts account was updated
       assert Repo.get_by(
@@ -280,7 +270,7 @@ defmodule Sig.Finance.Banks.Accounts.UpdateTest do
         is_primary: false
       }
 
-      assert {:ok, %Account{}} = Update.call(entity, account, attrs)
+      assert {:ok, %Account{}} = Update.call(account, attrs)
 
       # Asserts account was updated with is_primary switched to true
       assert Repo.get_by(Account,
@@ -327,7 +317,7 @@ defmodule Sig.Finance.Banks.Accounts.UpdateTest do
         is_primary: false
       }
 
-      assert {:ok, %Account{} = return} = Update.call(entity, account, attrs)
+      assert {:ok, %Account{} = return} = Update.call(account, attrs)
 
       # Asserts new account was inserted with is_primary switched to true
       assert Repo.get_by(Account,

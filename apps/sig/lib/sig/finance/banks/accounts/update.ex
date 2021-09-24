@@ -1,14 +1,15 @@
 defmodule Sig.Finance.Banks.Accounts.Update do
   alias Ecto.Multi
 
-  alias Sig.Entities.Entity
   alias Sig.Finance.Banks.Accounts
   alias Sig.Finance.Banks.Accounts.Account
   alias Sig.Finance.Banks.EntityBankAccounts
   alias Sig.Finance.Banks.EntityBankAccounts.EntityBankAccount
   alias Sig.Repo
 
-  def call(%Entity{} = entity, %Account{} = account, %{} = attrs) do
+  def call(%Account{} = account, %{} = attrs) do
+    %{entity: entity} = Repo.preload(account, :entity)
+
     Multi.new()
     |> Multi.run(:existing_primary_account, fn repo, _ ->
       entity
