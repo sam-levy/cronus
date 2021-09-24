@@ -10,7 +10,10 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccountTest do
       entity_bank_account = %EntityBankAccount{
         org_id: bank_account.org_id,
         entity_id: bank_account.entity_id,
-        bank_account_id: bank_account.id
+        bank_account_id: bank_account.id,
+        is_primary: true,
+        is_joint_account_holder: false,
+        relationship_with_holder: :child
       }
 
       assert {:ok, _} = Repo.insert(entity_bank_account)
@@ -21,7 +24,10 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccountTest do
 
       entity_bank_account = %EntityBankAccount{
         entity_id: bank_account.entity_id,
-        bank_account_id: bank_account.id
+        bank_account_id: bank_account.id,
+        is_primary: true,
+        is_joint_account_holder: true,
+        relationship_with_holder: :company_owner
       }
 
       assert_raise Postgrex.Error,
@@ -35,7 +41,10 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccountTest do
       entity_bank_account = %EntityBankAccount{
         org_id: UUID.generate(),
         entity_id: bank_account.entity_id,
-        bank_account_id: bank_account.id
+        bank_account_id: bank_account.id,
+        is_primary: true,
+        is_joint_account_holder: false,
+        relationship_with_holder: :spouse
       }
 
       assert_raise Ecto.ConstraintError,
@@ -48,7 +57,10 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccountTest do
 
       entity_bank_account = %EntityBankAccount{
         org_id: bank_account.org_id,
-        bank_account_id: bank_account.id
+        bank_account_id: bank_account.id,
+        is_primary: true,
+        is_joint_account_holder: false,
+        relationship_with_holder: :partner
       }
 
       assert_raise Postgrex.Error,
@@ -62,7 +74,10 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccountTest do
       entity_bank_account = %EntityBankAccount{
         org_id: bank_account.org_id,
         entity_id: UUID.generate(),
-        bank_account_id: bank_account.id
+        bank_account_id: bank_account.id,
+        is_primary: true,
+        is_joint_account_holder: false,
+        relationship_with_holder: :child
       }
 
       assert_raise Ecto.ConstraintError,
@@ -75,7 +90,10 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccountTest do
 
       entity_bank_account = %EntityBankAccount{
         org_id: entity.org_id,
-        entity_id: entity.id
+        entity_id: entity.id,
+        is_primary: true,
+        is_joint_account_holder: false,
+        relationship_with_holder: :spouse
       }
 
       assert_raise Postgrex.Error,
@@ -89,7 +107,10 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccountTest do
       entity_bank_account = %EntityBankAccount{
         org_id: entity.org_id,
         entity_id: entity.id,
-        bank_account_id: UUID.generate()
+        bank_account_id: UUID.generate(),
+        is_primary: true,
+        is_joint_account_holder: false,
+        relationship_with_holder: :child
       }
 
       assert_raise Ecto.ConstraintError,
@@ -99,25 +120,44 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccountTest do
 
     test "entities_bank_accounts_entity_is_primary unique_constraint" do
       org = insert(:org)
-      entity = insert(:entity, org: org)
 
-      primary_bank_account = insert(:bank_account, org: org, entity: entity)
+      entity_1 = insert(:entity, org: org)
+      entity_2 = insert(:entity, org: org)
 
-      _primary_entity_bank_account =
+      entity_1_account = insert(:bank_account, org: org, entity: entity_1)
+      entity_2_account = insert(:bank_account, org: org, entity: entity_2)
+
+      # Allow is_primary = true for different entities from the same org
+      _entity_1_primary_eba =
         insert(:entity_bank_account,
           org: org,
-          entity: entity,
-          bank_account: primary_bank_account,
-          is_primary: true
+          entity: entity_1,
+          bank_account: entity_2_account,
+          is_primary: true,
+          is_joint_account_holder: false,
+          relationship_with_holder: :child
         )
 
-      another_bank_account = insert(:bank_account, org: org, entity: entity)
+      _entity_2_primary_eba =
+        insert(:entity_bank_account,
+          org: org,
+          entity: entity_2,
+          bank_account: entity_1_account,
+          is_primary: true,
+          is_joint_account_holder: true,
+          relationship_with_holder: :company_owner
+        )
 
+      entity_2_account_2 = insert(:bank_account, org: org, entity: entity_2)
+
+      # Rises if is_primary = true for a second eba of an entity with a primary eba
       entity_bank_account = %EntityBankAccount{
         org_id: org.id,
-        entity_id: entity.id,
-        bank_account_id: another_bank_account.id,
-        is_primary: true
+        entity_id: entity_1.id,
+        bank_account_id: entity_2_account_2.id,
+        is_primary: true,
+        is_joint_account_holder: false,
+        relationship_with_holder: :child
       }
 
       assert_raise Ecto.ConstraintError,
@@ -125,34 +165,19 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccountTest do
                    fn -> Repo.insert(entity_bank_account) end
     end
 
-    test "relationship_with_holder_conditional_constaint constraint when is_joint_account_holder is false" do
+    test "relationship_with_holder not_null_violation" do
       bank_account = insert(:bank_account)
 
       entity_bank_account = %EntityBankAccount{
         org_id: bank_account.org_id,
         entity_id: bank_account.entity_id,
         bank_account_id: bank_account.id,
+        is_primary: true,
         is_joint_account_holder: false
       }
 
-      assert_raise Ecto.ConstraintError,
-                   ~r/relationship_with_holder_conditional_constaint \(check_constraint\)/,
-                   fn -> Repo.insert(entity_bank_account) end
-    end
-
-    test "relationship_with_holder_conditional_constaint constraint when is_joint_account_holder is true" do
-      bank_account = insert(:bank_account)
-
-      entity_bank_account = %EntityBankAccount{
-        org_id: bank_account.org_id,
-        entity_id: bank_account.entity_id,
-        bank_account_id: bank_account.id,
-        is_joint_account_holder: true,
-        relationship_with_holder: :partner
-      }
-
-      assert_raise Ecto.ConstraintError,
-                   ~r/relationship_with_holder_conditional_constaint \(check_constraint\)/,
+      assert_raise Postgrex.Error,
+                   ~r/\(not_null_violation\) null value in column "relationship_with_holder\" of relation "entities_bank_accounts\" violates not-null constraint/,
                    fn -> Repo.insert(entity_bank_account) end
     end
   end
@@ -164,8 +189,8 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccountTest do
         entity_id: UUID.generate(),
         bank_account_id: UUID.generate(),
         is_primary: true,
-        is_joint_account_holder: false,
-        relationship_with_holder: random_enum_value(:relationship_with_holder)
+        is_joint_account_holder: true,
+        relationship_with_holder: :company_owner
       }
 
       assert changeset = EntityBankAccount.create_changeset(attrs)
@@ -190,22 +215,11 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccountTest do
       assert errors_on(changeset) == %{
                org_id: ["can't be blank"],
                entity_id: ["can't be blank"],
-               bank_account_id: ["can't be blank"]
+               bank_account_id: ["can't be blank"],
+               relationship_with_holder: ["can't be blank"],
+               is_joint_account_holder: ["can't be blank"],
+               is_primary: ["can't be blank"]
              }
-    end
-
-    test "relationship_with_bank_account_holder required when is_joint_account_holder is false" do
-      attrs = %{
-        org_id: UUID.generate(),
-        entity_id: UUID.generate(),
-        bank_account_id: UUID.generate(),
-        is_joint_account_holder: false
-      }
-
-      assert changeset = EntityBankAccount.create_changeset(attrs)
-
-      refute changeset.valid?
-      assert errors_on(changeset) == %{relationship_with_holder: ["can't be blank"]}
     end
 
     test "invalid attrs types" do
@@ -231,31 +245,11 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccountTest do
                relationship_with_holder: ["is invalid"]
              }
     end
-
-    test "drops relationship_with_bank_account_holder when is_joint_account_holder" do
-      attrs = %{
-        org_id: UUID.generate(),
-        entity_id: UUID.generate(),
-        bank_account_id: UUID.generate(),
-        is_joint_account_holder: true,
-        relationship_with_holder: random_enum_value(:relationship_with_holder)
-      }
-
-      assert changeset = EntityBankAccount.create_changeset(attrs)
-
-      assert changeset.valid?
-
-      assert changeset.changes == %{
-               org_id: attrs[:org_id],
-               entity_id: attrs[:entity_id],
-               bank_account_id: attrs[:bank_account_id]
-             }
-    end
   end
 
   describe "update_changeset/2" do
     test "valid attrs" do
-      entity_bank_account = insert(:entity_bank_account, is_primary: false, is_active: true)
+      entity_bank_account = insert(:entity_bank_account, is_primary: false)
 
       attrs = %{is_primary: true}
 
@@ -277,15 +271,15 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccountTest do
     end
 
     test "ignores non permitted attrs" do
-      entity_bank_account = insert(:entity_bank_account, is_primary: false, is_active: true)
+      entity_bank_account = insert(:entity_bank_account, is_primary: false)
 
       attrs = %{
-        is_primary: true,
         org_id: UUID.generate(),
         entity_id: UUID.generate(),
         bank_account_id: UUID.generate(),
-        is_joint_account_holder: false,
-        relationship_with_holder: random_enum_value(:relationship_with_holder)
+        is_primary: true,
+        is_joint_account_holder: true,
+        relationship_with_holder: :spouse
       }
 
       assert changeset = EntityBankAccount.update_changeset(entity_bank_account, attrs)

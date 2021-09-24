@@ -11,17 +11,20 @@ defmodule Sig.Factories.EntityBankAccountFactory do
         entity = Keyword.get(attrs, :entity, insert(:entity, org: org))
 
         bank_account =
-          Keyword.get(attrs, :bank_account, insert(:bank_account, org: org, entity: entity))
+          Keyword.get(
+            attrs,
+            :bank_account,
+            insert(:bank_account, org: org, entity: insert(:entity, org: org))
+          )
 
         %EntityBankAccount{
           org: org,
           entity: entity,
-          bank_account: bank_account
+          bank_account: bank_account,
+          is_primary: false,
+          is_joint_account_holder: false,
+          relationship_with_holder: random_enum_value(RelationshipWithHolder)
         }
-      end
-
-      def random_enum_value(:relationship_with_holder) do
-        random_enum_value(RelationshipWithHolder)
       end
     end
   end
