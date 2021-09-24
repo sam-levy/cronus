@@ -64,10 +64,10 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.Create do
   defp validate_relationship(
          _,
          %{account: %{entity: %{type: :individual}} = _account},
-         %{type: :legal} = _entity,
+         %{type: :company} = _entity,
          attrs
        ) do
-    if attrs.relationship_with_holder in EntityBankAccount.individual_legal_person_relationships() do
+    if attrs.relationship_with_holder in EntityBankAccount.individual_company_person_relationships() do
       {:ok, true}
     else
       {:error, "invalid relationship with holder"}
@@ -76,11 +76,11 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.Create do
 
   defp validate_relationship(
          _,
-         %{account: %{entity: %{type: :legal}} = _account},
+         %{account: %{entity: %{type: :company}} = _account},
          %{type: :individual} = _entity,
          attrs
        ) do
-    if attrs.relationship_with_holder in EntityBankAccount.individual_legal_person_relationships() do
+    if attrs.relationship_with_holder in EntityBankAccount.individual_company_person_relationships() do
       {:ok, true}
     else
       {:error, "invalid relationship with holder"}
@@ -89,11 +89,11 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.Create do
 
   defp validate_relationship(
          _,
-         %{account: %{entity: %{type: :legal}} = _account},
-         %{type: :legal} = _entity,
+         %{account: %{entity: %{type: :company}} = _account},
+         %{type: :company} = _entity,
          attrs
        ) do
-    if attrs.relationship_with_holder in EntityBankAccount.legal_legal_person_relationships() do
+    if attrs.relationship_with_holder in EntityBankAccount.company_company_person_relationships() do
       {:ok, true}
     else
       {:error, "invalid relationship with holder"}

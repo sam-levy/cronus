@@ -94,7 +94,7 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.CreateTest do
       org = insert(:org)
 
       entity_1 = insert(:entity, org: org, type: :individual)
-      entity_2 = insert(:entity, org: org, type: :legal)
+      entity_2 = insert(:entity, org: org, type: :company)
 
       entity_1_account = insert(:bank_account, org: org, entity: entity_1)
 
@@ -132,8 +132,8 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.CreateTest do
     test "doesn't set existing primary account is_primary field to false when is not primary" do
       org = insert(:org)
 
-      entity_1 = insert(:entity, org: org, type: :legal)
-      entity_2 = insert(:entity, org: org, type: :legal)
+      entity_1 = insert(:entity, org: org, type: :company)
+      entity_2 = insert(:entity, org: org, type: :company)
 
       entity_1_account = insert(:bank_account, org: org, entity: entity_1)
       entity_2_account = insert(:bank_account, org: org, entity: entity_2, is_primary: true)
@@ -365,10 +365,10 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.CreateTest do
       assert Create.call(entity_2, attrs) == {:error, "not a joint account"}
     end
 
-    test "invalid relationship when legal to individual" do
+    test "invalid relationship when company to individual" do
       org = insert(:org)
 
-      company_entity = insert(:entity, org: org, type: :legal)
+      company_entity = insert(:entity, org: org, type: :company)
       individual_entity = insert(:entity, org: org, type: :individual)
 
       company_entity_account = insert(:bank_account, org: org, entity: company_entity)
@@ -383,10 +383,10 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.CreateTest do
       assert Create.call(individual_entity, attrs) == {:error, "invalid relationship with holder"}
     end
 
-    test "valid relationship when legal to individual" do
+    test "valid relationship when company to individual" do
       org = insert(:org)
 
-      company_entity = insert(:entity, org: org, type: :legal)
+      company_entity = insert(:entity, org: org, type: :company)
       individual_entity = insert(:entity, org: org, type: :individual)
 
       company_entity_account = insert(:bank_account, org: org, entity: company_entity)
@@ -410,11 +410,11 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.CreateTest do
              )
     end
 
-    test "invalid relationship when individual to legal" do
+    test "invalid relationship when individual to company" do
       org = insert(:org)
 
       individual_entity = insert(:entity, org: org, type: :individual)
-      company_entity = insert(:entity, org: org, type: :legal)
+      company_entity = insert(:entity, org: org, type: :company)
 
       individual_entity_account = insert(:bank_account, org: org, entity: individual_entity)
 
@@ -428,11 +428,11 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.CreateTest do
       assert Create.call(company_entity, attrs) == {:error, "invalid relationship with holder"}
     end
 
-    test "valid relationship when individual to legal" do
+    test "valid relationship when individual to company" do
       org = insert(:org)
 
       individual_entity = insert(:entity, org: org, type: :individual)
-      company_entity = insert(:entity, org: org, type: :legal)
+      company_entity = insert(:entity, org: org, type: :company)
 
       individual_entity_account = insert(:bank_account, org: org, entity: individual_entity)
 
@@ -455,11 +455,11 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.CreateTest do
              )
     end
 
-    test "invalid relationship when legal to legal" do
+    test "invalid relationship when company to company" do
       org = insert(:org)
 
-      company_entity_1 = insert(:entity, org: org, type: :legal)
-      company_entity_2 = insert(:entity, org: org, type: :legal)
+      company_entity_1 = insert(:entity, org: org, type: :company)
+      company_entity_2 = insert(:entity, org: org, type: :company)
 
       company_entity_1_account = insert(:bank_account, org: org, entity: company_entity_1)
 
@@ -473,11 +473,11 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.CreateTest do
       assert Create.call(company_entity_2, attrs) == {:error, "invalid relationship with holder"}
     end
 
-    test "valid relationship when legal to legal" do
+    test "valid relationship when company to company" do
       org = insert(:org)
 
-      company_entity_1 = insert(:entity, org: org, type: :legal)
-      company_entity_2 = insert(:entity, org: org, type: :legal)
+      company_entity_1 = insert(:entity, org: org, type: :company)
+      company_entity_2 = insert(:entity, org: org, type: :company)
 
       company_entity_1_account = insert(:bank_account, org: org, entity: company_entity_1)
 

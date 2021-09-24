@@ -6,15 +6,15 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccount do
   alias Sig.Organizations.Org
 
   @individual_person_relationships [:child, :spouse, :partner]
-  @individual_legal_person_relationships [:company_owner]
-  @legal_legal_person_relationships [:same_owner_company]
+  @individual_company_person_relationships [:company_owner]
+  @company_company_person_relationships [:same_owner_company]
 
   defenum(
     RelationshipWithHolder,
     :relationship_with_bank_account_holder,
     @individual_person_relationships ++
-      @individual_legal_person_relationships ++
-      @legal_legal_person_relationships
+      @individual_company_person_relationships ++
+      @company_company_person_relationships
   )
 
   @primary_key false
@@ -50,8 +50,8 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccount do
   end
 
   def individual_person_relationships, do: @individual_person_relationships
-  def individual_legal_person_relationships, do: @individual_legal_person_relationships
-  def legal_legal_person_relationships, do: @legal_legal_person_relationships
+  def individual_company_person_relationships, do: @individual_company_person_relationships
+  def company_company_person_relationships, do: @company_company_person_relationships
 
   # TODO: Create a DB trigger with a stored procedure to
   # ensure there is always a record with is_primary = true

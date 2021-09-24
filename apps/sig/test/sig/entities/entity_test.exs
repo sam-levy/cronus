@@ -55,7 +55,7 @@ defmodule Sig.Entities.EntityTest do
 
       entity = %Entity{
         org_id: org.id,
-        type: :legal
+        type: :company
       }
 
       assert {:ok, entity} = Repo.insert(entity)
@@ -63,7 +63,7 @@ defmodule Sig.Entities.EntityTest do
       assert Repo.get_by(Entity,
         id: entity.id,
         org_id: org.id,
-        type: :legal
+        type: :company
       )
     end
   end

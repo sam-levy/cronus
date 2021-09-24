@@ -3,7 +3,7 @@ defmodule Sig.Repo.Migrations.CreateEntitiesTable do
   import EctoEnumMigration
 
   def change do
-    create_type(:entity_type, [:individual, :legal])
+    create_type(:entity_type, [:individual, :company])
 
     create table(:entities) do
       add :org_id, references(:orgs), primary_key: true

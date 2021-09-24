@@ -5,7 +5,7 @@ defmodule Sig.Factories.CompanyFactory do
 
       def factory(:company, attrs) do
         org = Keyword.get(attrs, :org, insert(:org))
-        entity = Keyword.get(attrs, :entity, insert(:entity, org: org, type: :legal))
+        entity = Keyword.get(attrs, :entity, insert(:entity, org: org, type: :company))
 
         %Company{
           entity: entity,

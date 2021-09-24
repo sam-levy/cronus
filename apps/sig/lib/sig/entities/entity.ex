@@ -3,7 +3,7 @@ defmodule Sig.Entities.Entity do
 
   alias Sig.Organizations.Org
 
-  defenum(EntityType, :entity_type, [:individual, :legal])
+  defenum(EntityType, :entity_type, [:individual, :company])
 
   schema "entities" do
     belongs_to :org, Org, primary_key: true
