@@ -6,7 +6,7 @@ defmodule Sig.Factories.IndividualFactory do
 
       def factory(:individual, attrs) do
         org = Keyword.get(attrs, :org, insert(:org))
-        entity = Keyword.get(attrs, :entity, insert(:entity, org: org))
+        entity = Keyword.get(attrs, :entity, insert(:entity, org: org, type: :physical))
 
         %Individual{
           entity: entity,
