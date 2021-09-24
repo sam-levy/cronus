@@ -33,7 +33,7 @@ defmodule Sig.Finance.Banks.Accounts.CreateTest do
              )
     end
 
-    test "invalid attrs" do
+    test "returns changeset errors" do
       entity = insert(:entity)
 
       assert {:error, changeset} = Create.call(entity, %{})
@@ -44,7 +44,9 @@ defmodule Sig.Finance.Banks.Accounts.CreateTest do
                type: ["can't be blank"],
                routing_number: ["can't be blank"],
                branch_number: ["can't be blank"],
-               number: ["can't be blank"]
+               number: ["can't be blank"],
+               is_active: ["can't be blank"],
+               is_joint_account: ["can't be blank"]
              }
     end
 

@@ -72,7 +72,7 @@ defmodule Sig.Finance.Banks.Accounts.UpdateTest do
       assert updated_account.is_joint_account == account.is_joint_account
     end
 
-    test "invalid attrs" do
+    test "returns changeset errors" do
       account = insert(:bank_account, is_primary: true)
 
       attrs = %{

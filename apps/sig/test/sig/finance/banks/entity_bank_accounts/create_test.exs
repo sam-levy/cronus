@@ -33,7 +33,7 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.CreateTest do
              )
     end
 
-    test "invalid attrs" do
+    test "returns changeset errors" do
       org = insert(:org)
       entity_1 = insert(:entity, org: org, type: :individual)
       entity_2 = insert(:entity, org: org, type: :individual)

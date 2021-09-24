@@ -19,9 +19,9 @@ defmodule Sig.Finance.Banks.Accounts.Account do
     field :number, :string
     field :other_info, :map, default: %{}
     field :pix_key, :string
-    field :is_active, :boolean, default: true
+    field :is_active, :boolean
     field :is_primary, :boolean
-    field :is_joint_account, :boolean, default: false
+    field :is_joint_account, :boolean
 
     belongs_to :entity, Entity
 
@@ -34,11 +34,13 @@ defmodule Sig.Finance.Banks.Accounts.Account do
     :routing_number,
     :branch_number,
     :number,
+    :is_active,
     :is_primary,
+    :is_joint_account,
     :entity_id
   ]
 
-  @create_fields @create_required_fields ++ [:pix_key, :other_info, :is_active, :is_joint_account]
+  @create_fields @create_required_fields ++ [:pix_key, :other_info]
 
   def create_changeset(attrs) do
     %__MODULE__{}

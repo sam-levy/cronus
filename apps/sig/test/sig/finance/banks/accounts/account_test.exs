@@ -14,7 +14,9 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
         routing_number: random_string_number(),
         branch_number: random_string_number(),
         number: random_string_number(),
-        is_primary: true
+        is_active: true,
+        is_primary: true,
+        is_joint_account: false
       }
 
       assert {:ok, _} = Repo.insert(account)
@@ -29,7 +31,9 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
         routing_number: random_string_number(),
         branch_number: random_string_number(),
         number: random_string_number(),
-        is_primary: true
+        is_active: true,
+        is_primary: true,
+        is_joint_account: false
       }
 
       assert_raise Postgrex.Error,
@@ -47,7 +51,9 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
         routing_number: random_string_number(),
         branch_number: random_string_number(),
         number: random_string_number(),
-        is_primary: true
+        is_active: true,
+        is_primary: true,
+        is_joint_account: false
       }
 
       assert_raise Ecto.ConstraintError,
@@ -64,7 +70,9 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
         routing_number: random_string_number(),
         branch_number: random_string_number(),
         number: random_string_number(),
-        is_primary: true
+        is_active: true,
+        is_primary: true,
+        is_joint_account: false
       }
 
       assert_raise Postgrex.Error,
@@ -82,7 +90,9 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
         routing_number: random_string_number(),
         branch_number: random_string_number(),
         number: random_string_number(),
-        is_primary: true
+        is_active: true,
+        is_primary: true,
+        is_joint_account: false
       }
 
       assert_raise Ecto.ConstraintError,
@@ -100,7 +110,9 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
         routing_number: random_string_number(),
         branch_number: random_string_number(),
         number: random_string_number(),
-        is_primary: false,
+        is_active: true,
+        is_primary: true,
+        is_joint_account: false,
         pix_key: String.upcase(existing_account.pix_key)
       }
 
@@ -125,7 +137,9 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
         routing_number: String.upcase(existing_account.routing_number),
         branch_number: String.upcase(existing_account.branch_number),
         number: String.upcase(existing_account.number),
-        is_primary: false
+        is_active: true,
+        is_primary: true,
+        is_joint_account: false
       }
 
       assert_raise Ecto.ConstraintError,
@@ -145,11 +159,13 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
       entity_2_duplicated_primary = %Account{
         org_id: org.id,
         entity_id: entity_2.id,
-        is_primary: true,
         type: random_enum_value(:bank_account_type),
         routing_number: random_string_number(),
         branch_number: random_string_number(),
-        number: random_string_number()
+        number: random_string_number(),
+        is_active: true,
+        is_primary: true,
+        is_joint_account: false
       }
 
       # Rises if is_primary = true for a second account of an entity with a primary account
@@ -170,9 +186,9 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
         number: random_string_number(),
         other_info: %{"OP" => "001"},
         pix_key: "pix_key",
-        is_active: false,
-        is_primary: false,
-        is_joint_account: true
+        is_active: true,
+        is_primary: true,
+        is_joint_account: false
       }
 
       assert changeset = Account.create_changeset(attrs)
@@ -193,7 +209,9 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
                routing_number: ["can't be blank"],
                branch_number: ["can't be blank"],
                number: ["can't be blank"],
-               is_primary: ["can't be blank"]
+               is_primary: ["can't be blank"],
+               is_active: ["can't be blank"],
+               is_joint_account: ["can't be blank"]
              }
     end
 
@@ -232,16 +250,13 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
     end
 
     test "string fields length greater than 255 chars" do
-      attrs = %{
+      attrs = attrs_for(:bank_account,
         org_id: UUID.generate(),
         entity_id: UUID.generate(),
-        type: random_enum_value(:bank_account_type),
-        routing_number: random_bank_routing_number(),
         branch_number: String.duplicate("a", 256),
         number: String.duplicate("a", 256),
-        pix_key: String.duplicate("a", 256),
-        is_primary: true
-      }
+        pix_key: String.duplicate("a", 256)
+      )
 
       assert changeset = Account.create_changeset(attrs)
 
@@ -255,15 +270,11 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
     end
 
     test "invalid bank routing number" do
-      attrs = %{
+      attrs = attrs_for(:bank_account,
         org_id: UUID.generate(),
         entity_id: UUID.generate(),
-        type: random_enum_value(:bank_account_type),
-        routing_number: "invalid",
-        branch_number: random_string_number(),
-        number: random_string_number(),
-        is_primary: true
-      }
+        routing_number: "invalid"
+      )
 
       assert changeset = Account.create_changeset(attrs)
 
@@ -275,16 +286,11 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
     end
 
     test "pix key with white spaces" do
-      attrs = %{
+      attrs = attrs_for(:bank_account,
         org_id: UUID.generate(),
         entity_id: UUID.generate(),
-        type: random_enum_value(:bank_account_type),
-        routing_number: random_bank_routing_number(),
-        branch_number: random_string_number(),
-        number: random_string_number(),
-        is_primary: true,
         pix_key: "pix key"
-      }
+      )
 
       assert changeset = Account.create_changeset(attrs)
 
@@ -298,16 +304,12 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
     test "[pix_key, org_id] unique constraint" do
       existing_account = insert(:bank_account, is_primary: true, pix_key: "pix_key")
 
-      attrs = %{
+      attrs = attrs_for(:bank_account,
         org_id: existing_account.org_id,
         entity_id: existing_account.entity_id,
-        type: random_enum_value(:bank_account_type),
-        routing_number: random_bank_routing_number(),
-        branch_number: random_string_number(),
-        number: random_string_number(),
+        pix_key: existing_account.pix_key,
         is_primary: false,
-        pix_key: existing_account.pix_key
-      }
+      )
 
       assert {:error, changeset} =
                attrs
@@ -327,15 +329,14 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
           is_primary: true
         )
 
-      attrs = %{
+      attrs = attrs_for(:bank_account,
         org_id: existing_account.org_id,
         entity_id: existing_account.entity_id,
-        type: random_enum_value(:bank_account_type),
         routing_number: String.upcase(existing_account.routing_number),
         branch_number: String.upcase(existing_account.branch_number),
         number: String.upcase(existing_account.number),
-        is_primary: false
-      }
+        is_primary: false,
+      )
 
       assert {:error, changeset} =
                attrs
@@ -438,14 +439,14 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
 
       attrs = %{
         pix_key: "new_pix_key",
-        is_active: true,
-        is_primary: true,
         org_id: UUID.generate(),
         type: random_enum_value(:bank_account_type),
         routing_number: random_bank_routing_number(),
         branch_number: random_string_number(),
         number: random_string_number(),
         other_info: %{"OP" => "001"},
+        is_active: true,
+        is_primary: true,
         is_joint_account: true
       }
 

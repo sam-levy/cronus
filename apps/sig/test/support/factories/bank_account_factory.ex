@@ -24,7 +24,9 @@ defmodule Sig.Factories.BankAccountFactory do
           routing_number: random_bank_routing_number(),
           branch_number: sequence(&"branch_number_#{&1}"),
           number: sequence(&"account_number_#{&1}"),
-          is_primary: false
+          is_active: true,
+          is_primary: false,
+          is_joint_account: false
         })
       end
 
