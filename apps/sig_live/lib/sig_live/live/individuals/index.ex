@@ -20,7 +20,7 @@ defmodule SigLive.Individuals.Index do
   end
 
 	@impl true
-  def handle_info({:updated_org_individuals, individuals}, socket) do
+  def handle_info({:updated_individuals, individuals}, socket) do
 		{:noreply, assign(socket, individuals: individuals)}
 	end
 

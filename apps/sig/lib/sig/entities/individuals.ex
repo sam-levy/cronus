@@ -67,7 +67,7 @@ defmodule Sig.Entities.Individuals do
     Phoenix.PubSub.broadcast(
       Sig.PubSub,
       topic(org),
-      {:updated_org_individuals, list_individuals(org)}
+      {:updated_individuals, list_individuals(org)}
     )
   end
 

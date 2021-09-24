@@ -184,10 +184,10 @@ defmodule Sig.Entities.IndividualsTest do
       Phoenix.PubSub.broadcast(
         Sig.PubSub,
         topic,
-        {:updated_org_individuals, :individuals}
+        {:updated_individuals, :individuals}
       )
 
-      assert_receive {:updated_org_individuals, :individuals}
+      assert_receive {:updated_individuals, :individuals}
     end
   end
 
@@ -203,7 +203,7 @@ defmodule Sig.Entities.IndividualsTest do
 
       assert Individuals.broadcast_individuals(org) == :ok
 
-      assert_receive {:updated_org_individuals, received_individuals}
+      assert_receive {:updated_individuals, received_individuals}
 
       assert Enum.count(received_individuals) == 2
 
