@@ -67,10 +67,10 @@ defmodule SigLive.Individuals.New do
       {#if is_nil(@changeset)}
 
         <Form for={:validate_cpf} submit="fetch_individual_by_cpf" opts={autocomplete: "off"}>
-          <Field name={:cpf} class={field_class()}>
-            <Label class={label_class()}>CPF</Label>
-            <TextInput class={text_input_class()} opts={autofocus: true}/>
-            <ErrorTag class={error_tag_class()}/>
+          <Field name={:cpf} class="form-field">
+            <Label class="form-label">CPF</Label>
+            <TextInput class="form-input" opts={autofocus: true}/>
+            <ErrorTag class="form-error-tag"/>
           </Field>
 
           <blockquote :if={@message} class="text-gray-500 text-sm">
@@ -78,59 +78,39 @@ defmodule SigLive.Individuals.New do
           </blockquote>
 
           <div class="mt-5 flex justify-end">
-            <Submit class={submit_class()} label="Validar" opts={[phx_disable_with: "Validando..."]}/>
+            <Submit class="btn-blue" label="Validar" opts={[phx_disable_with: "Validando..."]}/>
           </div>
         </Form>
 
       {#else}
 
         <Form for={@changeset} submit="save" opts={autocomplete: "off"}>
-          <Field name={:cpf} class={field_class()}>
-            <Label class={label_class()}>CPF</Label>
-            <TextInput class={text_input_class()} value={format_cpf_in_changeset(@changeset)} opts={readonly: true}/>
-            <ErrorTag class={error_tag_class()}/>
+          <Field name={:cpf} class="form-field">
+            <Label class="form-label">CPF</Label>
+            <TextInput class="form-input" value={format_cpf_in_changeset(@changeset)} opts={readonly: true}/>
+            <ErrorTag class="form-error-tag"/>
           </Field>
 
-          <Field name={:name} class={field_class()}>
-            <Label class={label_class()}>Nome</Label>
-            <TextInput class={text_input_class()} opts={autofocus: true}/>
-            <ErrorTag class={error_tag_class()}/>
+          <Field name={:name} class="form-field">
+            <Label class="form-label">Nome</Label>
+            <TextInput class="form-input" opts={autofocus: true}/>
+            <ErrorTag class="form-error-tag"/>
           </Field>
 
           <Field name={:gender}>
-            <Label class={label_class()}>Sexo</Label>
-            <Select class={text_input_class()} options={@gender_options} prompt=""/>
-            <ErrorTag class={error_tag_class()}/>
+            <Label class="form-label">Sexo</Label>
+            <Select class="form-input" options={@gender_options} prompt=""/>
+            <ErrorTag class="form-error-tag"/>
           </Field>
 
           <div class="mt-5 flex justify-end">
-            <Submit class={submit_class()} label="Salvar" opts={[phx_disable_with: "Adicionando..."]}/>
+            <Submit class="btn-blue" label="Salvar" opts={[phx_disable_with: "Adicionando..."]}/>
           </div>
         </Form>
 
       {/if}
     </Modal>
     """
-  end
-
-  defp field_class do
-    "my-5"
-  end
-
-  defp label_class do
-    "block text-sm font-medium text-gray-600 mb-1"
-  end
-
-  defp text_input_class() do
-    "block w-full shadow-sm text-sm border border-gray-300 rounded-md"
-  end
-
-  defp error_tag_class() do
-    "text-red-600 text-sm italic"
-  end
-
-  defp submit_class() do
-    "hover:bg-blue-200 hover:text-blue-800 group flex items-center rounded-md bg-blue-100 text-blue-600 text-sm font-medium px-4 py-2"
   end
 
   defp format_cpf_in_changeset(%{changes: %{cpf: cpf}}) do
