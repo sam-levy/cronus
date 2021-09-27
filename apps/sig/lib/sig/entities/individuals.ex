@@ -8,19 +8,22 @@ defmodule Sig.Entities.Individuals do
   alias Sig.Organizations.Org
   alias Sig.Repo
 
-  def cast_individual_params(%{} = params) do
-    Individual.cast_params(params)
-  end
-
-  def individual_change(%{} = attrs \\ %{}) do
+  def create_individual_change(%{} = attrs \\ %{}) do
     Individual.create_changeset(attrs)
   end
 
   def list_individuals(%Org{} = org) do
-    Individual
-    |> where(org_id: ^org.id)
+    org
+    |> individual_base_query()
     |> order_by(:name)
     |> Repo.all()
+  end
+
+  def get_individual(%Org{} = org, entity_id) when is_binary(entity_id) do
+    org
+    |> individual_base_query()
+    |> where(entity_id: ^entity_id)
+    |> Repo.one()
   end
 
   def fetch_individual_by_cpf(%Org{} = org, cpf) when is_binary(cpf) do
@@ -72,6 +75,13 @@ defmodule Sig.Entities.Individuals do
   end
 
   defp topic(%Org{} = org), do: "org_id:" <> org.id <> ":individuals"
+
+  defp individual_base_query(org) do
+    Individual
+    |> where(org_id: ^org.id)
+    |> join(:left, [individual], entity in assoc(individual, :entity))
+    |> preload([_individual, entity], entity: entity)
+  end
 
   defp as_result(%Individual{} = individual), do: {:ok, individual}
   defp as_result({:ok, %{create_individual: individual}}), do: {:ok, individual}

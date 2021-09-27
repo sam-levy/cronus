@@ -9,28 +9,12 @@ defmodule Sig.Entities.IndividualsTest do
 
   @endpoint SigLive.Endpoint
 
-  describe "cast_individual_params/1" do
-    test "cast params" do
-      params = %{
-        "cpf" => BrazilianDocuments.generate_cpf(),
-        "name" => Faker.Person.name(),
-        "gender" => random_enum_value(:gender)
-      }
-
-      assert Individuals.cast_individual_params(params) == %{
-               cpf: %CPF{number: params["cpf"]},
-               name: params["name"],
-               gender: params["gender"]
-             }
-    end
-  end
-
-  describe "individual_change/1" do
+  describe "create_individual_change/1" do
     test "returns Individual changeset" do
-      assert %Ecto.Changeset{data: %Individual{}} = Individuals.individual_change()
+      assert %Ecto.Changeset{data: %Individual{}} = Individuals.create_individual_change()
 
       assert %Ecto.Changeset{data: %Individual{}} =
-               Individuals.individual_change(%{name: Faker.Company.name()})
+               Individuals.create_individual_change(%{name: Faker.Company.name()})
     end
   end
 
@@ -42,9 +26,9 @@ defmodule Sig.Entities.IndividualsTest do
       insert(:individual, name: "Daffy Duck", org: org)
 
       assert [
-        %Individual{name: "Bugs Bunny"},
-        %Individual{name: "Daffy Duck"}
-      ] = Individuals.list_individuals(org)
+               %Individual{name: "Bugs Bunny"},
+               %Individual{name: "Daffy Duck"}
+             ] = Individuals.list_individuals(org)
     end
 
     test "do not list individuals from another org" do
@@ -54,6 +38,22 @@ defmodule Sig.Entities.IndividualsTest do
       another_org = insert(:org)
 
       assert Individuals.list_individuals(another_org) == []
+    end
+  end
+
+  describe "get_individual/2" do
+    test "returns an individual" do
+      %{id: org_id} = org = insert(:org)
+      %{entity_id: entity_id} = insert(:individual, org: org)
+
+      assert %Individual{org_id: ^org_id, entity_id: ^entity_id} =
+               Individuals.get_individual(org, entity_id)
+    end
+
+    test "individual doesn't exist" do
+      org = insert(:org)
+
+      assert Individuals.get_individual(org, UUID.generate()) == nil
     end
   end
 
