@@ -48,6 +48,7 @@ defmodule SigLive do
         layout: {SigLive.LayoutView, "live.html"}
 
       unquote(view_helpers())
+      unquote(live_view_helpers())
     end
   end
 
@@ -56,6 +57,7 @@ defmodule SigLive do
       use Phoenix.LiveComponent
 
       unquote(view_helpers())
+      unquote(live_view_helpers())
     end
   end
 
@@ -65,6 +67,7 @@ defmodule SigLive do
         layout: {SigLive.LayoutView, "live.html"}
 
       unquote(view_helpers())
+      unquote(live_view_helpers())
     end
   end
 
@@ -73,6 +76,7 @@ defmodule SigLive do
       use Surface.Component
 
       unquote(view_helpers())
+      unquote(live_view_helpers())
     end
   end
 
@@ -81,6 +85,7 @@ defmodule SigLive do
       use Surface.LiveComponent
 
       unquote(view_helpers())
+      unquote(live_view_helpers())
     end
   end
 
@@ -98,6 +103,14 @@ defmodule SigLive do
     quote do
       use Phoenix.Channel
       import SigLive.Gettext
+    end
+  end
+
+  defp live_view_helpers do
+    quote do
+      import Ecto.Changeset, only: [apply_action: 2]
+
+      alias Ecto.UUID
     end
   end
 
