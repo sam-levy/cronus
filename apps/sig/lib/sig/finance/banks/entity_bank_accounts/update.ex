@@ -14,7 +14,7 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.Update do
       AccountsBackUpdater.handle_existing_primary_account(entity, attrs)
     end)
     |> Multi.run(:existing_primary_eba, fn _, _ ->
-      EBAsBackUpdater.handle_existing_primary_eba(entity, attrs)
+      EBAsBackUpdater.handle_existing_primary_eba(entity, attrs, eba)
     end)
     |> Multi.update(:update_eba, &eba_changeset(&1, eba, attrs))
     |> Repo.transaction()

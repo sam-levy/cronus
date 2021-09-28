@@ -11,7 +11,7 @@ defmodule Sig.Finance.Banks.Accounts.Update do
 
     Multi.new()
     |> Multi.run(:existing_primary_account, fn _, _ ->
-      AccountsBackUpdater.handle_existing_primary_account(entity, attrs)
+      AccountsBackUpdater.handle_existing_primary_account(entity, attrs, account)
     end)
     |> Multi.run(:existing_primary_eba, fn _, _ ->
       EBAsBackUpdater.handle_existing_primary_eba(entity, attrs)

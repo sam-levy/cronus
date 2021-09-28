@@ -4,20 +4,56 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.BackUpdater do
   alias Sig.Finance.Banks.EntityBankAccounts.EntityBankAccount
   alias Sig.Repo
 
-  # TODO: Add tests
-  def handle_existing_primary_eba(%Entity{} = entity, %{} = attrs) do
+  def handle_existing_primary_eba(
+        %Entity{} = entity,
+        %{} = attrs,
+        eba_to_update \\ nil
+      ) do
     entity
     |> EntityBankAccounts.fetch_entity_primary()
-    |> handle_eba(attrs)
+    |> maybe_set_is_primary_false(eba_to_update, attrs)
   end
 
-  defp handle_eba({:error, :not_found}, _attrs), do: {:ok, nil}
+  defp maybe_set_is_primary_false({:error, :not_found}, _eba_to_update, _attrs) do
+    {:ok, nil}
+  end
 
-  defp handle_eba({:ok, eba}, %{is_primary: true}) do
-    eba
-    |> EntityBankAccount.update_changeset(%{is_primary: false})
+  defp maybe_set_is_primary_false(
+         {:ok,
+          %EntityBankAccount{
+            org_id: org_id,
+            entity_id: entity_id,
+            bank_account_id: bank_account_id
+          } = existing_primary_eba},
+         %EntityBankAccount{
+           org_id: org_id,
+           entity_id: entity_id,
+           bank_account_id: bank_account_id
+         } = _eba_to_update,
+         _attrs
+       ) do
+    {:ok, existing_primary_eba}
+  end
+
+  defp maybe_set_is_primary_false(
+         {:ok, existing_primary_eba},
+         _eba_to_update,
+         %{is_primary: true} = _attrs
+       ) do
+    do_set_is_primary_false(existing_primary_eba)
+  end
+
+  defp maybe_set_is_primary_false(
+         {:ok, existing_primary_eba},
+         _eba_to_update,
+         _attrs
+       ) do
+    {:ok, existing_primary_eba}
+  end
+
+  defp do_set_is_primary_false(existing_primary_eba) do
+    existing_primary_eba
+    |> EntityBankAccount.is_primary_false_changeset()
     |> Repo.update()
   end
-
-  defp handle_eba({:ok, eba}, _attrs), do: {:ok, eba}
 end

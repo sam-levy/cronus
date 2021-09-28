@@ -47,6 +47,10 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccount do
     cast(target, attrs, [:is_primary])
   end
 
+  def is_primary_false_changeset(%__MODULE__{} = target) do
+    cast(target, %{is_primary: false}, [:is_primary])
+  end
+
   def individuals_relationships, do: @individuals_relationships
   def individual_company_relationships, do: @individual_company_relationships
   def companies_relationships, do: @companies_relationships

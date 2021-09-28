@@ -288,4 +288,15 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccountTest do
       assert changeset.changes == %{is_primary: attrs[:is_primary]}
     end
   end
+
+  describe "is_primary_false_changeset/2" do
+    test "valid attrs" do
+      eba = insert(:entity_bank_account, is_primary: true)
+
+      assert changeset = EntityBankAccount.is_primary_false_changeset(eba)
+
+      assert changeset.valid?
+      assert changeset.changes == %{is_primary: false}
+    end
+  end
 end
