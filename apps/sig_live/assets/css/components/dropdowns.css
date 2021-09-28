@@ -1,0 +1,13 @@
+@import "tailwindcss/utilities";
+
+.dropdown-opts-btn {
+	@apply rounded py-1 text-gray-400 hover:bg-gray-200 hover:text-gray-600
+}
+
+.dropdown-list {
+	@apply z-10 origin-top-right absolute right-0 p-1.5 mt-2 min-w-max w-40 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none
+}
+
+.dropdown-item {
+	@apply select-none text-gray-700 block px-3 py-1 rounded-md text-sm hover:bg-gray-100 cursor-pointer font-normal text-left 
+}

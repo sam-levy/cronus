@@ -3,6 +3,7 @@ defmodule SigLive.BankAccounts.List do
 
   alias SigLive.BankAccounts.AccountForm
   alias SigLive.Components.DropdownOpts
+  alias SigLive.Components.DropdownBtn
 
   prop accounts, :list, required: true
   prop entity, :struct, required: true
@@ -51,13 +52,9 @@ defmodule SigLive.BankAccounts.List do
               <div class="flex justify-between items-center py-3 px-6">
                 <span class="text-gray-500 font-medium tracking-wider">Contas Bancárias</span>
 
-                <button :on-click="open_new_form" class="btn-blue">
-                  <svg class="group-hover:text-light-blue-600 text-light-blue-500 mr-2" width="12" height="20" fill="currentColor">
-                    <path fill-rule="evenodd" clip-rule="evenodd" d="M6 5a1 1 0 011 1v3h3a1 1 0 110 2H7v3a1 1 0 11-2 0v-3H2a1 1 0 110-2h3V6a1 1 0 011-1z"/>
-                  </svg>
-
-                  Adicionar
-                </button>
+                <DropdownBtn text="Adicionar">
+                  <a :on-click="open_new_form" class="dropdown-item">Conta Bancária</a>
+                </DropdownBtn>
               </div>
             </th>
           </tr>
@@ -86,7 +83,7 @@ defmodule SigLive.BankAccounts.List do
                 </div>
               </td>
 
-              <td class="px-3 text-left">
+              <td class="px-3 text-left select-all">
                 {account.pix_key}
               </td>
 
@@ -100,7 +97,7 @@ defmodule SigLive.BankAccounts.List do
 
               <td class="pr-6 text-left">
                 <DropdownOpts>
-                  <a :on-click="open_edit_form" phx-value-account_id={account.id} class="dropdown-opts-item" >Editar</a>
+                  <a :on-click="open_edit_form" phx-value-account_id={account.id} class="dropdown-item" >Editar</a>
                 </DropdownOpts>
               </td>
             </tr>

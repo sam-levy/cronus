@@ -1,5 +1,7 @@
-defmodule SigLive.Components.DropdownOpts do
+defmodule SigLive.Components.DropdownBtn do
   use SigLive, :surface_component
+
+  prop text, :string, required: true
 
   slot default, required: true
 
@@ -10,21 +12,19 @@ defmodule SigLive.Components.DropdownOpts do
       x-data="{ isOpen: false }"
       @click.away="isOpen = false"
     >
-      <div>
-        <button
-          type="button"
-          class="dropdown-opts-btn"
-          id="menu-button"
-          aria-expanded="true"
-          aria-haspopup="true"
-          @click="isOpen = !isOpen"
+      <button class="btn-blue" @click="isOpen = !isOpen">
+        <svg
+          :class="{ 'rotate-90': isOpen, 'rotate-0': !isOpen }"
+          class="group-hover:text-light-blue-600 text-light-blue-500 mr-2 transition-transform duration-200 transform"
+          width="12"
+          height="20"
+          fill="currentColor"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-          </svg>
-        </button>
-      </div>
+          <path fill-rule="evenodd" clip-rule="evenodd" d="M6 5a1 1 0 011 1v3h3a1 1 0 110 2H7v3a1 1 0 11-2 0v-3H2a1 1 0 110-2h3V6a1 1 0 011-1z"/>
+        </svg>
 
+        {@text}
+      </button>
       <div
         class="dropdown-list"
         x-show="isOpen"
