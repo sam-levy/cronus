@@ -47,16 +47,15 @@ defmodule SigLive.Individuals.New do
   @impl true
   def handle_event("save", %{"individual" => individual_params}, socket) do
     org = socket.assigns.org
-    attrs = Entities.cast_individual_params(individual_params)
 
-    case Entities.create_individual(org, attrs) do
-      {:ok, _individual} ->
-        Entities.broadcast_individuals(org)
-        send(self(), "individual_created")
-        {:noreply, socket}
+    with {:ok, attrs} <- handle_create_params(individual_params),
+         {:ok, _individual} <- Entities.create_individual(org, attrs) do
+      Entities.broadcast_individuals(org)
+      send(self(), "individual_created")
 
-      {:error, changeset} ->
-        {:noreply, assign(socket, changeset: changeset)}
+      {:noreply, socket}
+    else
+      {:error, changeset} -> {:noreply, assign(socket, changeset: changeset)}
     end
   end
 
@@ -87,7 +86,7 @@ defmodule SigLive.Individuals.New do
         <Form for={@changeset} submit="save" opts={autocomplete: "off"}>
           <Field name={:cpf} class="form-field">
             <Label class="form-label">CPF</Label>
-            <TextInput class="form-input" value={format_cpf_in_changeset(@changeset)} opts={readonly: true}/>
+            <TextInput class="form-input-disabled" value={format_cpf_in_changeset(@changeset)} opts={readonly: true}/>
             <ErrorTag class="form-error-tag"/>
           </Field>
 
@@ -124,8 +123,21 @@ defmodule SigLive.Individuals.New do
   end
 
   defp handle_new_individual(cpf, socket) do
-    changeset = Entities.individual_change(%{"cpf" => cpf})
+    changeset = Entities.create_individual_change(%{"cpf" => cpf})
 
     {:noreply, assign(socket, changeset: changeset, message: nil)}
+  end
+
+  defp handle_create_params(params) do
+    changeset =
+      params
+      |> Map.put("org_id", "org_id")
+      |> Map.put("entity_id", "entity_id")
+      |> Entities.create_individual_change()
+
+    case apply_action(changeset, :insert) do
+      {:error, changeset} -> {:error, changeset}
+      {:ok, _schema} -> {:ok, changeset.changes}
+    end
   end
 end
