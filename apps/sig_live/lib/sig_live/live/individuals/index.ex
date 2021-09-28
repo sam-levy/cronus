@@ -5,6 +5,8 @@ defmodule SigLive.Individuals.Index do
   alias Sig.Entities
 	alias SigLive.Individuals.New
 
+	alias Surface.Components.LiveRedirect
+
   @impl true
   def mount(_params, _session, socket) do
 		%{org: org} = socket.assigns
@@ -80,7 +82,9 @@ defmodule SigLive.Individuals.Index do
 				{#for individual <- @individuals}
 					<tr class="border-b border-gray-200 hover:bg-gray-50">
 						<td class="py-3 px-6 text-left">
-							<span>{individual.name}</span>
+							<LiveRedirect to={Routes.sig_individuals_show_path(@socket, :show, @org, individual.entity)}>
+								<span>{individual.name}</span>
+							</LiveRedirect>
 						</td>
 
 						<td class="py-3 px-6 text-left">

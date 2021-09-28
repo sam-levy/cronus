@@ -4,12 +4,16 @@
 	@apply my-5
 }
 
+.form-checkbox-field {
+	@apply my-5 flex items-center
+}
+
 .form-label {
 	@apply block text-sm font-medium text-gray-600 mb-1
 }
 
 .form-side-label {
-	@apply block text-sm font-medium text-gray-600 ml-2
+	@apply block text-sm font-medium text-gray-600
 }
 
 .form-label-complement {
@@ -20,6 +24,18 @@
 	@apply block w-full shadow-sm text-sm border border-gray-300 rounded-md
 }
 
+.form-input-disabled {
+	@apply block w-full text-sm text-gray-600 bg-gray-100 border-gray-100 rounded-md
+}
+
 .form-error-tag {
 	@apply text-red-600 text-sm italic
+}
+
+.form-checkbox {
+  @apply  text-blue-600 border border-gray-300 focus:ring-blue-400 rounded mr-2
+}
+
+.form-checkbox-disabled {
+  @apply  text-gray-400 border border-gray-300 bg-gray-100 rounded mr-2
 }
