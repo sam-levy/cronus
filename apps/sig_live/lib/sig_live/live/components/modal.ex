@@ -9,7 +9,7 @@ defmodule SigLive.Components.Modal do
 
   def render(assigns) do
     ~F"""
-    <div class="fixed z-10 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="fixed z-50 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
       <div class="flex items-start justify-center min-h-screen pt-4 px-4 text-center">
         <!-- Background overlay, show/hide based on modal state. -->
         <div :on-capture-click={@close} class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
@@ -37,7 +37,7 @@ defmodule SigLive.Components.Modal do
                   </div>
                 </div>
 
-                <div class="mt-2">
+                <div class="mt-6">
                   <#slot/>
                 </div>
               </div>
