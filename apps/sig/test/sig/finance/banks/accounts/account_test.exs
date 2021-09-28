@@ -186,7 +186,6 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
         number: random_string_number(),
         other_info: %{"OP" => "001"},
         pix_key: "pix_key",
-        is_active: true,
         is_primary: true,
         is_joint_account: false
       }
@@ -194,7 +193,7 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
       assert changeset = Account.create_changeset(attrs)
 
       assert changeset.valid?
-      assert changeset.changes == attrs
+      assert changeset.changes == Map.put(attrs, :is_active, true)
     end
 
     test "missing required attrs" do
@@ -210,7 +209,6 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
                branch_number: ["can't be blank"],
                number: ["can't be blank"],
                is_primary: ["can't be blank"],
-               is_active: ["can't be blank"],
                is_joint_account: ["can't be blank"]
              }
     end
@@ -225,7 +223,6 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
         number: :invalid,
         other_info: :invalid,
         pix_key: :invalid,
-        is_active: :invalid,
         is_primary: :invalid,
         is_joint_account: :invalid
       }
@@ -243,20 +240,48 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
                number: ["is invalid"],
                other_info: ["is invalid"],
                pix_key: ["is invalid"],
-               is_active: ["is invalid"],
                is_primary: ["is invalid"],
                is_joint_account: ["is invalid"]
              }
     end
 
-    test "string fields length greater than 255 chars" do
+    test "set is_active to true" do
       attrs = attrs_for(:bank_account,
-        org_id: UUID.generate(),
-        entity_id: UUID.generate(),
-        branch_number: String.duplicate("a", 256),
-        number: String.duplicate("a", 256),
-        pix_key: String.duplicate("a", 256)
-      )
+          org_id: UUID.generate(),
+          entity_id: UUID.generate(),
+          is_active: false
+        )
+
+      assert changeset = Account.create_changeset(attrs)
+
+      assert changeset.valid?
+      assert %{is_active: true} = changeset.changes
+    end
+
+    test "put is_active true when not present" do
+      attrs =
+        :bank_account
+        |> attrs_for(
+          org_id: UUID.generate(),
+          entity_id: UUID.generate()
+        )
+        |> Map.drop([:is_active])
+
+      assert changeset = Account.create_changeset(attrs)
+
+      assert changeset.valid?
+      assert %{is_active: true} = changeset.changes
+    end
+
+    test "string fields length greater than 255 chars" do
+      attrs =
+        attrs_for(:bank_account,
+          org_id: UUID.generate(),
+          entity_id: UUID.generate(),
+          branch_number: String.duplicate("a", 256),
+          number: String.duplicate("a", 256),
+          pix_key: String.duplicate("a", 256)
+        )
 
       assert changeset = Account.create_changeset(attrs)
 
@@ -270,11 +295,12 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
     end
 
     test "invalid bank routing number" do
-      attrs = attrs_for(:bank_account,
-        org_id: UUID.generate(),
-        entity_id: UUID.generate(),
-        routing_number: "invalid"
-      )
+      attrs =
+        attrs_for(:bank_account,
+          org_id: UUID.generate(),
+          entity_id: UUID.generate(),
+          routing_number: "invalid"
+        )
 
       assert changeset = Account.create_changeset(attrs)
 
@@ -286,11 +312,12 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
     end
 
     test "pix key with white spaces" do
-      attrs = attrs_for(:bank_account,
-        org_id: UUID.generate(),
-        entity_id: UUID.generate(),
-        pix_key: "pix key"
-      )
+      attrs =
+        attrs_for(:bank_account,
+          org_id: UUID.generate(),
+          entity_id: UUID.generate(),
+          pix_key: "pix key"
+        )
 
       assert changeset = Account.create_changeset(attrs)
 
@@ -304,12 +331,13 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
     test "[pix_key, org_id] unique constraint" do
       existing_account = insert(:bank_account, is_primary: true, pix_key: "pix_key")
 
-      attrs = attrs_for(:bank_account,
-        org_id: existing_account.org_id,
-        entity_id: existing_account.entity_id,
-        pix_key: existing_account.pix_key,
-        is_primary: false,
-      )
+      attrs =
+        attrs_for(:bank_account,
+          org_id: existing_account.org_id,
+          entity_id: existing_account.entity_id,
+          pix_key: existing_account.pix_key,
+          is_primary: false
+        )
 
       assert {:error, changeset} =
                attrs
@@ -329,14 +357,15 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
           is_primary: true
         )
 
-      attrs = attrs_for(:bank_account,
-        org_id: existing_account.org_id,
-        entity_id: existing_account.entity_id,
-        routing_number: String.upcase(existing_account.routing_number),
-        branch_number: String.upcase(existing_account.branch_number),
-        number: String.upcase(existing_account.number),
-        is_primary: false,
-      )
+      attrs =
+        attrs_for(:bank_account,
+          org_id: existing_account.org_id,
+          entity_id: existing_account.entity_id,
+          routing_number: String.upcase(existing_account.routing_number),
+          branch_number: String.upcase(existing_account.branch_number),
+          number: String.upcase(existing_account.number),
+          is_primary: false
+        )
 
       assert {:error, changeset} =
                attrs
@@ -344,7 +373,7 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
                |> Repo.insert()
 
       refute changeset.valid?
-      assert errors_on(changeset) == %{routing_number: ["has already been taken"]}
+      assert errors_on(changeset) == %{number: ["has already been taken"]}
     end
   end
 
@@ -391,6 +420,28 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
                is_active: ["is invalid"],
                is_primary: ["is invalid"]
              }
+    end
+
+    test "set is_primary true when account is false and attrs is true" do
+      account = insert(:bank_account, is_primary: false)
+
+      attrs = %{is_primary: true}
+
+      assert changeset = Account.update_changeset(account, attrs)
+
+      assert changeset.valid?
+      assert changeset.changes == %{is_primary: true}
+    end
+
+    test "ignores is_primary when account is true and attrs is false" do
+      account = insert(:bank_account, is_primary: true)
+
+      attrs = %{is_primary: false}
+
+      assert changeset = Account.update_changeset(account, attrs)
+
+      assert changeset.valid?
+      assert changeset.changes == %{}
     end
 
     test "string fields length greater than 255 chars" do
@@ -478,6 +529,17 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
 
       refute changeset.valid?
       assert errors_on(changeset) == %{pix_key: ["has already been taken"]}
+    end
+  end
+
+  describe "is_primary_false_changeset/2" do
+    test "valid attrs" do
+      account = insert(:bank_account, is_primary: true)
+
+      assert changeset = Account.is_primary_false_changeset(account)
+
+      assert changeset.valid?
+      assert changeset.changes == %{is_primary: false}
     end
   end
 end

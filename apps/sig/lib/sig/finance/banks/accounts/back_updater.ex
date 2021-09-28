@@ -15,7 +15,7 @@ defmodule Sig.Finance.Banks.Accounts.BackUpdater do
 
   defp handle_account({:ok, account}, %{is_primary: true}) do
     account
-    |> Account.update_changeset(%{is_primary: false})
+    |> Account.is_primary_false_changeset()
     |> Repo.update()
   end
 
