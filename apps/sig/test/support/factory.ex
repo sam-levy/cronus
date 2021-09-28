@@ -25,11 +25,7 @@ defmodule Sig.Factory do
 
   def factory(factory_name, _attributes), do: factory(factory_name)
 
-  def random_enum_value(enum) do
-    enum.__valid_values__()
-    |> Enum.filter(&is_atom/1)
-    |> Enum.random()
-  end
+  def random_enum_value(enum), do: Enum.random(enum.__enums__())
 
   def random_string_number, do: 100..1000000 |> Enum.random() |> to_string()
 
