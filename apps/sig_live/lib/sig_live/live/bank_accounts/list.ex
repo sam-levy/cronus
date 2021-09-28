@@ -12,17 +12,17 @@ defmodule SigLive.BankAccounts.List do
   data account_id, :struct, default: nil
 
   @impl true
-  def handle_event("open_new_form", _, socket) do
+  def handle_event("open_new_account_form", _, socket) do
     {:noreply, assign(socket, account_form_state: :new_mode, account_id: nil)}
   end
 
   @impl true
-  def handle_event("open_edit_form", %{"account-id" => id}, socket) do
+  def handle_event("open_edit_account_form", %{"account-id" => id}, socket) do
   	{:noreply, assign(socket, account_form_state: :edit_mode, account_id: id)}
   end
 
   @impl true
-  def handle_event("open_show_form", %{"account-id" => id}, socket) do
+  def handle_event("open_show_account_form", %{"account-id" => id}, socket) do
   	{:noreply, assign(socket, account_form_state: :show_mode, account_id: id)}
   end
 
@@ -53,7 +53,7 @@ defmodule SigLive.BankAccounts.List do
                 <span class="text-gray-500 font-medium tracking-wider">Contas Bancárias</span>
 
                 <DropdownBtn text="Adicionar">
-                  <a :on-click="open_new_form" class="dropdown-item">Conta Bancária</a>
+                  <a :on-click="open_new_account_form" class="dropdown-item">Conta Bancária</a>
                 </DropdownBtn>
               </div>
             </th>
@@ -72,7 +72,7 @@ defmodule SigLive.BankAccounts.List do
         <tbody class="text-gray-600 text-sm font-light">
           {#for account <- @accounts}
             <tr class="border-b border-gray-200 hover:bg-gray-50">
-              <td class="py-3 pl-6 text-left cursor-pointer hover:underline" :on-click="open_show_form" phx-value-account_id={account.id}>
+              <td class="py-3 pl-6 text-left cursor-pointer hover:underline" :on-click="open_show_account_form" phx-value-account_id={account.id}>
                 {bank_name_with_number(account.routing_number)}
               </td>
 
@@ -97,7 +97,7 @@ defmodule SigLive.BankAccounts.List do
 
               <td class="pr-6 text-left">
                 <DropdownOpts>
-                  <a :on-click="open_edit_form" phx-value-account_id={account.id} class="dropdown-item" >Editar</a>
+                  <a :on-click="open_edit_account_form" phx-value-account_id={account.id} class="dropdown-item" >Editar</a>
                 </DropdownOpts>
               </td>
             </tr>
