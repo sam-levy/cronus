@@ -1,4 +1,4 @@
-defmodule SigLive.BankAccounts.Form do
+defmodule SigLive.BankAccounts.AccountForm do
   use SigLive, :surface_live_component
 
   alias Sig.Finance

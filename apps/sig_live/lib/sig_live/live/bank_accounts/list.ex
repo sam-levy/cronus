@@ -1,45 +1,45 @@
 defmodule SigLive.BankAccounts.List do
   use SigLive, :surface_live_component
 
-  alias SigLive.BankAccounts.Form
+  alias SigLive.BankAccounts.AccountForm
   alias SigLive.Components.DropdownOpts
 
   prop accounts, :list, required: true
   prop entity, :struct, required: true
 
-  data form_state, :atom, default: :closed
+  data account_form_state, :atom, default: :closed
   data account_id, :struct, default: nil
 
   @impl true
   def handle_event("open_new_form", _, socket) do
-    {:noreply, assign(socket, form_state: :new_mode, account_id: nil)}
+    {:noreply, assign(socket, account_form_state: :new_mode, account_id: nil)}
   end
 
   @impl true
   def handle_event("open_edit_form", %{"account-id" => id}, socket) do
-  	{:noreply, assign(socket, form_state: :edit_mode, account_id: id)}
+  	{:noreply, assign(socket, account_form_state: :edit_mode, account_id: id)}
   end
 
   @impl true
   def handle_event("open_show_form", %{"account-id" => id}, socket) do
-  	{:noreply, assign(socket, form_state: :show_mode, account_id: id)}
+  	{:noreply, assign(socket, account_form_state: :show_mode, account_id: id)}
   end
 
   @impl true
-  def handle_event("close_form", _, socket) do
-    {:noreply, assign(socket, form_state: :closed, account_id: nil)}
+  def handle_event("close_account_form", _, socket) do
+    {:noreply, assign(socket, account_form_state: :closed, account_id: nil)}
   end
 
   @impl true
   def render(assigns) do
     ~F"""
     <div>
-      <Form
-        :if={@form_state != :closed}
+      <AccountForm
+        :if={@account_form_state != :closed}
         id="bank_account_form"
-        close_event="close_form"
-        close_fun={fn -> close_form(@id) end}
-        form_state={@form_state}
+        close_event="close_account_form"
+        close_fun={fn -> close_account_form(@id) end}
+        form_state={@account_form_state}
         entity={@entity}
         account_id={@account_id}
       />
@@ -111,7 +111,7 @@ defmodule SigLive.BankAccounts.List do
     """
   end
 
-  def close_form(id) do
-    send_update(__MODULE__, id: id, form_state: :closed, account_id: nil)
+  def close_account_form(id) do
+    send_update(__MODULE__, id: id, account_form_state: :closed, account_id: nil)
   end
 end
