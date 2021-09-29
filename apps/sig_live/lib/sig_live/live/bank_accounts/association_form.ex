@@ -49,11 +49,8 @@ defmodule SigLive.BankAccounts.AssociationForm do
   end
 
   @impl true
-  def handle_event(
-        "fetch_entity_by_document",
-        %{"fetch_entity" => %{"document" => document}},
-        socket
-      ) do
+  def handle_event("fetch_entity_by_document", params, socket) do
+    %{"fetch_entity" => %{"document" => document}} = params
     %{org: org} = socket.assigns
 
     case Entities.fetch_by_document(org, document) do
@@ -79,7 +76,7 @@ defmodule SigLive.BankAccounts.AssociationForm do
   end
 
   @impl true
-  def handle_event("clear", _, socket) do
+  def handle_event("clear", _params, socket) do
     {:noreply, assign(socket, document: nil, message: nil)}
   end
 
@@ -270,6 +267,41 @@ defmodule SigLive.BankAccounts.AssociationForm do
     |> Map.new(&{&1, &1})
   end
 
+  defp handle_account_holder_entity_found(account_holder_entity, document, socket) do
+    name = Entities.get_name(account_holder_entity)
+
+    if socket.assigns.entity.id == account_holder_entity.id do
+      message =
+        "#{name} é a pessoa atual. Insira uma conta bancária própria para esta pessoa ou busque por outra."
+
+      {:noreply, assign(socket, document: document, message: message)}
+    else
+      handle_list_accounts(account_holder_entity, name, document, socket)
+    end
+  end
+
+  defp handle_list_accounts(account_holder_entity, name, document, socket) do
+    %{entity: entity} = socket.assigns
+
+    case Finance.list_active_accounts_by_entity(account_holder_entity) do
+      [] ->
+        message = "#{name} não possui contas bancárias ativas."
+        {:noreply, assign(socket, document: document, message: message)}
+
+      accounts ->
+        {:noreply,
+         assign(socket,
+           changeset: Finance.create_entity_bank_account_change(%{}),
+           account_holder_name: name,
+           entities_relationships:
+             entities_relationships_for_select(account_holder_entity, entity),
+           document: document,
+           accounts: accounts,
+           message: nil
+         )}
+    end
+  end
+
   defp validate_params(%{form_state: :new_mode} = context) do
     changeset =
       context.params
@@ -341,41 +373,6 @@ defmodule SigLive.BankAccounts.AssociationForm do
 
   defp handle_flash(:new_mode), do: send(self(), {:flash, :info, "Associação criada"})
   defp handle_flash(:edit_mode), do: send(self(), {:flash, :info, "Associação atualizada"})
-
-  defp handle_account_holder_entity_found(account_holder_entity, document, socket) do
-    name = Entities.get_name(account_holder_entity)
-
-    if socket.assigns.entity.id == account_holder_entity.id do
-      message =
-        "#{name} é a pessoa atual. Insira uma conta bancária própria para esta pessoa ou busque por outra."
-
-      {:noreply, assign(socket, document: document, message: message)}
-    else
-      handle_list_accounts(account_holder_entity, name, document, socket)
-    end
-  end
-
-  defp handle_list_accounts(account_holder_entity, name, document, socket) do
-    %{entity: entity} = socket.assigns
-
-    case Finance.list_active_accounts_by_entity(account_holder_entity) do
-      [] ->
-        message = "#{name} não possui contas bancárias ativas."
-        {:noreply, assign(socket, document: document, message: message)}
-
-      accounts ->
-        {:noreply,
-         assign(socket,
-           changeset: Finance.create_entity_bank_account_change(%{}),
-           account_holder_name: name,
-           entities_relationships:
-             entities_relationships_for_select(account_holder_entity, entity),
-           document: document,
-           accounts: accounts,
-           message: nil
-         )}
-    end
-  end
 
   defp handle_title(:new_mode), do: "Associar Conta Bancária de Outro Titular"
   defp handle_title(:edit_mode), do: "Editar Associação"
