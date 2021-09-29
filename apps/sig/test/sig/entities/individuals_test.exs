@@ -194,7 +194,7 @@ defmodule Sig.Entities.IndividualsTest do
   describe "broadcast_individuals/1" do
     test "broadcasts individuals from an organization" do
       org = insert(:org)
-      individuals = insert_list(2, :individual, org: org)
+      right_individuals = insert_list(2, :individual, org: org)
       _wrong_individuals = insert_list(2, :individual)
 
       topic = "org_id:" <> org.id <> ":individuals"
@@ -207,7 +207,7 @@ defmodule Sig.Entities.IndividualsTest do
 
       assert Enum.count(received_individuals) == 2
 
-      Enum.each(individuals, fn individual ->
+      Enum.each(right_individuals, fn individual ->
         assert received_individual =
                  Enum.find(received_individuals, &(&1.entity_id == individual.entity_id))
 

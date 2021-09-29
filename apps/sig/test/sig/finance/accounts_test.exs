@@ -171,7 +171,8 @@ defmodule Sig.Finance.Banks.AccountsTest do
     test "broadcasts bank accounts from an entity" do
       org = insert(:org)
       entity = insert(:entity, org: org)
-      accounts = insert_list(2, :bank_account, org: org, entity: entity)
+
+      _right_accounts = insert_list(2, :bank_account, org: org, entity: entity)
       _wrong_accounts = insert_list(2, :bank_account)
 
       topic = "entity_id:" <> entity.id <> ":bank_accounts"
@@ -184,7 +185,7 @@ defmodule Sig.Finance.Banks.AccountsTest do
 
       assert Enum.count(received_accounts) == 2
 
-      Enum.each(accounts, fn account ->
+      Enum.each(received_accounts, fn account ->
         assert account.org_id == org.id
         assert account.entity_id == entity.id
       end)
