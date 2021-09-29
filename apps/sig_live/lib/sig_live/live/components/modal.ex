@@ -12,7 +12,7 @@ defmodule SigLive.Components.Modal do
     <div class="fixed z-50 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
       <div class="flex items-start justify-center min-h-screen pt-4 px-4 text-center">
         <!-- Background overlay, show/hide based on modal state. -->
-        <div :on-capture-click={@close} class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+        <div :on-capture-click={@close} class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity select-none" aria-hidden="true"></div>
 
         <!-- This element is to trick the browser into centering the modal contents. -->
         <span class="hidden inline-block align-middle h-screen" aria-hidden="true">&#8203;</span>
