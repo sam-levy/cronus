@@ -12,12 +12,16 @@ defmodule SigLive.Individuals.Show do
     %{org: org} = socket.assigns
     individual = Entities.get_individual(org, id)
 
-    if connected?(socket), do: Finance.subscribe_to_bank_accounts(individual.entity)
+    if connected?(socket) do
+      Finance.subscribe_to_bank_accounts(individual.entity)
+      Finance.subscribe_to_entity_bank_accounts(individual.entity)
+    end
 
     socket =
       assign(socket,
         individual: individual,
-        bank_accounts: Finance.list_accounts_by_entity(individual.entity)
+        bank_accounts: Finance.list_accounts_by_entity(individual.entity),
+        entity_bank_accounts: Finance.list_entity_bank_accounts_by_entity(individual.entity)
       )
 
     {:ok, socket}
@@ -26,6 +30,11 @@ defmodule SigLive.Individuals.Show do
   @impl true
   def handle_info({:updated_bank_accounts, bank_accounts}, socket) do
     {:noreply, assign(socket, bank_accounts: bank_accounts)}
+  end
+
+  @impl true
+  def handle_info({:updated_entity_bank_accounts, entity_bank_accounts}, socket) do
+    {:noreply, assign(socket, entity_bank_accounts: entity_bank_accounts)}
   end
 
   @impl true
@@ -42,8 +51,10 @@ defmodule SigLive.Individuals.Show do
 
     <BankAccounts.List
       id="bank_accounts"
-      accounts={@bank_accounts}
       entity={@individual.entity}
+      {=@org}
+      {=@bank_accounts}
+      {=@entity_bank_accounts}
     />
     """
   end

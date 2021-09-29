@@ -2,13 +2,17 @@ defmodule SigLive.BankAccounts.List do
   use SigLive, :surface_live_component
 
   alias SigLive.BankAccounts.AccountForm
-  alias SigLive.Components.DropdownOpts
+  alias SigLive.BankAccounts.AssociationForm
   alias SigLive.Components.DropdownBtn
+  alias SigLive.Components.DropdownOpts
 
-  prop accounts, :list, required: true
+  prop org, :struct, required: true
   prop entity, :struct, required: true
+  prop bank_accounts, :list, required: true
+  prop entity_bank_accounts, :list, required: true
 
   data account_form_state, :atom, default: :closed
+  data association_form_state, :atom, default: :closed
   data account_id, :struct, default: nil
 
   @impl true
@@ -18,17 +22,32 @@ defmodule SigLive.BankAccounts.List do
 
   @impl true
   def handle_event("open_edit_account_form", %{"account-id" => id}, socket) do
-  	{:noreply, assign(socket, account_form_state: :edit_mode, account_id: id)}
+    {:noreply, assign(socket, account_form_state: :edit_mode, account_id: id)}
   end
 
   @impl true
   def handle_event("open_show_account_form", %{"account-id" => id}, socket) do
-  	{:noreply, assign(socket, account_form_state: :show_mode, account_id: id)}
+    {:noreply, assign(socket, account_form_state: :show_mode, account_id: id)}
   end
 
   @impl true
-  def handle_event("close_account_form", _, socket) do
-    {:noreply, assign(socket, account_form_state: :closed, account_id: nil)}
+  def handle_event("open_new_association_form", _, socket) do
+    {:noreply, assign(socket, association_form_state: :new_mode, account_id: nil)}
+  end
+
+  @impl true
+  def handle_event("open_edit_association_form", %{"account-id" => id}, socket) do
+    {:noreply, assign(socket, association_form_state: :edit_mode, account_id: id)}
+  end
+
+  @impl true
+  def handle_event("open_show_association_form", %{"account-id" => id}, socket) do
+    {:noreply, assign(socket, association_form_state: :show_mode, account_id: id)}
+  end
+
+  @impl true
+  def handle_event("close_form", _, socket) do
+    {:noreply, assign(socket, closed_state())}
   end
 
   @impl true
@@ -37,12 +56,23 @@ defmodule SigLive.BankAccounts.List do
     <div>
       <AccountForm
         :if={@account_form_state != :closed}
-        id="bank_account_form"
-        close_event="close_account_form"
-        close_fun={fn -> close_account_form(@id) end}
+        id="account_form"
+        close_event="close_form"
+        close_fun={fn -> close_form(@id) end}
         form_state={@account_form_state}
-        entity={@entity}
-        account_id={@account_id}
+        {=@entity}
+        {=@account_id}
+      />
+
+      <AssociationForm
+        :if={@association_form_state != :closed}
+        id="association_form"
+        close_event="close_form"
+        close_fun={fn -> close_form(@id) end}
+        form_state={@association_form_state}
+        {=@org}
+        {=@entity}
+        {=@account_id}
       />
 
       <table class="w-full bg-white shadow-lg my-7">
@@ -54,12 +84,16 @@ defmodule SigLive.BankAccounts.List do
 
                 <DropdownBtn text="Adicionar">
                   <a :on-click="open_new_account_form" class="dropdown-item">Conta Bancária</a>
+                  <a :on-click="open_new_association_form" class="dropdown-item">Associação Entre Contas</a>
                 </DropdownBtn>
               </div>
             </th>
           </tr>
 
-          <tr :if={@accounts != []} class="bg-gray-50 uppercase text-xs font-medium text-gray-500 tracking-wider">
+          <tr
+            :if={@bank_accounts != [] || @entity_bank_accounts != []}
+            class="bg-gray-50 uppercase text-xs font-medium text-gray-500 tracking-wider"
+          >
             <th class="py-3 px-6 text-left">Banco</th>
             <th></th>
             <th class="py-3 px-6 text-left">Chave PIX</th>
@@ -70,9 +104,13 @@ defmodule SigLive.BankAccounts.List do
         </thead>
 
         <tbody class="text-gray-600 text-sm font-light">
-          {#for account <- @accounts}
+          {#for account <- @bank_accounts}
             <tr class="border-b border-gray-200 hover:bg-gray-50">
-              <td class="py-3 pl-6 text-left cursor-pointer hover:underline" :on-click="open_show_account_form" phx-value-account_id={account.id}>
+              <td
+                :on-click="open_show_account_form"
+                phx-value-account_id={account.id}
+                class="py-3 pl-6 text-left cursor-pointer hover:underline"
+              >
                 {bank_name_with_number(account.routing_number)}
               </td>
 
@@ -95,9 +133,46 @@ defmodule SigLive.BankAccounts.List do
                 {account.number}
               </td>
 
-              <td class="pr-6 text-left">
+              <td class="pr-3 text-left">
                 <DropdownOpts>
-                  <a :on-click="open_edit_account_form" phx-value-account_id={account.id} class="dropdown-item" >Editar</a>
+                  <a :on-click="open_edit_account_form" phx-value-account_id={account.id} class="dropdown-item">Editar Conta</a>
+                </DropdownOpts>
+              </td>
+            </tr>
+          {/for}
+
+          {#for %{bank_account: account} = eba <- @entity_bank_accounts}
+            <tr class="border-b border-gray-200 hover:bg-gray-50">
+              <td
+                :on-click="open_show_association_form"
+                phx-value-account_id={account.id}
+                class="py-3 pl-6 text-left cursor-pointer hover:underline"
+              >
+                {bank_name_with_number(account.routing_number)}
+              </td>
+
+              <td class="px-3 text-left">
+                <div class="flex items-center">
+                  <span class="label-gray mr-1">Associada</span>
+                  <span :if={eba.is_primary} class="label-green">Principal</span>
+                </div>
+              </td>
+
+              <td class="px-3 text-left select-all">
+                {account.pix_key}
+              </td>
+
+              <td class="px-3 text-left">
+                {account.branch_number}
+              </td>
+
+              <td class="px-3 text-left">
+                {account.number}
+              </td>
+
+              <td class="pr-3 text-left">
+                <DropdownOpts>
+                  <a :on-click="open_edit_association_form" phx-value-account_id={account.id} class="dropdown-item">Editar Associação</a>
                 </DropdownOpts>
               </td>
             </tr>
@@ -108,7 +183,10 @@ defmodule SigLive.BankAccounts.List do
     """
   end
 
-  def close_account_form(id) do
-    send_update(__MODULE__, id: id, account_form_state: :closed, account_id: nil)
-  end
+  def close_form(id), do: send_update(__MODULE__, closed_state(id))
+
+  defp closed_state,
+    do: [account_form_state: :closed, association_form_state: :closed, account_id: nil]
+
+  defp closed_state(id), do: closed_state() ++ [id: id]
 end
