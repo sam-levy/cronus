@@ -1,6 +1,7 @@
 defmodule SigLive.ViewHelpers do
   alias BrazilianDocuments.Types.CPF
 
+  alias Sig.Documents
   alias Sig.Finance
   alias Sig.Finance.Banks.Bank
 
@@ -27,6 +28,19 @@ defmodule SigLive.ViewHelpers do
     Map.new(banks, &{bank_name_with_number(&1), &1.routing_number})
   end
 
+  def bank_for_select(routing_number) when is_binary(routing_number) do
+    %{bank_name_with_number(routing_number) => routing_number}
+  end
+
+  def bank_accounts_for_select(accounts) when is_list(accounts) do
+    Map.new(accounts, fn account ->
+      option =
+        "#{bank_name_with_number(account.routing_number)} - Ag: #{account.branch_number} - Conta: #{account.number}"
+
+      {option, account.id}
+    end)
+  end
+
   def enum_for_select(enum) do
     enum.__valid_values__()
     |> Enum.filter(&is_binary/1)
@@ -39,6 +53,16 @@ defmodule SigLive.ViewHelpers do
     case BrazilianDocuments.format_cpf(cpf) do
       {:ok, formatted_cpf} -> formatted_cpf
       _ -> ""
+    end
+  end
+
+  def format_document(nil), do: ""
+
+  def format_document(document) when is_binary(document) do
+    case Documents.format_document(document) do
+      {:cpf, cpf} -> cpf
+      {:cnpj, cnpj} -> cnpj
+      :error -> document
     end
   end
 end
