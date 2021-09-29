@@ -77,7 +77,7 @@ defmodule SigLive.Individuals.New do
           </blockquote>
 
           <div class="mt-5 flex justify-end">
-            <Submit class="btn-blue" label="Validar" opts={[phx_disable_with: "Validando..."]}/>
+            <Submit class="btn-blue" label="Validar" opts={phx_disable_with: "Validando..."}/>
           </div>
         </Form>
 
@@ -103,7 +103,7 @@ defmodule SigLive.Individuals.New do
           </Field>
 
           <div class="mt-5 flex justify-end">
-            <Submit class="btn-blue" label="Salvar" opts={[phx_disable_with: "Adicionando..."]}/>
+            <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Adicionando..."}/>
           </div>
         </Form>
 
