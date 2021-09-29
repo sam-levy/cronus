@@ -309,7 +309,7 @@ defmodule SigLive.BankAccounts.AssociationForm do
     %{entity_bank_account: eba} = context.socket.assigns
 
     case Finance.update_entity_bank_account(eba, changeset.changes) do
-      {:ok, eba} -> Map.put(context, :success, eba)
+      {:ok, eba} -> Map.put(context, :return, {:ok, eba})
       {:error, error} -> Map.put(context, :error, error)
     end
   end
