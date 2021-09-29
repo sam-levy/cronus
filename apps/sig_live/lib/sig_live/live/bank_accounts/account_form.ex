@@ -22,7 +22,7 @@ defmodule SigLive.BankAccounts.AccountForm do
   prop close_fun, :fun, required: true
   prop form_state, :atom, required: true, values!: [:new_mode, :edit_mode, :show_moded, :closed]
   prop entity, :struct, required: true
-  prop account_id, :struct, default: nil
+  prop account_id, :string, default: nil
 
   data banks, :map, default: Finance.list_banks()
 
@@ -50,7 +50,7 @@ defmodule SigLive.BankAccounts.AccountForm do
       ) do
     with {:ok, attrs} <- handle_create_params(account_params),
          {:ok, _account} <- Finance.create_account(entity, attrs) do
-      Finance.broadcast_bank_accounts(entity)
+      Finance.broadcast_accounts_and_relations(entity)
       send(self(), {:flash, :info, "Conta adicionada"})
       socket.assigns.close_fun.()
 
@@ -68,7 +68,7 @@ defmodule SigLive.BankAccounts.AccountForm do
       ) do
     with {:ok, attrs} <- handle_update_params(account, account_params),
          {:ok, _account} <- Finance.update_account(account, attrs) do
-      Finance.broadcast_bank_accounts(entity)
+      Finance.broadcast_accounts_and_relations(entity)
       send(self(), {:flash, :info, "Conta alterada"})
       socket.assigns.close_fun.()
 
