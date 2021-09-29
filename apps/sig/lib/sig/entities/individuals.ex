@@ -5,6 +5,7 @@ defmodule Sig.Entities.Individuals do
 
   alias Sig.Entities.Entity
   alias Sig.Entities.Individuals.Individual
+  alias Sig.Documents
   alias Sig.Organizations.Org
   alias Sig.Repo
 
@@ -27,10 +28,7 @@ defmodule Sig.Entities.Individuals do
   end
 
   def fetch_individual_by_cpf(%Org{} = org, cpf) when is_binary(cpf) do
-    cpf =
-      cpf
-      |> String.trim()
-      |> String.replace(~r/\D/, "")
+    cpf = Documents.raw_digits(cpf)
 
     if BrazilianDocuments.valid_cpf?(cpf) do
       Individual
