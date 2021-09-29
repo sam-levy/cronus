@@ -79,6 +79,7 @@ defmodule SigLive.Individuals.Index do
 			</thead>
 
 			<tbody class="text-gray-600 text-sm font-light">
+
 				{#for individual <- @individuals}
 					<tr class="border-b border-gray-200 hover:bg-gray-50">
 						<td class="py-3 px-6 text-left">
@@ -87,11 +88,12 @@ defmodule SigLive.Individuals.Index do
 							</LiveRedirect>
 						</td>
 
-						<td class="py-3 px-6 text-left">
+						<td class="py-3 px-6 text-left select-all">
 							<span>{format_cpf(individual.cpf)}</span>
 						</td>
 					</tr>
 				{/for}
+
 			</tbody>
 		</table>
     """
