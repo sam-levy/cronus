@@ -88,13 +88,19 @@ defmodule Sig.EntitiesTest do
     end
 
     test "returns the trade name of a Company if not nil" do
-      entity = %Entity{type: :company, company: %Company{trade_name: "Acme", registration_name: "Acme LLC"}}
+      entity = %Entity{
+        type: :company,
+        company: %Company{trade_name: "Acme", registration_name: "Acme LLC"}
+      }
 
       assert Entities.get_name(entity) == "Acme"
     end
 
     test "returns the registration name of a Company if the trade name is nil" do
-      entity = %Entity{type: :company, company: %Company{trade_name: nil, registration_name: "Acme LLC"}}
+      entity = %Entity{
+        type: :company,
+        company: %Company{trade_name: nil, registration_name: "Acme LLC"}
+      }
 
       assert Entities.get_name(entity) == "Acme LLC"
     end
