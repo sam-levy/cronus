@@ -170,11 +170,11 @@ defmodule Sig.Finance.Banks.Accounts.CreateTest do
 
       # Asserts new account was inserted with is_primary switched to true
       assert Repo.get_by(Account,
-        id: return.id,
-        org_id: entity.org_id,
-        entity_id: entity.id,
-        is_primary: true
-      )
+               id: return.id,
+               org_id: entity.org_id,
+               entity_id: entity.id,
+               is_primary: true
+             )
 
       # Asserts existing account is_primary field remains false
       assert Repo.get_by(Account,

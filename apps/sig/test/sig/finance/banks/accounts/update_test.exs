@@ -58,9 +58,9 @@ defmodule Sig.Finance.Banks.Accounts.UpdateTest do
                Repo.get_by(
                  Account,
                  Enum.into(attrs, %{
-                  id: account.id,
-                  org_id: account.org_id,
-                  entity_id: account.entity_id
+                   id: account.id,
+                   org_id: account.org_id,
+                   entity_id: account.entity_id
                  })
                )
 

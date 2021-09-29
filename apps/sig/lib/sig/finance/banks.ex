@@ -10,11 +10,11 @@ defmodule Sig.Finance.Banks do
     |> Jason.decode!()
 
   @all_banks Enum.map(banks, fn bank ->
-    %Bank{
-      name: bank["LongName"],
-      routing_number: bank["COMPE"]
-    }
-  end)
+               %Bank{
+                 name: bank["LongName"],
+                 routing_number: bank["COMPE"]
+               }
+             end)
 
   @banks_by_routing_number Map.new(@all_banks, &{&1.routing_number, &1})
 

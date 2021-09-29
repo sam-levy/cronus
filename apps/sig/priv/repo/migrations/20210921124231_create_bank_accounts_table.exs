@@ -26,16 +26,16 @@ defmodule Sig.Repo.Migrations.CreateBankAccountsTable do
     create unique_index(:bank_accounts, [:pix_key, :org_id])
 
     create unique_index(
-      :bank_accounts,
-      [:routing_number, :branch_number, :number, :org_id],
-      name: :bank_accounts_org_id_account
-    )
+             :bank_accounts,
+             [:routing_number, :branch_number, :number, :org_id],
+             name: :bank_accounts_org_id_account
+           )
 
     create unique_index(
-      :bank_accounts,
-      [:is_primary, :entity_id, :org_id],
-      where: "is_primary = true",
-      name: :bank_accounts_is_primary
-    )
+             :bank_accounts,
+             [:is_primary, :entity_id, :org_id],
+             where: "is_primary = true",
+             name: :bank_accounts_is_primary
+           )
   end
 end

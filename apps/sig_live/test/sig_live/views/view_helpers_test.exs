@@ -48,13 +48,16 @@ defmodule SigLive.ViewHelpersTest do
 
   describe "bank_accounts_for_select/1" do
     test "returns a map of bank accounts and ids" do
-      account_1 = insert(:bank_account, routing_number: "001", branch_number: "123", number: "456")
-      account_2 = insert(:bank_account, routing_number: "104", branch_number: "321", number: "654")
+      account_1 =
+        insert(:bank_account, routing_number: "001", branch_number: "123", number: "456")
+
+      account_2 =
+        insert(:bank_account, routing_number: "104", branch_number: "321", number: "654")
 
       assert ViewHelpers.bank_accounts_for_select([account_1, account_2]) == %{
-        "001 - Banco do Brasil S.A. - Ag: 123 - Conta: 456" => account_1.id,
-        "104 - Caixa Econômica Federal - Ag: 321 - Conta: 654" => account_2.id
-      }
+               "001 - Banco do Brasil S.A. - Ag: 123 - Conta: 456" => account_1.id,
+               "104 - Caixa Econômica Federal - Ag: 321 - Conta: 654" => account_2.id
+             }
     end
   end
 
@@ -65,9 +68,9 @@ defmodule SigLive.ViewHelpersTest do
 
     test "returns a map of enums with strings keys" do
       assert ViewHelpers.enum_for_select(TestEnum) == %{
-        "first item" => "first_item",
-        "second item" => "second_item",
-      }
+               "first item" => "first_item",
+               "second item" => "second_item"
+             }
     end
   end
 

@@ -246,7 +246,8 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
     end
 
     test "set is_active to true" do
-      attrs = attrs_for(:bank_account,
+      attrs =
+        attrs_for(:bank_account,
           org_id: UUID.generate(),
           entity_id: UUID.generate(),
           is_active: false

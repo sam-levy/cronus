@@ -57,8 +57,11 @@ defmodule Sig.Finance.Banks.AccountsTest do
       %{id: org_id} = org = insert(:org)
       %{id: entity_id} = entity = insert(:entity, org: org)
 
-      %{id: id_1} = insert(:bank_account, org: org, entity: entity, routing_number: "001", is_active: true)
-      %{id: id_2} = insert(:bank_account, org: org, entity: entity, routing_number: "104", is_active: true)
+      %{id: id_1} =
+        insert(:bank_account, org: org, entity: entity, routing_number: "001", is_active: true)
+
+      %{id: id_2} =
+        insert(:bank_account, org: org, entity: entity, routing_number: "104", is_active: true)
 
       _to_ignore_1 = insert(:bank_account, org: org, entity: entity, is_active: false)
       _to_ignore_2 = insert(:bank_account, org: org, is_active: true)

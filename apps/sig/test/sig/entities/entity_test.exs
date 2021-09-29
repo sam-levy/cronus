@@ -29,7 +29,7 @@ defmodule Sig.Entities.EntityTest do
       org = insert(:org)
 
       entity = %Entity{
-        org_id: org.id,
+        org_id: org.id
       }
 
       assert_raise Postgrex.Error,
@@ -61,10 +61,10 @@ defmodule Sig.Entities.EntityTest do
       assert {:ok, entity} = Repo.insert(entity)
 
       assert Repo.get_by(Entity,
-        id: entity.id,
-        org_id: org.id,
-        type: :company
-      )
+               id: entity.id,
+               org_id: org.id,
+               type: :company
+             )
     end
   end
 end

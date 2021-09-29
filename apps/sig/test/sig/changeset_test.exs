@@ -39,7 +39,9 @@ defmodule Sig.ChangesetTest do
       changeset =
         {data, types}
         |> Ecto.Changeset.cast(params, Map.keys(types))
-        |> Sig.Changeset.validate_required_if(:is_joint_account_holder, false, [:relationship_with_holder])
+        |> Sig.Changeset.validate_required_if(:is_joint_account_holder, false, [
+          :relationship_with_holder
+        ])
 
       assert changeset.valid?
     end
@@ -52,7 +54,9 @@ defmodule Sig.ChangesetTest do
       changeset =
         {data, types}
         |> Ecto.Changeset.cast(params, Map.keys(types))
-        |> Sig.Changeset.validate_required_if(:is_joint_account_holder, false, [:relationship_with_holder])
+        |> Sig.Changeset.validate_required_if(:is_joint_account_holder, false, [
+          :relationship_with_holder
+        ])
 
       refute changeset.valid?
       assert errors_on(changeset) == %{relationship_with_holder: ["can't be blank"]}
@@ -66,7 +70,9 @@ defmodule Sig.ChangesetTest do
       changeset =
         {data, types}
         |> Ecto.Changeset.cast(params, Map.keys(types))
-        |> Sig.Changeset.validate_required_if(:is_joint_account_holder, false, [:relationship_with_holder])
+        |> Sig.Changeset.validate_required_if(:is_joint_account_holder, false, [
+          :relationship_with_holder
+        ])
 
       assert changeset.valid?
     end
@@ -101,9 +107,9 @@ defmodule Sig.ChangesetTest do
       assert changeset.valid?
 
       assert changeset.changes == %{
-        is_joint_account_holder: false,
-        relationship_with_holder: "child"
-      }
+               is_joint_account_holder: false,
+               relationship_with_holder: "child"
+             }
     end
   end
 end
