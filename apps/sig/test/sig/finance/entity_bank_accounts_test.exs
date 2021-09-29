@@ -149,6 +149,30 @@ defmodule Sig.Finance.Banks.EntityBankAccountsTest do
     end
   end
 
+  describe "entities_relationships/2" do
+    test "returns the possible relationships for two entities" do
+      assert EntityBankAccounts.entities_relationships(
+               %Entity{type: :individual},
+               %Entity{type: :individual}
+             ) == [:child, :spouse, :partner]
+
+      assert EntityBankAccounts.entities_relationships(
+               %Entity{type: :individual},
+               %Entity{type: :company}
+             ) == [:company_owner]
+
+      assert EntityBankAccounts.entities_relationships(
+               %Entity{type: :company},
+               %Entity{type: :individual}
+             ) == [:company_owner]
+
+      assert EntityBankAccounts.entities_relationships(
+               %Entity{type: :company},
+               %Entity{type: :company}
+             ) == [:same_owner_company]
+    end
+  end
+
   describe "subscribe_to_entity_bank_accounts/1" do
     test "subscribes to bank accounts topic" do
       entity = insert(:entity)

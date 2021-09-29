@@ -62,6 +62,22 @@ defmodule Sig.Finance.Banks.EntityBankAccounts do
     end
   end
 
+  def entities_relationships(%Entity{type: :individual}, %Entity{type: :individual}) do
+    EntityBankAccount.individuals_relationships()
+  end
+
+  def entities_relationships(%Entity{type: :company}, %Entity{type: :individual}) do
+    EntityBankAccount.individual_company_relationships()
+  end
+
+  def entities_relationships(%Entity{type: :individual}, %Entity{type: :company}) do
+    EntityBankAccount.individual_company_relationships()
+  end
+
+  def entities_relationships(%Entity{type: :company}, %Entity{type: :company}) do
+    EntityBankAccount.companies_relationships()
+  end
+
   def subscribe_to_entity_bank_accounts(%Entity{} = entity) do
     Phoenix.PubSub.subscribe(Sig.PubSub, topic(entity))
   end

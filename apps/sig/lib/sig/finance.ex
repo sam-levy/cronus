@@ -10,6 +10,11 @@ defmodule Sig.Finance do
   defdelegate create_account_change(attrs), to: Accounts, as: :create_change
   defdelegate update_account_change(bank_account, attrs \\ %{}), to: Accounts, as: :update_change
   defdelegate fetch_account(entity, id), to: Accounts, as: :fetch
+
+  defdelegate fetch_account_in_org_with_entity(org, id),
+    to: Accounts,
+    as: :fetch_in_org_with_entity
+
   defdelegate create_account(entity, attrs), to: Accounts, as: :create
   defdelegate update_account(account, attrs), to: Accounts, as: :update
   defdelegate list_accounts_by_entity(entity), to: Accounts, as: :list_by_entity
@@ -33,6 +38,7 @@ defmodule Sig.Finance do
     to: EntityBankAccounts,
     as: :list_by_entity_with_account
 
+  defdelegate entities_relationships(entity_1, entity_2), to: EntityBankAccounts
   defdelegate subscribe_to_entity_bank_accounts(entity), to: EntityBankAccounts
 
   def broadcast_accounts_and_relations(%Entity{} = entity) do

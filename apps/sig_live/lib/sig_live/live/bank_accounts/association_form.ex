@@ -16,7 +16,6 @@ defmodule SigLive.BankAccounts.AssociationForm do
   alias Sig.Entities
   alias Sig.Finance
   alias Sig.Finance.Banks.Accounts.Account.BankAccountType
-  alias Sig.Finance.Banks.EntityBankAccounts.EntityBankAccount.RelationshipWithHolder
   alias SigLive.Components.Modal
 
   prop close_event, :event, required: true
@@ -41,7 +40,9 @@ defmodule SigLive.BankAccounts.AssociationForm do
         entity_bank_account: entity_bank_account,
         changeset: maybe_set_changeset(entity_bank_account),
         account_holder_name: maybe_set_account_holder_name(entity_bank_account),
-        accounts: maybe_set_account_for_select(entity_bank_account)
+        accounts: maybe_set_account_for_select(entity_bank_account),
+        entities_relationships:
+          maybe_set_entities_relationships_for_select(entity, entity_bank_account)
       )
 
     {:ok, socket}
@@ -61,48 +62,20 @@ defmodule SigLive.BankAccounts.AssociationForm do
 
       {:error, :not_found} ->
         {:noreply,
-         assign(socket, changeset: nil, document: document, message: "Pessoa não cadastrada")}
+         assign(socket, changeset: nil, document: document, message: "Pessoa não cadastrada.")}
 
       :error ->
         {:noreply,
-         assign(socket, changeset: nil, document: document, message: "Documento inválido")}
+         assign(socket, changeset: nil, document: document, message: "Documento inválido.")}
     end
   end
 
   @impl true
-  def handle_event(
-        "save",
-        %{"entity_bank_account" => eba_params},
-        %{assigns: %{form_state: :new_mode, entity: entity}} = socket
-      ) do
-    with {:ok, attrs} <- handle_create_params(eba_params),
-         {:ok, _account} <- Finance.create_entity_bank_account(entity, attrs) do
-      Finance.broadcast_accounts_and_relations(entity)
-      send(self(), {:flash, :info, "Associação criada"})
-      socket.assigns.close_fun.()
-
-      {:noreply, socket}
-    else
-      {:error, changeset} -> {:noreply, assign(socket, changeset: changeset)}
-    end
-  end
-
-  @impl true
-  def handle_event(
-        "save",
-        %{"entity_bank_account" => eba_params},
-        %{assigns: %{form_state: :edit_mode, entity_bank_account: eba, entity: entity}} = socket
-      ) do
-    with {:ok, attrs} <- handle_update_params(eba, eba_params),
-         {:ok, _account} <- Finance.update_entity_bank_account(eba, attrs) do
-      Finance.broadcast_accounts_and_relations(entity)
-      send(self(), {:flash, :info, "Associação alterada"})
-      socket.assigns.close_fun.()
-
-      {:noreply, socket}
-    else
-      {:error, changeset} -> {:noreply, assign(socket, changeset: changeset)}
-    end
+  def handle_event("save", %{"entity_bank_account" => params}, socket) do
+    %{params: params, form_state: socket.assigns.form_state, socket: socket}
+    |> validate_params()
+    |> persist()
+    |> handle_return()
   end
 
   @impl true
@@ -150,13 +123,21 @@ defmodule SigLive.BankAccounts.AssociationForm do
 
           <Field name={:bank_account_id} class="form-field">
             <Label class="form-label">Conta Bancária</Label>
-            <Select options={bank_accounts_for_select(@accounts)} prompt="" {...props_for(:bank_account_id, @form_state)}/>
+            <Select
+              prompt=""
+              options={bank_accounts_for_select(@accounts)}
+              {...props_for(:bank_account_id, @form_state)}
+            />
             <ErrorTag class="form-error-tag"/>
           </Field>
 
           <Field name={:relationship_with_holder} class="form-field">
             <Label class="form-label">Relação com o Titular</Label>
-            <Select options={enum_for_select(RelationshipWithHolder)} prompt="" {...props_for(:relationship_with_holder, @form_state)}/>
+            <Select
+              prompt=""
+              options={@entities_relationships}
+              {...props_for(:relationship_with_holder, @form_state)}
+            />
             <ErrorTag class="form-error-tag"/>
           </Field>
 
@@ -171,6 +152,8 @@ defmodule SigLive.BankAccounts.AssociationForm do
             <Label class="form-side-label">Titular da Conta Conjunta</Label>
             <ErrorTag class="form-error-tag"/>
           </Field>
+
+          <div :if={@message} class="form-error-tag">{@message}</div>
 
           <div class="flex justify-end">
             <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Adicionando..."}/>
@@ -187,7 +170,10 @@ defmodule SigLive.BankAccounts.AssociationForm do
 
           <Field name={:relationship_with_holder} class="form-field">
             <Label class="form-label">Relação com o Titular</Label>
-            <Select options={enum_for_select(RelationshipWithHolder)} prompt="" {...props_for(:relationship_with_holder, @form_state)}/>
+            <Select
+              options={@entities_relationships}
+              {...props_for(:relationship_with_holder, @form_state)}
+            />
             <ErrorTag class="form-error-tag"/>
           </Field>
 
@@ -199,7 +185,11 @@ defmodule SigLive.BankAccounts.AssociationForm do
 
           <Field name={:routing_number}>
             <Label class="form-label">Banco</Label>
-            <Select selected={@changeset.data.bank_account.routing_number} options={bank_for_select(@changeset.data.bank_account.routing_number)} {...props_for(:routing_number, @form_state)}/>
+            <Select
+              selected={@changeset.data.bank_account.routing_number}
+              options={bank_for_select(@changeset.data.bank_account.routing_number)}
+              {...props_for(:routing_number, @form_state)}
+            />
             <ErrorTag class="form-error-tag"/>
           </Field>
 
@@ -223,7 +213,11 @@ defmodule SigLive.BankAccounts.AssociationForm do
 
           <Field name={:type} class="form-field">
             <Label class="form-label">Tipo de Conta</Label>
-            <Select selected={@changeset.data.bank_account.type} options={enum_for_select(BankAccountType)} prompt="" {...props_for(:type, @form_state)}/>
+            <Select
+              selected={@changeset.data.bank_account.type}
+              options={enum_for_select(BankAccountType)}
+              {...props_for(:type, @form_state)}
+            />
             <ErrorTag class="form-error-tag"/>
           </Field>
 
@@ -264,27 +258,89 @@ defmodule SigLive.BankAccounts.AssociationForm do
   defp maybe_set_account_for_select(nil), do: nil
   defp maybe_set_account_for_select(eba), do: [eba.bank_account]
 
-  defp handle_create_params(params) do
+  defp maybe_set_entities_relationships_for_select(_entity, nil = _eba), do: %{}
+
+  defp maybe_set_entities_relationships_for_select(entity, eba) do
+    entities_relationships_for_select(entity, eba.bank_account.entity)
+  end
+
+  def entities_relationships_for_select(entity, holder_entity) do
+    holder_entity
+    |> Finance.entities_relationships(entity)
+    |> Map.new(&{&1, &1})
+  end
+
+  defp validate_params(%{form_state: :new_mode} = context) do
     changeset =
-      params
+      context.params
       |> Map.put("org_id", "org_id")
       |> Map.put("entity_id", "entity_id")
       |> Finance.create_entity_bank_account_change()
 
     case apply_action(changeset, :insert) do
-      {:error, changeset} -> {:error, changeset}
-      {:ok, _schema} -> {:ok, changeset.changes}
+      {:error, changeset} -> Map.put(context, :validation, {:error, changeset})
+      {:ok, _schema} -> Map.put(context, :validation, {:ok, changeset})
     end
   end
 
-  defp handle_update_params(eba, params) do
-    changeset = Finance.update_entity_bank_account_change(eba, params)
+  defp validate_params(%{form_state: :edit_mode} = context) do
+    %{entity_bank_account: eba} = context.socket.assigns
+
+    changeset = Finance.update_entity_bank_account_change(eba, context.params)
 
     case apply_action(changeset, :update) do
-      {:error, changeset} -> {:error, changeset}
-      {:ok, _schema} -> {:ok, changeset.changes}
+      {:error, changeset} -> Map.put(context, :validation, {:error, changeset})
+      {:ok, _schema} -> Map.put(context, :validation, {:ok, changeset})
     end
   end
+
+  defp persist(%{validation: {:error, _}} = context), do: context
+
+  defp persist(%{validation: {:ok, changeset}, form_state: :new_mode} = context) do
+    %{entity: entity} = context.socket.assigns
+
+    case Finance.create_entity_bank_account(entity, changeset.changes) do
+      {:ok, eba} -> Map.put(context, :return, {:ok, eba})
+      {:error, error} -> Map.put(context, :return, {:error, error})
+    end
+  end
+
+  defp persist(%{validation: {:ok, changeset}, form_state: :edit_mode} = context) do
+    %{entity_bank_account: eba} = context.socket.assigns
+
+    case Finance.update_entity_bank_account(eba, changeset.changes) do
+      {:ok, eba} -> Map.put(context, :success, eba)
+      {:error, error} -> Map.put(context, :error, error)
+    end
+  end
+
+  defp handle_return(%{validation: {:error, changeset}, socket: socket}) do
+    {:noreply, assign(socket, message: nil, changeset: changeset)}
+  end
+
+  defp handle_return(%{return: {:error, message}, socket: socket} = context)
+       when is_binary(message) do
+    {_, changeset} = context.validation
+
+    {:noreply, assign(socket, message: message, changeset: changeset)}
+  end
+
+  defp handle_return(%{return: {:error, changeset}, socket: socket}) when is_struct(changeset) do
+    {:noreply, assign(socket, message: nil, changeset: changeset)}
+  end
+
+  defp handle_return(%{return: {:ok, _eba}, socket: socket}) do
+    %{entity: entity, form_state: form_state, close_fun: close_fun} = socket.assigns
+
+    Finance.broadcast_accounts_and_relations(entity)
+    handle_flash(form_state)
+    close_fun.()
+
+    {:noreply, socket}
+  end
+
+  defp handle_flash(:new_mode), do: send(self(), {:flash, :info, "Associação criada"})
+  defp handle_flash(:edit_mode), do: send(self(), {:flash, :info, "Associação atualizada"})
 
   defp handle_account_holder_entity_found(account_holder_entity, document, socket) do
     name = Entities.get_name(account_holder_entity)
@@ -300,6 +356,8 @@ defmodule SigLive.BankAccounts.AssociationForm do
   end
 
   defp handle_list_accounts(account_holder_entity, name, document, socket) do
+    %{entity: entity} = socket.assigns
+
     case Finance.list_active_accounts_by_entity(account_holder_entity) do
       [] ->
         message = "#{name} não possui contas bancárias ativas."
@@ -310,6 +368,8 @@ defmodule SigLive.BankAccounts.AssociationForm do
          assign(socket,
            changeset: Finance.create_entity_bank_account_change(%{}),
            account_holder_name: name,
+           entities_relationships:
+             entities_relationships_for_select(account_holder_entity, entity),
            document: document,
            accounts: accounts,
            message: nil
