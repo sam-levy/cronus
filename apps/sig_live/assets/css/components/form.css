@@ -1,15 +1,15 @@
 @import "tailwindcss/utilities";
 
 .form-field {
-	@apply my-5
+	@apply my-4
 }
 
 .form-checkbox-field {
-	@apply my-5 flex items-center
+	@apply my-3 flex items-center
 }
 
 .form-label {
-	@apply block text-sm font-medium text-gray-600 mb-1
+	@apply block text-sm font-medium text-gray-600 mb-1.5
 }
 
 .form-side-label {
