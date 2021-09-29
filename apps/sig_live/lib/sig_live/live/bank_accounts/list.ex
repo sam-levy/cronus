@@ -96,9 +96,9 @@ defmodule SigLive.BankAccounts.List do
           >
             <th class="py-3 px-6 text-left">Banco</th>
             <th></th>
-            <th class="py-3 px-6 text-left">Chave PIX</th>
-            <th class="py-3 px-6 text-left">Agência</th>
-            <th class="py-3 px-6 text-left">Conta</th>
+            <th class="py-3 px-3 text-left">Chave PIX</th>
+            <th class="py-3 px-3 text-left">Agência</th>
+            <th class="py-3 px-3 text-left">Conta</th>
             <th></th>
           </tr>
         </thead>
@@ -133,7 +133,7 @@ defmodule SigLive.BankAccounts.List do
                 {account.number}
               </td>
 
-              <td class="pr-3 text-left">
+              <td class="pr-5 text-right">
                 <DropdownOpts>
                   <a :on-click="open_edit_account_form" phx-value-account_id={account.id} class="dropdown-item">Editar Conta</a>
                 </DropdownOpts>
@@ -146,7 +146,7 @@ defmodule SigLive.BankAccounts.List do
               <td
                 :on-click="open_show_association_form"
                 phx-value-account_id={account.id}
-                class="py-3 pl-6 text-left cursor-pointer hover:underline"
+                class="py-3 pl-6 text-left cursor-pointer hover:underline truncate"
               >
                 {bank_name_with_number(account.routing_number)}
               </td>
@@ -170,7 +170,7 @@ defmodule SigLive.BankAccounts.List do
                 {account.number}
               </td>
 
-              <td class="pr-3 text-left">
+              <td class="pr-5 text-right">
                 <DropdownOpts>
                   <a :on-click="open_edit_association_form" phx-value-account_id={account.id} class="dropdown-item">Editar Associação</a>
                 </DropdownOpts>
