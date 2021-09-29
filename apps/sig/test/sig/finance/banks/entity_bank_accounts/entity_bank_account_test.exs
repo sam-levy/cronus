@@ -118,6 +118,23 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccountTest do
                    fn -> Repo.insert(entity_bank_account) end
     end
 
+    test "entities_bank_accounts_pkey unique_constraint" do
+      entity_bank_account = insert(:entity_bank_account, is_primary: true)
+
+      entity_bank_account = %EntityBankAccount{
+        org_id: entity_bank_account.org_id,
+        entity_id: entity_bank_account.entity_id,
+        bank_account_id: entity_bank_account.bank_account_id,
+        is_primary: false,
+        is_joint_account_holder: false,
+        relationship_with_holder: :child
+      }
+
+      assert_raise Ecto.ConstraintError,
+                   ~r/entities_bank_accounts_pkey \(unique_constraint\)/,
+                   fn -> Repo.insert(entity_bank_account) end
+    end
+
     test "entities_bank_accounts_entity_is_primary unique_constraint" do
       org = insert(:org)
 
@@ -245,6 +262,28 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccountTest do
                relationship_with_holder: ["is invalid"]
              }
     end
+
+    test "bank_account_id unique constraint" do
+      entity_bank_account = insert(:entity_bank_account, is_primary: true)
+
+      attrs = %{
+        org_id: entity_bank_account.org_id,
+        entity_id: entity_bank_account.entity_id,
+        bank_account_id: entity_bank_account.bank_account_id,
+        is_primary: false,
+        is_joint_account_holder: false,
+        relationship_with_holder: :child
+      }
+
+      assert {:error, changeset} =
+               attrs
+               |> EntityBankAccount.create_changeset()
+               |> Repo.insert()
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{bank_account_id: ["has already been taken"]}
+    end
   end
 
   describe "update_changeset/2" do
@@ -268,6 +307,28 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccountTest do
 
       refute changeset.valid?
       assert errors_on(changeset) == %{is_primary: ["is invalid"]}
+    end
+
+    test "set is_primary true when EntityBankAccount is false and attrs is true" do
+      account = insert(:entity_bank_account, is_primary: false)
+
+      attrs = %{is_primary: true}
+
+      assert changeset = EntityBankAccount.update_changeset(account, attrs)
+
+      assert changeset.valid?
+      assert changeset.changes == %{is_primary: true}
+    end
+
+    test "ignores is_primary when EntityBankAccount is true and attrs is false" do
+      account = insert(:entity_bank_account, is_primary: true)
+
+      attrs = %{is_primary: false}
+
+      assert changeset = EntityBankAccount.update_changeset(account, attrs)
+
+      assert changeset.valid?
+      assert changeset.changes == %{}
     end
 
     test "ignores non permitted attrs" do

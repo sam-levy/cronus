@@ -41,10 +41,13 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccount do
     %__MODULE__{}
     |> cast(attrs, @fields)
     |> validate_required(@fields)
+    |> unique_constraint(:bank_account_id, name: :entities_bank_accounts_pkey)
   end
 
   def update_changeset(%__MODULE__{} = target, attrs) do
-    cast(target, attrs, [:is_primary])
+    target
+    |> cast(attrs, [:is_primary])
+    |> maybe_set_is_primary(target)
   end
 
   def is_primary_false_changeset(%__MODULE__{} = target) do
@@ -54,6 +57,15 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.EntityBankAccount do
   def individuals_relationships, do: @individuals_relationships
   def individual_company_relationships, do: @individual_company_relationships
   def companies_relationships, do: @companies_relationships
+
+  defp maybe_set_is_primary(changeset, %__MODULE__{is_primary: true}) do
+    case get_change(changeset, :is_primary) do
+      false -> put_change(changeset, :is_primary, true)
+      _ -> changeset
+    end
+  end
+
+  defp maybe_set_is_primary(changeset, _target), do: changeset
 
   # TODO: Create a DB trigger with a stored procedure to
   # ensure there is always a record with is_primary = true
