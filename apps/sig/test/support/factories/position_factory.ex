@@ -4,7 +4,7 @@ defmodule Sig.Factories.PositionFactory do
       alias Sig.Organizations.Position
       alias Sig.Organizations.Org
 
-      def factory(:position) do
+      def factory(:org_position) do
         %Position{
           org: build(:org),
           name: sequence(&"#{Faker.Superhero.name()}_#{&1}")
