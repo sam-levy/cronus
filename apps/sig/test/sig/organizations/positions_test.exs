@@ -37,7 +37,7 @@ defmodule Sig.Organizations.PositionTest do
                    fn -> Repo.insert(position) end
     end
 
-    test "org_positions_pkey citext unique_constraint" do
+    test "[:name, :org_id] citext unique_constraint" do
       org = insert(:org)
       insert(:position, org: org, name: "store manager")
 
@@ -47,7 +47,7 @@ defmodule Sig.Organizations.PositionTest do
       }
 
       assert_raise Ecto.ConstraintError,
-                   ~r/org_positions_pkey \(unique_constraint\)/,
+                   ~r/org_positions_name_org_id_index \(unique_constraint\)/,
                    fn -> Repo.insert(position) end
     end
 

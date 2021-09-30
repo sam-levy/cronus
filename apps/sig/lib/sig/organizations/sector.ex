@@ -3,11 +3,10 @@ defmodule Sig.Organizations.Sector do
 
   alias Sig.Organizations.Org
 
-  @primary_key false
   schema "org_sectors" do
-    field :name, :string, primary_key: true
-
     belongs_to :org, Org, primary_key: true
+
+    field :name, :string
 
     timestamps()
   end

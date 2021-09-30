@@ -37,7 +37,7 @@ defmodule Sig.Organizations.SectorTest do
                    fn -> Repo.insert(sector) end
     end
 
-    test "org_sectors_pkey citext unique_constraint" do
+    test "[:name, :org_id] citext unique_constraint" do
       org = insert(:org)
       insert(:sector, org: org, name: "kitchen")
 
@@ -47,7 +47,7 @@ defmodule Sig.Organizations.SectorTest do
       }
 
       assert_raise Ecto.ConstraintError,
-                   ~r/org_sectors_pkey \(unique_constraint\)/,
+                   ~r/org_sectors_name_org_id_index \(unique_constraint\)/,
                    fn -> Repo.insert(sector) end
     end
 
