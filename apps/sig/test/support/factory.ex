@@ -4,6 +4,7 @@ defmodule Sig.Factory do
   use Sig.Factories.IndividualFactory
   use Sig.Factories.OrgFactory
   use Sig.Factories.SectorFactory
+  use Sig.Factories.PositionFactory
   use Sig.Factories.UserFactory
   use Sig.Factories.BankAccountFactory
   use Sig.Factories.EntityBankAccountFactory
