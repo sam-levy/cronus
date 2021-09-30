@@ -5,6 +5,7 @@ defmodule Sig.Factory do
   use Sig.Factories.OrgFactory
   use Sig.Factories.SectorFactory
   use Sig.Factories.PositionFactory
+  use Sig.Factories.RegistrationFactory
   use Sig.Factories.UserFactory
   use Sig.Factories.BankAccountFactory
   use Sig.Factories.EntityBankAccountFactory
