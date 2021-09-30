@@ -39,7 +39,7 @@ defmodule Sig.Organizations.SectorTest do
 
     test "[:name, :org_id] citext unique_constraint" do
       org = insert(:org)
-      insert(:sector, org: org, name: "kitchen")
+      insert(:org_sector, org: org, name: "kitchen")
 
       sector = %Sector{
         org_id: org.id,

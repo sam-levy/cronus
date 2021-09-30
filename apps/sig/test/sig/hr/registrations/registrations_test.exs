@@ -8,7 +8,7 @@ defmodule Sig.HR.Registrations.RegistrationTest do
       org = insert(:org)
 
       individual = insert(:individual, org: org)
-      sector = insert(:sector, org: org)
+      sector = insert(:org_sector, org: org)
       position = insert(:org_position, org: org)
       registered_at = insert(:company, org: org)
 
@@ -32,7 +32,7 @@ defmodule Sig.HR.Registrations.RegistrationTest do
       org = insert(:org)
 
       individual = insert(:individual, org: org)
-      sector = insert(:sector, org: org)
+      sector = insert(:org_sector, org: org)
       position = insert(:org_position, org: org)
       registered_at = insert(:company, org: org)
 
@@ -56,7 +56,7 @@ defmodule Sig.HR.Registrations.RegistrationTest do
     test "individual_id not_null_violation" do
       org = insert(:org)
 
-      sector = insert(:sector, org: org)
+      sector = insert(:org_sector, org: org)
       position = insert(:org_position, org: org)
       registered_at = insert(:company, org: org)
 
@@ -79,7 +79,7 @@ defmodule Sig.HR.Registrations.RegistrationTest do
     test "individual_id foreign_key_constraint" do
       org = insert(:org)
 
-      sector = insert(:sector, org: org)
+      sector = insert(:org_sector, org: org)
       position = insert(:org_position, org: org)
       registered_at = insert(:company, org: org)
 
@@ -104,7 +104,7 @@ defmodule Sig.HR.Registrations.RegistrationTest do
       org = insert(:org)
 
       individual = insert(:individual, org: org)
-      sector = insert(:sector, org: org)
+      sector = insert(:org_sector, org: org)
       position = insert(:org_position, org: org)
       registered_at = insert(:company, org: org)
 
@@ -136,7 +136,7 @@ defmodule Sig.HR.Registrations.RegistrationTest do
       org = insert(:org)
 
       individual = insert(:individual, org: org)
-      sector = insert(:sector, org: org)
+      sector = insert(:org_sector, org: org)
       position = insert(:org_position, org: org)
       registered_at = insert(:company, org: org)
 
@@ -160,7 +160,7 @@ defmodule Sig.HR.Registrations.RegistrationTest do
       org = insert(:org)
 
       individual = insert(:individual, org: org)
-      sector = insert(:sector, org: org)
+      sector = insert(:org_sector, org: org)
       position = insert(:org_position, org: org)
       registered_at = insert(:company, org: org)
 
@@ -187,7 +187,7 @@ defmodule Sig.HR.Registrations.RegistrationTest do
       org = insert(:org)
 
       individual = insert(:individual, org: org)
-      sector = insert(:sector, org: org)
+      sector = insert(:org_sector, org: org)
       position = insert(:org_position, org: org)
       registered_at = insert(:company, org: org)
 
@@ -252,7 +252,7 @@ defmodule Sig.HR.Registrations.RegistrationTest do
       org = insert(:org)
 
       individual = insert(:individual, org: org)
-      sector = insert(:sector, org: org)
+      sector = insert(:org_sector, org: org)
       position = insert(:org_position, org: org)
       registered_at = insert(:company, org: org)
 
@@ -278,7 +278,7 @@ defmodule Sig.HR.Registrations.RegistrationTest do
       org = insert(:org)
 
       individual = insert(:individual, org: org)
-      sector = insert(:sector, org: org)
+      sector = insert(:org_sector, org: org)
       position = insert(:org_position, org: org)
       registered_at = insert(:company, org: org)
 
@@ -338,7 +338,7 @@ defmodule Sig.HR.Registrations.RegistrationTest do
       org = insert(:org)
 
       individual = insert(:individual, org: org)
-      sector = insert(:sector, org: org)
+      sector = insert(:org_sector, org: org)
       registered_at = insert(:company, org: org)
 
       attrs = %{
@@ -363,7 +363,7 @@ defmodule Sig.HR.Registrations.RegistrationTest do
       org = insert(:org)
 
       individual = insert(:individual, org: org)
-      sector = insert(:sector, org: org)
+      sector = insert(:org_sector, org: org)
       position = insert(:org_position, org: org)
       work_at = insert(:company, org: org)
 
@@ -389,7 +389,7 @@ defmodule Sig.HR.Registrations.RegistrationTest do
       org = insert(:org)
 
       individual = insert(:individual, org: org)
-      sector = insert(:sector, org: org)
+      sector = insert(:org_sector, org: org)
       position = insert(:org_position, org: org)
       registered_at = insert(:company, org: org)
 
@@ -492,7 +492,7 @@ defmodule Sig.HR.Registrations.RegistrationTest do
     test "position assoc_constraint" do
       registration = insert(:employee_registration)
 
-      sector = insert(:sector, org: registration.org)
+      sector = insert(:org_sector, org: registration.org)
       work_at = insert(:company, org: registration.org)
 
       attrs = %{
@@ -512,7 +512,7 @@ defmodule Sig.HR.Registrations.RegistrationTest do
     test "work_at assoc_constraint" do
       registration = insert(:employee_registration)
 
-      sector = insert(:sector, org: registration.org)
+      sector = insert(:org_sector, org: registration.org)
       position = insert(:org_position, org: registration.org)
 
       attrs = %{
