@@ -14,7 +14,7 @@ defmodule Sig.Factories.RegistrationFactory do
           org: org,
           admission_date: Faker.Date.between(~D[2000-01-01], ~D[2010-01-01]),
           resignation_date: Faker.Date.between(~D[2010-01-02], ~D[2020-01-01]),
-          resignation_type: random_enum_value(:registration_type),
+          resignation_type: random_enum_value(:resignation_type),
           sector: build(:sector, org: org),
           position: build(:position, org: org),
           individual: individual,
@@ -23,7 +23,7 @@ defmodule Sig.Factories.RegistrationFactory do
         }
       end
 
-      def random_enum_value(:registration_type) do
+      def random_enum_value(:resignation_type) do
         random_enum_value(ResignationType)
       end
     end

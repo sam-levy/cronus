@@ -32,6 +32,17 @@ defmodule Sig.Changeset do
     end
   end
 
+  def validate_first_date_before_second(changeset, first_date_field, second_date_field) do
+    with {_, first_date} <- fetch_field(changeset, first_date_field),
+         {:ok, second_date} <- fetch_change(changeset, second_date_field),
+         :lt <- Date.compare(first_date, second_date) do
+      changeset
+    else
+      :gt -> add_error(changeset, first_date_field, "cannot be after #{second_date_field}")
+      _ -> changeset
+    end
+  end
+
   def drop_change_if(
         changeset,
         conditional_field,
