@@ -4,7 +4,7 @@ defmodule Sig.Factories.SectorFactory do
       alias Sig.Organizations.Sector
       alias Sig.Organizations.Org
 
-      def factory(:sector) do
+      def factory(:org_sector) do
         %Sector{
           org: build(:org),
           name: sequence(&"#{Faker.Company.bullshit_prefix()}_#{&1}")

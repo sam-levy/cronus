@@ -39,7 +39,7 @@ defmodule Sig.Organizations.PositionTest do
 
     test "[:name, :org_id] citext unique_constraint" do
       org = insert(:org)
-      insert(:position, org: org, name: "store manager")
+      insert(:org_position, org: org, name: "store manager")
 
       position = %Position{
         org_id: org.id,

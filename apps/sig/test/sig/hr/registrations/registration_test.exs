@@ -8,8 +8,8 @@ defmodule Sig.HR.Registrations.RegistrationTest do
       org = insert(:org)
 
       individual = insert(:individual, org: org)
-      sector = insert(:sector, org: org)
-      position = insert(:position, org: org)
+      sector = insert(:org_sector, org: org)
+      position = insert(:org_position, org: org)
       registered_at = insert(:company, org: org)
 
       registration = %Registration{
@@ -32,8 +32,8 @@ defmodule Sig.HR.Registrations.RegistrationTest do
       org = insert(:org)
 
       individual = insert(:individual, org: org)
-      sector = insert(:sector, org: org)
-      position = insert(:position, org: org)
+      sector = insert(:org_sector, org: org)
+      position = insert(:org_position, org: org)
       registered_at = insert(:company, org: org)
 
       registration = %Registration{
@@ -56,8 +56,8 @@ defmodule Sig.HR.Registrations.RegistrationTest do
     test "individual_id not_null_violation" do
       org = insert(:org)
 
-      sector = insert(:sector, org: org)
-      position = insert(:position, org: org)
+      sector = insert(:org_sector, org: org)
+      position = insert(:org_position, org: org)
       registered_at = insert(:company, org: org)
 
       registration = %Registration{
@@ -79,8 +79,8 @@ defmodule Sig.HR.Registrations.RegistrationTest do
     test "individual_id foreign_key_constraint" do
       org = insert(:org)
 
-      sector = insert(:sector, org: org)
-      position = insert(:position, org: org)
+      sector = insert(:org_sector, org: org)
+      position = insert(:org_position, org: org)
       registered_at = insert(:company, org: org)
 
       registration = %Registration{
@@ -104,8 +104,8 @@ defmodule Sig.HR.Registrations.RegistrationTest do
       org = insert(:org)
 
       individual = insert(:individual, org: org)
-      sector = insert(:sector, org: org)
-      position = insert(:position, org: org)
+      sector = insert(:org_sector, org: org)
+      position = insert(:org_position, org: org)
       registered_at = insert(:company, org: org)
 
       _existing_open_registration =
@@ -136,8 +136,8 @@ defmodule Sig.HR.Registrations.RegistrationTest do
       org = insert(:org)
 
       individual = insert(:individual, org: org)
-      sector = insert(:sector, org: org)
-      position = insert(:position, org: org)
+      sector = insert(:org_sector, org: org)
+      position = insert(:org_position, org: org)
       registered_at = insert(:company, org: org)
 
       registration = %Registration{
@@ -160,8 +160,8 @@ defmodule Sig.HR.Registrations.RegistrationTest do
       org = insert(:org)
 
       individual = insert(:individual, org: org)
-      sector = insert(:sector, org: org)
-      position = insert(:position, org: org)
+      sector = insert(:org_sector, org: org)
+      position = insert(:org_position, org: org)
       registered_at = insert(:company, org: org)
 
       registration = %Registration{
@@ -187,8 +187,8 @@ defmodule Sig.HR.Registrations.RegistrationTest do
       org = insert(:org)
 
       individual = insert(:individual, org: org)
-      sector = insert(:sector, org: org)
-      position = insert(:position, org: org)
+      sector = insert(:org_sector, org: org)
+      position = insert(:org_position, org: org)
       registered_at = insert(:company, org: org)
 
       attrs = %{
@@ -252,8 +252,8 @@ defmodule Sig.HR.Registrations.RegistrationTest do
       org = insert(:org)
 
       individual = insert(:individual, org: org)
-      sector = insert(:sector, org: org)
-      position = insert(:position, org: org)
+      sector = insert(:org_sector, org: org)
+      position = insert(:org_position, org: org)
       registered_at = insert(:company, org: org)
 
       attrs = %{
@@ -278,8 +278,8 @@ defmodule Sig.HR.Registrations.RegistrationTest do
       org = insert(:org)
 
       individual = insert(:individual, org: org)
-      sector = insert(:sector, org: org)
-      position = insert(:position, org: org)
+      sector = insert(:org_sector, org: org)
+      position = insert(:org_position, org: org)
       registered_at = insert(:company, org: org)
 
       _existing_open_registration =
@@ -313,7 +313,7 @@ defmodule Sig.HR.Registrations.RegistrationTest do
       org = insert(:org)
 
       individual = insert(:individual, org: org)
-      position = insert(:position, org: org)
+      position = insert(:org_position, org: org)
       registered_at = insert(:company, org: org)
 
       attrs = %{
@@ -334,11 +334,38 @@ defmodule Sig.HR.Registrations.RegistrationTest do
       assert errors_on(changeset) == %{sector: ["does not exist"]}
     end
 
+    test "sector from other org" do
+      org = insert(:org)
+
+      individual = insert(:individual, org: org)
+      position = insert(:org_position, org: org)
+      registered_at = insert(:company, org: org)
+
+      other_org_sector = insert(:org_sector)
+
+      attrs = %{
+        org_id: org.id,
+        admission_date: Faker.Date.between(~D[2000-01-01], ~D[2010-01-01]),
+        sector_id: other_org_sector.id,
+        position_id: position.id,
+        individual_id: individual.entity_id,
+        registered_at_id: registered_at.entity_id,
+        work_at_id: registered_at.entity_id
+      }
+
+      assert {:error, changeset} =
+               attrs
+               |> Registration.create_changeset()
+               |> Repo.insert()
+
+      assert errors_on(changeset) == %{sector: ["does not exist"]}
+    end
+
     test "position assoc_constraint" do
       org = insert(:org)
 
       individual = insert(:individual, org: org)
-      sector = insert(:sector, org: org)
+      sector = insert(:org_sector, org: org)
       registered_at = insert(:company, org: org)
 
       attrs = %{
@@ -359,12 +386,39 @@ defmodule Sig.HR.Registrations.RegistrationTest do
       assert errors_on(changeset) == %{position: ["does not exist"]}
     end
 
+    test "position from other org" do
+      org = insert(:org)
+
+      individual = insert(:individual, org: org)
+      sector = insert(:org_sector, org: org)
+      registered_at = insert(:company, org: org)
+
+      other_org_position = insert(:org_position)
+
+      attrs = %{
+        org_id: org.id,
+        admission_date: Faker.Date.between(~D[2000-01-01], ~D[2010-01-01]),
+        sector_id: sector.id,
+        position_id: other_org_position.id,
+        individual_id: individual.entity_id,
+        registered_at_id: registered_at.entity_id,
+        work_at_id: registered_at.entity_id
+      }
+
+      assert {:error, changeset} =
+               attrs
+               |> Registration.create_changeset()
+               |> Repo.insert()
+
+      assert errors_on(changeset) == %{position: ["does not exist"]}
+    end
+
     test "registered_at assoc_constraint" do
       org = insert(:org)
 
       individual = insert(:individual, org: org)
-      sector = insert(:sector, org: org)
-      position = insert(:position, org: org)
+      sector = insert(:org_sector, org: org)
+      position = insert(:org_position, org: org)
       work_at = insert(:company, org: org)
 
       attrs = %{
@@ -385,12 +439,40 @@ defmodule Sig.HR.Registrations.RegistrationTest do
       assert errors_on(changeset) == %{registered_at: ["does not exist"]}
     end
 
+    test "registered_at company from other org" do
+      org = insert(:org)
+
+      individual = insert(:individual, org: org)
+      sector = insert(:org_sector, org: org)
+      position = insert(:org_position, org: org)
+      company = insert(:company, org: org)
+
+      other_org_company = insert(:company)
+
+      attrs = %{
+        org_id: org.id,
+        admission_date: Faker.Date.between(~D[2000-01-01], ~D[2010-01-01]),
+        sector_id: sector.id,
+        position_id: position.id,
+        individual_id: individual.entity_id,
+        registered_at_id: other_org_company.entity_id,
+        work_at_id: company.entity_id
+      }
+
+      assert {:error, changeset} =
+               attrs
+               |> Registration.create_changeset()
+               |> Repo.insert()
+
+      assert errors_on(changeset) == %{registered_at: ["does not exist"]}
+    end
+
     test "work_at assoc_constraint" do
       org = insert(:org)
 
       individual = insert(:individual, org: org)
-      sector = insert(:sector, org: org)
-      position = insert(:position, org: org)
+      sector = insert(:org_sector, org: org)
+      position = insert(:org_position, org: org)
       registered_at = insert(:company, org: org)
 
       attrs = %{
@@ -401,6 +483,34 @@ defmodule Sig.HR.Registrations.RegistrationTest do
         individual_id: individual.entity_id,
         registered_at_id: registered_at.entity_id,
         work_at_id: UUID.generate()
+      }
+
+      assert {:error, changeset} =
+               attrs
+               |> Registration.create_changeset()
+               |> Repo.insert()
+
+      assert errors_on(changeset) == %{work_at: ["does not exist"]}
+    end
+
+    test "work_at company from other org" do
+      org = insert(:org)
+
+      individual = insert(:individual, org: org)
+      sector = insert(:org_sector, org: org)
+      position = insert(:org_position, org: org)
+      company = insert(:company, org: org)
+
+      other_org_company = insert(:company)
+
+      attrs = %{
+        org_id: org.id,
+        admission_date: Faker.Date.between(~D[2000-01-01], ~D[2010-01-01]),
+        sector_id: sector.id,
+        position_id: position.id,
+        individual_id: individual.entity_id,
+        registered_at_id: company.entity_id,
+        work_at_id: other_org_company.entity_id
       }
 
       assert {:error, changeset} =
@@ -472,7 +582,7 @@ defmodule Sig.HR.Registrations.RegistrationTest do
     test "sector assoc_constraint" do
       registration = insert(:employee_registration)
 
-      position = insert(:position, org: registration.org)
+      position = insert(:org_position, org: registration.org)
       work_at = insert(:company, org: registration.org)
 
       attrs = %{
@@ -492,7 +602,7 @@ defmodule Sig.HR.Registrations.RegistrationTest do
     test "position assoc_constraint" do
       registration = insert(:employee_registration)
 
-      sector = insert(:sector, org: registration.org)
+      sector = insert(:org_sector, org: registration.org)
       work_at = insert(:company, org: registration.org)
 
       attrs = %{
@@ -512,8 +622,8 @@ defmodule Sig.HR.Registrations.RegistrationTest do
     test "work_at assoc_constraint" do
       registration = insert(:employee_registration)
 
-      sector = insert(:sector, org: registration.org)
-      position = insert(:position, org: registration.org)
+      sector = insert(:org_sector, org: registration.org)
+      position = insert(:org_position, org: registration.org)
 
       attrs = %{
         sector_id: sector.id,
@@ -532,12 +642,7 @@ defmodule Sig.HR.Registrations.RegistrationTest do
 
   describe "resignation_changeset/2" do
     test "valid attrs" do
-      registration =
-        insert(:employee_registration,
-          admission_date: ~D[2000-01-01],
-          resignation_date: nil,
-          resignation_type: nil
-        )
+      registration = insert(:employee_registration, admission_date: ~D[2000-01-01])
 
       attrs = %{
         resignation_date: ~D[2010-01-01],
@@ -551,7 +656,7 @@ defmodule Sig.HR.Registrations.RegistrationTest do
     end
 
     test "missing required attrs" do
-      registration = insert(:employee_registration, resignation_date: nil, resignation_type: nil)
+      registration = insert(:employee_registration)
 
       assert changeset = Registration.resignation_changeset(registration, %{})
 
@@ -582,12 +687,7 @@ defmodule Sig.HR.Registrations.RegistrationTest do
     end
 
     test "ignores non permitted attrs" do
-      registration =
-        insert(:employee_registration,
-          admission_date: ~D[2000-01-01],
-          resignation_date: nil,
-          resignation_type: nil
-        )
+      registration = insert(:employee_registration, admission_date: ~D[2000-01-01])
 
       attrs = %{
         org_id: UUID.generate(),
@@ -608,12 +708,7 @@ defmodule Sig.HR.Registrations.RegistrationTest do
     end
 
     test "admission_date before resignation_date" do
-      registration =
-        insert(:employee_registration,
-          admission_date: ~D[2021-01-02],
-          resignation_date: nil,
-          resignation_type: nil
-        )
+      registration = insert(:employee_registration, admission_date: ~D[2021-01-02])
 
       attrs = %{
         resignation_date: ~D[2021-01-01],
