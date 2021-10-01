@@ -2,6 +2,7 @@ defmodule Sig.Entities do
   import Ecto.Query
 
   alias Sig.Documents
+  alias Sig.Entities.Companies
   alias Sig.Entities.Entity
   alias Sig.Entities.Individuals
   alias Sig.Repo
@@ -14,6 +15,8 @@ defmodule Sig.Entities do
   defdelegate update_individual(individual, attrs), to: Individuals
   defdelegate subscribe_to_individuals(org), to: Individuals
   defdelegate broadcast_individuals(org), to: Individuals
+
+  defdelegate fetch_company(org, entity_id), to: Companies, as: :fetch
 
   def fetch_by_document(org, document) do
     case Documents.format_document(document) do
