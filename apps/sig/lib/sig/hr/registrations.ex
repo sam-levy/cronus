@@ -2,9 +2,11 @@ defmodule Sig.HR.Registrations do
   import Ecto.Query
 
   alias Sig.Entities.Individuals.Individual
+  alias Sig.HR.Registrations.Create
   alias Sig.HR.Registrations.Registration
-  alias Sig.Organizations.Org
   alias Sig.Repo
+
+  defdelegate create(org, individual, attrs), to: Create, as: :call
 
   def create_change(%{} = attrs \\ %{}) do
     Registration.create_changeset(attrs)
@@ -16,14 +18,6 @@ defmodule Sig.HR.Registrations do
 
   def resignation_change(%Registration{} = registration, %{} = attrs \\ %{}) do
     Registration.resignation_changeset(registration, attrs)
-  end
-
-  def create(%Org{} = org, %Individual{} = individual, %{} = attrs) do
-    attrs
-    |> Map.put(:org_id, org.id)
-    |> Map.put(:individual_id, individual.entity_id)
-    |> Registration.create_changeset()
-    |> Repo.insert()
   end
 
   def update(%Registration{} = registration, %{} = attrs) do

@@ -31,55 +31,6 @@ defmodule Sig.HR.RegistrationsTest do
     end
   end
 
-  describe "create/3" do
-    test "creates a registration" do
-      org = insert(:org)
-
-      individual = insert(:individual, org: org)
-      company = insert(:company, org: org)
-      sector = insert(:org_sector, org: org)
-      position = insert(:org_position, org: org)
-
-      attrs = %{
-        org_id: org.id,
-        admission_date: Faker.Date.between(~D[2000-01-01], ~D[2010-01-01]),
-        sector_id: sector.id,
-        position_id: position.id,
-        individual_id: individual.entity_id,
-        registered_at_id: company.entity_id,
-        work_at_id: company.entity_id
-      }
-
-      assert {:ok, return} = Registrations.create(org, individual, attrs)
-
-      assert Repo.get_by(
-               Registration,
-               Enum.into(attrs, %{
-                 id: return.id,
-                 org_id: org.id,
-                 individual_id: individual.entity_id
-               })
-             )
-    end
-
-    test "returns changeset errors" do
-      org = insert(:org)
-      individual = insert(:individual, org: org)
-
-      assert {:error, changeset} = Registrations.create(org, individual, %{})
-
-      refute changeset.valid?
-
-      assert errors_on(changeset) == %{
-               admission_date: ["can't be blank"],
-               position_id: ["can't be blank"],
-               registered_at_id: ["can't be blank"],
-               sector_id: ["can't be blank"],
-               work_at_id: ["can't be blank"]
-             }
-    end
-  end
-
   describe "update/2" do
     test "updates a registration" do
       org = insert(:org)
