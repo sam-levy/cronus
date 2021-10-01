@@ -58,6 +58,26 @@ defmodule Sig.HR.RegistrationsTest do
              )
     end
 
+    test "work at company belongs to another org" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+
+      sector = insert(:org_sector, org: org)
+      position = insert(:org_position, org: org)
+
+      other_org_company = insert(:company)
+
+      attrs = %{
+        sector_id: sector.id,
+        position_id: position.id,
+        work_at_id: other_org_company.entity_id
+      }
+
+      assert {:error, changeset} = Registrations.update(registration, attrs)
+
+      assert errors_on(changeset) == %{work_at: ["does not exist"]}
+    end
+
     test "returns changeset errors" do
       org = insert(:org)
       registration = insert(:employee_registration, org: org)
