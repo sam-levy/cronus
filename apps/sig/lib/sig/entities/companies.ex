@@ -15,4 +15,11 @@ defmodule Sig.Entities.Companies do
       nil -> {:error, :not_found}
     end
   end
+
+  def list(%Org{} = org) do
+    Company
+    |> where(org_id: ^org.id)
+    |> order_by(:trade_name)
+    |> Repo.all()
+  end
 end

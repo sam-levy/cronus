@@ -27,4 +27,26 @@ defmodule Sig.Entities.CompaniesTest do
       assert Companies.fetch(org, UUID.generate()) == {:error, :not_found}
     end
   end
+
+  describe "list/1" do
+    test "lists companies from an org ordered by trade name" do
+      org = insert(:org)
+
+      insert(:company, org: org, trade_name: "Dunder Mifflin")
+      insert(:company, org: org, trade_name: "Acme")
+
+      _to_ignore = insert(:company)
+
+      assert [
+          %Company{trade_name: "Acme"},
+          %Company{trade_name: "Dunder Mifflin"}
+        ] = Companies.list(org)
+    end
+
+    test "when org has no company" do
+      org = insert(:org)
+
+      assert Companies.list(org) == []
+    end
+  end
 end
