@@ -1,6 +1,7 @@
 defmodule Sig.HR.RegistrationsTest do
   use Sig.DataCase
 
+  alias Sig.Entities.Companies.Company
   alias Sig.HR.Registrations
   alias Sig.HR.Registrations.Registration
 
@@ -123,6 +124,28 @@ defmodule Sig.HR.RegistrationsTest do
       assert [
                %Registration{id: ^registration_1_id},
                %Registration{id: ^registration_2_id}
+             ] = Registrations.list_by_individual(individual)
+    end
+
+    test "preloads" do
+      org = insert(:org)
+      individual = insert(:individual, org: org)
+
+        insert(:employee_registration,
+          org: org,
+          individual: individual,
+          admission_date: ~D[2010-01-01]
+        )
+
+        insert(:employee_registration,
+          org: org,
+          individual: individual,
+          admission_date: ~D[2012-01-01]
+        )
+
+      assert [
+               %Registration{registered_at: %Company{}, work_at: %Company{}},
+               %Registration{registered_at: %Company{}, work_at: %Company{}}
              ] = Registrations.list_by_individual(individual)
     end
 

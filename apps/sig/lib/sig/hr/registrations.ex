@@ -30,6 +30,8 @@ defmodule Sig.HR.Registrations do
   def list_by_individual(%Individual{} = individual) do
     individual
     |> query_by_individual()
+    |> preload_work_at()
+    |> preload_registered_at()
     |> order_by(:admission_date)
     |> Repo.all()
   end
@@ -65,5 +67,19 @@ defmodule Sig.HR.Registrations do
     Registration
     |> where(org_id: ^individual.org_id)
     |> where(individual_id: ^individual.entity_id)
+  end
+
+  defp preload_work_at(queryable) do
+    queryable
+    |> join(:left, [registration], work_at in assoc(registration, :work_at), as: :work_at)
+    |> preload([_registration, work_at: work_at], work_at: work_at)
+  end
+
+  defp preload_registered_at(queryable) do
+    queryable
+    |> join(:left, [registration], registered_at in assoc(registration, :registered_at),
+      as: :registered_at
+    )
+    |> preload([_registration, registered_at: registered_at], registered_at: registered_at)
   end
 end
