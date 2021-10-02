@@ -49,3 +49,93 @@ attrs = %{
 }
 
 {:ok, _user_samuel} = Accounts.register_user(attrs)
+
+# Companies
+alias Sig.Entities.Entity
+alias Sig.Entities.Companies.Company
+
+entity = Repo.insert!(%Entity{org_id: main_org.id, type: :company})
+Repo.insert!(%Company{
+  trade_name: "CiB Mogi",
+  is_virtual: false,
+  registration_name: "China in Box Mogi das Cruzes Ltda.",
+  cnpj: BrazilianDocuments.generate_cnpj(),
+  org_id: main_org.id,
+  entity_id: entity.id
+})
+
+entity = Repo.insert!(%Entity{org_id: main_org.id, type: :company})
+Repo.insert!(%Company{
+  trade_name: "CiB Suzano",
+  is_virtual: false,
+  registration_name: "China in Box Suzano Ltda.",
+  cnpj: BrazilianDocuments.generate_cnpj(),
+  org_id: main_org.id,
+  entity_id: entity.id
+})
+
+entity = Repo.insert!(%Entity{org_id: main_org.id, type: :company})
+Repo.insert!(%Company{
+  trade_name: "CiB Penha",
+  is_virtual: false,
+  registration_name: "China in Box Penha Ltda.",
+  cnpj: BrazilianDocuments.generate_cnpj(),
+  org_id: main_org.id,
+  entity_id: entity.id
+})
+
+entity = Repo.insert!(%Entity{org_id: main_org.id, type: :company})
+Repo.insert!(%Company{
+  trade_name: "CiB São Miguel",
+  is_virtual: false,
+  registration_name: "China in Box São Miguel Ltda.",
+  cnpj: BrazilianDocuments.generate_cnpj(),
+  org_id: main_org.id,
+  entity_id: entity.id
+})
+
+entity = Repo.insert!(%Entity{org_id: main_org.id, type: :company})
+Repo.insert!(%Company{
+  trade_name: "Escritório",
+  is_virtual: true,
+  org_id: main_org.id,
+  entity_id: entity.id
+})
+
+entity = Repo.insert!(%Entity{org_id: main_org.id, type: :company})
+Repo.insert!(%Company{
+  trade_name: "Call Center",
+  is_virtual: true,
+  org_id: main_org.id,
+  entity_id: entity.id
+})
+
+entity = Repo.insert!(%Entity{org_id: main_org.id, type: :company})
+Repo.insert!(%Company{
+  trade_name: "Central de Processamento",
+  is_virtual: true,
+  org_id: main_org.id,
+  entity_id: entity.id
+})
+
+# Org Sectors
+alias Sig.Organizations.Sector
+
+Repo.insert!(%Sector{org_id: main_org.id, name: "Cozinha"})
+Repo.insert!(%Sector{org_id: main_org.id, name: "Atendimento"})
+Repo.insert!(%Sector{org_id: main_org.id, name: "Entrega"})
+Repo.insert!(%Sector{org_id: main_org.id, name: "Limpeza"})
+Repo.insert!(%Sector{org_id: main_org.id, name: "Gerência"})
+Repo.insert!(%Sector{org_id: main_org.id, name: "Administrativo"})
+
+# Org Positions
+alias Sig.Organizations.Position
+
+Repo.insert!(%Position{org_id: main_org.id, name: "Cozinheiro"})
+Repo.insert!(%Position{org_id: main_org.id, name: "Assistente de Cozinha"})
+Repo.insert!(%Position{org_id: main_org.id, name: "Auxiliar de Limpeza"})
+Repo.insert!(%Position{org_id: main_org.id, name: "Gerente"})
+Repo.insert!(%Position{org_id: main_org.id, name: "Atendente"})
+Repo.insert!(%Position{org_id: main_org.id, name: "Assistente Administrativo"})
+Repo.insert!(%Position{org_id: main_org.id, name: "Auxiliar de Escritório"})
+Repo.insert!(%Position{org_id: main_org.id, name: "Entregador Motorizado"})
