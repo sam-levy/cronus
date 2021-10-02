@@ -18,7 +18,7 @@ defmodule SigLive.EmployeeRegistrations.Form do
 
   alias SigLive.Components.Modal
 
-  @form_states [:new_mode, :edit_mode, :show_mode, :closed]
+  @form_states [:new_mode, :edit_mode, :closed]
 
   prop close_event, :event, required: true
   prop close_fun, :fun, required: true
@@ -95,7 +95,7 @@ defmodule SigLive.EmployeeRegistrations.Form do
 
         <div :if={@message} class="form-error-tag">{@message}</div>
 
-        <div :if={@form_state != :show_mode} class="flex justify-end">
+        <div class="flex justify-end">
           <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Adicionando..."}/>
         </div>
       </Form>
@@ -155,7 +155,7 @@ defmodule SigLive.EmployeeRegistrations.Form do
     {:noreply, assign(socket, message: nil, changeset: changeset)}
   end
 
-  defp handle_return(%{return: {:ok, _eba}, socket: socket}) do
+  defp handle_return(%{return: {:ok, _registration}, socket: socket}) do
     %{individual: individual, form_state: form_state, close_fun: close_fun} = socket.assigns
 
     HR.broadcast_individual_registrations(individual)
