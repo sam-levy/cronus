@@ -45,7 +45,8 @@ defmodule Sig.MixProject do
       {:faker, "~> 0.16.0"},
       {:ecto_enum, "~> 1.4"},
       {:ecto_enum_migration, "~> 0.3.3"},
-      {:brazilian_documents, "~> 0.3.0"}
+      {:brazilian_documents, "~> 0.3.0"},
+      {:money, "~> 1.4"}
     ]
   end
 

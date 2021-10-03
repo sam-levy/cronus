@@ -43,6 +43,13 @@ defmodule Sig.Changeset do
     end
   end
 
+  def validate_money(changeset, field) do
+    validate_change(changeset, field, fn
+      _, %Money{amount: amount} when amount > 0 -> []
+      _, _ -> [amount: "must be greater than 0"]
+    end)
+  end
+
   def drop_change_if(
         changeset,
         conditional_field,
