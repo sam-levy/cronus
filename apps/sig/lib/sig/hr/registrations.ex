@@ -26,20 +26,22 @@ defmodule Sig.HR.Registrations do
     |> Repo.update()
   end
 
-  # TODO: Join and preload salaries
   def list_by_individual(%Individual{} = individual) do
     individual
     |> query_by_individual()
     |> preload_work_at()
     |> preload_registered_at()
+    |> preload_salaries()
     |> order_by(:admission_date)
     |> Repo.all()
+    |> handle_salary_amount()
   end
 
   def fetch(%Individual{} = individual, id) when is_binary(id) do
     individual
     |> query_by_individual()
     |> where(id: ^id)
+    |> preload_salaries()
     |> Repo.one()
     |> case do
       %Registration{} = registration -> {:ok, registration}
@@ -81,5 +83,27 @@ defmodule Sig.HR.Registrations do
       as: :registered_at
     )
     |> preload([_registration, registered_at: registered_at], registered_at: registered_at)
+  end
+
+  defp preload_salaries(queryable) do
+    queryable
+    |> join(:left, [registration], salaries in assoc(registration, :salaries), as: :salaries)
+    |> preload([_registration, salaries: salaries], salaries: salaries)
+  end
+
+  defp handle_salary_amount(registrations) when is_list(registrations) do
+    Enum.map(registrations, &handle_salary_amount/1)
+  end
+
+  defp handle_salary_amount(%Registration{salaries: []} = registration), do: registration
+
+  defp handle_salary_amount(%Registration{salaries: [salary]} = registration) do
+    %{registration | salary_amount: salary.amount}
+  end
+
+  defp handle_salary_amount(%Registration{salaries: salaries} = registration) do
+    [salary | _] = Enum.sort_by(salaries, & &1.start_date, {:desc, Date})
+
+    %{registration | salary_amount: salary.amount}
   end
 end

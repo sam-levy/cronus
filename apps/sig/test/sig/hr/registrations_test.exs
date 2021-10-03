@@ -3,6 +3,7 @@ defmodule Sig.HR.RegistrationsTest do
 
   alias Sig.Entities.Companies.Company
   alias Sig.HR.Registrations
+  alias Sig.HR.Registrations.Salaries.Salary
   alias Sig.HR.Registrations.Registration
 
   @endpoint SigLive.Endpoint
@@ -131,21 +132,86 @@ defmodule Sig.HR.RegistrationsTest do
       org = insert(:org)
       individual = insert(:individual, org: org)
 
+      registration_1 =
         insert(:employee_registration,
           org: org,
           individual: individual,
           admission_date: ~D[2010-01-01]
         )
 
+      registration_2 =
         insert(:employee_registration,
           org: org,
           individual: individual,
           admission_date: ~D[2012-01-01]
         )
 
+      insert_list(2, :employee_salary, org: org, registration: registration_1)
+      insert(:employee_salary, org: org, registration: registration_2)
+
       assert [
-               %Registration{registered_at: %Company{}, work_at: %Company{}},
-               %Registration{registered_at: %Company{}, work_at: %Company{}}
+               %Registration{
+                 registered_at: %Company{},
+                 work_at: %Company{},
+                 salaries: [%Salary{}, %Salary{}]
+               },
+               %Registration{
+                 registered_at: %Company{},
+                 work_at: %Company{},
+                 salaries: [%Salary{}]
+               }
+             ] = Registrations.list_by_individual(individual)
+    end
+
+    test "fills salary_amount virtual field with the latest salary amount" do
+      org = insert(:org)
+      individual = insert(:individual, org: org)
+
+      registration_1 =
+        insert(:employee_registration,
+          org: org,
+          individual: individual,
+          admission_date: ~D[2010-01-01]
+        )
+
+      registration_2 =
+        insert(:employee_registration,
+          org: org,
+          individual: individual,
+          admission_date: ~D[2012-01-01]
+        )
+
+      insert(:employee_salary,
+        org: org,
+        registration: registration_1,
+        start_date: ~D[2010-01-01],
+        amount: 1_500_00
+      )
+
+      insert(:employee_salary,
+        org: org,
+        registration: registration_1,
+        start_date: ~D[2010-06-01],
+        amount: 1_700_00
+      )
+
+      insert(:employee_salary,
+        org: org,
+        registration: registration_2,
+        start_date: ~D[2012-01-01],
+        amount: 1_600_00
+      )
+
+      insert(:employee_salary,
+        org: org,
+        registration: registration_2,
+        start_date: ~D[2012-08-01],
+        amount: 1_800_00
+      )
+
+      assert [
+               %Registration{salary_amount: %Money{amount: 1_700_00, currency: :BRL}},
+               %Registration{salary_amount: %Money{amount: 1_800_00, currency: :BRL}}
              ] = Registrations.list_by_individual(individual)
     end
 
@@ -163,6 +229,18 @@ defmodule Sig.HR.RegistrationsTest do
       registration = insert(:employee_registration, org: org, individual: individual)
 
       assert {:ok, %Registration{}} = Registrations.fetch(individual, registration.id)
+    end
+
+    test "preloads" do
+      org = insert(:org)
+      individual = insert(:individual, org: org)
+      registration = insert(:employee_registration, org: org, individual: individual)
+      insert_list(2, :employee_salary, org: org, registration: registration)
+
+      assert {:ok,
+              %Registration{
+                salaries: [%Salary{}, %Salary{}]
+              }} = Registrations.fetch(individual, registration.id)
     end
 
     test "registration from other individual" do
@@ -204,7 +282,9 @@ defmodule Sig.HR.RegistrationsTest do
       org = insert(:org)
       individual = insert(:individual, org: org)
 
-      _right_registrations = insert_list(2, :employee_registration, org: org, individual: individual)
+      _right_registrations =
+        insert_list(2, :employee_registration, org: org, individual: individual)
+
       _wrong_registrations = insert_list(2, :employee_registration)
 
       topic = "individual_id:" <> individual.entity_id <> ":registrations"
