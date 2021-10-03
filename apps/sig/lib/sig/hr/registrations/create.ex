@@ -1,9 +1,12 @@
 defmodule Sig.HR.Registrations.Create do
   import Ecto.Query
 
+  alias Ecto.Multi
+
   alias Sig.Entities
   alias Sig.Entities.Individuals.Individual
   alias Sig.HR.Registrations.Registration
+  alias Sig.HR.Registrations.Salaries.Salary
   alias Sig.Organizations.Org
   alias Sig.Repo
 
@@ -13,14 +16,14 @@ defmodule Sig.HR.Registrations.Create do
 
   def call(%Org{} = org, %Individual{} = individual, %{} = attrs) do
     %Context{attrs: attrs, org: org, individual: individual}
-    |> build_changeset()
+    |> build_registration_changeset()
     |> validate_real_company()
     |> validate_admission_date()
-    |> create_registration()
+    |> create_registration_multi()
     |> handle_result()
   end
 
-  defp build_changeset(context) do
+  defp build_registration_changeset(context) do
     %{org: org, individual: individual, attrs: attrs} = context
 
     attrs
@@ -66,14 +69,31 @@ defmodule Sig.HR.Registrations.Create do
 
   defp validate_admission_date(context), do: context
 
-  defp create_registration(%{status: :ok, changeset: changeset} = context) do
-    case Repo.insert(changeset) do
-      {:ok, registration} -> %{context | result: registration}
-      {:error, changeset} -> put_error(context, changeset)
+  defp create_registration_multi(%{status: :ok, changeset: changeset} = context) do
+    Multi.new()
+    |> Multi.insert(:create_registration, changeset)
+    |> Multi.insert(:create_salary, fn %{create_registration: registration} ->
+      registration
+      |> build_salary_attrs(changeset.changes.salary_amount)
+      |> Salary.create_changeset()
+    end)
+    |> Repo.transaction()
+    |> case do
+      {:ok, %{create_registration: registration}} -> %{context | result: registration}
+      {:error, _operation, reason, _changes} -> put_error(context, reason)
     end
   end
 
-  defp create_registration(context), do: context
+  defp create_registration_multi(context), do: context
+
+  defp build_salary_attrs(registration, salary_amount) do
+    %{
+      org_id: registration.org_id,
+      registration_id: registration.id,
+      start_date: registration.admission_date,
+      amount: salary_amount
+    }
+  end
 
   defp put_error(context, error), do: %{context | status: {:error, error}}
 

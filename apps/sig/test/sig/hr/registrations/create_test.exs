@@ -3,9 +3,10 @@ defmodule Sig.HR.Registrations.CreateTest do
 
   alias Sig.HR.Registrations.Create
   alias Sig.HR.Registrations.Registration
+  alias Sig.HR.Registrations.Salaries.Salary
 
   describe "call/3" do
-    test "creates a registration" do
+    test "creates a registration and salary" do
       org = insert(:org)
 
       other_company = insert(:company, org: org)
@@ -33,6 +34,8 @@ defmodule Sig.HR.Registrations.CreateTest do
           resignation_type: :resigned
         )
 
+      salary_amount = Enum.random(1_200_00..4_000_00)
+
       attrs = %{
         org_id: org.id,
         admission_date: ~D[2009-01-01],
@@ -40,18 +43,28 @@ defmodule Sig.HR.Registrations.CreateTest do
         position_id: position.id,
         individual_id: individual.entity_id,
         registered_at_id: company.entity_id,
-        work_at_id: company.entity_id
+        work_at_id: company.entity_id,
+        salary_amount: salary_amount
       }
 
-      assert {:ok, return} = Create.call(org, individual, attrs)
+      assert {:ok, %Registration{} = registration} = Create.call(org, individual, attrs)
 
-      assert Repo.get_by(
-               Registration,
-               Enum.into(attrs, %{
-                 id: return.id,
-                 org_id: org.id,
-                 individual_id: individual.entity_id
-               })
+      get_by =
+        attrs
+        |> Map.drop([:salary_amount])
+        |> Enum.into(%{
+          id: registration.id,
+          org_id: org.id,
+          individual_id: individual.entity_id
+        })
+
+      assert Repo.get_by(Registration, get_by)
+
+      assert Repo.get_by(Salary,
+               org_id: org.id,
+               registration_id: registration.id,
+               amount: salary_amount,
+               start_date: registration.admission_date
              )
     end
 
@@ -68,7 +81,7 @@ defmodule Sig.HR.Registrations.CreateTest do
                position_id: ["can't be blank"],
                registered_at_id: ["can't be blank"],
                sector_id: ["can't be blank"],
-               work_at_id: ["can't be blank"]
+               salary_amount: ["can't be blank"]
              }
     end
 
@@ -86,7 +99,8 @@ defmodule Sig.HR.Registrations.CreateTest do
         position_id: position.id,
         individual_id: individual.entity_id,
         registered_at_id: UUID.generate(),
-        work_at_id: UUID.generate()
+        work_at_id: UUID.generate(),
+        salary_amount: Enum.random(1_200_00..4_000_00)
       }
 
       assert Create.call(org, individual, attrs) == {:error, "empresa não encontrada"}
@@ -107,7 +121,8 @@ defmodule Sig.HR.Registrations.CreateTest do
         position_id: position.id,
         individual_id: individual.entity_id,
         registered_at_id: company.entity_id,
-        work_at_id: company.entity_id
+        work_at_id: company.entity_id,
+        salary_amount: Enum.random(1_200_00..4_000_00)
       }
 
       assert Create.call(org, individual, attrs) == {:error, "empresa virtual"}
@@ -148,7 +163,8 @@ defmodule Sig.HR.Registrations.CreateTest do
         position_id: position.id,
         individual_id: individual.entity_id,
         registered_at_id: company.entity_id,
-        work_at_id: company.entity_id
+        work_at_id: company.entity_id,
+        salary_amount: Enum.random(1_200_00..4_000_00)
       }
 
       assert Create.call(org, individual, attrs) ==
