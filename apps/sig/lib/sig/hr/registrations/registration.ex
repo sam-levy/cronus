@@ -3,6 +3,7 @@ defmodule Sig.HR.Registrations.Registration do
 
   alias Sig.Entities.Companies.Company
   alias Sig.Entities.Individuals.Individual
+  alias Sig.HR.Registrations.Salaries.Salary
   alias Sig.Organizations.Org
   alias Sig.Organizations.Position
   alias Sig.Organizations.Sector
@@ -20,29 +21,36 @@ defmodule Sig.HR.Registrations.Registration do
     field :resignation_date, :date
     field :resignation_type, ResignationType
 
+    field :salary_amount, Money.Ecto.Amount.Type, virtual: true
+
     belongs_to :sector, Sector
     belongs_to :position, Position
     belongs_to :individual, Individual, references: :entity_id
     belongs_to :registered_at, Company, references: :entity_id
     belongs_to :work_at, Company, references: :entity_id
 
+    has_many :salaries, Salary
+
     timestamps()
   end
 
-  @create_fields [
+  @create_required_fields [
     :org_id,
     :admission_date,
     :sector_id,
     :position_id,
     :individual_id,
     :registered_at_id,
-    :work_at_id
+    :salary_amount
   ]
+
+  @create_fields @create_required_fields ++ [:work_at_id]
 
   def create_changeset(attrs) do
     %__MODULE__{}
     |> cast(attrs, @create_fields)
-    |> validate_required(@create_fields)
+    |> validate_required(@create_required_fields)
+    |> maybe_put_work_at_id()
     |> assoc_constraint(:sector)
     |> assoc_constraint(:position)
     |> assoc_constraint(:registered_at)
@@ -65,5 +73,15 @@ defmodule Sig.HR.Registrations.Registration do
     |> cast(attrs, [:resignation_date, :resignation_type])
     |> validate_required([:resignation_date, :resignation_type])
     |> validate_first_date_before_second(:admission_date, :resignation_date)
+  end
+
+  defp maybe_put_work_at_id(changeset) do
+    with true <- changeset.valid?,
+         :error <- fetch_change(changeset, :work_at_id),
+         {:ok, registered_at_id} <- fetch_change(changeset, :registered_at_id) do
+      put_change(changeset, :work_at_id, registered_at_id)
+    else
+      _ -> changeset
+    end
   end
 end

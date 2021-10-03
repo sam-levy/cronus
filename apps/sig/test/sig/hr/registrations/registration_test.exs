@@ -190,6 +190,7 @@ defmodule Sig.HR.Registrations.RegistrationTest do
       sector = insert(:org_sector, org: org)
       position = insert(:org_position, org: org)
       registered_at = insert(:company, org: org)
+      work_at = insert(:company, org: org)
 
       attrs = %{
         org_id: org.id,
@@ -198,12 +199,15 @@ defmodule Sig.HR.Registrations.RegistrationTest do
         position_id: position.id,
         individual_id: individual.entity_id,
         registered_at_id: registered_at.entity_id,
-        work_at_id: registered_at.entity_id
+        work_at_id: work_at.entity_id,
+        salary_amount: Enum.random(1_200_00..4_000_00)
       }
 
       assert changeset = Registration.create_changeset(attrs)
 
       assert changeset.valid?
+
+      assert changeset.changes == attrs
     end
 
     test "missing required attrs" do
@@ -218,7 +222,7 @@ defmodule Sig.HR.Registrations.RegistrationTest do
                position_id: ["can't be blank"],
                registered_at_id: ["can't be blank"],
                sector_id: ["can't be blank"],
-               work_at_id: ["can't be blank"]
+               salary_amount: ["can't be blank"]
              }
     end
 
@@ -230,7 +234,7 @@ defmodule Sig.HR.Registrations.RegistrationTest do
         position_id: :invalid,
         individual_id: :invalid,
         registered_at_id: :invalid,
-        work_at_id: :invalid
+        salary_amount: :invalid
       }
 
       assert changeset = Registration.create_changeset(attrs)
@@ -244,7 +248,7 @@ defmodule Sig.HR.Registrations.RegistrationTest do
                position_id: ["is invalid"],
                individual_id: ["is invalid"],
                registered_at_id: ["is invalid"],
-               work_at_id: ["is invalid"]
+               salary_amount: ["is invalid"]
              }
     end
 
@@ -265,13 +269,38 @@ defmodule Sig.HR.Registrations.RegistrationTest do
         position_id: position.id,
         individual_id: individual.entity_id,
         registered_at_id: registered_at.entity_id,
-        work_at_id: registered_at.entity_id
+        work_at_id: registered_at.entity_id,
+        salary_amount: Enum.random(1_200_00..4_000_00)
       }
 
       assert changeset = Registration.create_changeset(attrs)
 
       assert changeset.valid?
       assert changeset.changes == Map.drop(attrs, [:resignation_date, :resignation_type])
+    end
+
+    test "assign registered_at_id to work_at_id if not in attrs" do
+      org = insert(:org)
+
+      individual = insert(:individual, org: org)
+      sector = insert(:org_sector, org: org)
+      position = insert(:org_position, org: org)
+      registered_at = insert(:company, org: org)
+
+      attrs = %{
+        org_id: org.id,
+        admission_date: Faker.Date.between(~D[2000-01-01], ~D[2010-01-01]),
+        sector_id: sector.id,
+        position_id: position.id,
+        individual_id: individual.entity_id,
+        registered_at_id: registered_at.entity_id,
+        salary_amount: Enum.random(1_200_00..4_000_00)
+      }
+
+      assert changeset = Registration.create_changeset(attrs)
+
+      assert changeset.valid?
+      assert changeset.changes.work_at_id == registered_at.entity_id
     end
 
     test "[:registered_at_id, :individual_id, :org_id] conditional unique constraint" do
@@ -298,7 +327,8 @@ defmodule Sig.HR.Registrations.RegistrationTest do
         position_id: position.id,
         individual_id: individual.entity_id,
         registered_at_id: registered_at.entity_id,
-        work_at_id: registered_at.entity_id
+        work_at_id: registered_at.entity_id,
+        salary_amount: Enum.random(1_200_00..4_000_00)
       }
 
       assert {:error, changeset} =
@@ -323,7 +353,8 @@ defmodule Sig.HR.Registrations.RegistrationTest do
         position_id: position.id,
         individual_id: individual.entity_id,
         registered_at_id: registered_at.entity_id,
-        work_at_id: registered_at.entity_id
+        work_at_id: registered_at.entity_id,
+        salary_amount: Enum.random(1_200_00..4_000_00)
       }
 
       assert {:error, changeset} =
@@ -350,7 +381,8 @@ defmodule Sig.HR.Registrations.RegistrationTest do
         position_id: position.id,
         individual_id: individual.entity_id,
         registered_at_id: registered_at.entity_id,
-        work_at_id: registered_at.entity_id
+        work_at_id: registered_at.entity_id,
+        salary_amount: Enum.random(1_200_00..4_000_00)
       }
 
       assert {:error, changeset} =
@@ -375,7 +407,8 @@ defmodule Sig.HR.Registrations.RegistrationTest do
         position_id: UUID.generate(),
         individual_id: individual.entity_id,
         registered_at_id: registered_at.entity_id,
-        work_at_id: registered_at.entity_id
+        work_at_id: registered_at.entity_id,
+        salary_amount: Enum.random(1_200_00..4_000_00)
       }
 
       assert {:error, changeset} =
@@ -402,7 +435,8 @@ defmodule Sig.HR.Registrations.RegistrationTest do
         position_id: other_org_position.id,
         individual_id: individual.entity_id,
         registered_at_id: registered_at.entity_id,
-        work_at_id: registered_at.entity_id
+        work_at_id: registered_at.entity_id,
+        salary_amount: Enum.random(1_200_00..4_000_00)
       }
 
       assert {:error, changeset} =
@@ -428,7 +462,8 @@ defmodule Sig.HR.Registrations.RegistrationTest do
         position_id: position.id,
         individual_id: individual.entity_id,
         registered_at_id: UUID.generate(),
-        work_at_id: work_at.entity_id
+        work_at_id: work_at.entity_id,
+        salary_amount: Enum.random(1_200_00..4_000_00)
       }
 
       assert {:error, changeset} =
@@ -456,7 +491,8 @@ defmodule Sig.HR.Registrations.RegistrationTest do
         position_id: position.id,
         individual_id: individual.entity_id,
         registered_at_id: other_org_company.entity_id,
-        work_at_id: company.entity_id
+        work_at_id: company.entity_id,
+        salary_amount: Enum.random(1_200_00..4_000_00)
       }
 
       assert {:error, changeset} =
@@ -482,7 +518,8 @@ defmodule Sig.HR.Registrations.RegistrationTest do
         position_id: position.id,
         individual_id: individual.entity_id,
         registered_at_id: registered_at.entity_id,
-        work_at_id: UUID.generate()
+        work_at_id: UUID.generate(),
+        salary_amount: Enum.random(1_200_00..4_000_00)
       }
 
       assert {:error, changeset} =
@@ -510,7 +547,8 @@ defmodule Sig.HR.Registrations.RegistrationTest do
         position_id: position.id,
         individual_id: individual.entity_id,
         registered_at_id: company.entity_id,
-        work_at_id: other_org_company.entity_id
+        work_at_id: other_org_company.entity_id,
+        salary_amount: Enum.random(1_200_00..4_000_00)
       }
 
       assert {:error, changeset} =
