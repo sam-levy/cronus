@@ -24,7 +24,7 @@ defmodule SigLive.EmployeeRegistrations.Show do
         salaries: HR.list_salaries_by_registration(registration)
       )
 
-    {:ok, socket}
+    {:ok, socket, temporary_assigns: [salaries: []]}
   end
 
   @impl true
