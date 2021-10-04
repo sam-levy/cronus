@@ -13,5 +13,11 @@ defmodule Sig.Repo.Migrations.CreateEmployeeSalariesTable do
 
       timestamps()
     end
+
+    create unique_index(
+             :employee_salaries,
+             [:start_date, :registration_id, :org_id],
+             name: :employee_salaries_start_date
+           )
   end
 end

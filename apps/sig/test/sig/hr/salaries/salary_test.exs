@@ -61,6 +61,27 @@ defmodule Sig.HR.Registrations.Salaries.SalaryTest do
                    ~r/employee_salaries_registration_id_fkey \(foreign_key_constraint\)/,
                    fn -> Repo.insert(salary) end
     end
+
+    test "[:start_date, :registration_id, :org_id] unique_constraint" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+
+      _existing_salary = insert(:employee_salary, org: org, registration: registration, start_date: registration.admission_date)
+
+      # Allow same start_date for different registration
+      insert(:employee_salary, org: org, start_date: registration.admission_date)
+
+      salary = %Salary{
+        org_id: org.id,
+        registration_id: registration.id,
+        start_date: registration.admission_date,
+        amount: Enum.random(1_200_00..4_000_00)
+      }
+
+      assert_raise Ecto.ConstraintError,
+                   ~r/employee_salaries_start_date \(unique_constraint\)/,
+                   fn -> Repo.insert(salary) end
+    end
   end
 
   describe "create_changeset/2" do
