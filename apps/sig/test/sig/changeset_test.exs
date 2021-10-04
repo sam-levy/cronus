@@ -158,8 +158,6 @@ defmodule Sig.ChangesetTest do
         |> Ecto.Changeset.cast(params, Map.keys(types))
         |> Sig.Changeset.validate_money(:amount)
 
-        IO.inspect(changeset)
-
       assert changeset.valid?
     end
 
