@@ -8,7 +8,7 @@ defmodule SigLive.EmployeeRegistrations.Form do
   alias Surface.Components.Form
 
   alias Surface.Components.Form.{
-    NumberInput,
+    TextInput,
     ErrorTag,
     Field,
     Label,
@@ -78,7 +78,7 @@ defmodule SigLive.EmployeeRegistrations.Form do
 
         <Field :if={@form_state == :new_mode} name={:salary_amount} class="form-field">
           <Label class="form-label">Salário Base</Label>
-          <NumberInput {...props_for(:salary_ammount, @form_state)} />
+          <TextInput value={format_salary_amount(@changeset)} {...props_for(:salary_ammount, @form_state)} />
           <ErrorTag class="form-error-tag"/>
         </Field>
 
@@ -115,10 +115,7 @@ defmodule SigLive.EmployeeRegistrations.Form do
   defp get_registration(_individual, nil), do: nil
 
   defp get_registration(individual, registration_id) do
-    case HR.fetch_registration(individual, registration_id) do
-      {:ok, registration} -> registration
-      {:error, :not_found} -> nil
-    end
+    HR.get_registration(individual, registration_id)
   end
 
   defp set_changeset(nil), do: HR.create_registration_change()
@@ -186,4 +183,7 @@ defmodule SigLive.EmployeeRegistrations.Form do
 
   defp props_for(_field, :new_mode), do: @input_enabled
   defp props_for(_field, _form_state), do: @input_disabled
+
+  defp format_salary_amount(%{changes: %{salary_amount: amount}}), do: format_amount(amount)
+  defp format_salary_amount(_), do: ""
 end

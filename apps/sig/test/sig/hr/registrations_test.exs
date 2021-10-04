@@ -228,7 +228,7 @@ defmodule Sig.HR.RegistrationsTest do
       individual = insert(:individual, org: org)
       registration = insert(:employee_registration, org: org, individual: individual)
 
-      assert {:ok, %Registration{}} = Registrations.fetch(individual, registration.id)
+      assert %Registration{} = Registrations.get(individual, registration.id)
     end
 
     test "preloads" do
@@ -237,10 +237,7 @@ defmodule Sig.HR.RegistrationsTest do
       registration = insert(:employee_registration, org: org, individual: individual)
       insert_list(2, :employee_salary, org: org, registration: registration)
 
-      assert {:ok,
-              %Registration{
-                salaries: [%Salary{}, %Salary{}]
-              }} = Registrations.fetch(individual, registration.id)
+      assert %Registration{salaries: [%Salary{}, %Salary{}]} = Registrations.get(individual, registration.id)
     end
 
     test "registration from other individual" do
@@ -250,13 +247,13 @@ defmodule Sig.HR.RegistrationsTest do
 
       registration = insert(:employee_registration, org: org, individual: individual_1)
 
-      assert {:error, :not_found} = Registrations.fetch(individual_2, registration.id)
+      assert Registrations.get(individual_2, registration.id) == nil
     end
 
     test "registration doesn't exist" do
       individual = insert(:individual)
 
-      assert {:error, :not_found} = Registrations.fetch(individual, UUID.generate())
+      assert Registrations.get(individual, UUID.generate()) == nil
     end
   end
 
