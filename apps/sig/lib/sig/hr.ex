@@ -1,5 +1,6 @@
 defmodule Sig.HR do
   alias Sig.HR.Registrations
+  alias Sig.HR.Registrations.Salaries
 
   defdelegate create_registration_change(attrs \\ %{}), to: Registrations, as: :create_change
 
@@ -18,7 +19,13 @@ defmodule Sig.HR do
     to: Registrations,
     as: :list_by_individual
 
-  defdelegate fetch_registration(individual, id), to: Registrations, as: :fetch
+  defdelegate get_registration(individual, id), to: Registrations, as: :get
   defdelegate subscribe_to_individual_registrations(individual), to: Registrations
   defdelegate broadcast_individual_registrations(indiviual), to: Registrations
+
+  defdelegate list_salaries_by_registration(registration), to: Salaries, as: :list_by_registration
+  defdelegate create_salary(registration, attrs), to: Salaries, as: :create
+  defdelegate subscribe_to_registration_salaries(registration), to: Salaries
+  defdelegate broadcast_registration_salaries(registration), to: Salaries
+  defdelegate create_salary_change(attrs \\ %{}), to: Salaries, as: :create_change
 end
