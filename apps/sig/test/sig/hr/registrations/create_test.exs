@@ -158,7 +158,7 @@ defmodule Sig.HR.Registrations.CreateTest do
 
       attrs = %{
         org_id: org.id,
-        admission_date: ~D[2011-01-01],
+        admission_date: ~D[2011-02-02],
         sector_id: sector.id,
         position_id: position.id,
         individual_id: individual.entity_id,
@@ -168,7 +168,37 @@ defmodule Sig.HR.Registrations.CreateTest do
       }
 
       assert Create.call(org, individual, attrs) ==
-               {:error, "data de contratação anterior a última data de desligamento"}
+               {:error, "a data de contratação deve ser posterior a última data de desligamento"}
+    end
+
+    test "last registration still on going" do
+      org = insert(:org)
+      company_1 = insert(:company, org: org)
+      company_2 = insert(:company, org: org)
+      individual = insert(:individual, org: org)
+
+      _last_registration =
+        insert(:employee_registration,
+          org: org,
+          individual: individual,
+          registered_at: company_1,
+          admission_date: ~D[2010-01-01],
+        )
+
+        sector = insert(:org_sector, org: org)
+        position = insert(:org_position, org: org)
+
+        attrs = %{
+          org_id: org.id,
+          admission_date: ~D[2011-02-02],
+          sector_id: sector.id,
+          position_id: position.id,
+          individual_id: individual.entity_id,
+          registered_at_id: company_2.entity_id,
+          salary_amount: 1_200_00
+        }
+
+        assert {:ok, %Registration{}} = Create.call(org, individual, attrs)
     end
   end
 end
