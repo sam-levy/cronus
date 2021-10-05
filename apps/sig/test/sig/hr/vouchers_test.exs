@@ -6,6 +6,50 @@ defmodule Sig.HR.Registrations.VouchersTest do
 
   @endpoint SigLive.Endpoint
 
+  describe "create_change/1" do
+    test "returns a changeset" do
+      assert %Ecto.Changeset{data: %Voucher{}} = Vouchers.create_change()
+    end
+  end
+
+  describe "update_change/1" do
+    test "returns a changeset" do
+      assert %Ecto.Changeset{data: %Voucher{}} = Vouchers.update_change(%Voucher{}, %{})
+      assert %Ecto.Changeset{data: %Voucher{}} = Vouchers.update_change(%Voucher{})
+    end
+  end
+
+  describe "list_voucher_types/0" do
+    test "lists voucher types" do
+      assert Vouchers.list_voucher_types() == ["transport", "meal", "food"]
+    end
+  end
+
+  describe "get/2" do
+    test "gets a voucher" do
+      registration = insert(:employee_registration)
+      %{id: id} = insert(:employee_voucher, org: registration.org, registration: registration)
+
+      assert %Voucher{id: ^id} = Vouchers.get(registration, id)
+    end
+
+    test "voucher from another registration" do
+      org = insert(:org)
+      registration_1 = insert(:employee_registration, org: org)
+      registration_2 = insert(:employee_registration, org: org)
+
+      voucher = insert(:employee_voucher, org: org, registration: registration_1)
+
+      assert Vouchers.get(registration_2, voucher.id) == nil
+    end
+
+    test "voucher doesn't exist" do
+      registration = insert(:employee_registration)
+
+      assert Vouchers.get(registration, UUID.generate()) == nil
+    end
+  end
+
   describe "list_by_registration/1" do
     test "lists vouchers by registration ordered by start_date" do
       org = insert(:org)
@@ -39,6 +83,31 @@ defmodule Sig.HR.Registrations.VouchersTest do
     end
   end
 
+  describe "update/2" do
+    test "updates a voucher" do
+      voucher = insert(:employee_voucher, start_date: ~D[2020-01-01], end_date: nil)
+
+      attrs = %{end_date: ~D[2021-01-01]}
+
+      assert {:ok, _return} = Vouchers.update(voucher, attrs)
+
+      assert Repo.get_by(Voucher,
+               id: voucher.id,
+               org_id: voucher.org_id,
+               registration_id: voucher.registration_id,
+               end_date: attrs[:end_date]
+             )
+    end
+
+    test "changeset errors" do
+      voucher = insert(:employee_voucher)
+
+      assert {:error, changeset} = Vouchers.update(voucher, %{})
+
+      assert errors_on(changeset) == %{end_date: ["can't be blank"]}
+    end
+  end
+
   describe "subscribe_to_registration_vouchers/1" do
     test "subscribes to registration vouchers topic" do
       registration = insert(:employee_registration)
@@ -61,10 +130,11 @@ defmodule Sig.HR.Registrations.VouchersTest do
       org = insert(:org)
       registration = insert(:employee_registration, org: org)
 
-      _right_vouchers =
-        insert_list(2, :employee_voucher, org: org, registration: registration)
+      insert(:employee_voucher, type: :transport, org: org, registration: registration)
+      insert(:employee_voucher, type: :meal, org: org, registration: registration)
 
-      _wrong_vouchers = insert_list(2, :employee_voucher)
+      insert(:employee_voucher, type: :transport)
+      insert(:employee_voucher, type: :meal)
 
       topic = "registration_id:" <> registration.id <> ":vouchers"
 

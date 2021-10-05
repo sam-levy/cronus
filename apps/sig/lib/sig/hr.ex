@@ -31,8 +31,12 @@ defmodule Sig.HR do
   defdelegate create_salary_change(attrs \\ %{}), to: Salaries, as: :create_change
 
   defdelegate list_vouchers_by_registration(registration), to: Vouchers, as: :list_by_registration
+  defdelegate list_voucher_types, to: Vouchers
+  defdelegate get_voucher(registration, id), to: Vouchers, as: :get
   defdelegate create_voucher(registration, attrs), to: Vouchers, as: :create
+  defdelegate update_voucher(voucher, attrs), to: Vouchers, as: :update
   defdelegate subscribe_to_registration_vouchers(registration), to: Vouchers
   defdelegate broadcast_registration_vouchers(registration), to: Vouchers
   defdelegate create_voucher_change(attrs \\ %{}), to: Vouchers, as: :create_change
+  defdelegate update_voucher_change(voucher, attrs \\ %{}), to: Vouchers, as: :update_change
 end
