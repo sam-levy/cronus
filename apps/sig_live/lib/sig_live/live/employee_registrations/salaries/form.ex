@@ -21,7 +21,6 @@ defmodule SigLive.EmployeeRegistrations.Salaries.Form do
   prop close_event, :event, required: true
   prop close_fun, :fun, required: true
   prop form_state, :atom, required: true, values!: @form_states
-  prop org, :struct, required: true
   prop registration, :struct, required: true
 
   data changeset, :struct, default: HR.create_salary_change()
