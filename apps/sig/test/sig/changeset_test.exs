@@ -147,6 +147,75 @@ defmodule Sig.ChangesetTest do
     end
   end
 
+  describe "validate_second_date_after_first/4" do
+    test "when second date is after first date" do
+      data = %{}
+      types = %{first_date: :date, second_date: :date}
+      params = %{first_date: ~D[2020-01-01], second_date: ~D[2021-01-01]}
+
+      changeset =
+        {data, types}
+        |> Ecto.Changeset.cast(params, Map.keys(types))
+        |> Sig.Changeset.validate_second_date_after_first(:first_date, :second_date)
+
+      assert changeset.valid?
+    end
+
+    test "when second date is before first date" do
+      data = %{}
+      types = %{first_date: :date, second_date: :date}
+      params = %{first_date: ~D[2021-01-01], second_date: ~D[2020-01-01]}
+
+      changeset =
+        {data, types}
+        |> Ecto.Changeset.cast(params, Map.keys(types))
+        |> Sig.Changeset.validate_second_date_after_first(:first_date, :second_date)
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{second_date: ["must be after first_date"]}
+    end
+
+    test "when first date is nil" do
+      data = %{}
+      types = %{first_date: :date, second_date: :date}
+      params = %{first_date: nil, second_date: ~D[2020-01-01]}
+
+      changeset =
+        {data, types}
+        |> Ecto.Changeset.cast(params, Map.keys(types))
+        |> Sig.Changeset.validate_second_date_after_first(:first_date, :second_date)
+
+      assert changeset.valid?
+    end
+
+    test "when second date is nil" do
+      data = %{}
+      types = %{first_date: :date, second_date: :date}
+      params = %{first_date: ~D[2020-01-01], second_date: nil}
+
+      changeset =
+        {data, types}
+        |> Ecto.Changeset.cast(params, Map.keys(types))
+        |> Sig.Changeset.validate_second_date_after_first(:first_date, :second_date)
+
+      assert changeset.valid?
+    end
+
+    test "when both dates are nil" do
+      data = %{}
+      types = %{first_date: :date, second_date: :date}
+      params = %{first_date: nil, second_date: nil}
+
+      changeset =
+        {data, types}
+        |> Ecto.Changeset.cast(params, Map.keys(types))
+        |> Sig.Changeset.validate_second_date_after_first(:first_date, :second_date)
+
+      assert changeset.valid?
+    end
+  end
+
   describe "validate_money/2" do
     test "when amount is greater than 0" do
       data = %{}

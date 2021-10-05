@@ -43,6 +43,17 @@ defmodule Sig.Changeset do
     end
   end
 
+  def validate_second_date_after_first(changeset, first_date_field, second_date_field) do
+    with {_, first_date} <- fetch_field(changeset, first_date_field),
+         {:ok, second_date} <- fetch_change(changeset, second_date_field),
+         :lt <- Date.compare(first_date, second_date) do
+      changeset
+    else
+      result when result in [:eq, :gt] -> add_error(changeset, second_date_field, "must be after #{first_date_field}")
+      _ -> changeset
+    end
+  end
+
   def validate_money(changeset, field) do
     validate_change(changeset, field, fn
       _, %Money{amount: amount} when amount > 0 -> []

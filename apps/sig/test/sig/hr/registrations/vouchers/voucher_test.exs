@@ -250,4 +250,99 @@ defmodule Sig.HR.Registrations.Vouchers.VoucherTest do
       assert errors_on(changeset) == %{amount: ["must be greater than 0"]}
     end
   end
+
+  describe "update_changeset/2" do
+    test "valid attrs" do
+      voucher = insert(:employee_voucher, start_date: ~D[2020-01-01], end_date: nil)
+
+      attrs = %{
+        end_date: ~D[2021-01-01]
+      }
+
+      assert changeset = Voucher.update_changeset(voucher, attrs)
+
+      assert changeset.valid?
+
+      assert changeset.changes == %{
+        end_date: attrs[:end_date]
+      }
+    end
+
+    test "missing required attrs" do
+      voucher = insert(:employee_voucher, start_date: ~D[2020-01-01], end_date: nil)
+
+      assert changeset = Voucher.update_changeset(voucher, %{})
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{end_date: ["can't be blank"]}
+    end
+
+    test "invalid attrs" do
+      voucher = insert(:employee_voucher, start_date: ~D[2020-01-01], end_date: nil)
+
+      attrs = %{
+        end_date: :invalid
+      }
+
+      assert changeset = Voucher.update_changeset(voucher, attrs)
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{end_date: ["is invalid"]}
+    end
+
+    test "ignores non permitted attrs" do
+      voucher = insert(:employee_voucher, start_date: ~D[2020-01-01], end_date: nil)
+
+      attrs = %{
+        org_id: UUID.generate(),
+        registration_id: UUID.generate(),
+        type: random_enum_value(:employee_voucher_type),
+        amount: 500_00,
+        start_date: ~D[2020-02-01],
+        end_date: ~D[2021-01-01]
+      }
+
+      assert changeset = Voucher.update_changeset(voucher, attrs)
+
+      assert changeset.valid?
+
+      assert changeset.changes == %{
+        end_date: attrs[:end_date]
+      }
+    end
+
+    test "end_date before start_date" do
+      voucher = insert(:employee_voucher, start_date: ~D[2020-01-01], end_date: nil)
+
+      attrs = %{
+        end_date: ~D[2019-01-01]
+      }
+
+      assert changeset = Voucher.update_changeset(voucher, attrs)
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+        end_date: ["must be after start_date"]
+      }
+    end
+
+    test "end_date equal to start_date" do
+      voucher = insert(:employee_voucher, start_date: ~D[2020-01-01], end_date: nil)
+
+      attrs = %{
+        end_date: ~D[2020-01-01]
+      }
+
+      assert changeset = Voucher.update_changeset(voucher, attrs)
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+        end_date: ["must be after start_date"]
+      }
+    end
+  end
 end

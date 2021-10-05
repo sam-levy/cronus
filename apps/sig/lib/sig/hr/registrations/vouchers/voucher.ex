@@ -26,4 +26,11 @@ defmodule Sig.HR.Registrations.Vouchers.Voucher do
     |> validate_required(@create_fields)
     |> validate_money(:amount)
   end
+
+  def update_changeset(%__MODULE__{} = target, attrs) do
+    target
+    |> cast(attrs, [:end_date])
+    |> validate_required([:end_date])
+    |> validate_second_date_after_first(:start_date, :end_date)
+  end
 end
