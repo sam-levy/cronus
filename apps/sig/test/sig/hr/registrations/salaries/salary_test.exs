@@ -66,7 +66,12 @@ defmodule Sig.HR.Registrations.Salaries.SalaryTest do
       org = insert(:org)
       registration = insert(:employee_registration, org: org)
 
-      _existing_salary = insert(:employee_salary, org: org, registration: registration, start_date: registration.admission_date)
+      _existing_salary =
+        insert(:employee_salary,
+          org: org,
+          registration: registration,
+          start_date: registration.admission_date
+        )
 
       # Allow same start_date for different registration
       insert(:employee_salary, org: org, start_date: registration.admission_date)
@@ -80,6 +85,21 @@ defmodule Sig.HR.Registrations.Salaries.SalaryTest do
 
       assert_raise Ecto.ConstraintError,
                    ~r/employee_salaries_start_date \(unique_constraint\)/,
+                   fn -> Repo.insert(salary) end
+    end
+
+    test "negative amount constraint" do
+      registration = insert(:employee_registration)
+
+      salary = %Salary{
+        org_id: registration.org_id,
+        registration_id: registration.id,
+        start_date: Faker.Date.backward(100),
+        amount: -1_300_00
+      }
+
+      assert_raise Ecto.ConstraintError,
+                   ~r/employee_salaries_amount_greater_than_zero \(check_constraint\)/,
                    fn -> Repo.insert(salary) end
     end
   end
@@ -136,6 +156,21 @@ defmodule Sig.HR.Registrations.Salaries.SalaryTest do
                registration_id: ["is invalid"],
                start_date: ["is invalid"]
              }
+    end
+
+    test "negative amount" do
+      attrs = %{
+        org_id: UUID.generate(),
+        registration_id: UUID.generate(),
+        start_date: Faker.Date.backward(100),
+        amount: -1_300_00
+      }
+
+      assert changeset = Salary.create_changeset(attrs)
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{amount: ["must be greater than 0"]}
     end
   end
 end
