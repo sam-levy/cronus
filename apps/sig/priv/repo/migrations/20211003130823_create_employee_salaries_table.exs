@@ -19,5 +19,11 @@ defmodule Sig.Repo.Migrations.CreateEmployeeSalariesTable do
              [:start_date, :registration_id, :org_id],
              name: :employee_salaries_start_date
            )
+
+    create constraint(
+             :employee_salaries,
+             :employee_salaries_amount_greater_than_zero,
+             check: "amount > 0"
+           )
   end
 end
