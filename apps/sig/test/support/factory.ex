@@ -8,6 +8,7 @@ defmodule Sig.Factory do
   use Sig.Factories.RegistrationFactory
   use Sig.Factories.UserFactory
   use Sig.Factories.SalaryFactory
+  use Sig.Factories.VoucherFactory
   use Sig.Factories.BankAccountFactory
   use Sig.Factories.EntityBankAccountFactory
 
