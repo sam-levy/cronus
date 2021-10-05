@@ -54,24 +54,26 @@ defmodule SigLive.Individuals.Show do
   @impl true
   def render(assigns) do
     ~F"""
-    <div class="my-7">
-      <span class="text-gray-500 font-medium text-2xl tracking-wider">{@individual.name}</span>
+    <div>
+      <div class="my-7">
+        <span class="text-gray-500 font-medium text-2xl tracking-wider">{@individual.name}</span>
+      </div>
+
+      <BankAccounts.List
+        id="bank_accounts"
+        entity={@individual.entity}
+        {=@org}
+        {=@bank_accounts}
+        {=@entity_bank_accounts}
+      />
+
+      <EmployeeRegistrations.List
+        id="employee_registrations"
+        {=@org}
+        {=@individual}
+        {=@employee_registrations}
+      />
     </div>
-
-    <BankAccounts.List
-      id="bank_accounts"
-      entity={@individual.entity}
-      {=@org}
-      {=@bank_accounts}
-      {=@entity_bank_accounts}
-    />
-
-    <EmployeeRegistrations.List
-      id="employee_registrations"
-      {=@org}
-      {=@individual}
-      {=@employee_registrations}
-    />
     """
   end
 end

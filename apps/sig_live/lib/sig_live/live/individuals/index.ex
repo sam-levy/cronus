@@ -47,49 +47,49 @@ defmodule SigLive.Individuals.Index do
   @impl true
   def render(assigns) do
     ~F"""
-    <New
-    :if={@new_individual_modal_open}
-    id="new_individual_modal"
-    close="toggle_new_individual_modal"
-    {=@org}
-    />
+    <div>
+      <New
+        :if={@new_individual_modal_open}
+        id="new_individual_modal"
+        close="toggle_new_individual_modal"
+        {=@org}
+      />
 
-    <table class="w-full bg-white shadow-lg my-7">
-    <thead class="sticky top-0">
-    <tr class="bg-white">
-    	<th colspan="2">
-    		<div class="flex justify-between items-center py-3 px-6">
-    			<span class="text-gray-500 font-medium tracking-wider">Pessoas</span>
+      <table class="w-full bg-white shadow-lg my-7">
+        <thead class="sticky top-0">
+        <tr class="bg-white">
+          <th colspan="2">
+            <div class="flex justify-between items-center py-3 px-6">
+              <span class="text-gray-500 font-medium tracking-wider">Pessoas</span>
 
-          <ButtonPlus value="Adicionar" on_click="toggle_new_individual_modal"/>
-    		</div>
-    	</th>
-    </tr>
+              <ButtonPlus value="Adicionar" on_click="toggle_new_individual_modal"/>
+            </div>
+          </th>
+        </tr>
 
-    <tr class="bg-gray-50 uppercase text-xs font-medium text-gray-500 tracking-wider">
-    	<th class="py-3 px-6 text-left">Nome</th>
-    	<th class="py-3 px-6 text-left">CPF</th>
-    </tr>
-    </thead>
+        <tr class="bg-gray-50 uppercase text-xs font-medium text-gray-500 tracking-wider">
+          <th class="py-3 px-6 text-left">Nome</th>
+          <th class="py-3 px-6 text-left">CPF</th>
+        </tr>
+        </thead>
 
-    <tbody class="text-gray-600 text-sm font-light">
+        <tbody class="text-gray-600 text-sm font-light">
+          {#for individual <- @individuals}
+            <tr class="border-b border-gray-200 hover:bg-gray-50">
+              <td class="py-3 px-6 text-left">
+                <LiveRedirect to={Routes.sig_individuals_show_path(@socket, :show, @org, individual.entity)} class="hover:underline">
+                  <span>{individual.name}</span>
+                </LiveRedirect>
+              </td>
 
-    {#for individual <- @individuals}
-    	<tr class="border-b border-gray-200 hover:bg-gray-50">
-    		<td class="py-3 px-6 text-left">
-    			<LiveRedirect to={Routes.sig_individuals_show_path(@socket, :show, @org, individual.entity)} class="hover:underline">
-    				<span>{individual.name}</span>
-    			</LiveRedirect>
-    		</td>
-
-    		<td class="py-3 px-6 text-left select-all">
-    			<span>{format_cpf(individual.cpf)}</span>
-    		</td>
-    	</tr>
-    {/for}
-
-    </tbody>
-    </table>
+              <td class="py-3 px-6 text-left select-all">
+                <span>{format_cpf(individual.cpf)}</span>
+              </td>
+            </tr>
+          {/for}
+        </tbody>
+      </table>
+    </div>
     """
   end
 end
