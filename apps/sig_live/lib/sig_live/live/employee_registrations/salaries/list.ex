@@ -4,7 +4,6 @@ defmodule SigLive.EmployeeRegistrations.Salaries.List do
   alias SigLive.Components.ButtonPlus
   alias SigLive.EmployeeRegistrations.Salaries.Form
 
-  prop org, :struct, required: true
   prop registration, :struct, required: true
   prop salaries, :list, required: true
 
@@ -30,7 +29,6 @@ defmodule SigLive.EmployeeRegistrations.Salaries.List do
           close_event="close_form"
           close_fun={fn -> close_form(@id) end}
           {=@form_state}
-          {=@org}
           {=@registration}
         />
 

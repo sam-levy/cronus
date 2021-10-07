@@ -222,13 +222,13 @@ defmodule Sig.HR.RegistrationsTest do
     end
   end
 
-  describe "fetch/2" do
-    test "fetches a registration" do
+  describe "get/2" do
+    test "gets a registration" do
       org = insert(:org)
       individual = insert(:individual, org: org)
-      registration = insert(:employee_registration, org: org, individual: individual)
+      %{id: id} = insert(:employee_registration, org: org, individual: individual)
 
-      assert %Registration{} = Registrations.get(individual, registration.id)
+      assert %Registration{id: ^id} = Registrations.get(individual, id)
     end
 
     test "preloads" do
