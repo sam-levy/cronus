@@ -97,4 +97,42 @@ defmodule SigLive.ViewHelpersTest do
       assert ViewHelpers.format_document(nil) == ""
     end
   end
+
+  describe "format_date/2" do
+    test "stringfy a date" do
+      assert ViewHelpers.format_date(~D[2010-01-01]) == "01/01/2010"
+      assert ViewHelpers.format_date(~D[2010-01-01], "%A, %b %d") == "Friday, Jan 01"
+      assert ViewHelpers.format_date(nil) == ""
+    end
+  end
+
+  describe "companies_for_select/1" do
+    test "returns a map with companies registration name as keys and entity ids as values" do
+      %{entity_id: acme_id} = acme = insert(:company, registration_name: "Acme LLC")
+
+      %{entity_id: dm_id} =
+        dunder_mifflin = insert(:company, registration_name: "Dunder Mifflin LLC")
+
+      assert %{"Acme LLC" => ^acme_id, "Dunder Mifflin LLC" => ^dm_id} =
+               ViewHelpers.companies_for_select([acme, dunder_mifflin])
+    end
+
+    test "when list is empty" do
+      assert ViewHelpers.companies_for_select([]) == %{}
+    end
+  end
+
+  describe "id_by_name_for_select/1" do
+    test "returns a map with names as keys and ids as values" do
+      %{id: cooker_id} = cooker = insert(:org_position, name: "cooker")
+      %{id: clerk_id} = clerk = insert(:org_position, name: "clerk")
+
+      assert %{"cooker" => ^cooker_id, "clerk" => ^clerk_id} =
+               ViewHelpers.id_by_name_for_select([cooker, clerk])
+    end
+
+    test "when list is empty" do
+      assert ViewHelpers.id_by_name_for_select([]) == %{}
+    end
+  end
 end

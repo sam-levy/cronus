@@ -18,9 +18,11 @@ defmodule SigLive.BankAccounts.AssociationForm do
   alias Sig.Finance.Banks.Accounts.Account.BankAccountType
   alias SigLive.Components.Modal
 
+  @form_states [:new_mode, :edit_mode, :show_mode, :closed]
+
   prop close_event, :event, required: true
   prop close_fun, :fun, required: true
-  prop form_state, :atom, required: true, values!: [:new_mode, :edit_mode, :show_moded, :closed]
+  prop form_state, :atom, required: true, values!: @form_states
   prop org, :struct, required: true
   prop entity, :struct, required: true
   prop account_id, :string, default: nil
@@ -239,6 +241,8 @@ defmodule SigLive.BankAccounts.AssociationForm do
     </Modal>
     """
   end
+
+  def states, do: @form_states
 
   defp get_eba(_entity, nil), do: nil
 

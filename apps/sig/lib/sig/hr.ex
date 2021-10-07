@@ -1,9 +1,9 @@
 defmodule Sig.HR do
   alias Sig.HR.Registrations
 
-  defdelegate create_registration_change(attrs), to: Registrations, as: :create_change
+  defdelegate create_registration_change(attrs \\ %{}), to: Registrations, as: :create_change
 
-  defdelegate update_registration_change(registration, attrs),
+  defdelegate update_registration_change(registration, attrs \\ %{}),
     to: Registrations,
     as: :update_change
 

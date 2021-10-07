@@ -2,6 +2,7 @@ defmodule SigLive.ViewHelpers do
   alias BrazilianDocuments.Types.CPF
 
   alias Sig.Documents
+  alias Sig.Entities.Companies.Company
   alias Sig.Finance
   alias Sig.Finance.Banks.Bank
 
@@ -64,5 +65,19 @@ defmodule SigLive.ViewHelpers do
       {:cnpj, cnpj} -> cnpj
       :error -> document
     end
+  end
+
+  def format_date(date, format \\ "%d/%m/%Y")
+  def format_date(nil, _format), do: ""
+  def format_date(date, format), do: Calendar.strftime(date, format)
+
+  @spec companies_for_select([Company.t()]) :: %{String.t() => String.t()}
+  def companies_for_select(companies) when is_list(companies) do
+    Map.new(companies, &{&1.registration_name, &1.entity_id})
+  end
+
+  @spec id_by_name_for_select([map()]) :: %{String.t() => String.t()}
+  def id_by_name_for_select(resources) when is_list(resources) do
+    Map.new(resources, &{&1.name, &1.id})
   end
 end

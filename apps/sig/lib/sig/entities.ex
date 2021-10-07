@@ -2,6 +2,7 @@ defmodule Sig.Entities do
   import Ecto.Query
 
   alias Sig.Documents
+  alias Sig.Entities.Companies
   alias Sig.Entities.Entity
   alias Sig.Entities.Individuals
   alias Sig.Repo
@@ -14,6 +15,9 @@ defmodule Sig.Entities do
   defdelegate update_individual(individual, attrs), to: Individuals
   defdelegate subscribe_to_individuals(org), to: Individuals
   defdelegate broadcast_individuals(org), to: Individuals
+
+  defdelegate fetch_company(org, entity_id), to: Companies, as: :fetch
+  defdelegate list_companies(org), to: Companies, as: :list
 
   def fetch_by_document(org, document) do
     case Documents.format_document(document) do
@@ -57,13 +61,8 @@ defmodule Sig.Entities do
     end
   end
 
-  def get_name(%Entity{type: :individual, individual: %{name: name}}), do: name
-
-  def get_name(%Entity{type: :company, company: %{trade_name: nil, registration_name: name}}) do
-    name
-  end
-
   def get_name(%Entity{type: :company, company: %{trade_name: name}}), do: name
+  def get_name(%Entity{type: :individual, individual: %{name: name}}), do: name
   def get_name(_entity), do: nil
 
   defp as_result(%Entity{} = entity), do: {:ok, entity}

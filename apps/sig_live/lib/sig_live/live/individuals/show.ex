@@ -4,8 +4,10 @@ defmodule SigLive.Individuals.Show do
 
   alias Sig.Entities
   alias Sig.Finance
+  alias Sig.HR
 
   alias SigLive.BankAccounts
+  alias SigLive.EmployeeRegistrations
 
   @impl true
   def mount(%{"id" => id}, _session, socket) do
@@ -15,13 +17,15 @@ defmodule SigLive.Individuals.Show do
     if connected?(socket) do
       Finance.subscribe_to_bank_accounts(individual.entity)
       Finance.subscribe_to_entity_bank_accounts(individual.entity)
+      HR.subscribe_to_individual_registrations(individual)
     end
 
     socket =
       assign(socket,
         individual: individual,
         bank_accounts: Finance.list_accounts_by_entity(individual.entity),
-        entity_bank_accounts: Finance.list_entity_bank_accounts_by_entity(individual.entity)
+        entity_bank_accounts: Finance.list_entity_bank_accounts_by_entity(individual.entity),
+        employee_registrations: HR.list_registrations_by_individual(individual)
       )
 
     {:ok, socket}
@@ -35,6 +39,11 @@ defmodule SigLive.Individuals.Show do
   @impl true
   def handle_info({:updated_entity_bank_accounts, entity_bank_accounts}, socket) do
     {:noreply, assign(socket, entity_bank_accounts: entity_bank_accounts)}
+  end
+
+  @impl true
+  def handle_info({:updated_individual_registrations, individual_registrations}, socket) do
+    {:noreply, assign(socket, employee_registrations: individual_registrations)}
   end
 
   @impl true
@@ -55,6 +64,13 @@ defmodule SigLive.Individuals.Show do
       {=@org}
       {=@bank_accounts}
       {=@entity_bank_accounts}
+    />
+
+    <EmployeeRegistrations.List
+      id="employee_registrations"
+      {=@org}
+      {=@individual}
+      {=@employee_registrations}
     />
     """
   end

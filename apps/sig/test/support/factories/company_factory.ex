@@ -8,11 +8,24 @@ defmodule Sig.Factories.CompanyFactory do
         entity = Keyword.get(attrs, :entity, insert(:entity, org: org, type: :company))
 
         %Company{
-          entity: entity,
           org: org,
+          entity: entity,
+          is_virtual: false,
           trade_name: Faker.Company.name(),
           registration_name: Faker.Company.name(),
           cnpj: BrazilianDocuments.generate_cnpj()
+        }
+      end
+
+      def factory(:virtual_company, attrs) do
+        org = Keyword.get(attrs, :org, insert(:org))
+        entity = Keyword.get(attrs, :entity, insert(:entity, org: org, type: :company))
+
+        %Company{
+          org: org,
+          entity: entity,
+          is_virtual: true,
+          trade_name: Faker.Company.name()
         }
       end
     end

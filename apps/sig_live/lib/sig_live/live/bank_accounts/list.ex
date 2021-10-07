@@ -11,9 +11,9 @@ defmodule SigLive.BankAccounts.List do
   prop bank_accounts, :list, required: true
   prop entity_bank_accounts, :list, required: true
 
-  data account_form_state, :atom, default: :closed
-  data association_form_state, :atom, default: :closed
-  data account_id, :struct, default: nil
+  data account_form_state, :atom, default: :closed, values!: AccountForm.states()
+  data association_form_state, :atom, default: :closed, values!: AssociationForm.states()
+  data account_id, :string, default: nil
 
   @impl true
   def handle_event("open_new_account_form", _, socket) do
@@ -185,8 +185,9 @@ defmodule SigLive.BankAccounts.List do
 
   def close_form(id), do: send_update(__MODULE__, closed_state(id))
 
-  defp closed_state,
-    do: [account_form_state: :closed, association_form_state: :closed, account_id: nil]
+  defp closed_state do
+    [account_form_state: :closed, association_form_state: :closed, account_id: nil]
+  end
 
   defp closed_state(id), do: closed_state() ++ [id: id]
 end
