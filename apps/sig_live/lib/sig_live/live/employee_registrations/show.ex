@@ -7,6 +7,7 @@ defmodule SigLive.EmployeeRegistrations.Show do
 
   alias SigLive.EmployeeRegistrations.Salaries
   alias SigLive.EmployeeRegistrations.Vouchers
+  alias SigLive.EmployeeRegistrations.Warnings
 
   @impl true
   def mount(%{"entity_id" => entity_id, "id" => id}, _session, socket) do
@@ -17,6 +18,7 @@ defmodule SigLive.EmployeeRegistrations.Show do
     if connected?(socket) do
       HR.subscribe_to_registration_salaries(registration)
       HR.subscribe_to_registration_vouchers(registration)
+      HR.subscribe_to_registration_warnings(registration)
     end
 
     socket =
@@ -24,7 +26,8 @@ defmodule SigLive.EmployeeRegistrations.Show do
         individual: individual,
         registration: registration,
         salaries: HR.list_salaries_by_registration(registration),
-        vouchers: HR.list_vouchers_by_registration(registration)
+        vouchers: HR.list_vouchers_by_registration(registration),
+        warnings: HR.list_warnings_by_registration(registration)
       )
 
     {:ok, socket, temporary_assigns: [salaries: [], vouchers: []]}
@@ -41,6 +44,11 @@ defmodule SigLive.EmployeeRegistrations.Show do
   end
 
   @impl true
+  def handle_info({:updated_registration_warnings, warnings}, socket) do
+    {:noreply, assign(socket, warnings: warnings)}
+  end
+
+  @impl true
   def handle_info({:flash, type, message}, socket) do
     {:noreply, put_flash(socket, type, message)}
   end
@@ -49,8 +57,9 @@ defmodule SigLive.EmployeeRegistrations.Show do
   def render(assigns) do
     ~F"""
     <div>
-      <Salaries.List id="vouchers_list" {=@registration} {=@salaries}/>
-      <Vouchers.List id="salaries_list" {=@registration} {=@vouchers}/>
+      <Salaries.List id="voucher_list" {=@registration} {=@salaries}/>
+      <Vouchers.List id="salary_list" {=@registration} {=@vouchers}/>
+      <Warnings.List id="warning_list" {=@registration} {=@warnings}/>
     </div>
     """
   end
