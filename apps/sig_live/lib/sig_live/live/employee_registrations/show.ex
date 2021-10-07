@@ -63,10 +63,6 @@ defmodule SigLive.EmployeeRegistrations.Show do
     {:noreply, assign(socket, warnings: warnings)}
   end
 
-  def handle_info({:updated_registration_suspensions, suspensions}, socket) do
-    {:noreply, assign(socket, suspensions: suspensions)}
-  end
-
   @impl true
   def handle_info({:updated_registration_suspensions, suspensions}, socket) do
     {:noreply, assign(socket, suspensions: suspensions)}
