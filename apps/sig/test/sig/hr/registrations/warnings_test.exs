@@ -144,8 +144,11 @@ defmodule Sig.HR.Registrations.WarningsTest do
       org = insert(:org)
       registration = insert(:employee_registration, org: org)
 
-      insert_list(2, :employee_warning, org: org, registration: registration)
-      insert(:employee_warning)
+      insert(:employee_warning, type: :transport, org: org, registration: registration)
+      insert(:employee_warning, type: :meal, org: org, registration: registration)
+
+      insert(:employee_warning, type: :transport)
+      insert(:employee_warning, type: :meal)
 
       topic = "registration_id:" <> registration.id <> ":warnings"
 
