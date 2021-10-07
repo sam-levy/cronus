@@ -58,7 +58,7 @@ defmodule SigLive.EmployeeRegistrations.Vouchers.Form do
       <Form for={@changeset} submit="save" opts={autocomplete: "off"}>
         <Field name={:start_date} :if={@form_state != :edit_mode} class="form-field">
           <Label class="form-label">Data de Início</Label>
-          <DateInput {...props_for(:start_date, @form_state)} opts={placeholder: ""}/>
+          <DateInput {...props_for(:start_date, @form_state)}/>
           <ErrorTag class="form-error-tag"/>
         </Field>
 
@@ -76,7 +76,7 @@ defmodule SigLive.EmployeeRegistrations.Vouchers.Form do
           <Label class="form-label">Valor</Label>
           <TextInput
             value={format_voucher_amount(@changeset)}
-            {...props_for(:ammount, @form_state)}
+            {...props_for(:amount, @form_state)}
           />
           <ErrorTag class="form-error-tag"/>
         </Field>
@@ -89,7 +89,7 @@ defmodule SigLive.EmployeeRegistrations.Vouchers.Form do
 
         <div :if={@message} class="form-error-tag mb-3">{@message}</div>
 
-        <div class="flex justify-end">
+        <div :if={@form_state != :show_mode} class="flex justify-end">
           <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Salvando..."}/>
         </div>
       </Form>
