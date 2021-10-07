@@ -10,6 +10,7 @@ defmodule Sig.Factory do
   use Sig.Factories.SalaryFactory
   use Sig.Factories.VoucherFactory
   use Sig.Factories.WarningFactory
+  use Sig.Factories.SuspensionFactory
   use Sig.Factories.BankAccountFactory
   use Sig.Factories.EntityBankAccountFactory
 
