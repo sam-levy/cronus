@@ -1,6 +1,8 @@
 defmodule SigLive.EmployeeRegistrations.List do
   use SigLive, :surface_live_component
 
+  alias Surface.Components.LiveRedirect
+
   alias SigLive.Components.ButtonPlus
   alias SigLive.EmployeeRegistrations.Form
 
@@ -65,8 +67,13 @@ defmodule SigLive.EmployeeRegistrations.List do
         <tbody class="text-gray-600 text-sm font-light">
           {#for registration <- @employee_registrations}
             <tr class="border-b border-gray-200 hover:bg-gray-50">
-              <td class="py-3 pl-6 text-left cursor-pointer hover:underline">
-                {registration.registered_at.registration_name}
+              <td class="py-3 pl-6 text-left">
+                <LiveRedirect
+                  to={Routes.sig_employee_registrations_show_path(@socket, :show, @org, @individual.entity_id, registration)}
+                  class="hover:underline"
+                >
+                  <span>{registration.registered_at.registration_name}</span>
+                </LiveRedirect>
               </td>
 
               <td class="px-3 text-left select-all">

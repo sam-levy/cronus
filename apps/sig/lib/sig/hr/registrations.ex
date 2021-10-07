@@ -37,16 +37,12 @@ defmodule Sig.HR.Registrations do
     |> handle_salary_amount()
   end
 
-  def fetch(%Individual{} = individual, id) when is_binary(id) do
+  def get(%Individual{} = individual, id) when is_binary(id) do
     individual
     |> query_by_individual()
     |> where(id: ^id)
     |> preload_salaries()
     |> Repo.one()
-    |> case do
-      %Registration{} = registration -> {:ok, registration}
-      nil -> {:error, :not_found}
-    end
   end
 
   def subscribe_to_individual_registrations(%Individual{} = individual) do

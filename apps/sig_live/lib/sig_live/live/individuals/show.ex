@@ -28,7 +28,7 @@ defmodule SigLive.Individuals.Show do
         employee_registrations: HR.list_registrations_by_individual(individual)
       )
 
-    {:ok, socket}
+    {:ok, socket, temporary_assigns: [bank_accounts: [], entity_bank_accounts: [], employee_registrations: []]}
   end
 
   @impl true

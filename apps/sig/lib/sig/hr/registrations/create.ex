@@ -58,16 +58,28 @@ defmodule Sig.HR.Registrations.Create do
     |> where(registered_at_id: ^registered_at_id)
     |> last(:resignation_date)
     |> Repo.one()
-    |> case do
-      %{resignation_date: resignation_date} when admission_date < resignation_date ->
-        put_error(context, "data de contratação anterior a última data de desligamento")
-
-      _ ->
-        context
-    end
+    |> do_validate_admission_date(admission_date, context)
   end
 
   defp validate_admission_date(context), do: context
+
+  defp do_validate_admission_date(nil, _start_date, context), do: context
+
+  defp do_validate_admission_date(%Registration{resignation_date: nil}, _admission_date, context) do
+    context
+  end
+
+  defp do_validate_admission_date(
+         %Registration{resignation_date: resignation_date},
+         admission_date,
+         context
+       ) do
+    if Date.compare(resignation_date, admission_date) == :lt do
+      context
+    else
+      put_error(context, "a data de contratação deve ser posterior a última data de desligamento")
+    end
+  end
 
   defp create_registration_multi(%{status: :ok, changeset: changeset} = context) do
     Multi.new()

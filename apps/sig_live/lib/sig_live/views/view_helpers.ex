@@ -5,7 +5,6 @@ defmodule SigLive.ViewHelpers do
   alias Sig.Entities.Companies.Company
   alias Sig.Finance
   alias Sig.Finance.Banks.Bank
-  alias Sig.HR.Registrations.Salaries.Salary
 
   def bank_name(routing_number) when is_binary(routing_number) do
     case Finance.fetch_bank(routing_number) do
