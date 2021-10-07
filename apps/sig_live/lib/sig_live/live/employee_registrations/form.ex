@@ -8,6 +8,7 @@ defmodule SigLive.EmployeeRegistrations.Form do
   alias Surface.Components.Form
 
   alias Surface.Components.Form.{
+    NumberInput,
     ErrorTag,
     Field,
     Label,
@@ -42,7 +43,7 @@ defmodule SigLive.EmployeeRegistrations.Form do
         registration: registration,
         changeset: set_changeset(registration),
         companies: companies,
-        real_companies: Enum.filter(companies, & not &1.is_virtual),
+        real_companies: Enum.filter(companies, &(not &1.is_virtual)),
         sectors: Organizations.list_sectors(org),
         positions: Organizations.list_positions(org)
       )
@@ -75,9 +76,15 @@ defmodule SigLive.EmployeeRegistrations.Form do
           <ErrorTag class="form-error-tag"/>
         </Field>
 
+        <Field :if={@form_state == :new_mode} name={:salary_amount} class="form-field">
+          <Label class="form-label">Salário Base</Label>
+          <NumberInput {...props_for(:salary_ammount, @form_state)} />
+          <ErrorTag class="form-error-tag"/>
+        </Field>
+
         <Field name={:work_at_id} class="form-field">
           <Label class="form-label">Trabalha em</Label>
-          <Select prompt="" options={companies_for_select(@companies)} {...props_for(:work_at_id, @form_state)} />
+          <Select options={companies_for_select(@companies)} {...props_for(:work_at_id, @form_state)} />
           <ErrorTag class="form-error-tag"/>
         </Field>
 
@@ -89,7 +96,7 @@ defmodule SigLive.EmployeeRegistrations.Form do
 
         <Field name={:position_id} class="form-field">
           <Label class="form-label">Cargo</Label>
-          <Select prompt=""  options={id_by_name_for_select(@positions)} {...props_for(:position_id, @form_state)}/>
+          <Select prompt="" options={id_by_name_for_select(@positions)} {...props_for(:position_id, @form_state)}/>
           <ErrorTag class="form-error-tag"/>
         </Field>
 
@@ -174,11 +181,8 @@ defmodule SigLive.EmployeeRegistrations.Form do
   @input_enabled [opts: [disabled: false], class: ["form-input"]]
   @input_disabled [opts: [disabled: true], class: ["form-input-disabled"]]
 
-  defp props_for(:admission_date, :new_mode), do: @input_enabled
-  defp props_for(:admission_date, _form_state), do: @input_disabled
-
-  defp props_for(:registered_at_id, :new_mode), do: @input_enabled
-  defp props_for(:registered_at_id, _form_state), do: @input_disabled
+  defp props_for(:work_at_id, :show_mode), do: @input_disabled
+  defp props_for(:work_at_id, _form_state), do: @input_enabled
 
   defp props_for(_field, :new_mode), do: @input_enabled
   defp props_for(_field, _form_state), do: @input_disabled

@@ -27,6 +27,7 @@ defmodule SigLive.Components.DropdownOpts do
 
       <div
         class="dropdown-list"
+        x-cloak
         x-show="isOpen"
         @click="isOpen = false"
         x-transition:enter="transition ease-out duration-75"

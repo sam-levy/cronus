@@ -4,6 +4,8 @@
 
 @import "components";
 
+[x-cloak] { display: none !important; }
+
 [hidden] {
   @apply hidden;
 }

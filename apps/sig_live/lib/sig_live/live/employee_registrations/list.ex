@@ -41,7 +41,9 @@ defmodule SigLive.EmployeeRegistrations.List do
           <tr class="bg-white">
             <th colspan="6">
               <div class="flex justify-between items-center py-3 px-6">
-                <span class="text-gray-500 font-medium tracking-wider">Registros Trabalhistas</span>
+                <span class="text-gray-500 font-medium tracking-wider">
+                  Registros de Trabalho
+                </span>
 
                 <ButtonPlus value="Adicionar" on_click="open_form"/>
               </div>
@@ -54,6 +56,7 @@ defmodule SigLive.EmployeeRegistrations.List do
           >
             <th class="py-3 px-6 text-left">Empresa</th>
             <th class="py-3 px-3 text-left">Início</th>
+            <th class="py-3 px-3 text-left">Término</th>
             <th class="py-3 px-3 text-left">Salário</th>
             <th></th>
           </tr>
@@ -70,7 +73,13 @@ defmodule SigLive.EmployeeRegistrations.List do
                 {format_date(registration.admission_date)}
               </td>
 
-              <td class="px-3 text-left"></td>
+              <td class="px-3 text-left select-all">
+                {format_date(registration.resignation_date)}
+              </td>
+
+              <td class="px-3 text-left">
+                {format_amount(registration.salary_amount)}
+              </td>
             </tr>
           {/for}
         </tbody>

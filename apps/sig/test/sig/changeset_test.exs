@@ -147,6 +147,36 @@ defmodule Sig.ChangesetTest do
     end
   end
 
+  describe "validate_money/2" do
+    test "when amount is greater than 0" do
+      data = %{}
+      types = %{amount: Money.Ecto.Amount.Type}
+      params = %{amount: Money.new(1_500_00, :BRL)}
+
+      changeset =
+        {data, types}
+        |> Ecto.Changeset.cast(params, Map.keys(types))
+        |> Sig.Changeset.validate_money(:amount)
+
+        IO.inspect(changeset)
+
+      assert changeset.valid?
+    end
+
+    test "when amount is 0" do
+      data = %{}
+      types = %{amount: Money.Ecto.Amount.Type}
+      params = %{amount: Money.new(0, :BRL)}
+
+      changeset =
+        {data, types}
+        |> Ecto.Changeset.cast(params, Map.keys(types))
+        |> Sig.Changeset.validate_money(:amount)
+
+      refute changeset.valid?
+    end
+  end
+
   describe "drop_change_if/4" do
     test "drops field if condition is met" do
       data = %{}
