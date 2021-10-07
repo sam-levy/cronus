@@ -11,8 +11,8 @@ defmodule Sig.Factories.CompanyFactory do
           org: org,
           entity: entity,
           is_virtual: false,
-          trade_name: Faker.Company.name(),
-          registration_name: Faker.Company.name(),
+          trade_name: sequence(&"#{Faker.Company.name()}_#{&1}"),
+          registration_name: sequence(&"#{Faker.Company.name()}_#{&1}"),
           cnpj: BrazilianDocuments.generate_cnpj()
         }
       end
@@ -25,7 +25,7 @@ defmodule Sig.Factories.CompanyFactory do
           org: org,
           entity: entity,
           is_virtual: true,
-          trade_name: Faker.Company.name()
+          trade_name: sequence(&"#{Faker.Company.name()}_#{&1}")
         }
       end
     end
