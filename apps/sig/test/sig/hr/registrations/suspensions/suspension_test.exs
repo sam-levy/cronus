@@ -172,7 +172,7 @@ defmodule Sig.HR.Registrations.Suspensions.SuspensionTest do
       refute changeset.valid?
 
       assert errors_on(changeset) == %{
-               end_date: ["start_date must be less than or equal to end_date"]
+               start_date: ["must be before or equal to end_date"]
              }
     end
 
@@ -299,7 +299,7 @@ defmodule Sig.HR.Registrations.Suspensions.SuspensionTest do
       refute changeset.valid?
 
       assert errors_on(changeset) == %{
-               end_date: ["start_date must be less than or equal to end_date"]
+               start_date: ["must be before or equal to end_date"]
              }
     end
 
