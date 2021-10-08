@@ -4,6 +4,7 @@ defmodule Sig.HR do
   alias Sig.HR.Registrations.Vouchers
   alias Sig.HR.Registrations.Warnings
   alias Sig.HR.Registrations.Suspensions
+  alias Sig.HR.Registrations.LeavePeriods
 
   defdelegate create_registration_change(attrs \\ %{}), to: Registrations, as: :create_change
 
@@ -51,12 +52,34 @@ defmodule Sig.HR do
   defdelegate create_warning_change(attrs \\ %{}), to: Warnings, as: :create_change
   defdelegate update_warning_change(warning, attrs \\ %{}), to: Warnings, as: :update_change
 
-  defdelegate list_suspensions_by_registration(registration), to: Suspensions, as: :list_by_registration
+  defdelegate list_suspensions_by_registration(registration),
+    to: Suspensions,
+    as: :list_by_registration
+
   defdelegate get_suspension(registration, id), to: Suspensions, as: :get
   defdelegate create_suspension(registration, attrs), to: Suspensions, as: :create
   defdelegate update_suspension(suspension, attrs), to: Suspensions, as: :update
   defdelegate subscribe_to_registration_suspensions(registration), to: Suspensions
   defdelegate broadcast_registration_suspensions(registration), to: Suspensions
   defdelegate create_suspension_change(attrs \\ %{}), to: Suspensions, as: :create_change
-  defdelegate update_suspension_change(suspension, attrs \\ %{}), to: Suspensions, as: :update_change
+
+  defdelegate update_suspension_change(suspension, attrs \\ %{}),
+    to: Suspensions,
+    as: :update_change
+
+  defdelegate list_leave_periods_by_registration(registration),
+    to: LeavePeriods,
+    as: :list_by_registration
+
+  defdelegate list_leave_period_types, to: LeavePeriods
+  defdelegate get_leave_period(registration, id), to: LeavePeriods, as: :get
+  defdelegate create_leave_period(registration, attrs), to: LeavePeriods, as: :create
+  defdelegate update_leave_period(leave_period, attrs), to: LeavePeriods, as: :update
+  defdelegate subscribe_to_registration_leave_periods(registration), to: LeavePeriods
+  defdelegate broadcast_registration_leave_periods(registration), to: LeavePeriods
+  defdelegate create_leave_period_change(attrs \\ %{}), to: LeavePeriods, as: :create_change
+
+  defdelegate update_leave_period_change(leave_period, attrs \\ %{}),
+    to: LeavePeriods,
+    as: :update_change
 end
