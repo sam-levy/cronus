@@ -73,6 +73,11 @@ defmodule SigLive.EmployeeRegistrations.Show do
   end
 
   @impl true
+  def handle_info({:updated_registration_leave_periods, leave_periods}, socket) do
+    {:noreply, assign(socket, leave_periods: leave_periods)}
+  end
+
+  @impl true
   def handle_info({:flash, type, message}, socket) do
     {:noreply, put_flash(socket, type, message)}
   end
