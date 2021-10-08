@@ -48,6 +48,14 @@ defmodule SigLive.ViewHelpers do
     |> Map.new(&{String.replace(&1, "_", " "), &1})
   end
 
+  def list_for_select(list) when is_list(list) do
+    Map.new(list, fn el ->
+      el = to_string(el)
+
+      {String.replace(el, "_", " "), el}
+    end)
+  end
+
   def format_cpf(%CPF{number: cpf}), do: format_cpf(cpf)
 
   def format_cpf(cpf) when is_binary(cpf) do
