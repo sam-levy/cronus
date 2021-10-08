@@ -74,6 +74,17 @@ defmodule SigLive.ViewHelpersTest do
     end
   end
 
+  describe "list_for_select/1" do
+    test "returns a map with the item wihtout low dashes as keys" do
+      list = [:first_item, :second_item]
+
+      assert ViewHelpers.list_for_select(list) == %{
+        "first item" => "first_item",
+        "second item" => "second_item"
+      }
+    end
+  end
+
   describe "format_cpf/1" do
     test "returns a formatted cpf for a CPF struct" do
       assert ViewHelpers.format_cpf(%CPF{number: "55567307098"}) == "555.673.070-98"
