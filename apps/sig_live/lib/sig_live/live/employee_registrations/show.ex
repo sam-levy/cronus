@@ -5,10 +5,13 @@ defmodule SigLive.EmployeeRegistrations.Show do
   alias Sig.Entities
   alias Sig.HR
 
-  alias SigLive.EmployeeRegistrations.Salaries
-  alias SigLive.EmployeeRegistrations.Vouchers
-  alias SigLive.EmployeeRegistrations.Warnings
-  alias SigLive.EmployeeRegistrations.Suspensions
+  alias SigLive.EmployeeRegistrations.{
+    Salaries,
+    Vouchers,
+    Warnings,
+    Suspensions,
+    LeavePeriods
+  }
 
   @impl true
   def mount(%{"entity_id" => entity_id, "id" => id}, _session, socket) do
@@ -21,6 +24,7 @@ defmodule SigLive.EmployeeRegistrations.Show do
       HR.subscribe_to_registration_vouchers(registration)
       HR.subscribe_to_registration_warnings(registration)
       HR.subscribe_to_registration_suspensions(registration)
+      HR.subscribe_to_registration_leave_periods(registration)
     end
 
     socket =
@@ -30,10 +34,18 @@ defmodule SigLive.EmployeeRegistrations.Show do
         salaries: HR.list_salaries_by_registration(registration),
         vouchers: HR.list_vouchers_by_registration(registration),
         warnings: HR.list_warnings_by_registration(registration),
-        suspensions: HR.list_suspensions_by_registration(registration)
+        suspensions: HR.list_suspensions_by_registration(registration),
+        leave_periods: HR.list_leave_periods_by_registration(registration)
       )
 
-    {:ok, socket, temporary_assigns: [salaries: [], vouchers: [], warnings: [], suspensions: []]}
+    {:ok, socket,
+     temporary_assigns: [
+       salaries: [],
+       vouchers: [],
+       warnings: [],
+       suspensions: [],
+       leave_periods: []
+     ]}
   end
 
   @impl true
@@ -61,6 +73,11 @@ defmodule SigLive.EmployeeRegistrations.Show do
   end
 
   @impl true
+  def handle_info({:updated_registration_leave_periods, leave_periods}, socket) do
+    {:noreply, assign(socket, leave_periods: leave_periods)}
+  end
+
+  @impl true
   def handle_info({:flash, type, message}, socket) do
     {:noreply, put_flash(socket, type, message)}
   end
@@ -73,6 +90,7 @@ defmodule SigLive.EmployeeRegistrations.Show do
       <Vouchers.List id="salary_list" {=@registration} {=@vouchers}/>
       <Warnings.List id="warning_list" {=@registration} {=@warnings}/>
       <Suspensions.List id="suspension_list" {=@registration} {=@suspensions}/>
+      <LeavePeriods.List id="leave_period_list" {=@registration} {=@leave_periods}/>
     </div>
     """
   end
