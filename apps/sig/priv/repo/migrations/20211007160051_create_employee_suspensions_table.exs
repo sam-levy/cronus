@@ -1,7 +1,7 @@
 defmodule Sig.Repo.Migrations.CreateEmployeeSuspensionsTable do
   use Ecto.Migration
 
-  def change do
+  def up do
     create table(:employee_suspensions) do
       add :org_id, references(:orgs), primary_key: true
 
@@ -16,9 +16,27 @@ defmodule Sig.Repo.Migrations.CreateEmployeeSuspensionsTable do
     end
 
     create constraint(
-      :employee_suspensions,
-      :employee_suspensions_start_date_before_or_equal_end_date,
-      check: "start_date <= end_date"
-    )
+             :employee_suspensions,
+             :employee_suspensions_start_date_before_or_equal_end_date,
+             check: "start_date <= end_date"
+           )
+
+    execute("""
+      CREATE TRIGGER employee_suspensions_cannot_overlap
+      BEFORE INSERT OR UPDATE ON employee_suspensions
+      FOR EACH ROW
+      EXECUTE PROCEDURE ensure_no_period_overlap ();
+    """)
+  end
+
+  def down do
+    drop table(:employee_suspensions)
+
+    drop constraint(
+           :employee_suspensions,
+           :employee_suspensions_start_date_before_or_equal_end_date
+         )
+
+    execute("DROP TRIGGER employee_suspensions_cannot_overlap ON employee_suspensions;")
   end
 end

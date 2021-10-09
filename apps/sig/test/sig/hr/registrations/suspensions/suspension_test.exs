@@ -81,6 +81,78 @@ defmodule Sig.HR.Registrations.Suspensions.SuspensionTest do
                    ~r/employee_suspensions_start_date_before_or_equal_end_date \(check_constraint\)/,
                    fn -> Repo.insert(suspension) end
     end
+
+    test "start date cannot be before existing record end date" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+
+      _existing_suspension =
+        insert(:employee_suspension,
+          org: org,
+          registration: registration,
+          start_date: ~D[2020-01-01],
+          end_date: ~D[2020-01-03]
+        )
+
+      # allow when there is no overlapping
+      insert(:employee_suspension,
+        org: org,
+        registration: registration,
+        start_date: ~D[2019-12-29],
+        end_date: ~D[2019-12-31]
+      )
+
+      # allow overlapping for different registration
+      insert(:employee_suspension,
+        org: org,
+        start_date: ~D[2020-01-02],
+        end_date: ~D[2020-01-04]
+      )
+
+      suspension = %Suspension{
+        org_id: org.id,
+        registration_id: registration.id,
+        description: Faker.Lorem.paragraph(1),
+        start_date: ~D[2020-01-02],
+        end_date: ~D[2020-01-04]
+      }
+
+      assert_raise Postgrex.Error,
+                   ~r/\(integrity_constraint_violation\) start_date before or equal to an existing record end_date/,
+                   fn -> Repo.insert(suspension) end
+    end
+
+    test "end date cannot be after existing record start date" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+
+      _existing_suspension =
+        insert(:employee_suspension,
+          org: org,
+          registration: registration,
+          start_date: ~D[2020-01-01],
+          end_date: ~D[2020-01-03]
+        )
+
+      # Allow overlapping for different registration
+      insert(:employee_suspension,
+        org: org,
+        start_date: ~D[2019-12-31],
+        end_date: ~D[2020-01-02]
+      )
+
+      suspension = %Suspension{
+        org_id: org.id,
+        registration_id: registration.id,
+        description: Faker.Lorem.paragraph(1),
+        start_date: ~D[2019-12-31],
+        end_date: ~D[2020-01-02]
+      }
+
+      assert_raise Postgrex.Error,
+                   ~r/\(integrity_constraint_violation\) end_date after or equal to an existing record start_date/,
+                   fn -> Repo.insert(suspension) end
+    end
   end
 
   describe "create_changeset/2" do
@@ -172,7 +244,7 @@ defmodule Sig.HR.Registrations.Suspensions.SuspensionTest do
       refute changeset.valid?
 
       assert errors_on(changeset) == %{
-               start_date: ["must be before or equal to end_date"]
+               end_date: ["must be equal to or after start_date"]
              }
     end
 
@@ -190,6 +262,152 @@ defmodule Sig.HR.Registrations.Suspensions.SuspensionTest do
       assert changeset = Suspension.create_changeset(attrs)
 
       assert changeset.valid?
+    end
+
+    test "start_date before the end_date of existing suspension" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+
+      _existing_suspension =
+        insert(:employee_suspension,
+          org: org,
+          registration: registration,
+          start_date: ~D[2020-01-01],
+          end_date: ~D[2020-01-03]
+        )
+
+      attrs = %{
+        org_id: org.id,
+        registration_id: registration.id,
+        description: Faker.Lorem.paragraph(1),
+        start_date: ~D[2020-01-02],
+        end_date: ~D[2020-01-04]
+      }
+
+      assert {:error, changeset} =
+               attrs
+               |> Suspension.create_changeset()
+               |> Repo.insert()
+
+      assert errors_on(changeset) == %{
+               start_date: ["cannot be before or equal to an existing record end_date"]
+             }
+    end
+
+    test "start_date equal to the end_date of existing suspension" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+
+      _existing_suspension =
+        insert(:employee_suspension,
+          org: org,
+          registration: registration,
+          start_date: ~D[2020-01-01],
+          end_date: ~D[2020-01-03]
+        )
+
+      attrs = %{
+        org_id: org.id,
+        registration_id: registration.id,
+        description: Faker.Lorem.paragraph(1),
+        start_date: ~D[2020-01-03],
+        end_date: ~D[2020-01-05]
+      }
+
+      assert {:error, changeset} =
+               attrs
+               |> Suspension.create_changeset()
+               |> Repo.insert()
+
+      assert errors_on(changeset) == %{
+               start_date: ["cannot be before or equal to an existing record end_date"]
+             }
+    end
+
+    test "end_date after the start_date of existing suspension" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+
+      _existing_suspension =
+        insert(:employee_suspension,
+          org: org,
+          registration: registration,
+          start_date: ~D[2020-01-01],
+          end_date: ~D[2020-01-03]
+        )
+
+      attrs = %{
+        org_id: org.id,
+        registration_id: registration.id,
+        description: Faker.Lorem.paragraph(1),
+        start_date: ~D[2019-12-31],
+        end_date: ~D[2020-01-02]
+      }
+
+      assert {:error, changeset} =
+               attrs
+               |> Suspension.create_changeset()
+               |> Repo.insert()
+
+      assert errors_on(changeset) == %{
+               end_date: ["cannot be after or equal to an existing record start_date"]
+             }
+    end
+
+    test "end_date equal to the start_date of existing suspension" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+
+      _existing_suspension =
+        insert(:employee_suspension,
+          org: org,
+          registration: registration,
+          start_date: ~D[2020-01-01],
+          end_date: ~D[2020-01-03]
+        )
+
+      attrs = %{
+        org_id: org.id,
+        registration_id: registration.id,
+        description: Faker.Lorem.paragraph(1),
+        start_date: ~D[2019-12-30],
+        end_date: ~D[2020-01-01]
+      }
+
+      assert {:error, changeset} =
+               attrs
+               |> Suspension.create_changeset()
+               |> Repo.insert()
+
+      assert errors_on(changeset) == %{
+               end_date: ["cannot be after or equal to an existing record start_date"]
+             }
+    end
+
+    test "when period doesn't overlap with existing suspension" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+
+      _existing_suspension =
+        insert(:employee_suspension,
+          org: org,
+          registration: registration,
+          start_date: ~D[2020-01-01],
+          end_date: ~D[2020-01-03]
+        )
+
+      attrs = %{
+        org_id: org.id,
+        registration_id: registration.id,
+        description: Faker.Lorem.paragraph(1),
+        start_date: ~D[2020-01-04],
+        end_date: ~D[2020-01-06]
+      }
+
+      assert {:ok, _suspension} =
+               attrs
+               |> Suspension.create_changeset()
+               |> Repo.insert()
     end
   end
 
@@ -299,7 +517,7 @@ defmodule Sig.HR.Registrations.Suspensions.SuspensionTest do
       refute changeset.valid?
 
       assert errors_on(changeset) == %{
-               start_date: ["must be before or equal to end_date"]
+               end_date: ["must be equal to or after start_date"]
              }
     end
 
@@ -318,6 +536,177 @@ defmodule Sig.HR.Registrations.Suspensions.SuspensionTest do
       assert changeset = Suspension.update_changeset(suspension, attrs)
 
       assert changeset.valid?
+    end
+
+    test "start_date before the end_date of existing suspension" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+
+      _existing_suspension =
+        insert(:employee_suspension,
+          org: org,
+          registration: registration,
+          start_date: ~D[2020-01-01],
+          end_date: ~D[2020-01-03]
+        )
+
+      suspension =
+        insert(:employee_suspension,
+          org: org,
+          registration: registration,
+          start_date: ~D[2020-02-01],
+          end_date: ~D[2020-02-03]
+        )
+
+      attrs = %{
+        start_date: ~D[2020-01-02],
+        end_date: ~D[2020-01-04]
+      }
+
+      assert {:error, changeset} =
+               suspension
+               |> Suspension.update_changeset(attrs)
+               |> Repo.update()
+
+      assert errors_on(changeset) == %{
+               start_date: ["cannot be before or equal to an existing record end_date"]
+             }
+    end
+
+    test "start_date equal to the end_date of existing suspension" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+
+      _existing_suspension =
+        insert(:employee_suspension,
+          org: org,
+          registration: registration,
+          start_date: ~D[2020-01-01],
+          end_date: ~D[2020-01-03]
+        )
+
+      suspension =
+        insert(:employee_suspension,
+          org: org,
+          registration: registration,
+          start_date: ~D[2020-02-01],
+          end_date: ~D[2020-02-03]
+        )
+
+      attrs = %{
+        start_date: ~D[2020-01-03],
+        end_date: ~D[2020-01-05]
+      }
+
+      assert {:error, changeset} =
+               suspension
+               |> Suspension.update_changeset(attrs)
+               |> Repo.update()
+
+      assert errors_on(changeset) == %{
+               start_date: ["cannot be before or equal to an existing record end_date"]
+             }
+    end
+
+    test "end_date after the start_date of existing suspension" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+
+      _existing_suspension =
+        insert(:employee_suspension,
+          org: org,
+          registration: registration,
+          start_date: ~D[2020-01-01],
+          end_date: ~D[2020-01-03]
+        )
+
+      suspension =
+        insert(:employee_suspension,
+          org: org,
+          registration: registration,
+          start_date: ~D[2020-02-01],
+          end_date: ~D[2020-02-03]
+        )
+
+      attrs = %{
+        start_date: ~D[2019-12-30],
+        end_date: ~D[2020-01-02]
+      }
+
+      assert {:error, changeset} =
+               suspension
+               |> Suspension.update_changeset(attrs)
+               |> Repo.update()
+
+      assert errors_on(changeset) == %{
+               end_date: ["cannot be after or equal to an existing record start_date"]
+             }
+    end
+
+    test "end_date equal to the start_date of existing suspension" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+
+      _existing_suspension =
+        insert(:employee_suspension,
+          org: org,
+          registration: registration,
+          start_date: ~D[2020-01-01],
+          end_date: ~D[2020-01-03]
+        )
+
+      suspension =
+        insert(:employee_suspension,
+          org: org,
+          registration: registration,
+          start_date: ~D[2020-02-01],
+          end_date: ~D[2020-02-03]
+        )
+
+      attrs = %{
+        start_date: ~D[2019-12-31],
+        end_date: ~D[2020-01-01]
+      }
+
+      assert {:error, changeset} =
+               suspension
+               |> Suspension.update_changeset(attrs)
+               |> Repo.update()
+
+      assert errors_on(changeset) == %{
+               end_date: ["cannot be after or equal to an existing record start_date"]
+             }
+    end
+
+    test "when period doesn't overlap with existing suspension" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+
+      _existing_suspension =
+        insert(:employee_suspension,
+          org: org,
+          registration: registration,
+          start_date: ~D[2020-01-01],
+          end_date: ~D[2020-01-03]
+        )
+
+      suspension =
+        insert(:employee_suspension,
+          org: org,
+          registration: registration,
+          start_date: ~D[2020-02-01],
+          end_date: ~D[2020-02-03]
+        )
+
+      attrs = %{
+        start_date: ~D[2020-01-04],
+        end_date: ~D[2020-01-06]
+      }
+
+      assert {:ok, _suspension} =
+               suspension
+               |> Suspension.update_changeset(attrs)
+               |> Repo.update()
     end
   end
 end

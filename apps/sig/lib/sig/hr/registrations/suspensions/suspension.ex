@@ -22,13 +22,13 @@ defmodule Sig.HR.Registrations.Suspensions.Suspension do
     |> cast(attrs, @fields)
     |> validate_required(@fields)
     |> validate_length(:description, max: 255)
-    |> validate_dates(:start_date, [:lt, :eq], :end_date)
+    |> validate_dates(:end_date, [:eq, :gt], :start_date)
   end
 
   def update_changeset(%__MODULE__{} = target, attrs) do
     target
     |> cast(attrs, [:description, :start_date, :end_date])
     |> validate_length(:description, max: 255)
-    |> validate_dates(:start_date, [:lt, :eq], :end_date)
+    |> validate_dates(:end_date, [:eq, :gt], :start_date)
   end
 end

@@ -49,8 +49,17 @@ defmodule Sig.HR.Registrations.SuspensionsTest do
       org = insert(:org)
       registration = insert(:employee_registration, org: org)
 
-      insert(:employee_suspension, org: org, registration: registration, start_date: ~D[2020-01-01])
-      insert(:employee_suspension, org: org, registration: registration, start_date: ~D[2020-06-01])
+      insert(:employee_suspension,
+        org: org,
+        registration: registration,
+        start_date: ~D[2020-01-01]
+      )
+
+      insert(:employee_suspension,
+        org: org,
+        registration: registration,
+        start_date: ~D[2020-06-01]
+      )
 
       assert [
                %Suspension{start_date: ~D[2020-01-01]},
@@ -81,13 +90,13 @@ defmodule Sig.HR.Registrations.SuspensionsTest do
       assert {:ok, %Suspension{id: id}} = Suspensions.create(registration, attrs)
 
       assert Repo.get_by(Suspension,
-        id: id,
-        org_id: registration.org_id,
-        registration_id: registration.id,
-        description: attrs[:description],
-        start_date: attrs[:start_date],
-        end_date: attrs[:end_date]
-      )
+               id: id,
+               org_id: registration.org_id,
+               registration_id: registration.id,
+               description: attrs[:description],
+               start_date: attrs[:start_date],
+               end_date: attrs[:end_date]
+             )
     end
 
     test "returns changeset errors" do
@@ -96,10 +105,10 @@ defmodule Sig.HR.Registrations.SuspensionsTest do
       assert {:error, changeset} = Suspensions.create(registration, %{})
 
       assert errors_on(changeset) == %{
-        description: ["can't be blank"],
-        start_date: ["can't be blank"],
-        end_date: ["can't be blank"]
-      }
+               description: ["can't be blank"],
+               start_date: ["can't be blank"],
+               end_date: ["can't be blank"]
+             }
     end
   end
 
@@ -153,7 +162,20 @@ defmodule Sig.HR.Registrations.SuspensionsTest do
       org = insert(:org)
       registration = insert(:employee_registration, org: org)
 
-      insert_list(2, :employee_suspension, org: org, registration: registration)
+      insert(:employee_suspension,
+        org: org,
+        registration: registration,
+        start_date: ~D[2020-01-01],
+        end_date: ~D[2020-02-01]
+      )
+
+      insert(:employee_suspension,
+        org: org,
+        registration: registration,
+        start_date: ~D[2020-03-01],
+        end_date: ~D[2020-04-01]
+      )
+
       insert(:employee_suspension)
 
       topic = "registration_id:" <> registration.id <> ":suspensions"
