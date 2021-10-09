@@ -12,6 +12,7 @@ defmodule Sig.Factory do
   use Sig.Factories.WarningFactory
   use Sig.Factories.SuspensionFactory
   use Sig.Factories.LeavePeriodFactory
+  use Sig.Factories.PayslipCategoryFactory
   use Sig.Factories.BankAccountFactory
   use Sig.Factories.EntityBankAccountFactory
 
@@ -33,6 +34,7 @@ defmodule Sig.Factory do
 
   def factory(factory_name, _attributes), do: factory(factory_name)
 
+  def random_enum_value(:entry_type), do: random_enum_value(Sig.EntryType)
   def random_enum_value(enum), do: Enum.random(enum.__enums__())
 
   def random_string_number, do: 100..1_000_000 |> Enum.random() |> to_string()
