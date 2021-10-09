@@ -22,4 +22,7 @@ defmodule Sig.HR.Registrations.Salaries.Salary do
     |> validate_required(@fields)
     |> validate_money(:amount)
   end
+
+  # TODO: Create a DB trigger with a stored procedure to
+  # ensure that a registration always have at least one salary
 end
