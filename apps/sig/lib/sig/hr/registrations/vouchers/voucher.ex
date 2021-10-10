@@ -4,7 +4,7 @@ defmodule Sig.HR.Registrations.Vouchers.Voucher do
   alias Sig.HR.Registrations.Registration
   alias Sig.Organizations.Org
 
-  defenum(VoucherType, :employee_voucher_type, [:transport, :meal, :food])
+  defenum(VoucherType, :employee_voucher_type, [:transport, :meal, :food, :employee_health_insurance, :employee_dependents_health_insurance])
 
   schema "employee_vouchers" do
     belongs_to :org, Org, primary_key: true
