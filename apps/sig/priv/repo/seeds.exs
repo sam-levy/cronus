@@ -150,7 +150,7 @@ Repo.insert!(%Position{org_id: main_org.id, name: "Entregador Motorizado"})
 # Payslip Categories
 alias Sig.HR.Payslips.Categories.Category
 
-Repo.insert!(%Category{
+salary_category = Repo.insert!(%Category{
   org_id: main_org.id,
   code: "1",
   description: "SALÁRIO",
@@ -185,14 +185,14 @@ Repo.insert!(%Category{
   entry_type: :credit
 })
 
-Repo.insert!(%Category{
+cashier_bonus_category = Repo.insert!(%Category{
   org_id: main_org.id,
   code: "1000",
   description: "QUEBRA DE CAIXA",
   entry_type: :credit
 })
 
-Repo.insert!(%Category{
+uniform_cleaning = Repo.insert!(%Category{
   org_id: main_org.id,
   code: "1038",
   description: "LAVAR UNIFORME",
@@ -206,23 +206,80 @@ Repo.insert!(%Category{
   entry_type: :debit
 })
 
-Repo.insert!(%Category{
+in_advance_payments_category = Repo.insert!(%Category{
   org_id: main_org.id,
   code: "12",
   description: "ADIANTAMENTO ANTERIOR",
   entry_type: :debit
 })
 
-Repo.insert!(%Category{
+transport_voucher_discount_category = Repo.insert!(%Category{
   org_id: main_org.id,
   code: "109",
   description: "DESC. VALE TRANSPORTE",
   entry_type: :debit
 })
 
-Repo.insert!(%Category{
+health_insurance_category = Repo.insert!(%Category{
   org_id: main_org.id,
   code: "115",
   description: "ASSISTÊNCIA MÉDICA",
   entry_type: :debit
+})
+
+# Payslip Recurring Item Moddels
+alias Sig.HR.Payslips.RecurringItemModels.RecurringItemModel
+
+Repo.insert!(%RecurringItemModel{
+  org_id: main_org.id,
+  category_id: cashier_bonus_category.id,
+  description: "Quebra de caixa - Mogi das Cruzes",
+  is_fixed_amount: true,
+  amount: 60_70
+})
+
+Repo.insert!(%RecurringItemModel{
+  org_id: main_org.id,
+  category_id: uniform_cleaning.id,
+  description: "Lavagem de uniformes - Mogi das Cruzes",
+  is_fixed_amount: true,
+  amount: 43_05
+})
+
+Repo.insert!(%RecurringItemModel{
+  org_id: main_org.id,
+  category_id: salary_category.id,
+  description: "Salário",
+  is_fixed_amount: false,
+  percentage: 100,
+  percentage_target: :employee_salary
+})
+
+Repo.insert!(%RecurringItemModel{
+  org_id: main_org.id,
+  category_id: in_advance_payments_category.id,
+  description: "Adiantamento de salário",
+  is_fixed_amount: false,
+  percentage: 40,
+  percentage_target: :employee_salary
+})
+
+Repo.insert!(%RecurringItemModel{
+  org_id: main_org.id,
+  category_id: transport_voucher_discount_category.id,
+  description: "Desconto de vale transporte",
+  is_fixed_amount: false,
+  percentage: 20,
+  percentage_target: :employee_benefit,
+  employee_benefit_type_percentage_target: :transport
+})
+
+Repo.insert!(%RecurringItemModel{
+  org_id: main_org.id,
+  category_id: health_insurance_category.id,
+  description: "Assistência médica dependentes",
+  is_fixed_amount: false,
+  percentage: 100,
+  percentage_target: :employee_benefit,
+  employee_benefit_type_percentage_target: :employee_dependents_health_insurance
 })
