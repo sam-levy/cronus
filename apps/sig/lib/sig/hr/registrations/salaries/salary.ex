@@ -20,7 +20,7 @@ defmodule Sig.HR.Registrations.Salaries.Salary do
     %__MODULE__{}
     |> cast(attrs, @fields)
     |> validate_required(@fields)
-    |> validate_money(:amount)
+    |> validate_money(:amount, :gt, 0)
   end
 
   # TODO: Create a DB trigger with a stored procedure to

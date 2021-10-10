@@ -24,7 +24,7 @@ defmodule Sig.HR.Registrations.Vouchers.Voucher do
     %__MODULE__{}
     |> cast(attrs, @create_fields)
     |> validate_required(@create_fields)
-    |> validate_money(:amount)
+    |> validate_money(:amount, :gt, 0)
   end
 
   def update_changeset(%__MODULE__{} = target, attrs) do

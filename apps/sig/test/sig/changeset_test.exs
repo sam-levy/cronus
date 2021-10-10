@@ -76,6 +76,23 @@ defmodule Sig.ChangesetTest do
 
       assert changeset.valid?
     end
+
+    test "accepts an atom field" do
+      data = %{}
+      types = %{is_joint_account_holder: :boolean, relationship_with_holder: :string}
+      params = %{is_joint_account_holder: false, relationship_with_holder: "child"}
+
+      changeset =
+        {data, types}
+        |> Ecto.Changeset.cast(params, Map.keys(types))
+        |> Sig.Changeset.validate_required_if(
+          :is_joint_account_holder,
+          false,
+          :relationship_with_holder
+        )
+
+      assert changeset.valid?
+    end
   end
 
   describe "validate_dates/4" do
@@ -286,35 +303,200 @@ defmodule Sig.ChangesetTest do
   end
 
   describe "validate_money/2" do
-    test "when amount is greater than 0" do
+    test ":gt true" do
       data = %{}
       types = %{amount: Money.Ecto.Amount.Type}
-      params = %{amount: Money.new(1_500_00, :BRL)}
+      params = %{amount: Money.new(1_500_00)}
 
       changeset =
         {data, types}
         |> Ecto.Changeset.cast(params, Map.keys(types))
-        |> Sig.Changeset.validate_money(:amount)
+        |> Sig.Changeset.validate_money(:amount, :gt, 1_000_00)
 
       assert changeset.valid?
     end
 
-    test "when amount is 0" do
+    test ":gt false" do
       data = %{}
       types = %{amount: Money.Ecto.Amount.Type}
-      params = %{amount: Money.new(0, :BRL)}
+      params = %{amount: Money.new(1_500_00)}
 
       changeset =
         {data, types}
         |> Ecto.Changeset.cast(params, Map.keys(types))
-        |> Sig.Changeset.validate_money(:amount)
+        |> Sig.Changeset.validate_money(:amount, :gt, 1_500_00)
 
       refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+        amount: ["must be greater than 1.500,00"]
+      }
+    end
+
+    test ":eq true" do
+      data = %{}
+      types = %{amount: Money.Ecto.Amount.Type}
+      params = %{amount: Money.new(1_500_00)}
+
+      changeset =
+        {data, types}
+        |> Ecto.Changeset.cast(params, Map.keys(types))
+        |> Sig.Changeset.validate_money(:amount, :eq, 1_500_00)
+
+      assert changeset.valid?
+    end
+
+    test ":eq false" do
+      data = %{}
+      types = %{amount: Money.Ecto.Amount.Type}
+      params = %{amount: Money.new(1_500_00)}
+
+      changeset =
+        {data, types}
+        |> Ecto.Changeset.cast(params, Map.keys(types))
+        |> Sig.Changeset.validate_money(:amount, :eq, 2_000_00)
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+        amount: ["must be equal to 2.000,00"]
+      }
+    end
+
+    test ":lt true" do
+      data = %{}
+      types = %{amount: Money.Ecto.Amount.Type}
+      params = %{amount: Money.new(1_500_00)}
+
+      changeset =
+        {data, types}
+        |> Ecto.Changeset.cast(params, Map.keys(types))
+        |> Sig.Changeset.validate_money(:amount, :lt, 2_000_00)
+
+      assert changeset.valid?
+    end
+
+    test ":lt false" do
+      data = %{}
+      types = %{amount: Money.Ecto.Amount.Type}
+      params = %{amount: Money.new(2_000_00)}
+
+      changeset =
+        {data, types}
+        |> Ecto.Changeset.cast(params, Map.keys(types))
+        |> Sig.Changeset.validate_money(:amount, :lt, 2_000_00)
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+        amount: ["must be less than 2.000,00"]
+      }
+    end
+
+    test "[:lt, :eq] true when :lt" do
+      data = %{}
+      types = %{amount: Money.Ecto.Amount.Type}
+      params = %{amount: Money.new(1_500_00)}
+
+      changeset =
+        {data, types}
+        |> Ecto.Changeset.cast(params, Map.keys(types))
+        |> Sig.Changeset.validate_money(:amount, [:lt, :eq], 2_000_00)
+
+      assert changeset.valid?
+    end
+
+    test "[:lt, :eq] true when :eq" do
+      data = %{}
+      types = %{amount: Money.Ecto.Amount.Type}
+      params = %{amount: Money.new(1_500_00)}
+
+      changeset =
+        {data, types}
+        |> Ecto.Changeset.cast(params, Map.keys(types))
+        |> Sig.Changeset.validate_money(:amount, [:lt, :eq], 1_500_00)
+
+      assert changeset.valid?
+    end
+
+    test "[:lt, :eq] false when :gt" do
+      data = %{}
+      types = %{amount: Money.Ecto.Amount.Type}
+      params = %{amount: Money.new(2_500_00)}
+
+      changeset =
+        {data, types}
+        |> Ecto.Changeset.cast(params, Map.keys(types))
+        |> Sig.Changeset.validate_money(:amount, [:lt, :eq], 2_000_00)
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+        amount: ["must be less than or equal to 2.000,00"]
+      }
+    end
+
+    test "[:eq, :gt] true when :eq" do
+      data = %{}
+      types = %{amount: Money.Ecto.Amount.Type}
+      params = %{amount: Money.new(2_000_00)}
+
+      changeset =
+        {data, types}
+        |> Ecto.Changeset.cast(params, Map.keys(types))
+        |> Sig.Changeset.validate_money(:amount, [:lt, :eq], 2_000_00)
+
+      assert changeset.valid?
+    end
+
+    test "[:eq, :gt] true when :gt" do
+      data = %{}
+      types = %{amount: Money.Ecto.Amount.Type}
+      params = %{amount: Money.new(2_500_00)}
+
+      changeset =
+        {data, types}
+        |> Ecto.Changeset.cast(params, Map.keys(types))
+        |> Sig.Changeset.validate_money(:amount, [:eq, :gt], 2_000_00)
+
+      assert changeset.valid?
+    end
+
+    test "[:eq, :gt] false when :lt" do
+      data = %{}
+      types = %{amount: Money.Ecto.Amount.Type}
+      params = %{amount: Money.new(1_500_00)}
+
+      changeset =
+        {data, types}
+        |> Ecto.Changeset.cast(params, Map.keys(types))
+        |> Sig.Changeset.validate_money(:amount, [:eq, :gt], 2_000_00)
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+        amount: ["must be equal to or greater than 2.000,00"]
+      }
     end
   end
 
-  describe "drop_change_if/4" do
-    test "drops field if condition is met" do
+  describe "drop_changes/4" do
+    test "drops fields from changeset" do
+      data = %{}
+      types = %{is_joint_account_holder: :boolean, relationship_with_holder: :string, other: :string}
+      params = %{is_joint_account_holder: true, relationship_with_holder: "child", other: "test"}
+
+      changeset =
+        {data, types}
+        |> Ecto.Changeset.cast(params, Map.keys(types))
+        |> Sig.Changeset.drop_changes([:relationship_with_holder, :other])
+
+      assert changeset.valid?
+
+      assert changeset.changes == %{is_joint_account_holder: true}
+    end
+
+    test "accepts an atom as field" do
       data = %{}
       types = %{is_joint_account_holder: :boolean, relationship_with_holder: :string}
       params = %{is_joint_account_holder: true, relationship_with_holder: "child"}
@@ -322,29 +504,62 @@ defmodule Sig.ChangesetTest do
       changeset =
         {data, types}
         |> Ecto.Changeset.cast(params, Map.keys(types))
-        |> Sig.Changeset.drop_change_if(:is_joint_account_holder, true, :relationship_with_holder)
+        |> Sig.Changeset.drop_changes(:relationship_with_holder)
+
+      assert changeset.valid?
+
+      assert changeset.changes == %{is_joint_account_holder: true}
+    end
+  end
+
+  describe "drop_changes_if/4" do
+    test "drops fields if condition is met" do
+      data = %{}
+      types = %{is_joint_account_holder: :boolean, relationship_with_holder: :string, other: :string}
+      params = %{is_joint_account_holder: true, relationship_with_holder: "child", other: "test"}
+
+      changeset =
+        {data, types}
+        |> Ecto.Changeset.cast(params, Map.keys(types))
+        |> Sig.Changeset.drop_changes_if(:is_joint_account_holder, true, [:relationship_with_holder, :other])
 
       assert changeset.valid?
 
       assert changeset.changes == %{is_joint_account_holder: true}
     end
 
-    test "keeps field if condition is not met" do
+    test "keeps fields if condition is not met" do
       data = %{}
-      types = %{is_joint_account_holder: :boolean, relationship_with_holder: :string}
-      params = %{is_joint_account_holder: false, relationship_with_holder: "child"}
+      types = %{is_joint_account_holder: :boolean, relationship_with_holder: :string, other: :string}
+      params = %{is_joint_account_holder: false, relationship_with_holder: "child", other: "test"}
 
       changeset =
         {data, types}
         |> Ecto.Changeset.cast(params, Map.keys(types))
-        |> Sig.Changeset.drop_change_if(:is_joint_account_holder, true, :relationship_with_holder)
+        |> Sig.Changeset.drop_changes_if(:is_joint_account_holder, true, [:relationship_with_holder, :other])
 
       assert changeset.valid?
 
       assert changeset.changes == %{
                is_joint_account_holder: false,
-               relationship_with_holder: "child"
+               relationship_with_holder: "child",
+               other: "test"
              }
+    end
+
+    test "accepts an atom as field" do
+      data = %{}
+      types = %{is_joint_account_holder: :boolean, relationship_with_holder: :string}
+      params = %{is_joint_account_holder: true, relationship_with_holder: "child"}
+
+      changeset =
+        {data, types}
+        |> Ecto.Changeset.cast(params, Map.keys(types))
+        |> Sig.Changeset.drop_changes_if(:is_joint_account_holder, true, :relationship_with_holder)
+
+      assert changeset.valid?
+
+      assert changeset.changes == %{is_joint_account_holder: true}
     end
   end
 end
