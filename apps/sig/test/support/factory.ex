@@ -13,6 +13,7 @@ defmodule Sig.Factory do
   use Sig.Factories.SuspensionFactory
   use Sig.Factories.LeavePeriodFactory
   use Sig.Factories.PayslipCategoryFactory
+  use Sig.Factories.PayslipRecurringItemModelFactory
   use Sig.Factories.BankAccountFactory
   use Sig.Factories.EntityBankAccountFactory
 
