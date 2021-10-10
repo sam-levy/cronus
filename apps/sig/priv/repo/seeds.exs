@@ -55,6 +55,7 @@ alias Sig.Entities.Entity
 alias Sig.Entities.Companies.Company
 
 entity = Repo.insert!(%Entity{org_id: main_org.id, type: :company})
+
 Repo.insert!(%Company{
   trade_name: "CiB Mogi",
   is_virtual: false,
@@ -65,6 +66,7 @@ Repo.insert!(%Company{
 })
 
 entity = Repo.insert!(%Entity{org_id: main_org.id, type: :company})
+
 Repo.insert!(%Company{
   trade_name: "CiB Suzano",
   is_virtual: false,
@@ -75,6 +77,7 @@ Repo.insert!(%Company{
 })
 
 entity = Repo.insert!(%Entity{org_id: main_org.id, type: :company})
+
 Repo.insert!(%Company{
   trade_name: "CiB Penha",
   is_virtual: false,
@@ -85,6 +88,7 @@ Repo.insert!(%Company{
 })
 
 entity = Repo.insert!(%Entity{org_id: main_org.id, type: :company})
+
 Repo.insert!(%Company{
   trade_name: "CiB São Miguel",
   is_virtual: false,
@@ -95,6 +99,7 @@ Repo.insert!(%Company{
 })
 
 entity = Repo.insert!(%Entity{org_id: main_org.id, type: :company})
+
 Repo.insert!(%Company{
   trade_name: "Escritório",
   is_virtual: true,
@@ -103,6 +108,7 @@ Repo.insert!(%Company{
 })
 
 entity = Repo.insert!(%Entity{org_id: main_org.id, type: :company})
+
 Repo.insert!(%Company{
   trade_name: "Call Center",
   is_virtual: true,
@@ -111,6 +117,7 @@ Repo.insert!(%Company{
 })
 
 entity = Repo.insert!(%Entity{org_id: main_org.id, type: :company})
+
 Repo.insert!(%Company{
   trade_name: "Central de Processamento",
   is_virtual: true,
@@ -139,3 +146,83 @@ Repo.insert!(%Position{org_id: main_org.id, name: "Atendente"})
 Repo.insert!(%Position{org_id: main_org.id, name: "Assistente Administrativo"})
 Repo.insert!(%Position{org_id: main_org.id, name: "Auxiliar de Escritório"})
 Repo.insert!(%Position{org_id: main_org.id, name: "Entregador Motorizado"})
+
+# Payslip Categories
+alias Sig.HR.Payslips.Categories.Category
+
+Repo.insert!(%Category{
+  org_id: main_org.id,
+  code: "1",
+  description: "SALÁRIO",
+  entry_type: :credit
+})
+
+Repo.insert!(%Category{
+  org_id: main_org.id,
+  code: "5",
+  description: "D.S.R. SOBRE HORAS EXTRAS",
+  entry_type: :credit
+})
+
+Repo.insert!(%Category{
+  org_id: main_org.id,
+  code: "82",
+  description: "HORA EXTRAS 100%",
+  entry_type: :credit
+})
+
+Repo.insert!(%Category{
+  org_id: main_org.id,
+  code: "1221",
+  description: "ADIC. NOTURNO 50%",
+  entry_type: :credit
+})
+
+Repo.insert!(%Category{
+  org_id: main_org.id,
+  code: "152",
+  description: "DSR ADICIONAL NOTURNO",
+  entry_type: :credit
+})
+
+Repo.insert!(%Category{
+  org_id: main_org.id,
+  code: "1000",
+  description: "QUEBRA DE CAIXA",
+  entry_type: :credit
+})
+
+Repo.insert!(%Category{
+  org_id: main_org.id,
+  code: "1038",
+  description: "LAVAR UNIFORME",
+  entry_type: :credit
+})
+
+Repo.insert!(%Category{
+  org_id: main_org.id,
+  code: "11",
+  description: "INSS SOBRE SALÁRIO",
+  entry_type: :debit
+})
+
+Repo.insert!(%Category{
+  org_id: main_org.id,
+  code: "12",
+  description: "ADIANTAMENTO ANTERIOR",
+  entry_type: :debit
+})
+
+Repo.insert!(%Category{
+  org_id: main_org.id,
+  code: "109",
+  description: "DESC. VALE TRANSPORTE",
+  entry_type: :debit
+})
+
+Repo.insert!(%Category{
+  org_id: main_org.id,
+  code: "115",
+  description: "ASSISTÊNCIA MÉDICA",
+  entry_type: :debit
+})
