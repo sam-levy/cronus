@@ -3,7 +3,7 @@ defmodule Sig.Repo.Migrations.CreateEmployeeVouchersTable do
   import EctoEnumMigration
 
   def change do
-    create_type(:employee_voucher_type, [:transport, :meal, :food])
+    create_type(:employee_voucher_type, [:transport, :meal, :food, :employee_health_insurance, :employee_dependents_health_insurance])
 
     create table(:employee_vouchers) do
       add :org_id, references(:orgs), primary_key: true
