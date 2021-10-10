@@ -170,7 +170,7 @@ defmodule Sig.HR.Registrations.Salaries.SalaryTest do
 
       refute changeset.valid?
 
-      assert errors_on(changeset) == %{amount: ["must be greater than 0"]}
+      assert errors_on(changeset) == %{amount: ["must be greater than 0,00"]}
     end
   end
 end
