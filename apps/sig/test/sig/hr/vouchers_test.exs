@@ -21,7 +21,13 @@ defmodule Sig.HR.Registrations.VouchersTest do
 
   describe "list_voucher_types/0" do
     test "lists voucher types" do
-      assert Vouchers.list_voucher_types() == ["transport", "meal", "food"]
+      assert Vouchers.list_voucher_types() == [
+               "transport",
+               "meal",
+               "food",
+               "employee_health_insurance",
+               "employee_dependents_health_insurance"
+             ]
     end
   end
 
