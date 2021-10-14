@@ -10,7 +10,8 @@ defmodule SigLive.EmployeeRegistrations.Show do
     Vouchers,
     Warnings,
     Suspensions,
-    LeavePeriods
+    LeavePeriods,
+    RecurringPayslipItems
   }
 
   @impl true
@@ -25,6 +26,7 @@ defmodule SigLive.EmployeeRegistrations.Show do
       HR.subscribe_to_registration_warnings(registration)
       HR.subscribe_to_registration_suspensions(registration)
       HR.subscribe_to_registration_leave_periods(registration)
+      HR.subscribe_to_registration_recurring_payslip_items(registration)
     end
 
     socket =
@@ -35,7 +37,8 @@ defmodule SigLive.EmployeeRegistrations.Show do
         vouchers: HR.list_vouchers_by_registration(registration),
         warnings: HR.list_warnings_by_registration(registration),
         suspensions: HR.list_suspensions_by_registration(registration),
-        leave_periods: HR.list_leave_periods_by_registration(registration)
+        leave_periods: HR.list_leave_periods_by_registration(registration),
+        recurring_payslip_items: HR.list_recurring_payslip_items_by_registration(registration)
       )
 
     {:ok, socket,
@@ -44,7 +47,8 @@ defmodule SigLive.EmployeeRegistrations.Show do
        vouchers: [],
        warnings: [],
        suspensions: [],
-       leave_periods: []
+       leave_periods: [],
+       recurring_payslip_items: nil
      ]}
   end
 
@@ -74,6 +78,11 @@ defmodule SigLive.EmployeeRegistrations.Show do
   end
 
   @impl true
+  def handle_info({:updated_registration_recurring_payslip_items, items}, socket) do
+    {:noreply, assign(socket, recurring_payslip_items: items)}
+  end
+
+  @impl true
   def handle_info({:flash, type, message}, socket) do
     {:noreply, put_flash(socket, type, message)}
   end
@@ -82,6 +91,7 @@ defmodule SigLive.EmployeeRegistrations.Show do
   def render(assigns) do
     ~F"""
     <div>
+      <RecurringPayslipItems.List id="recurring_payslip_items_list" {=@org} {=@registration} {=@recurring_payslip_items}/>
       <Salaries.List id="voucher_list" {=@registration} {=@salaries}/>
       <Vouchers.List id="salary_list" {=@registration} {=@vouchers}/>
       <Warnings.List id="warning_list" {=@registration} {=@warnings}/>
