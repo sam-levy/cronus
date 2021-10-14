@@ -66,58 +66,6 @@ defmodule Sig.HR.Registrations.Vouchers.VoucherTest do
                    fn -> Repo.insert(voucher) end
     end
 
-    test "[:type, :registration_id, :org_id] conditional unique_constraint" do
-      org = insert(:org)
-      registration = insert(:employee_registration, org: org)
-
-      # Existing valid transport voucher
-      insert(:employee_voucher,
-        org: org,
-        registration: registration,
-        type: :transport,
-        start_date: ~D[2021-01-01],
-        end_date: nil
-      )
-
-      # Allow different valid voucher type
-      insert(:employee_voucher,
-        org: org,
-        registration: registration,
-        type: :meal,
-        start_date: ~D[2021-01-01],
-        end_date: nil
-      )
-
-      # Allow same voucher type when expired
-      insert(:employee_voucher,
-        org: org,
-        registration: registration,
-        type: :meal,
-        start_date: ~D[2019-01-01],
-        end_date: ~D[2020-02-01]
-      )
-
-      # Allow same voucher type for different registration
-      insert(:employee_voucher,
-        org: org,
-        type: :transport,
-        start_date: ~D[2021-01-01],
-        end_date: nil
-      )
-
-      voucher = %Voucher{
-        org_id: org.id,
-        registration_id: registration.id,
-        type: :transport,
-        amount: 500_00,
-        start_date: ~D[2021-02-01],
-      }
-
-      assert_raise Ecto.ConstraintError,
-                   ~r/employee_salaries_type_unique_when_end_date_null \(unique_constraint\)/,
-                   fn -> Repo.insert(voucher) end
-    end
-
     test "employee_vouchers_amount_greater_than_zero constraint" do
       registration = insert(:employee_registration)
 

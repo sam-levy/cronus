@@ -25,11 +25,13 @@ defmodule Sig.HR.Registrations.Vouchers do
     |> Repo.one()
   end
 
-  def list_by_registration(%Registration{} = registration) do
+  def list_by_registration(%Registration{} = registration, opts \\ []) do
     registration
     |> query_by_registration()
     |> order_by(:start_date)
-    |> Repo.all
+    |> filter_by_types(opts)
+    |> filter_by_in_effect_on_date(opts)
+    |> Repo.all()
   end
 
   def update(%Voucher{} = voucher, %{} = attrs) do
@@ -58,5 +60,24 @@ defmodule Sig.HR.Registrations.Vouchers do
     Voucher
     |> where(org_id: ^registration.org_id)
     |> where(registration_id: ^registration.id)
+  end
+
+  defp filter_by_types(query, opts) do
+    case Keyword.get(opts, :types, :noop) do
+      :noop -> query
+      types -> where(query, [v], v.type in ^types)
+    end
+  end
+
+  defp filter_by_in_effect_on_date(query, opts) do
+    case Keyword.get(opts, :in_effect_on_date, :noop) do
+      :noop ->
+        query
+
+      date ->
+        query
+        |> where([v], v.start_date <= ^date)
+        |> where([v], is_nil(v.end_date) or v.end_date > ^date)
+    end
   end
 end
