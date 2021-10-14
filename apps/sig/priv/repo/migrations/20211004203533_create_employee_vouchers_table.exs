@@ -3,7 +3,13 @@ defmodule Sig.Repo.Migrations.CreateEmployeeVouchersTable do
   import EctoEnumMigration
 
   def change do
-    create_type(:employee_voucher_type, [:transport, :meal, :food, :employee_health_insurance, :employee_dependents_health_insurance])
+    create_type(:employee_voucher_type, [
+      :transport,
+      :meal,
+      :food,
+      :employee_health_insurance,
+      :employee_dependents_health_insurance
+    ])
 
     create table(:employee_vouchers) do
       add :org_id, references(:orgs), primary_key: true
@@ -18,13 +24,6 @@ defmodule Sig.Repo.Migrations.CreateEmployeeVouchersTable do
 
       timestamps()
     end
-
-    create unique_index(
-             :employee_vouchers,
-             [:type, :registration_id, :org_id],
-             where: "end_date IS NULL",
-             name: :employee_salaries_type_unique_when_end_date_null
-           )
 
     create constraint(
              :employee_vouchers,
