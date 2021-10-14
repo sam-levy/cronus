@@ -2,7 +2,7 @@ defmodule Sig.HR.Payslips.RecurringItemModels.RecurringItemModel do
   use Sig.Schema
 
   alias Sig.HR.Payslips.Categories.Category
-  alias Sig.HR.Registrations.Vouchers.Voucher.VoucherType
+  alias Sig.HR.Registrations.Benefits.Benefit.BenefitType
   alias Sig.Organizations.Org
 
   defenum(PercentageTarget, :payslip_recurring_item_model_percentage_target, [
@@ -19,7 +19,7 @@ defmodule Sig.HR.Payslips.RecurringItemModels.RecurringItemModel do
     field :amount, Money.Ecto.Amount.Type
     field :percentage, :integer
     field :percentage_target, PercentageTarget
-    field :employee_benefit_type_percentage_target, VoucherType
+    field :employee_benefit_type_percentage_target, BenefitType
 
     belongs_to :category, Category
 

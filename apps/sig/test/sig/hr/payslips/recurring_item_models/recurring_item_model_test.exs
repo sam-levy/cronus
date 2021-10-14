@@ -151,7 +151,7 @@ defmodule Sig.HR.Payslips.RecurringItemModels.RecurringItemModelTest do
         is_fixed_amount: false,
         percentage: 40,
         percentage_target: :employee_salary,
-        employee_benefit_type_percentage_target: :transport,
+        employee_benefit_type_percentage_target: :transportation_voucher,
         category_id: insert(:payslip_category).id
       }
 
@@ -206,7 +206,7 @@ defmodule Sig.HR.Payslips.RecurringItemModels.RecurringItemModelTest do
         category_id: UUID.generate(),
         percentage: 6,
         percentage_target: :employee_benefit,
-        employee_benefit_type_percentage_target: :transport
+        employee_benefit_type_percentage_target: :transportation_voucher
       }
 
       assert changeset = RecurringItemModel.create_changeset(attrs)
@@ -304,7 +304,7 @@ defmodule Sig.HR.Payslips.RecurringItemModels.RecurringItemModelTest do
         percentage_target: :employee_salary,
         category_id: UUID.generate(),
         amount: Enum.random(100_00..1_000_00),
-        employee_benefit_type_percentage_target: :transport
+        employee_benefit_type_percentage_target: :transportation_voucher
       }
 
       assert changeset = RecurringItemModel.create_changeset(attrs)
@@ -399,7 +399,7 @@ defmodule Sig.HR.Payslips.RecurringItemModels.RecurringItemModelTest do
         is_fixed_amount: false,
         percentage: 6,
         percentage_target: :employee_benefit,
-        employee_benefit_type_percentage_target: :transport,
+        employee_benefit_type_percentage_target: :transportation_voucher,
         category_id: UUID.generate()
       }
 
@@ -426,7 +426,7 @@ defmodule Sig.HR.Payslips.RecurringItemModels.RecurringItemModelTest do
         is_fixed_amount: false,
         percentage: 6,
         percentage_target: :employee_benefit,
-        employee_benefit_type_percentage_target: :transport,
+        employee_benefit_type_percentage_target: :transportation_voucher,
         category_id: UUID.generate(),
         amount: Enum.random(100_00..1_000_00)
       }
@@ -476,7 +476,7 @@ defmodule Sig.HR.Payslips.RecurringItemModels.RecurringItemModelTest do
         is_fixed_amount: false,
         percentage: 6,
         percentage_target: :employee_benefit,
-        employee_benefit_type_percentage_target: :transport,
+        employee_benefit_type_percentage_target: :transportation_voucher,
         category_id: category.id
       }
 

@@ -1,24 +1,24 @@
-defmodule Sig.Factories.VoucherFactory do
+defmodule Sig.Factories.EmployeeBenefitFactory do
   defmacro __using__(_opts \\ []) do
     quote do
-      alias Sig.HR.Registrations.Vouchers.Voucher
-      alias Sig.HR.Registrations.Vouchers.Voucher.VoucherType
+      alias Sig.HR.Registrations.Benefits.Benefit
+      alias Sig.HR.Registrations.Benefits.Benefit.BenefitType
 
-      def factory(:employee_voucher, attrs) do
+      def factory(:employee_benefit, attrs) do
         org = Keyword.get(attrs, :org, insert(:org))
         registration = Keyword.get(attrs, :registration, insert(:employee_registration, org: org))
 
-        %Voucher{
+        %Benefit{
           org: org,
           registration: registration,
-          type: random_enum_value(:employee_voucher_type),
+          type: random_enum_value(:employee_benefit_type),
           amount: Enum.random(400_00..600_00),
           start_date: Faker.Date.backward(100)
         }
       end
 
-      def random_enum_value(:employee_voucher_type) do
-        random_enum_value(VoucherType)
+      def random_enum_value(:employee_benefit_type) do
+        random_enum_value(BenefitType)
       end
     end
   end

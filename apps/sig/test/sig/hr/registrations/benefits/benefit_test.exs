@@ -1,102 +1,102 @@
-defmodule Sig.HR.Registrations.Vouchers.VoucherTest do
+defmodule Sig.HR.Registrations.Benefits.VoucherTest do
   use Sig.DataCase
 
-  alias Sig.HR.Registrations.Vouchers.Voucher
+  alias Sig.HR.Registrations.Benefits.Benefit
 
-  describe "employee_vouchers table constraints" do
+  describe "employee_benefits table constraints" do
     test "org_id not_null_violation" do
       registration = insert(:employee_registration)
 
-      voucher = %Voucher{
+      benefit = %Benefit{
         registration_id: registration.id,
-        type: random_enum_value(:employee_voucher_type),
+        type: random_enum_value(:employee_benefit_type),
         amount: Enum.random(400_00..600_00),
         start_date: Faker.Date.backward(100)
       }
 
       assert_raise Postgrex.Error,
-                   ~r/\(not_null_violation\) null value in column \"org_id\" of relation \"employee_vouchers\" violates not-null constraint/,
-                   fn -> Repo.insert(voucher) end
+                   ~r/\(not_null_violation\) null value in column \"org_id\" of relation \"employee_benefits\" violates not-null constraint/,
+                   fn -> Repo.insert(benefit) end
     end
 
     test "org_id foreign_key_constraint" do
       registration = insert(:employee_registration)
 
-      voucher = %Voucher{
+      benefit = %Benefit{
         org_id: UUID.generate(),
         registration_id: registration.id,
-        type: random_enum_value(:employee_voucher_type),
+        type: random_enum_value(:employee_benefit_type),
         amount: Enum.random(400_00..600_00),
         start_date: Faker.Date.backward(100)
       }
 
       assert_raise Ecto.ConstraintError,
-                   ~r/employee_vouchers_org_id_fkey \(foreign_key_constraint\)/,
-                   fn -> Repo.insert(voucher) end
+                   ~r/employee_benefits_org_id_fkey \(foreign_key_constraint\)/,
+                   fn -> Repo.insert(benefit) end
     end
 
     test "registration_id not_null_violation" do
       org = insert(:org)
 
-      voucher = %Voucher{
+      benefit = %Benefit{
         org_id: org.id,
-        type: random_enum_value(:employee_voucher_type),
+        type: random_enum_value(:employee_benefit_type),
         amount: Enum.random(400_00..600_00),
         start_date: Faker.Date.backward(100)
       }
 
       assert_raise Postgrex.Error,
-                   ~r/\(not_null_violation\) null value in column \"registration_id\" of relation \"employee_vouchers\" violates not-null constraint/,
-                   fn -> Repo.insert(voucher) end
+                   ~r/\(not_null_violation\) null value in column \"registration_id\" of relation \"employee_benefits\" violates not-null constraint/,
+                   fn -> Repo.insert(benefit) end
     end
 
     test "registration_id foreign_key_constraint" do
       org = insert(:org)
 
-      voucher = %Voucher{
+      benefit = %Benefit{
         org_id: org.id,
         registration_id: UUID.generate(),
-        type: random_enum_value(:employee_voucher_type),
+        type: random_enum_value(:employee_benefit_type),
         amount: Enum.random(400_00..600_00),
         start_date: Faker.Date.backward(100)
       }
 
       assert_raise Ecto.ConstraintError,
-                   ~r/employee_vouchers_registration_id_fkey \(foreign_key_constraint\)/,
-                   fn -> Repo.insert(voucher) end
+                   ~r/employee_benefits_registration_id_fkey \(foreign_key_constraint\)/,
+                   fn -> Repo.insert(benefit) end
     end
 
-    test "employee_vouchers_amount_greater_than_zero constraint" do
+    test "employee_benefits_amount_greater_than_zero constraint" do
       registration = insert(:employee_registration)
 
-      voucher = %Voucher{
+      benefit = %Benefit{
         org_id: registration.org_id,
         registration_id: registration.id,
-        type: random_enum_value(:employee_voucher_type),
+        type: random_enum_value(:employee_benefit_type),
         amount: -400_00,
         start_date: Faker.Date.backward(100)
       }
 
       assert_raise Ecto.ConstraintError,
-                   ~r/employee_vouchers_amount_greater_than_zero \(check_constraint\)/,
-                   fn -> Repo.insert(voucher) end
+                   ~r/employee_benefits_amount_greater_than_zero \(check_constraint\)/,
+                   fn -> Repo.insert(benefit) end
     end
 
-    test "employee_vouchers_start_date_before_end_date constraint" do
+    test "employee_benefits_start_date_before_end_date constraint" do
       registration = insert(:employee_registration)
 
-      voucher = %Voucher{
+      benefit = %Benefit{
         org_id: registration.org_id,
         registration_id: registration.id,
-        type: random_enum_value(:employee_voucher_type),
+        type: random_enum_value(:employee_benefit_type),
         amount: Enum.random(400_00..600_00),
         start_date: ~D[2021-01-01],
         end_date: ~D[2020-01-01]
       }
 
       assert_raise Ecto.ConstraintError,
-                   ~r/employee_vouchers_start_date_before_end_date \(check_constraint\)/,
-                   fn -> Repo.insert(voucher) end
+                   ~r/employee_benefits_start_date_before_end_date \(check_constraint\)/,
+                   fn -> Repo.insert(benefit) end
     end
   end
 
@@ -105,12 +105,12 @@ defmodule Sig.HR.Registrations.Vouchers.VoucherTest do
       attrs = %{
         org_id: UUID.generate(),
         registration_id: UUID.generate(),
-        type: random_enum_value(:employee_voucher_type),
+        type: random_enum_value(:employee_benefit_type),
         amount: 500_00,
         start_date: Faker.Date.backward(100)
       }
 
-      assert changeset = Voucher.create_changeset(attrs)
+      assert changeset = Benefit.create_changeset(attrs)
 
       assert changeset.valid?
 
@@ -124,7 +124,7 @@ defmodule Sig.HR.Registrations.Vouchers.VoucherTest do
     end
 
     test "missing required attrs" do
-      assert changeset = Voucher.create_changeset(%{})
+      assert changeset = Benefit.create_changeset(%{})
 
       refute changeset.valid?
 
@@ -146,7 +146,7 @@ defmodule Sig.HR.Registrations.Vouchers.VoucherTest do
         start_date: :invalid
       }
 
-      assert changeset = Voucher.create_changeset(attrs)
+      assert changeset = Benefit.create_changeset(attrs)
 
       refute changeset.valid?
 
@@ -163,13 +163,13 @@ defmodule Sig.HR.Registrations.Vouchers.VoucherTest do
       attrs = %{
         org_id: UUID.generate(),
         registration_id: UUID.generate(),
-        type: random_enum_value(:employee_voucher_type),
+        type: random_enum_value(:employee_benefit_type),
         amount: 500_00,
         start_date: Faker.Date.backward(100),
         end_date: Faker.Date.backward(1)
       }
 
-      assert changeset = Voucher.create_changeset(attrs)
+      assert changeset = Benefit.create_changeset(attrs)
 
       assert changeset.valid?
 
@@ -186,12 +186,12 @@ defmodule Sig.HR.Registrations.Vouchers.VoucherTest do
       attrs = %{
         org_id: UUID.generate(),
         registration_id: UUID.generate(),
-        type: random_enum_value(:employee_voucher_type),
+        type: random_enum_value(:employee_benefit_type),
         amount: -500_00,
         start_date: Faker.Date.backward(100)
       }
 
-      assert changeset = Voucher.create_changeset(attrs)
+      assert changeset = Benefit.create_changeset(attrs)
 
       refute changeset.valid?
 
@@ -201,13 +201,13 @@ defmodule Sig.HR.Registrations.Vouchers.VoucherTest do
 
   describe "update_changeset/2" do
     test "valid attrs" do
-      voucher = insert(:employee_voucher, start_date: ~D[2020-01-01], end_date: nil)
+      benefit = insert(:employee_benefit, start_date: ~D[2020-01-01], end_date: nil)
 
       attrs = %{
         end_date: ~D[2021-01-01]
       }
 
-      assert changeset = Voucher.update_changeset(voucher, attrs)
+      assert changeset = Benefit.update_changeset(benefit, attrs)
 
       assert changeset.valid?
 
@@ -217,9 +217,9 @@ defmodule Sig.HR.Registrations.Vouchers.VoucherTest do
     end
 
     test "missing required attrs" do
-      voucher = insert(:employee_voucher, start_date: ~D[2020-01-01], end_date: nil)
+      benefit = insert(:employee_benefit, start_date: ~D[2020-01-01], end_date: nil)
 
-      assert changeset = Voucher.update_changeset(voucher, %{})
+      assert changeset = Benefit.update_changeset(benefit, %{})
 
       refute changeset.valid?
 
@@ -227,13 +227,13 @@ defmodule Sig.HR.Registrations.Vouchers.VoucherTest do
     end
 
     test "invalid attrs" do
-      voucher = insert(:employee_voucher, start_date: ~D[2020-01-01], end_date: nil)
+      benefit = insert(:employee_benefit, start_date: ~D[2020-01-01], end_date: nil)
 
       attrs = %{
         end_date: :invalid
       }
 
-      assert changeset = Voucher.update_changeset(voucher, attrs)
+      assert changeset = Benefit.update_changeset(benefit, attrs)
 
       refute changeset.valid?
 
@@ -241,18 +241,18 @@ defmodule Sig.HR.Registrations.Vouchers.VoucherTest do
     end
 
     test "ignores non permitted attrs" do
-      voucher = insert(:employee_voucher, start_date: ~D[2020-01-01], end_date: nil)
+      benefit = insert(:employee_benefit, start_date: ~D[2020-01-01], end_date: nil)
 
       attrs = %{
         org_id: UUID.generate(),
         registration_id: UUID.generate(),
-        type: random_enum_value(:employee_voucher_type),
+        type: random_enum_value(:employee_benefit_type),
         amount: 500_00,
         start_date: ~D[2020-02-01],
         end_date: ~D[2021-01-01]
       }
 
-      assert changeset = Voucher.update_changeset(voucher, attrs)
+      assert changeset = Benefit.update_changeset(benefit, attrs)
 
       assert changeset.valid?
 
@@ -262,13 +262,13 @@ defmodule Sig.HR.Registrations.Vouchers.VoucherTest do
     end
 
     test "end_date before start_date" do
-      voucher = insert(:employee_voucher, start_date: ~D[2020-01-01], end_date: nil)
+      benefit = insert(:employee_benefit, start_date: ~D[2020-01-01], end_date: nil)
 
       attrs = %{
         end_date: ~D[2019-01-01]
       }
 
-      assert changeset = Voucher.update_changeset(voucher, attrs)
+      assert changeset = Benefit.update_changeset(benefit, attrs)
 
       refute changeset.valid?
 
@@ -278,13 +278,13 @@ defmodule Sig.HR.Registrations.Vouchers.VoucherTest do
     end
 
     test "end_date equal to start_date" do
-      voucher = insert(:employee_voucher, start_date: ~D[2020-01-01], end_date: nil)
+      benefit = insert(:employee_benefit, start_date: ~D[2020-01-01], end_date: nil)
 
       attrs = %{
         end_date: ~D[2020-01-01]
       }
 
-      assert changeset = Voucher.update_changeset(voucher, attrs)
+      assert changeset = Benefit.update_changeset(benefit, attrs)
 
       refute changeset.valid?
 

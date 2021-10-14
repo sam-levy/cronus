@@ -1,8 +1,8 @@
-defmodule Sig.HR.Registrations.Vouchers.Create do
+defmodule Sig.HR.Registrations.Benefits.Create do
   import Ecto.Query
 
   alias Sig.HR.Registrations.Registration
-  alias Sig.HR.Registrations.Vouchers.Voucher
+  alias Sig.HR.Registrations.Benefits.Benefit
   alias Sig.Repo
 
   defmodule Context do
@@ -11,46 +11,46 @@ defmodule Sig.HR.Registrations.Vouchers.Create do
 
   def call(%Registration{} = registration, %{} = attrs) do
     %Context{attrs: attrs, registration: registration}
-    |> build_voucher_changeset()
-    |> verify_existing_voucher()
-    |> create_voucher()
+    |> build_benefit_changeset()
+    |> verify_existing_benefit()
+    |> create_benefit()
     |> handle_result()
   end
 
-  defp build_voucher_changeset(context) do
+  defp build_benefit_changeset(context) do
     %{registration: registration, attrs: attrs} = context
 
     attrs
     |> Map.put(:org_id, registration.org_id)
     |> Map.put(:registration_id, registration.id)
-    |> Voucher.create_changeset()
+    |> Benefit.create_changeset()
     |> case do
       %{valid?: true} = changeset -> %{context | changeset: changeset}
       changeset -> put_error(context, changeset)
     end
   end
 
-  defp verify_existing_voucher(%{status: :ok} = context) do
+  defp verify_existing_benefit(%{status: :ok} = context) do
     %{attrs: %{type: type, start_date: start_date}, registration: registration} = context
 
-    Voucher
+    Benefit
     |> where(org_id: ^registration.org_id)
     |> where(registration_id: ^registration.id)
     |> where(type: ^type)
     |> last(:start_date)
     |> Repo.one()
-    |> do_verify_existing_voucher(start_date, context)
+    |> do_verify_existing_benefit(start_date, context)
   end
 
-  defp verify_existing_voucher(context), do: context
+  defp verify_existing_benefit(context), do: context
 
-  defp do_verify_existing_voucher(nil, _start_date, context), do: context
+  defp do_verify_existing_benefit(nil, _start_date, context), do: context
 
-  defp do_verify_existing_voucher(%{end_date: nil}, _start_date, context) do
+  defp do_verify_existing_benefit(%{end_date: nil}, _start_date, context) do
     put_error(context, "existe um vale do mesmo tipo em vigência")
   end
 
-  defp do_verify_existing_voucher(%{end_date: last_end_date}, start_date, context) do
+  defp do_verify_existing_benefit(%{end_date: last_end_date}, start_date, context) do
     if Date.compare(start_date, last_end_date) == :lt do
       put_error(
         context,
@@ -61,17 +61,17 @@ defmodule Sig.HR.Registrations.Vouchers.Create do
     end
   end
 
-  defp create_voucher(%{status: :ok} = context) do
+  defp create_benefit(%{status: :ok} = context) do
     case Repo.insert(context.changeset) do
-      {:ok, voucher} -> %{context | result: voucher}
+      {:ok, benefit} -> %{context | result: benefit}
       {:error, changeset} -> put_error(context, changeset)
     end
   end
 
-  defp create_voucher(context), do: context
+  defp create_benefit(context), do: context
 
   defp put_error(context, error), do: %{context | status: {:error, error}}
 
   defp handle_result(%{status: {:error, error}}), do: {:error, error}
-  defp handle_result(%{result: voucher}), do: {:ok, voucher}
+  defp handle_result(%{result: benefit}), do: {:ok, benefit}
 end

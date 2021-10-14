@@ -3,7 +3,7 @@ defmodule Sig.HR do
   alias Sig.HR.Payslips.RecurringItemModels
   alias Sig.HR.Registrations
   alias Sig.HR.Registrations.Salaries
-  alias Sig.HR.Registrations.Vouchers
+  alias Sig.HR.Registrations.Benefits
   alias Sig.HR.Registrations.Warnings
   alias Sig.HR.Registrations.Suspensions
   alias Sig.HR.Registrations.LeavePeriods
@@ -36,15 +36,15 @@ defmodule Sig.HR do
   defdelegate broadcast_registration_salaries(registration), to: Salaries
   defdelegate create_salary_change(attrs \\ %{}), to: Salaries, as: :create_change
 
-  defdelegate list_vouchers_by_registration(registration), to: Vouchers, as: :list_by_registration
-  defdelegate list_voucher_types, to: Vouchers
-  defdelegate get_voucher(registration, id), to: Vouchers, as: :get
-  defdelegate create_voucher(registration, attrs), to: Vouchers, as: :create
-  defdelegate update_voucher(voucher, attrs), to: Vouchers, as: :update
-  defdelegate subscribe_to_registration_vouchers(registration), to: Vouchers
-  defdelegate broadcast_registration_vouchers(registration), to: Vouchers
-  defdelegate create_voucher_change(attrs \\ %{}), to: Vouchers, as: :create_change
-  defdelegate update_voucher_change(voucher, attrs \\ %{}), to: Vouchers, as: :update_change
+  defdelegate list_benefits_by_registration(registration), to: Benefits, as: :list_by_registration
+  defdelegate list_benefit_types, to: Benefits
+  defdelegate get_benefit(registration, id), to: Benefits, as: :get
+  defdelegate create_benefit(registration, attrs), to: Benefits, as: :create
+  defdelegate update_benefit(benefit, attrs), to: Benefits, as: :update
+  defdelegate subscribe_to_registration_benefits(registration), to: Benefits
+  defdelegate broadcast_registration_benefits(registration), to: Benefits
+  defdelegate create_benefit_change(attrs \\ %{}), to: Benefits, as: :create_change
+  defdelegate update_benefit_change(benefit, attrs \\ %{}), to: Benefits, as: :update_change
 
   defdelegate list_warnings_by_registration(registration), to: Warnings, as: :list_by_registration
   defdelegate get_warning(registration, id), to: Warnings, as: :get

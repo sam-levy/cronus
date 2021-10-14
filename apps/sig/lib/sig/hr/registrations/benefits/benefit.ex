@@ -1,16 +1,22 @@
-defmodule Sig.HR.Registrations.Vouchers.Voucher do
+defmodule Sig.HR.Registrations.Benefits.Benefit do
   use Sig.Schema
 
   alias Sig.HR.Registrations.Registration
   alias Sig.Organizations.Org
 
-  defenum(VoucherType, :employee_voucher_type, [:transport, :meal, :food, :employee_health_insurance, :employee_dependents_health_insurance])
+  defenum(BenefitType, :employee_benefit_type, [
+    :meal_voucher,
+    :food_voucher,
+    :transportation_voucher,
+    :employee_health_insurance,
+    :employee_dependents_health_insurance
+  ])
 
-  schema "employee_vouchers" do
+  schema "employee_benefits" do
     belongs_to :org, Org, primary_key: true
     belongs_to :registration, Registration, primary_key: true
 
-    field :type, VoucherType
+    field :type, BenefitType
     field :amount, Money.Ecto.Amount.Type
     field :start_date, :date
     field :end_date, :date

@@ -88,7 +88,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
 
       # payslip_item_model employee_benefit
 
-      insert(:employee_voucher,
+      insert(:employee_benefit,
         org: org,
         registration: registration,
         type: :employee_health_insurance,
@@ -355,7 +355,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
       org = insert(:org)
       registration = insert(:employee_registration, org: org)
 
-      insert(:employee_voucher,
+      insert(:employee_benefit,
         org: org,
         registration: registration,
         type: :employee_health_insurance,
@@ -402,7 +402,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
       org = insert(:org)
       registration = insert(:employee_registration, org: org)
 
-      insert(:employee_voucher,
+      insert(:employee_benefit,
         org: org,
         registration: registration,
         type: :employee_health_insurance,
@@ -411,7 +411,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
         end_date: ~D[2020-06-01]
       )
 
-      insert(:employee_voucher,
+      insert(:employee_benefit,
         org: org,
         registration: registration,
         type: :employee_health_insurance,

@@ -1,29 +1,29 @@
-defmodule SigLive.EmployeeRegistrations.Vouchers.List do
+defmodule SigLive.EmployeeRegistrations.Benefits.List do
   use SigLive, :surface_live_component
 
   alias SigLive.Components.ButtonPlus
   alias SigLive.Components.DropdownOpts
-  alias SigLive.EmployeeRegistrations.Vouchers.Form
+  alias SigLive.EmployeeRegistrations.Benefits.Form
 
   prop registration, :struct, required: true
-  prop vouchers, :list, required: true
+  prop benefits, :list, required: true
 
   data form_state, :atom, default: :closed, values!: Form.states()
-  data voucher_id, :string, default: nil
+  data benefit_id, :string, default: nil
 
   @impl true
-  def handle_event("open_new_voucher_form", _, socket) do
+  def handle_event("open_new_benefit_form", _, socket) do
     {:noreply, assign(socket, form_state: :new_mode)}
   end
 
   @impl true
-  def handle_event("open_edit_voucher_form", %{"voucher-id" => id}, socket) do
-    {:noreply, assign(socket, form_state: :edit_mode, voucher_id: id)}
+  def handle_event("open_edit_benefit_form", %{"benefit-id" => id}, socket) do
+    {:noreply, assign(socket, form_state: :edit_mode, benefit_id: id)}
   end
 
   @impl true
-  def handle_event("open_show_voucher_form", %{"voucher-id" => id}, socket) do
-    {:noreply, assign(socket, form_state: :show_mode, voucher_id: id)}
+  def handle_event("open_show_benefit_form", %{"benefit-id" => id}, socket) do
+    {:noreply, assign(socket, form_state: :show_mode, benefit_id: id)}
   end
 
   @impl true
@@ -37,12 +37,12 @@ defmodule SigLive.EmployeeRegistrations.Vouchers.List do
     <div>
       <Form
         :if={@form_state != :closed}
-        id="voucher_form"
+        id="benefit_form"
         close_event="close_form"
         close_fun={fn -> close_form(@id) end}
         {=@form_state}
         {=@registration}
-        {=@voucher_id}
+        {=@benefit_id}
       />
 
       <table class="w-full bg-white shadow-lg my-7">
@@ -54,13 +54,13 @@ defmodule SigLive.EmployeeRegistrations.Vouchers.List do
                   Benefícios
                 </span>
 
-                <ButtonPlus value="Adicionar" on_click="open_new_voucher_form"/>
+                <ButtonPlus value="Adicionar" on_click="open_new_benefit_form"/>
               </div>
             </th>
           </tr>
 
           <tr
-            :if={@vouchers != []}
+            :if={@benefits != []}
             class="bg-gray-50 uppercase text-xs font-medium text-gray-500 tracking-wider"
           >
             <th class="py-3 px-6 text-left">Tipo</th>
@@ -72,32 +72,32 @@ defmodule SigLive.EmployeeRegistrations.Vouchers.List do
         </thead>
 
         <tbody class="text-gray-600 text-sm font-light">
-          {#for voucher <- @vouchers}
+          {#for benefit <- @benefits}
             <tr class="border-b border-gray-200 hover:bg-gray-50">
               <td
-                :on-click="open_show_voucher_form"
-                phx-value-voucher_id={voucher.id}
+                :on-click="open_show_benefit_form"
+                phx-value-benefit_id={benefit.id}
                 class="py-3 pl-6 text-left cursor-pointer hover:underline"
               >
-                {voucher.type}
+                {benefit.type}
               </td>
 
               <td class="py-3 pl-6 text-right">
-                {format_amount(voucher.amount)}
+                {format_amount(benefit.amount)}
               </td>
 
               <td class="py-3 pl-6 text-right">
-                {format_date(voucher.start_date)}
+                {format_date(benefit.start_date)}
               </td>
 
               <td class="py-3 pl-6 text-right">
-                {format_date(voucher.end_date)}
+                {format_date(benefit.end_date)}
               </td>
 
               <td class="pr-5 text-right">
-                <span :if={is_nil(voucher.end_date)}>
+                <span :if={is_nil(benefit.end_date)}>
                   <DropdownOpts>
-                    <a :on-click="open_edit_voucher_form" phx-value-voucher_id={voucher.id} class="dropdown-item">Finalizar Benefício</a>
+                    <a :on-click="open_edit_benefit_form" phx-value-benefit_id={benefit.id} class="dropdown-item">Finalizar Benefício</a>
                   </DropdownOpts>
                 </span>
               </td>
@@ -111,6 +111,6 @@ defmodule SigLive.EmployeeRegistrations.Vouchers.List do
 
   def close_form(id), do: send_update(__MODULE__, closed_state(id))
 
-  defp closed_state, do: [form_state: :closed, voucher_id: nil]
+  defp closed_state, do: [form_state: :closed, benefit_id: nil]
   defp closed_state(id), do: closed_state() ++ [id: id]
 end

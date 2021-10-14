@@ -17,7 +17,7 @@ defmodule Sig.Repo.Migrations.CreatePayslipRecurringItemModelsTable do
       add :amount, :integer
       add :percentage, :integer
       add :percentage_target, :payslip_recurring_item_model_percentage_target
-      add :employee_benefit_type_percentage_target, :employee_voucher_type
+      add :employee_benefit_type_percentage_target, :employee_benefit_type
 
       add :category_id, references(:payslip_categories, with: [org_id: :org_id])
 

@@ -4,7 +4,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistration do
   alias Sig.HR.Registrations.RecurringPayslipItems.RecurringPayslipItem
   alias Sig.HR.Registrations.Registration
   alias Sig.HR.Registrations.Salaries
-  alias Sig.HR.Registrations.Vouchers
+  alias Sig.HR.Registrations.Benefits
   alias Sig.Repo
 
   defmodule Context do
@@ -119,7 +119,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistration do
 
   defp handle_benefits(%{indexed_benefits: indexed_benefits} = context) do
     benefits =
-      Vouchers.list_by_registration(context.registration,
+      Benefits.list_by_registration(context.registration,
         types: Map.keys(indexed_benefits),
         in_effect_on_date: context.start_date
       )

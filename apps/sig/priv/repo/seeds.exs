@@ -213,7 +213,7 @@ in_advance_payments_category = Repo.insert!(%Category{
   entry_type: :debit
 })
 
-transport_voucher_discount_category = Repo.insert!(%Category{
+transportation_voucher_discount_category = Repo.insert!(%Category{
   org_id: main_org.id,
   code: "109",
   description: "DESC. VALE TRANSPORTE",
@@ -266,12 +266,12 @@ Repo.insert!(%RecurringItemModel{
 
 Repo.insert!(%RecurringItemModel{
   org_id: main_org.id,
-  category_id: transport_voucher_discount_category.id,
+  category_id: transportation_voucher_discount_category.id,
   description: "Desconto de vale transporte",
   is_fixed_amount: false,
   percentage: 6,
   percentage_target: :employee_benefit,
-  employee_benefit_type_percentage_target: :transport
+  employee_benefit_type_percentage_target: :transportation_voucher
 })
 
 Repo.insert!(%RecurringItemModel{

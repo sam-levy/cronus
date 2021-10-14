@@ -1,4 +1,4 @@
-defmodule SigLive.EmployeeRegistrations.Vouchers.Form do
+defmodule SigLive.EmployeeRegistrations.Benefits.Form do
   use SigLive, :surface_live_component
 
   alias Sig.HR
@@ -23,28 +23,28 @@ defmodule SigLive.EmployeeRegistrations.Vouchers.Form do
   prop close_fun, :fun, required: true
   prop form_state, :atom, required: true, values!: @form_states
   prop registration, :struct, required: true
-  prop voucher_id, :string, default: nil
+  prop benefit_id, :string, default: nil
 
   data message, :string, default: nil
 
   @impl true
   def update(assigns, socket) do
-    %{registration: registration, voucher_id: voucher_id} = assigns
-    voucher = get_voucher(registration, voucher_id)
+    %{registration: registration, benefit_id: benefit_id} = assigns
+    benefit = get_benefit(registration, benefit_id)
 
     socket =
       socket
       |> assign(assigns)
       |> assign(
-        voucher: voucher,
-        changeset: set_changeset(voucher)
+        benefit: benefit,
+        changeset: set_changeset(benefit)
       )
 
     {:ok, socket}
   end
 
   @impl true
-  def handle_event("save", %{"voucher" => params}, socket) do
+  def handle_event("save", %{"benefit" => params}, socket) do
     %{params: params, form_state: socket.assigns.form_state, socket: socket}
     |> validate_params()
     |> persist()
@@ -66,7 +66,7 @@ defmodule SigLive.EmployeeRegistrations.Vouchers.Form do
           <Label class="form-label">Benefício</Label>
           <Select
             prompt=""
-            options={HR.list_voucher_types}
+            options={HR.list_benefit_types}
             {...props_for(:type, @form_state)}
           />
           <ErrorTag class="form-error-tag"/>
@@ -75,7 +75,7 @@ defmodule SigLive.EmployeeRegistrations.Vouchers.Form do
         <Field name={:amount} :if={@form_state != :edit_mode} class="form-field">
           <Label class="form-label">Valor</Label>
           <TextInput
-            value={format_voucher_amount(@changeset)}
+            value={format_benefit_amount(@changeset)}
             {...props_for(:amount, @form_state)}
           />
           <ErrorTag class="form-error-tag"/>
@@ -99,18 +99,18 @@ defmodule SigLive.EmployeeRegistrations.Vouchers.Form do
 
   def states, do: @form_states
 
-  defp get_voucher(_registration, nil), do: nil
-  defp get_voucher(registration, voucher_id), do: HR.get_voucher(registration, voucher_id)
+  defp get_benefit(_registration, nil), do: nil
+  defp get_benefit(registration, benefit_id), do: HR.get_benefit(registration, benefit_id)
 
-  defp set_changeset(nil), do: HR.create_voucher_change()
-  defp set_changeset(voucher), do: HR.update_voucher_change(voucher)
+  defp set_changeset(nil), do: HR.create_benefit_change()
+  defp set_changeset(benefit), do: HR.update_benefit_change(benefit)
 
   defp validate_params(%{form_state: :new_mode} = context) do
     changeset =
       context.params
       |> Map.put("org_id", "org_id")
       |> Map.put("registration_id", "registration_id")
-      |> HR.create_voucher_change()
+      |> HR.create_benefit_change()
 
     case apply_action(changeset, :insert) do
       {:error, changeset} -> Map.put(context, :validation, {:error, changeset})
@@ -119,8 +119,8 @@ defmodule SigLive.EmployeeRegistrations.Vouchers.Form do
   end
 
   defp validate_params(%{form_state: :edit_mode} = context) do
-    %{voucher: voucher} = context.socket.assigns
-    changeset = HR.update_voucher_change(voucher, context.params)
+    %{benefit: benefit} = context.socket.assigns
+    changeset = HR.update_benefit_change(benefit, context.params)
 
     case apply_action(changeset, :update) do
       {:error, changeset} -> Map.put(context, :validation, {:error, changeset})
@@ -133,13 +133,13 @@ defmodule SigLive.EmployeeRegistrations.Vouchers.Form do
   defp persist(%{validation: {:ok, changeset}, form_state: :new_mode} = context) do
     %{registration: registration} = context.socket.assigns
 
-    Map.put(context, :return, HR.create_voucher(registration, changeset.changes))
+    Map.put(context, :return, HR.create_benefit(registration, changeset.changes))
   end
 
   defp persist(%{validation: {:ok, changeset}, form_state: :edit_mode} = context) do
-    %{voucher: voucher} = context.socket.assigns
+    %{benefit: benefit} = context.socket.assigns
 
-    Map.put(context, :return, HR.update_voucher(voucher, changeset.changes))
+    Map.put(context, :return, HR.update_benefit(benefit, changeset.changes))
   end
 
   defp handle_return(%{validation: {:error, changeset}, socket: socket}) do
@@ -156,10 +156,10 @@ defmodule SigLive.EmployeeRegistrations.Vouchers.Form do
     {:noreply, assign(context.socket, message: nil, changeset: changeset)}
   end
 
-  defp handle_return(%{return: {:ok, _voucher}, socket: socket}) do
+  defp handle_return(%{return: {:ok, _benefit}, socket: socket}) do
     %{registration: registration, form_state: form_state, close_fun: close_fun} = socket.assigns
 
-    HR.broadcast_registration_vouchers(registration)
+    HR.broadcast_registration_benefits(registration)
     HR.broadcast_registration_recurring_payslip_items(registration)
 
     handle_flash(form_state)
@@ -168,8 +168,8 @@ defmodule SigLive.EmployeeRegistrations.Vouchers.Form do
     {:noreply, socket}
   end
 
-  defp format_voucher_amount(%{changes: %{amount: amount}}), do: format_amount(amount)
-  defp format_voucher_amount(_), do: ""
+  defp format_benefit_amount(%{changes: %{amount: amount}}), do: format_amount(amount)
+  defp format_benefit_amount(_), do: ""
 
   defp handle_flash(:new_mode), do: send(self(), {:flash, :info, "Benefício criado"})
   defp handle_flash(:edit_mode), do: send(self(), {:flash, :info, "Benefício alterado"})

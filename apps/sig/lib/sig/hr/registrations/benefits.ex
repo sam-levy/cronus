@@ -1,21 +1,21 @@
-defmodule Sig.HR.Registrations.Vouchers do
+defmodule Sig.HR.Registrations.Benefits do
   import Ecto.Query
 
   alias Sig.HR.Registrations.Registration
-  alias Sig.HR.Registrations.Vouchers.Create
-  alias Sig.HR.Registrations.Vouchers.Voucher
+  alias Sig.HR.Registrations.Benefits.Create
+  alias Sig.HR.Registrations.Benefits.Benefit
   alias Sig.Repo
 
   defdelegate create(registration, attrs), to: Create, as: :call
 
-  def create_change(%{} = attrs \\ %{}), do: Voucher.create_changeset(attrs)
+  def create_change(%{} = attrs \\ %{}), do: Benefit.create_changeset(attrs)
 
-  def update_change(%Voucher{} = voucher, %{} = attrs \\ %{}) do
-    Voucher.update_changeset(voucher, attrs)
+  def update_change(%Benefit{} = benefit, %{} = attrs \\ %{}) do
+    Benefit.update_changeset(benefit, attrs)
   end
 
-  def list_voucher_types do
-    Voucher.VoucherType.__valid_values__() |> Enum.filter(&is_binary/1)
+  def list_benefit_types do
+    Benefit.BenefitType.__valid_values__() |> Enum.filter(&is_binary/1)
   end
 
   def get(%Registration{} = registration, id) when is_binary(id) do
@@ -34,30 +34,30 @@ defmodule Sig.HR.Registrations.Vouchers do
     |> Repo.all()
   end
 
-  def update(%Voucher{} = voucher, %{} = attrs) do
-    voucher
-    |> Voucher.update_changeset(attrs)
+  def update(%Benefit{} = benefit, %{} = attrs) do
+    benefit
+    |> Benefit.update_changeset(attrs)
     |> Repo.update()
   end
 
-  def subscribe_to_registration_vouchers(%Registration{} = registration) do
+  def subscribe_to_registration_benefits(%Registration{} = registration) do
     Phoenix.PubSub.subscribe(Sig.PubSub, topic(registration))
   end
 
-  def broadcast_registration_vouchers(%Registration{} = registration) do
+  def broadcast_registration_benefits(%Registration{} = registration) do
     Phoenix.PubSub.broadcast(
       Sig.PubSub,
       topic(registration),
-      {:updated_registration_vouchers, list_by_registration(registration)}
+      {:updated_registration_benefits, list_by_registration(registration)}
     )
   end
 
   defp topic(%Registration{} = registration) do
-    "registration_id:" <> registration.id <> ":vouchers"
+    "registration_id:" <> registration.id <> ":benefits"
   end
 
   defp query_by_registration(registration) do
-    Voucher
+    Benefit
     |> where(org_id: ^registration.org_id)
     |> where(registration_id: ^registration.id)
   end
