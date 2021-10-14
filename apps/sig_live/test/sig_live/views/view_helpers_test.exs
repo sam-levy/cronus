@@ -79,9 +79,9 @@ defmodule SigLive.ViewHelpersTest do
       list = [:first_item, :second_item]
 
       assert ViewHelpers.list_for_select(list) == %{
-        "first item" => "first_item",
-        "second item" => "second_item"
-      }
+               "first item" => "first_item",
+               "second item" => "second_item"
+             }
     end
   end
 
@@ -149,6 +149,10 @@ defmodule SigLive.ViewHelpersTest do
 
   describe "format_amount/1" do
     test "formats amount" do
+      assert ViewHelpers.format_amount(%Ecto.Changeset{
+               changes: %{amount: %Money{amount: 2_000_00}}
+             }) == "2.000,00"
+
       assert ViewHelpers.format_amount(%Money{amount: 1_500_00}) == "1.500,00"
       assert ViewHelpers.format_amount(nil) == ""
     end
