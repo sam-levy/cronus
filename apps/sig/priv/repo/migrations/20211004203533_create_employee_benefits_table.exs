@@ -20,6 +20,7 @@ defmodule Sig.Repo.Migrations.CreateEmployeeBenefitsTable do
       add :description, :string
       add :type, :employee_benefit_type, null: false
       add :amount, :integer, null: false
+      add :is_for_dependent, :boolean, null: false, default: false
       add :start_date, :date, null: false
       add :end_date, :date
 

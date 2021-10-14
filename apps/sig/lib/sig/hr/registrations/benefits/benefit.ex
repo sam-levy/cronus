@@ -19,13 +19,21 @@ defmodule Sig.HR.Registrations.Benefits.Benefit do
     field :description, :string
     field :type, BenefitType
     field :amount, Money.Ecto.Amount.Type
+    field :is_for_dependent, :boolean
     field :start_date, :date
     field :end_date, :date
 
     timestamps()
   end
 
-  @create_required_fields [:org_id, :registration_id, :type, :amount, :start_date]
+  @create_required_fields [
+    :org_id,
+    :registration_id,
+    :type,
+    :amount,
+    :is_for_dependent,
+    :start_date
+  ]
 
   def create_changeset(attrs) do
     %__MODULE__{}

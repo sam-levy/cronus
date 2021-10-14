@@ -12,6 +12,7 @@ defmodule Sig.HR.Registrations.Benefits.VoucherTest do
         description: Faker.Lorem.sentence(),
         type: random_enum_value(:employee_benefit_type),
         amount: Enum.random(400_00..600_00),
+        is_for_dependent: Enum.random([true, false]),
         start_date: Faker.Date.backward(100)
       }
 
@@ -29,6 +30,7 @@ defmodule Sig.HR.Registrations.Benefits.VoucherTest do
         description: Faker.Lorem.sentence(),
         type: random_enum_value(:employee_benefit_type),
         amount: Enum.random(400_00..600_00),
+        is_for_dependent: Enum.random([true, false]),
         start_date: Faker.Date.backward(100)
       }
 
@@ -45,6 +47,7 @@ defmodule Sig.HR.Registrations.Benefits.VoucherTest do
         description: Faker.Lorem.sentence(),
         type: random_enum_value(:employee_benefit_type),
         amount: Enum.random(400_00..600_00),
+        is_for_dependent: Enum.random([true, false]),
         start_date: Faker.Date.backward(100)
       }
 
@@ -62,6 +65,7 @@ defmodule Sig.HR.Registrations.Benefits.VoucherTest do
         description: Faker.Lorem.sentence(),
         type: random_enum_value(:employee_benefit_type),
         amount: Enum.random(400_00..600_00),
+        is_for_dependent: Enum.random([true, false]),
         start_date: Faker.Date.backward(100)
       }
 
@@ -78,7 +82,8 @@ defmodule Sig.HR.Registrations.Benefits.VoucherTest do
         registration_id: registration.id,
         description: Faker.Lorem.sentence(),
         type: random_enum_value(:employee_benefit_type),
-        amount: -400_00,
+        amount: -1,
+        is_for_dependent: Enum.random([true, false]),
         start_date: Faker.Date.backward(100)
       }
 
@@ -96,6 +101,7 @@ defmodule Sig.HR.Registrations.Benefits.VoucherTest do
         description: Faker.Lorem.sentence(),
         type: random_enum_value(:employee_benefit_type),
         amount: Enum.random(400_00..600_00),
+        is_for_dependent: Enum.random([true, false]),
         start_date: ~D[2021-01-01],
         end_date: ~D[2020-01-01]
       }
@@ -113,7 +119,8 @@ defmodule Sig.HR.Registrations.Benefits.VoucherTest do
         registration_id: UUID.generate(),
         description: Faker.Lorem.sentence(),
         type: random_enum_value(:employee_benefit_type),
-        amount: 500_00,
+        amount: Enum.random(400_00..600_00),
+        is_for_dependent: Enum.random([true, false]),
         start_date: Faker.Date.backward(100)
       }
 
@@ -127,6 +134,7 @@ defmodule Sig.HR.Registrations.Benefits.VoucherTest do
         description: attrs[:description],
         type: attrs[:type],
         amount: %Money{amount: attrs[:amount], currency: :BRL},
+        is_for_dependent: attrs[:is_for_dependent],
         start_date: attrs[:start_date],
       }
     end
@@ -140,6 +148,7 @@ defmodule Sig.HR.Registrations.Benefits.VoucherTest do
         amount: ["can't be blank"],
         org_id: ["can't be blank"],
         registration_id: ["can't be blank"],
+        is_for_dependent: ["can't be blank"],
         start_date: ["can't be blank"],
         type: ["can't be blank"]
       }
@@ -151,6 +160,7 @@ defmodule Sig.HR.Registrations.Benefits.VoucherTest do
         registration_id: :invalid,
         type: :invalid,
         amount: :invalid,
+        is_for_dependent: :invalid,
         start_date: :invalid
       }
 
@@ -159,11 +169,12 @@ defmodule Sig.HR.Registrations.Benefits.VoucherTest do
       refute changeset.valid?
 
       assert errors_on(changeset) == %{
-        amount: ["is invalid"],
         org_id: ["is invalid"],
         registration_id: ["is invalid"],
-        start_date: ["is invalid"],
-        type: ["is invalid"]
+        type: ["is invalid"],
+        amount: ["is invalid"],
+        is_for_dependent: ["is invalid"],
+        start_date: ["is invalid"]
       }
     end
 
@@ -173,7 +184,8 @@ defmodule Sig.HR.Registrations.Benefits.VoucherTest do
         registration_id: UUID.generate(),
         description: Faker.Lorem.sentence(),
         type: random_enum_value(:employee_benefit_type),
-        amount: 500_00,
+        amount: Enum.random(400_00..600_00),
+        is_for_dependent: Enum.random([true, false]),
         start_date: Faker.Date.backward(100),
         end_date: Faker.Date.backward(1)
       }
@@ -186,8 +198,9 @@ defmodule Sig.HR.Registrations.Benefits.VoucherTest do
         org_id: attrs[:org_id],
         registration_id: attrs[:registration_id],
         description: attrs[:description],
-        type: attrs[:type],
+        is_for_dependent: attrs[:is_for_dependent],
         amount: %Money{amount: attrs[:amount], currency: :BRL},
+        type: attrs[:type],
         start_date: attrs[:start_date],
       }
     end
@@ -198,7 +211,8 @@ defmodule Sig.HR.Registrations.Benefits.VoucherTest do
         registration_id: UUID.generate(),
         description: Faker.Lorem.sentence(),
         type: random_enum_value(:employee_benefit_type),
-        amount: -500_00,
+        is_for_dependent: Enum.random([true, false]),
+        amount: -1,
         start_date: Faker.Date.backward(100)
       }
 
@@ -216,7 +230,8 @@ defmodule Sig.HR.Registrations.Benefits.VoucherTest do
       registration_id: UUID.generate(),
       description: String.duplicate("a", 256),
       type: random_enum_value(:employee_benefit_type),
-      amount: 500_00,
+      is_for_dependent: Enum.random([true, false]),
+      amount: Enum.random(400_00..600_00),
       start_date: Faker.Date.backward(100)
     }
 
@@ -278,7 +293,7 @@ defmodule Sig.HR.Registrations.Benefits.VoucherTest do
         registration_id: UUID.generate(),
         description: Faker.Lorem.sentence(),
         type: random_enum_value(:employee_benefit_type),
-        amount: 500_00,
+        amount: Enum.random(400_00..600_00),
         start_date: ~D[2020-02-01],
         end_date: ~D[2021-01-01]
       }

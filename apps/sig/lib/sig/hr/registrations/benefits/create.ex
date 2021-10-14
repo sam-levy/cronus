@@ -47,11 +47,15 @@ defmodule Sig.HR.Registrations.Benefits.Create do
   defp do_verify_existing_benefit(nil, _start_date, context), do: context
 
   defp do_verify_existing_benefit(%{end_date: nil}, _start_date, context) do
-    put_error(context, "existe um vale do mesmo tipo em vigência")
+    if context.attrs.is_for_dependent do
+      context
+    else
+      put_error(context, "existe um vale do mesmo tipo em vigência")
+    end
   end
 
   defp do_verify_existing_benefit(%{end_date: last_end_date}, start_date, context) do
-    if Date.compare(start_date, last_end_date) == :lt do
+    if not context.attrs.is_for_dependent and Date.compare(start_date, last_end_date) == :lt do
       put_error(
         context,
         "a data de início deve ser posterior a data de término do último vale do mesmo tipo"

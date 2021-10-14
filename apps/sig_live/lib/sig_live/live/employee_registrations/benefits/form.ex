@@ -9,6 +9,7 @@ defmodule SigLive.EmployeeRegistrations.Benefits.Form do
   alias Surface.Components.Form.{
     TextInput,
     Select,
+    Checkbox,
     ErrorTag,
     Field,
     Label,
@@ -97,6 +98,12 @@ defmodule SigLive.EmployeeRegistrations.Benefits.Form do
             </span>
           </Label>
           <TextInput {...props_for(:description, @form_state)}/>
+          <ErrorTag class="form-error-tag"/>
+        </Field>
+
+        <Field :if={@form_state != :edit_mode} name={:is_for_dependent} class="form-checkbox-field">
+          <Checkbox {...props_for_checkbox(:is_for_dependent, @form_state)}/>
+          <Label class="form-side-label">Para Dependente</Label>
           <ErrorTag class="form-error-tag"/>
         </Field>
 
@@ -194,9 +201,15 @@ defmodule SigLive.EmployeeRegistrations.Benefits.Form do
   @input_enabled [opts: [disabled: false], class: ["form-input"]]
   @input_disabled [opts: [disabled: true], class: ["form-input-disabled"]]
 
+  @checkbox_enabled [opts: [disabled: false], class: ["form-checkbox"]]
+  @checkbox_disabled [opts: [disabled: true], class: ["form-checkbox-disabled"]]
+
   defp props_for(:end_date, :edit_mode), do: @input_enabled
   defp props_for(:end_date, _form_state), do: @input_disabled
 
   defp props_for(_field, :new_mode), do: @input_enabled
   defp props_for(_field, _form_state), do: @input_disabled
+
+  defp props_for_checkbox(:is_for_dependent, :new_mode), do: @checkbox_enabled
+  defp props_for_checkbox(:is_for_dependent, _form_state), do: @checkbox_disabled
 end

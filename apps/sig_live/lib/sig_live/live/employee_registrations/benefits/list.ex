@@ -83,6 +83,10 @@ defmodule SigLive.EmployeeRegistrations.Benefits.List do
                 >
                   {capitalize_type(benefit.type)}
                 </a>
+
+                <span :if={benefit.is_for_dependent} class="ml-2 label-gray">
+                  Dependente
+                </span>
               </td>
 
               <td class="py-3 px-6 text-left">
