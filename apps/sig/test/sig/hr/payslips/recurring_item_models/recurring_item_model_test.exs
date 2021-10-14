@@ -8,7 +8,7 @@ defmodule Sig.HR.Payslips.RecurringItemModels.RecurringItemModelTest do
       model = %RecurringItemModel{
         description: Faker.Lorem.sentence(),
         is_fixed_amount: true,
-        amount: 200_00,
+        amount: Enum.random(100_00..1_000_00),
         category_id: insert(:payslip_category).id
       }
 
@@ -22,7 +22,7 @@ defmodule Sig.HR.Payslips.RecurringItemModels.RecurringItemModelTest do
         org_id: UUID.generate(),
         description: Faker.Lorem.sentence(),
         is_fixed_amount: true,
-        amount: 200_00,
+        amount: Enum.random(100_00..1_000_00),
         category_id: insert(:payslip_category).id
       }
 
@@ -35,16 +35,19 @@ defmodule Sig.HR.Payslips.RecurringItemModels.RecurringItemModelTest do
       org = insert(:org)
 
       _existing_recurring_item_model =
-        insert(:payslip_recurring_item_model, org: org, description: "RECURRING ITEM MODEL")
+        insert({:payslip_recurring_item_model, :fixed_amount},
+          org: org,
+          description: "RECURRING ITEM MODEL"
+        )
 
       # Allow same description for different org
-      insert(:payslip_recurring_item_model, description: "RECURRING ITEM MODEL")
+      insert({:payslip_recurring_item_model, :fixed_amount}, description: "RECURRING ITEM MODEL")
 
       model = %RecurringItemModel{
         org_id: org.id,
         description: "recurring item model",
         is_fixed_amount: true,
-        amount: 200_00,
+        amount: Enum.random(100_00..1_000_00),
         category_id: insert(:payslip_category).id
       }
 
@@ -67,7 +70,7 @@ defmodule Sig.HR.Payslips.RecurringItemModels.RecurringItemModelTest do
                    fn -> Repo.insert(model) end
     end
 
-    test "payslip_recurring_item_models_positive_percentage constraint" do
+    test "payslip_recurring_item_models_percentage_range constraint less than 0" do
       model = %RecurringItemModel{
         org_id: insert(:org).id,
         description: Faker.Lorem.sentence(),
@@ -78,7 +81,22 @@ defmodule Sig.HR.Payslips.RecurringItemModels.RecurringItemModelTest do
       }
 
       assert_raise Ecto.ConstraintError,
-                   ~r/payslip_recurring_item_models_positive_percentage \(check_constraint\)/,
+                   ~r/payslip_recurring_item_models_percentage_range \(check_constraint\)/,
+                   fn -> Repo.insert(model) end
+    end
+
+    test "payslip_recurring_item_models_percentage_range constraint more than 100" do
+      model = %RecurringItemModel{
+        org_id: insert(:org).id,
+        description: Faker.Lorem.sentence(),
+        is_fixed_amount: false,
+        percentage: 101,
+        percentage_target: :employee_salary,
+        category_id: insert(:payslip_category).id
+      }
+
+      assert_raise Ecto.ConstraintError,
+                   ~r/payslip_recurring_item_models_percentage_range \(check_constraint\)/,
                    fn -> Repo.insert(model) end
     end
 
@@ -102,7 +120,7 @@ defmodule Sig.HR.Payslips.RecurringItemModels.RecurringItemModelTest do
         org_id: insert(:org).id,
         description: Faker.Lorem.sentence(),
         is_fixed_amount: false,
-        amount: 200_00,
+        amount: Enum.random(100_00..1_000_00),
         category_id: insert(:payslip_category).id
       }
 
@@ -144,7 +162,7 @@ defmodule Sig.HR.Payslips.RecurringItemModels.RecurringItemModelTest do
   end
 
   describe "create_changeset/1" do
-    test "missing base required attrs" do
+    test "missing required base attrs" do
       assert changeset = RecurringItemModel.create_changeset(%{})
 
       refute changeset.valid?
@@ -162,7 +180,7 @@ defmodule Sig.HR.Payslips.RecurringItemModels.RecurringItemModelTest do
         org_id: UUID.generate(),
         description: Faker.Lorem.sentence(),
         is_fixed_amount: true,
-        amount: 200_00,
+        amount: Enum.random(100_00..1_000_00),
         category_id: UUID.generate()
       }
 
@@ -184,11 +202,11 @@ defmodule Sig.HR.Payslips.RecurringItemModels.RecurringItemModelTest do
         org_id: UUID.generate(),
         description: Faker.Lorem.sentence(),
         is_fixed_amount: true,
-        amount: 200_00,
+        amount: Enum.random(100_00..1_000_00),
         category_id: UUID.generate(),
         percentage: 6,
         percentage_target: :employee_benefit,
-        employee_benefit_type_percentage_target: :transport,
+        employee_benefit_type_percentage_target: :transport
       }
 
       assert changeset = RecurringItemModel.create_changeset(attrs)
@@ -204,7 +222,7 @@ defmodule Sig.HR.Payslips.RecurringItemModels.RecurringItemModelTest do
              }
     end
 
-    test "missing attrs for fixed amount" do
+    test "missing required attrs for fixed amount" do
       attrs = %{
         org_id: UUID.generate(),
         description: Faker.Lorem.sentence(),
@@ -219,6 +237,22 @@ defmodule Sig.HR.Payslips.RecurringItemModels.RecurringItemModelTest do
       assert errors_on(changeset) == %{amount: ["can't be blank"]}
     end
 
+    test "string fields length greater than 255 chars" do
+      attrs = %{
+        org_id: UUID.generate(),
+        description: String.duplicate("a", 256),
+        is_fixed_amount: true,
+        amount: Enum.random(100_00..1_000_00),
+        category_id: UUID.generate()
+      }
+
+      assert changeset = RecurringItemModel.create_changeset(attrs)
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{description: ["should be at most 255 character(s)"]}
+    end
+
     test "inserts fixed amount" do
       org = insert(:org)
       category = insert(:payslip_category, org: org)
@@ -227,14 +261,14 @@ defmodule Sig.HR.Payslips.RecurringItemModels.RecurringItemModelTest do
         org_id: org.id,
         description: Faker.Lorem.sentence(),
         is_fixed_amount: true,
-        amount: 200_00,
+        amount: Enum.random(100_00..1_000_00),
         category_id: category.id
       }
 
       assert {:ok, %RecurringItemModel{}} =
-        attrs
-        |> RecurringItemModel.create_changeset()
-        |> Repo.insert()
+               attrs
+               |> RecurringItemModel.create_changeset()
+               |> Repo.insert()
     end
 
     test "valid attrs for percentage of employee salary" do
@@ -269,7 +303,7 @@ defmodule Sig.HR.Payslips.RecurringItemModels.RecurringItemModelTest do
         percentage: 20,
         percentage_target: :employee_salary,
         category_id: UUID.generate(),
-        amount: 200_00,
+        amount: Enum.random(100_00..1_000_00),
         employee_benefit_type_percentage_target: :transport
       }
 
@@ -305,6 +339,40 @@ defmodule Sig.HR.Payslips.RecurringItemModels.RecurringItemModelTest do
              }
     end
 
+    test "validates percentage inclusion for less than 0" do
+      attrs = %{
+        org_id: UUID.generate(),
+        description: Faker.Lorem.sentence(),
+        is_fixed_amount: false,
+        percentage: -1,
+        percentage_target: :employee_salary,
+        category_id: UUID.generate()
+      }
+
+      assert changeset = RecurringItemModel.create_changeset(attrs)
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{percentage: ["is invalid"]}
+    end
+
+    test "validates percentage inclusion for more than 100" do
+      attrs = %{
+        org_id: UUID.generate(),
+        description: Faker.Lorem.sentence(),
+        is_fixed_amount: false,
+        percentage: 101,
+        percentage_target: :employee_salary,
+        category_id: UUID.generate()
+      }
+
+      assert changeset = RecurringItemModel.create_changeset(attrs)
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{percentage: ["is invalid"]}
+    end
+
     test "inserts percentage of employee salary" do
       org = insert(:org)
       category = insert(:payslip_category, org: org)
@@ -319,9 +387,9 @@ defmodule Sig.HR.Payslips.RecurringItemModels.RecurringItemModelTest do
       }
 
       assert {:ok, %RecurringItemModel{}} =
-        attrs
-        |> RecurringItemModel.create_changeset()
-        |> Repo.insert()
+               attrs
+               |> RecurringItemModel.create_changeset()
+               |> Repo.insert()
     end
 
     test "valid attrs for percentage of employee benefit" do
@@ -360,7 +428,7 @@ defmodule Sig.HR.Payslips.RecurringItemModels.RecurringItemModelTest do
         percentage_target: :employee_benefit,
         employee_benefit_type_percentage_target: :transport,
         category_id: UUID.generate(),
-        amount: 200_00,
+        amount: Enum.random(100_00..1_000_00)
       }
 
       assert changeset = RecurringItemModel.create_changeset(attrs)
@@ -373,7 +441,8 @@ defmodule Sig.HR.Payslips.RecurringItemModels.RecurringItemModelTest do
                is_fixed_amount: attrs[:is_fixed_amount],
                percentage: attrs[:percentage],
                percentage_target: attrs[:percentage_target],
-               employee_benefit_type_percentage_target: attrs[:employee_benefit_type_percentage_target],
+               employee_benefit_type_percentage_target:
+                 attrs[:employee_benefit_type_percentage_target],
                category_id: attrs[:category_id]
              }
     end
@@ -393,8 +462,8 @@ defmodule Sig.HR.Payslips.RecurringItemModels.RecurringItemModelTest do
       refute changeset.valid?
 
       assert errors_on(changeset) == %{
-        employee_benefit_type_percentage_target: ["can't be blank"]
-      }
+               employee_benefit_type_percentage_target: ["can't be blank"]
+             }
     end
 
     test "inserts percentage of employee benefit" do
@@ -412,33 +481,36 @@ defmodule Sig.HR.Payslips.RecurringItemModels.RecurringItemModelTest do
       }
 
       assert {:ok, %RecurringItemModel{}} =
-        attrs
-        |> RecurringItemModel.create_changeset()
-        |> Repo.insert()
+               attrs
+               |> RecurringItemModel.create_changeset()
+               |> Repo.insert()
     end
 
     test "description citext unique constraint" do
       org = insert(:org)
       category = insert(:payslip_category, org: org)
 
-      insert(:payslip_recurring_item_model, org: org, description: "RECURRING ITEM MODEL")
+      insert({:payslip_recurring_item_model, :fixed_amount},
+        org: org,
+        description: "RECURRING ITEM MODEL"
+      )
 
       attrs = %{
         org_id: org.id,
         description: "recurring item model",
         is_fixed_amount: true,
-        amount: 200_00,
+        amount: Enum.random(100_00..1_000_00),
         category_id: category.id
       }
 
       assert {:error, changeset} =
-        attrs
-        |> RecurringItemModel.create_changeset()
-        |> Repo.insert()
+               attrs
+               |> RecurringItemModel.create_changeset()
+               |> Repo.insert()
 
-        assert errors_on(changeset) == %{
-          description: ["has already been taken"]
-        }
+      assert errors_on(changeset) == %{
+               description: ["has already been taken"]
+             }
     end
 
     test "category assoc constraint" do
@@ -448,18 +520,18 @@ defmodule Sig.HR.Payslips.RecurringItemModels.RecurringItemModelTest do
         org_id: org.id,
         description: Faker.Lorem.sentence(),
         is_fixed_amount: true,
-        amount: 200_00,
+        amount: Enum.random(100_00..1_000_00),
         category_id: UUID.generate()
       }
 
       assert {:error, changeset} =
-        attrs
-        |> RecurringItemModel.create_changeset()
-        |> Repo.insert()
+               attrs
+               |> RecurringItemModel.create_changeset()
+               |> Repo.insert()
 
-        assert errors_on(changeset) == %{
-          category: ["does not exist"]
-        }
+      assert errors_on(changeset) == %{
+               category: ["does not exist"]
+             }
     end
   end
 end
