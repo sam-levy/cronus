@@ -16,6 +16,7 @@ defmodule Sig.HR.Registrations.Benefits.Benefit do
     belongs_to :org, Org, primary_key: true
     belongs_to :registration, Registration, primary_key: true
 
+    field :description, :string
     field :type, BenefitType
     field :amount, Money.Ecto.Amount.Type
     field :start_date, :date
@@ -24,12 +25,13 @@ defmodule Sig.HR.Registrations.Benefits.Benefit do
     timestamps()
   end
 
-  @create_fields [:org_id, :registration_id, :type, :amount, :start_date]
+  @create_required_fields [:org_id, :registration_id, :type, :amount, :start_date]
 
   def create_changeset(attrs) do
     %__MODULE__{}
-    |> cast(attrs, @create_fields)
-    |> validate_required(@create_fields)
+    |> cast(attrs, @create_required_fields ++ [:description])
+    |> validate_length(:description, max: 255)
+    |> validate_required(@create_required_fields)
     |> validate_money(:amount, :gt, 0)
   end
 

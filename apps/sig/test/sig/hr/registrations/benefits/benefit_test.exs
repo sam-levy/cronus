@@ -9,6 +9,7 @@ defmodule Sig.HR.Registrations.Benefits.VoucherTest do
 
       benefit = %Benefit{
         registration_id: registration.id,
+        description: Faker.Lorem.sentence(),
         type: random_enum_value(:employee_benefit_type),
         amount: Enum.random(400_00..600_00),
         start_date: Faker.Date.backward(100)
@@ -25,6 +26,7 @@ defmodule Sig.HR.Registrations.Benefits.VoucherTest do
       benefit = %Benefit{
         org_id: UUID.generate(),
         registration_id: registration.id,
+        description: Faker.Lorem.sentence(),
         type: random_enum_value(:employee_benefit_type),
         amount: Enum.random(400_00..600_00),
         start_date: Faker.Date.backward(100)
@@ -40,6 +42,7 @@ defmodule Sig.HR.Registrations.Benefits.VoucherTest do
 
       benefit = %Benefit{
         org_id: org.id,
+        description: Faker.Lorem.sentence(),
         type: random_enum_value(:employee_benefit_type),
         amount: Enum.random(400_00..600_00),
         start_date: Faker.Date.backward(100)
@@ -56,6 +59,7 @@ defmodule Sig.HR.Registrations.Benefits.VoucherTest do
       benefit = %Benefit{
         org_id: org.id,
         registration_id: UUID.generate(),
+        description: Faker.Lorem.sentence(),
         type: random_enum_value(:employee_benefit_type),
         amount: Enum.random(400_00..600_00),
         start_date: Faker.Date.backward(100)
@@ -72,6 +76,7 @@ defmodule Sig.HR.Registrations.Benefits.VoucherTest do
       benefit = %Benefit{
         org_id: registration.org_id,
         registration_id: registration.id,
+        description: Faker.Lorem.sentence(),
         type: random_enum_value(:employee_benefit_type),
         amount: -400_00,
         start_date: Faker.Date.backward(100)
@@ -88,6 +93,7 @@ defmodule Sig.HR.Registrations.Benefits.VoucherTest do
       benefit = %Benefit{
         org_id: registration.org_id,
         registration_id: registration.id,
+        description: Faker.Lorem.sentence(),
         type: random_enum_value(:employee_benefit_type),
         amount: Enum.random(400_00..600_00),
         start_date: ~D[2021-01-01],
@@ -105,6 +111,7 @@ defmodule Sig.HR.Registrations.Benefits.VoucherTest do
       attrs = %{
         org_id: UUID.generate(),
         registration_id: UUID.generate(),
+        description: Faker.Lorem.sentence(),
         type: random_enum_value(:employee_benefit_type),
         amount: 500_00,
         start_date: Faker.Date.backward(100)
@@ -117,6 +124,7 @@ defmodule Sig.HR.Registrations.Benefits.VoucherTest do
       assert changeset.changes == %{
         org_id: attrs[:org_id],
         registration_id: attrs[:registration_id],
+        description: attrs[:description],
         type: attrs[:type],
         amount: %Money{amount: attrs[:amount], currency: :BRL},
         start_date: attrs[:start_date],
@@ -163,6 +171,7 @@ defmodule Sig.HR.Registrations.Benefits.VoucherTest do
       attrs = %{
         org_id: UUID.generate(),
         registration_id: UUID.generate(),
+        description: Faker.Lorem.sentence(),
         type: random_enum_value(:employee_benefit_type),
         amount: 500_00,
         start_date: Faker.Date.backward(100),
@@ -176,6 +185,7 @@ defmodule Sig.HR.Registrations.Benefits.VoucherTest do
       assert changeset.changes == %{
         org_id: attrs[:org_id],
         registration_id: attrs[:registration_id],
+        description: attrs[:description],
         type: attrs[:type],
         amount: %Money{amount: attrs[:amount], currency: :BRL},
         start_date: attrs[:start_date],
@@ -186,6 +196,7 @@ defmodule Sig.HR.Registrations.Benefits.VoucherTest do
       attrs = %{
         org_id: UUID.generate(),
         registration_id: UUID.generate(),
+        description: Faker.Lorem.sentence(),
         type: random_enum_value(:employee_benefit_type),
         amount: -500_00,
         start_date: Faker.Date.backward(100)
@@ -197,6 +208,25 @@ defmodule Sig.HR.Registrations.Benefits.VoucherTest do
 
       assert errors_on(changeset) == %{amount: ["must be greater than 0,00"]}
     end
+  end
+
+  test "string fields length greater than 255 chars" do
+    attrs = %{
+      org_id: UUID.generate(),
+      registration_id: UUID.generate(),
+      description: String.duplicate("a", 256),
+      type: random_enum_value(:employee_benefit_type),
+      amount: 500_00,
+      start_date: Faker.Date.backward(100)
+    }
+
+    assert changeset = Benefit.create_changeset(attrs)
+
+    refute changeset.valid?
+
+    assert errors_on(changeset) == %{
+      description: ["should be at most 255 character(s)"]
+    }
   end
 
   describe "update_changeset/2" do
@@ -246,6 +276,7 @@ defmodule Sig.HR.Registrations.Benefits.VoucherTest do
       attrs = %{
         org_id: UUID.generate(),
         registration_id: UUID.generate(),
+        description: Faker.Lorem.sentence(),
         type: random_enum_value(:employee_benefit_type),
         amount: 500_00,
         start_date: ~D[2020-02-01],

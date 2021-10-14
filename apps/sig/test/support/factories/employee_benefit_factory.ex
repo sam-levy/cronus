@@ -11,6 +11,7 @@ defmodule Sig.Factories.EmployeeBenefitFactory do
         %Benefit{
           org: org,
           registration: registration,
+          description: Faker.Lorem.sentence(),
           type: random_enum_value(:employee_benefit_type),
           amount: Enum.random(400_00..600_00),
           start_date: Faker.Date.backward(100)

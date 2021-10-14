@@ -17,6 +17,7 @@ defmodule Sig.Repo.Migrations.CreateEmployeeBenefitsTable do
       add :registration_id, references(:employee_registrations, with: [org_id: :org_id]),
         primary_key: true
 
+      add :description, :string
       add :type, :employee_benefit_type, null: false
       add :amount, :integer, null: false
       add :start_date, :date, null: false

@@ -2,6 +2,7 @@ defmodule SigLive.EmployeeRegistrations.Benefits.Form do
   use SigLive, :surface_live_component
 
   alias Sig.HR
+  alias Sig.HR.Registrations.Benefits.Benefit.BenefitType
 
   alias Surface.Components.Form
 
@@ -66,7 +67,7 @@ defmodule SigLive.EmployeeRegistrations.Benefits.Form do
           <Label class="form-label">Benefício</Label>
           <Select
             prompt=""
-            options={HR.list_benefit_types}
+            options={enum_for_select(BenefitType)}
             {...props_for(:type, @form_state)}
           />
           <ErrorTag class="form-error-tag"/>
@@ -84,6 +85,18 @@ defmodule SigLive.EmployeeRegistrations.Benefits.Form do
         <Field name={:end_date} :if={@form_state != :new_mode} class="form-field">
           <Label class="form-label">Data de Término</Label>
           <DateInput {...props_for(:end_date, @form_state)}/>
+          <ErrorTag class="form-error-tag"/>
+        </Field>
+
+        <Field name={:description} :if={@form_state != :edit_mode} class="form-field">
+          <Label class="form-label">
+            Descrição
+
+            <span :if={@form_state != :show_mode} class="form-label-complement">
+              (opcional)
+            </span>
+          </Label>
+          <TextInput {...props_for(:description, @form_state)}/>
           <ErrorTag class="form-error-tag"/>
         </Field>
 

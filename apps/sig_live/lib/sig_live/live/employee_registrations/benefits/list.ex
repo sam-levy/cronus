@@ -48,7 +48,7 @@ defmodule SigLive.EmployeeRegistrations.Benefits.List do
       <table class="w-full bg-white shadow-lg my-7">
         <thead class="sticky top-0 z-20">
           <tr class="bg-white">
-            <th colspan="5">
+            <th colspan="6">
               <div class="flex justify-between items-center py-3 px-6">
                 <span class="text-gray-500 font-medium tracking-wider">
                   Benefícios
@@ -64,6 +64,7 @@ defmodule SigLive.EmployeeRegistrations.Benefits.List do
             class="bg-gray-50 uppercase text-xs font-medium text-gray-500 tracking-wider"
           >
             <th class="py-3 px-6 text-left">Tipo</th>
+            <th class="py-3 px-6 text-left">Descrição</th>
             <th class="py-3 px-6 text-right">Valor</th>
             <th class="py-3 px-6 text-right">Início</th>
             <th class="py-3 px-6 text-right">Término</th>
@@ -74,23 +75,29 @@ defmodule SigLive.EmployeeRegistrations.Benefits.List do
         <tbody class="text-gray-600 text-sm font-light">
           {#for benefit <- @benefits}
             <tr class="border-b border-gray-200 hover:bg-gray-50">
-              <td
-                :on-click="open_show_benefit_form"
-                phx-value-benefit_id={benefit.id}
-                class="py-3 pl-6 text-left cursor-pointer hover:underline"
-              >
-                {benefit.type}
+              <td class="py-3 px-6 text-left">
+                <a
+                  :on-click="open_show_benefit_form"
+                  phx-value-benefit_id={benefit.id}
+                  class="cursor-pointer hover:underline"
+                >
+                  {capitalize_type(benefit.type)}
+                </a>
               </td>
 
-              <td class="py-3 pl-6 text-right">
+              <td class="py-3 px-6 text-left">
+                {benefit.description}
+              </td>
+
+              <td class="py-3 px-6 text-right">
                 {format_amount(benefit.amount)}
               </td>
 
-              <td class="py-3 pl-6 text-right">
+              <td class="py-3 px-6 text-right">
                 {format_date(benefit.start_date)}
               </td>
 
-              <td class="py-3 pl-6 text-right">
+              <td class="py-3 px-6 text-right">
                 {format_date(benefit.end_date)}
               </td>
 
