@@ -269,7 +269,7 @@ Repo.insert!(%RecurringItemModel{
   category_id: transport_voucher_discount_category.id,
   description: "Desconto de vale transporte",
   is_fixed_amount: false,
-  percentage: 20,
+  percentage: 6,
   percentage_target: :employee_benefit,
   employee_benefit_type_percentage_target: :transport
 })
@@ -277,7 +277,7 @@ Repo.insert!(%RecurringItemModel{
 Repo.insert!(%RecurringItemModel{
   org_id: main_org.id,
   category_id: health_insurance_category.id,
-  description: "Assistência médica dependentes",
+  description: "Assistência médica de dependentes",
   is_fixed_amount: false,
   percentage: 100,
   percentage_target: :employee_benefit,
