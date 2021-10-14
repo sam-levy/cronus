@@ -32,6 +32,35 @@ defmodule Sig.HR.Registrations.SalariesTest do
     end
   end
 
+  describe "in_effect_on_date/1" do
+    test "gets the current salary" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+
+      insert(:employee_salary,
+        org: org,
+        registration: registration,
+        start_date: ~D[2021-01-01],
+        amount: 1_500_00
+      )
+
+      insert(:employee_salary,
+        org: org,
+        registration: registration,
+        start_date: ~D[2021-06-01],
+        amount: 1_800_00
+      )
+
+      assert %Salary{amount: %Money{amount: 1_500_00}} =
+               Salaries.in_effect_on_date(registration, ~D[2021-04-01])
+
+      assert %Salary{amount: %Money{amount: 1_800_00}} =
+               Salaries.in_effect_on_date(registration, ~D[2021-06-01])
+
+      assert Salaries.in_effect_on_date(registration, ~D[2020-01-01]) == nil
+    end
+  end
+
   describe "subscribe_to_registration_salaries/1" do
     test "subscribes to registration salaries topic" do
       registration = insert(:employee_registration)
@@ -54,9 +83,7 @@ defmodule Sig.HR.Registrations.SalariesTest do
       org = insert(:org)
       registration = insert(:employee_registration, org: org)
 
-      _right_salaries =
-        insert_list(2, :employee_salary, org: org, registration: registration)
-
+      _right_salaries = insert_list(2, :employee_salary, org: org, registration: registration)
       _wrong_salaries = insert_list(2, :employee_salary)
 
       topic = "registration_id:" <> registration.id <> ":salaries"
