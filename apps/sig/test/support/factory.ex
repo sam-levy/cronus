@@ -14,6 +14,7 @@ defmodule Sig.Factory do
   use Sig.Factories.LeavePeriodFactory
   use Sig.Factories.PayslipCategoryFactory
   use Sig.Factories.PayslipRecurringItemModelFactory
+  use Sig.Factories.EmployeeRegistraionRecurringPayslipItemFactory
   use Sig.Factories.BankAccountFactory
   use Sig.Factories.EntityBankAccountFactory
 
