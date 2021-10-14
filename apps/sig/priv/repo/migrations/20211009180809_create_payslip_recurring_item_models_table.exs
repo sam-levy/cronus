@@ -1,4 +1,4 @@
-defmodule Sig.Repo.Migrations.PayslipRecurringItemModels do
+defmodule Sig.Repo.Migrations.CreatePayslipRecurringItemModelsTable do
   use Ecto.Migration
   import EctoEnumMigration
 
@@ -34,8 +34,8 @@ defmodule Sig.Repo.Migrations.PayslipRecurringItemModels do
 
     create constraint(
              :payslip_recurring_item_models,
-             :payslip_recurring_item_models_positive_percentage,
-             check: "percentage >= 0"
+             :payslip_recurring_item_models_percentage_range,
+             check: "percentage BETWEEN 0 AND 100"
            )
 
     create constraint(

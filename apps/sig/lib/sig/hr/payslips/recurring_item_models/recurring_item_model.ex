@@ -40,6 +40,7 @@ defmodule Sig.HR.Payslips.RecurringItemModels.RecurringItemModel do
     %__MODULE__{}
     |> cast(attrs, @create_fields)
     |> validate_required(@create_base_required_fields)
+    |> validate_length(:description, max: 255)
     |> unique_constraint([:description, :org_id])
     |> assoc_constraint(:category)
     |> handle_fixed_amount_changeset()
@@ -62,6 +63,7 @@ defmodule Sig.HR.Payslips.RecurringItemModels.RecurringItemModel do
        ) do
     changeset
     |> validate_required([:percentage, :percentage_target])
+    |> validate_inclusion(:percentage, 0..100)
     |> validate_required_if(
       :percentage_target,
       :employee_benefit,
