@@ -13,11 +13,18 @@ defmodule Sig.HR.Registrations.Salaries do
   end
 
   def list_by_registration(%Registration{} = registration) do
-    Salary
-    |> where(org_id: ^registration.org_id)
-    |> where(registration_id: ^registration.id)
+    registration
+    |> query_by_registration()
     |> order_by(:start_date)
     |> Repo.all
+  end
+
+  def in_effect_on_date(%Registration{} = registration, date) do
+    registration
+    |> query_by_registration()
+    |> where([salary], salary.start_date <= ^date)
+    |> last(:start_date)
+    |> Repo.one()
   end
 
   def subscribe_to_registration_salaries(%Registration{} = registration) do
@@ -34,5 +41,11 @@ defmodule Sig.HR.Registrations.Salaries do
 
   defp topic(%Registration{} = registration) do
     "registration_id:" <> registration.id <> ":salaries"
+  end
+
+  defp query_by_registration(registration) do
+    Salary
+    |> where(org_id: ^registration.org_id)
+    |> where(registration_id: ^registration.id)
   end
 end
