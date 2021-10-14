@@ -19,7 +19,7 @@ defmodule SigLive.Components.Modal do
 
         <!-- Modal panel, show/hide based on modal state. -->
         <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all mt-32 align-middle max-w-lg w-full">
-          <div class="bg-white px-4 pt-5 pb-4">
+          <div class="bg-white px-4 py-5">
             <div class="flex items-start">
               <div class="mx-4 text-left w-full">
                 <div class="flex justify-between items-center">
