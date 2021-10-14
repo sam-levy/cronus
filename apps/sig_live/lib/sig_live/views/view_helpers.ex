@@ -89,6 +89,7 @@ defmodule SigLive.ViewHelpers do
     Map.new(resources, &{&1.name, &1.id})
   end
 
+  def format_amount(%Ecto.Changeset{changes: %{amount: amount}}), do: format_amount(amount)
   def format_amount(%Money{} = amount), do: Money.to_string(amount)
-  def format_amount(nil), do: ""
+  def format_amount(_), do: ""
 end
