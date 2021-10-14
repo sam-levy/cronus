@@ -42,7 +42,7 @@ defmodule Sig.Finance.Banks.Accounts do
     |> handle_return()
   end
 
-  def fetch_in_org_with_entity(%Org{} = org, id) do
+  def fetch_in_org_with_entity(%Org{} = org, id) when is_binary(id) do
     Account
     |> where(org_id: ^org.id)
     |> where(id: ^id)
