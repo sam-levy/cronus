@@ -1,10 +1,13 @@
 defmodule Sig.HR do
+  alias Sig.HR.Payslips.Categories
+  alias Sig.HR.Payslips.RecurringItemModels
   alias Sig.HR.Registrations
   alias Sig.HR.Registrations.Salaries
   alias Sig.HR.Registrations.Vouchers
   alias Sig.HR.Registrations.Warnings
   alias Sig.HR.Registrations.Suspensions
   alias Sig.HR.Registrations.LeavePeriods
+  alias Sig.HR.Registrations.RecurringPayslipItems
 
   defdelegate create_registration_change(attrs \\ %{}), to: Registrations, as: :create_change
 
@@ -82,4 +85,30 @@ defmodule Sig.HR do
   defdelegate update_leave_period_change(leave_period, attrs \\ %{}),
     to: LeavePeriods,
     as: :update_change
+
+  defdelegate list_payslip_categories(org), to: Categories, as: :list
+
+  defdelegate list_payslip_recurring_item_models(org), to: RecurringItemModels, as: :list
+
+  defdelegate list_recurring_payslip_items_by_registration(registraion),
+    to: RecurringPayslipItems,
+    as: :list_by_registration
+
+  defdelegate create_recurring_payslip_item(registraion, attrs, type),
+    to: RecurringPayslipItems,
+    as: :create
+
+  defdelegate delete_recurring_payslip_item(registraion, id),
+    to: RecurringPayslipItems,
+    as: :delete
+
+  defdelegate subscribe_to_registration_recurring_payslip_items(registration),
+    to: RecurringPayslipItems
+
+  defdelegate broadcast_registration_recurring_payslip_items(registration),
+    to: RecurringPayslipItems
+
+  defdelegate create_recurring_payslip_item_change(attrs \\ %{}, type),
+    to: RecurringPayslipItems,
+    as: :create_change
 end
