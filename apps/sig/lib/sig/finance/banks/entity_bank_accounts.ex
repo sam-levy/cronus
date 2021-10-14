@@ -27,7 +27,7 @@ defmodule Sig.Finance.Banks.EntityBankAccounts do
     |> Repo.all()
   end
 
-  def get_with_holder(%Entity{} = entity, bank_account_id) do
+  def get_with_holder(%Entity{} = entity, bank_account_id) when is_binary(bank_account_id) do
     entity
     |> query_by_entity()
     |> where(bank_account_id: ^bank_account_id)
