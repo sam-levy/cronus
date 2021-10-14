@@ -160,6 +160,8 @@ defmodule SigLive.EmployeeRegistrations.Vouchers.Form do
     %{registration: registration, form_state: form_state, close_fun: close_fun} = socket.assigns
 
     HR.broadcast_registration_vouchers(registration)
+    HR.broadcast_registration_recurring_payslip_items(registration)
+
     handle_flash(form_state)
     close_fun.()
 
