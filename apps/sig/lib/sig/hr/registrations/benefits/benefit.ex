@@ -8,8 +8,7 @@ defmodule Sig.HR.Registrations.Benefits.Benefit do
     :meal_voucher,
     :food_voucher,
     :transportation_voucher,
-    :employee_health_insurance,
-    :employee_dependents_health_insurance
+    :health_insurance
   ])
 
   schema "employee_benefits" do

@@ -25,8 +25,7 @@ defmodule Sig.HR.Registrations.VouchersTest do
                "meal_voucher",
                "food_voucher",
                "transportation_voucher",
-               "employee_health_insurance",
-               "employee_dependents_health_insurance"
+               "health_insurance"
              ]
     end
   end
@@ -65,6 +64,7 @@ defmodule Sig.HR.Registrations.VouchersTest do
         org: org,
         registration: registration,
         type: :transportation_voucher,
+        is_for_dependent: false,
         start_date: ~D[2020-01-01]
       )
 
@@ -72,6 +72,7 @@ defmodule Sig.HR.Registrations.VouchersTest do
         org: org,
         registration: registration,
         type: :meal_voucher,
+        is_for_dependent: false,
         start_date: ~D[2020-06-01]
       )
 
@@ -89,6 +90,7 @@ defmodule Sig.HR.Registrations.VouchersTest do
         org: org,
         registration: registration,
         type: :transportation_voucher,
+        is_for_dependent: false,
         start_date: ~D[2020-01-01]
       )
 
@@ -96,13 +98,15 @@ defmodule Sig.HR.Registrations.VouchersTest do
         org: org,
         registration: registration,
         type: :meal_voucher,
+        is_for_dependent: false,
         start_date: ~D[2020-06-01]
       )
 
       insert(:employee_benefit,
         org: org,
         registration: registration,
-        type: :employee_health_insurance,
+        type: :health_insurance,
+        is_for_dependent: false,
         amount: 300_00,
         start_date: ~D[2020-06-01]
       )
@@ -110,16 +114,18 @@ defmodule Sig.HR.Registrations.VouchersTest do
       insert(:employee_benefit,
         org: org,
         registration: registration,
-        type: :employee_dependents_health_insurance,
+        type: :health_insurance,
         amount: 350_00,
+        is_for_dependent: true,
         start_date: ~D[2020-06-02]
       )
 
       insert(:employee_benefit,
         org: org,
         registration: registration,
+        type: :health_insurance,
         amount: 360_00,
-        type: :employee_dependents_health_insurance,
+        is_for_dependent: true,
         start_date: ~D[2020-06-03]
       )
 
@@ -129,7 +135,7 @@ defmodule Sig.HR.Registrations.VouchersTest do
                %Benefit{amount: %Money{amount: 360_00}, start_date: ~D[2020-06-03]}
              ] =
                Benefits.list_by_registration(registration,
-                 types: [:employee_health_insurance, :employee_dependents_health_insurance]
+                 types: [:health_insurance, :health_insurance]
                )
     end
 
@@ -141,10 +147,11 @@ defmodule Sig.HR.Registrations.VouchersTest do
         org: org,
         registration: registration,
         type: :transportation_voucher,
+        is_for_dependent: false,
         start_date: ~D[2020-01-01]
       )
 
-      assert Benefits.list_by_registration(registration, types: [:employee_health_insurance]) ==
+      assert Benefits.list_by_registration(registration, types: [:health_insurance]) ==
                []
     end
 
@@ -156,6 +163,7 @@ defmodule Sig.HR.Registrations.VouchersTest do
         org: org,
         registration: registration,
         type: :transportation_voucher,
+        is_for_dependent: false,
         start_date: ~D[2020-01-01]
       )
 
@@ -171,14 +179,16 @@ defmodule Sig.HR.Registrations.VouchersTest do
         registration: registration,
         type: :transportation_voucher,
         amount: 500_00,
+        is_for_dependent: false,
         start_date: ~D[2020-01-01]
       )
 
       insert(:employee_benefit,
         org: org,
         registration: registration,
-        type: :employee_health_insurance,
+        type: :health_insurance,
         amount: 300_00,
+        is_for_dependent: false,
         start_date: ~D[2020-06-01],
         end_date: ~D[2020-12-31]
       )
@@ -186,16 +196,18 @@ defmodule Sig.HR.Registrations.VouchersTest do
       insert(:employee_benefit,
         org: org,
         registration: registration,
-        type: :employee_health_insurance,
+        type: :health_insurance,
         amount: 320_00,
+        is_for_dependent: false,
         start_date: ~D[2021-01-01]
       )
 
       insert(:employee_benefit,
         org: org,
         registration: registration,
-        type: :employee_dependents_health_insurance,
+        type: :health_insurance,
         amount: 250_00,
+        is_for_dependent: true,
         start_date: ~D[2020-06-01],
         end_date: ~D[2020-12-31]
       )
@@ -203,8 +215,9 @@ defmodule Sig.HR.Registrations.VouchersTest do
       insert(:employee_benefit,
         org: org,
         registration: registration,
+        type: :health_insurance,
         amount: 260_00,
-        type: :employee_dependents_health_insurance,
+        is_for_dependent: true,
         start_date: ~D[2021-01-02]
       )
 
@@ -223,22 +236,25 @@ defmodule Sig.HR.Registrations.VouchersTest do
         org: org,
         registration: registration,
         type: :transportation_voucher,
+        is_for_dependent: false,
         start_date: ~D[2020-01-01]
       )
 
       insert(:employee_benefit,
         org: org,
         registration: registration,
-        type: :employee_health_insurance,
+        type: :health_insurance,
         amount: 300_00,
+        is_for_dependent: false,
         start_date: ~D[2020-06-01]
       )
 
       insert(:employee_benefit,
         org: org,
         registration: registration,
-        type: :employee_dependents_health_insurance,
+        type: :health_insurance,
         amount: 350_00,
+        is_for_dependent: true,
         start_date: ~D[2020-06-01],
         end_date: ~D[2020-12-31]
       )
@@ -246,16 +262,18 @@ defmodule Sig.HR.Registrations.VouchersTest do
       insert(:employee_benefit,
         org: org,
         registration: registration,
+        type: :health_insurance,
         amount: 370_00,
-        type: :employee_dependents_health_insurance,
+        is_for_dependent: true,
         start_date: ~D[2021-01-01]
       )
 
       insert(:employee_benefit,
         org: org,
         registration: registration,
+        type: :health_insurance,
         amount: 360_00,
-        type: :employee_dependents_health_insurance,
+        is_for_dependent: true,
         start_date: ~D[2021-08-01]
       )
 
@@ -264,7 +282,7 @@ defmodule Sig.HR.Registrations.VouchersTest do
                %Benefit{amount: %Money{amount: 370_00}}
              ] =
                Benefits.list_by_registration(registration,
-                 types: [:employee_health_insurance, :employee_dependents_health_insurance],
+                 types: [:health_insurance, :health_insurance],
                  in_effect_on_date: ~D[2021-07-01]
                )
     end
@@ -325,15 +343,16 @@ defmodule Sig.HR.Registrations.VouchersTest do
       registration = insert(:employee_registration, org: org)
 
       insert(:employee_benefit,
-        type: :transportation_voucher,
         org: org,
-        registration: registration
+        registration: registration,
+        type: :transportation_voucher,
+        is_for_dependent: false
       )
 
-      insert(:employee_benefit, type: :meal_voucher, org: org, registration: registration)
+      insert(:employee_benefit, type: :meal_voucher, is_for_dependent: false, org: org, registration: registration)
 
-      insert(:employee_benefit, type: :transportation_voucher)
-      insert(:employee_benefit, type: :meal_voucher)
+      insert(:employee_benefit, type: :transportation_voucher, is_for_dependent: false)
+      insert(:employee_benefit, type: :meal_voucher, is_for_dependent: false)
 
       topic = "registration_id:" <> registration.id <> ":benefits"
 

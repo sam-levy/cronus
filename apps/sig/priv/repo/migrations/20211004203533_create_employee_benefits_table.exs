@@ -7,8 +7,7 @@ defmodule Sig.Repo.Migrations.CreateEmployeeBenefitsTable do
       :meal_voucher,
       :food_voucher,
       :transportation_voucher,
-      :employee_health_insurance,
-      :employee_dependents_health_insurance
+      :health_insurance
     ])
 
     create table(:employee_benefits) do
@@ -38,5 +37,11 @@ defmodule Sig.Repo.Migrations.CreateEmployeeBenefitsTable do
              :employee_benefits_start_date_before_end_date,
              check: "start_date < end_date"
            )
+
+    # TODO: Add trigger function to ensure the [type, end_date = nil]
+    # uniqueness for benefits which `is_for_dependent` is false.
+
+    # TODO: Add trigger function to ensure the period of benefits which
+    # `is_for_dependent` is false do not overlap
   end
 end

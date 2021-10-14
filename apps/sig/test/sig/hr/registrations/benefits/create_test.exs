@@ -71,13 +71,13 @@ defmodule Sig.HR.Registrations.Benefits.CreateTest do
       insert(:employee_benefit,
         org: registration.org,
         registration: registration,
-        type: :employee_dependents_health_insurance,
+        type: :health_insurance,
         is_for_dependent: false,
         end_date: nil
       )
 
       attrs = %{
-        type: :employee_dependents_health_insurance,
+        type: :health_insurance,
         amount: Enum.random(400_00..600_00),
         is_for_dependent: true,
         start_date: Faker.Date.backward(100)
@@ -125,14 +125,14 @@ defmodule Sig.HR.Registrations.Benefits.CreateTest do
       insert(:employee_benefit,
         org: registration.org,
         registration: registration,
-        type: :employee_dependents_health_insurance,
+        type: :health_insurance,
         is_for_dependent: false,
         start_date: ~D[2019-01-01],
         end_date: ~D[2021-01-01]
       )
 
       attrs = %{
-        type: :employee_dependents_health_insurance,
+        type: :health_insurance,
         amount: Enum.random(400_00..600_00),
         is_for_dependent: true,
         start_date: ~D[2020-01-01]

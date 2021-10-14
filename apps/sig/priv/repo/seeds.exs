@@ -281,5 +281,5 @@ Repo.insert!(%RecurringItemModel{
   is_fixed_amount: false,
   percentage: 100,
   percentage_target: :employee_benefit,
-  employee_benefit_type_percentage_target: :employee_dependents_health_insurance
+  employee_benefit_type_percentage_target: :health_insurance
 })

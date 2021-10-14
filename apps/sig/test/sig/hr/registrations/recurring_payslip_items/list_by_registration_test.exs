@@ -91,11 +91,11 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
       insert(:employee_benefit,
         org: org,
         registration: registration,
-        type: :employee_health_insurance,
+        type: :health_insurance,
         amount: 300_00
       )
 
-      employee_health_insurance_discount_category =
+      health_insurance_discount_category =
         insert(:payslip_category,
           org: org,
           code: "115",
@@ -109,8 +109,8 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
           description: "Desconto Seguro Saúde 50%",
           percentage: 50,
           percentage_target: :employee_benefit,
-          employee_benefit_type_percentage_target: :employee_health_insurance,
-          category: employee_health_insurance_discount_category
+          employee_benefit_type_percentage_target: :health_insurance,
+          category: health_insurance_discount_category
         )
 
       insert({:employee_registration_recurring_payslip_item, :payslip_item_model},
@@ -358,7 +358,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
       insert(:employee_benefit,
         org: org,
         registration: registration,
-        type: :employee_health_insurance,
+        type: :health_insurance,
         amount: 300_00
       )
 
@@ -376,7 +376,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
           description: "Desconto Seguro Saúde 50%",
           percentage: 50,
           percentage_target: :employee_benefit,
-          employee_benefit_type_percentage_target: :employee_health_insurance,
+          employee_benefit_type_percentage_target: :health_insurance,
           category: category
         )
 
@@ -405,7 +405,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
       insert(:employee_benefit,
         org: org,
         registration: registration,
-        type: :employee_health_insurance,
+        type: :health_insurance,
         amount: 300_00,
         start_date: ~D[2020-01-01],
         end_date: ~D[2020-06-01]
@@ -414,7 +414,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
       insert(:employee_benefit,
         org: org,
         registration: registration,
-        type: :employee_health_insurance,
+        type: :health_insurance,
         amount: 350_00,
         start_date: ~D[2021-01-01]
       )
@@ -433,7 +433,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
           description: "Desconto Seguro Saúde 50%",
           percentage: 50,
           percentage_target: :employee_benefit,
-          employee_benefit_type_percentage_target: :employee_health_insurance,
+          employee_benefit_type_percentage_target: :health_insurance,
           category: category
         )
 
