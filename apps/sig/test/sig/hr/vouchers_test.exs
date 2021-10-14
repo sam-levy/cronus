@@ -81,6 +81,195 @@ defmodule Sig.HR.Registrations.VouchersTest do
              ] = Vouchers.list_by_registration(registration)
     end
 
+    test "lists vouchers by registration ordered by start_date filtered by types" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+
+      insert(:employee_voucher,
+        org: org,
+        registration: registration,
+        type: :transport,
+        start_date: ~D[2020-01-01]
+      )
+
+      insert(:employee_voucher,
+        org: org,
+        registration: registration,
+        type: :meal,
+        start_date: ~D[2020-06-01]
+      )
+
+      insert(:employee_voucher,
+        org: org,
+        registration: registration,
+        type: :employee_health_insurance,
+        amount: 300_00,
+        start_date: ~D[2020-06-01]
+      )
+
+      insert(:employee_voucher,
+        org: org,
+        registration: registration,
+        type: :employee_dependents_health_insurance,
+        amount: 350_00,
+        start_date: ~D[2020-06-02]
+      )
+
+      insert(:employee_voucher,
+        org: org,
+        registration: registration,
+        amount: 360_00,
+        type: :employee_dependents_health_insurance,
+        start_date: ~D[2020-06-03]
+      )
+
+      assert [
+               %Voucher{amount: %Money{amount: 300_00}, start_date: ~D[2020-06-01]},
+               %Voucher{amount: %Money{amount: 350_00}, start_date: ~D[2020-06-02]},
+               %Voucher{amount: %Money{amount: 360_00}, start_date: ~D[2020-06-03]}
+             ] =
+               Vouchers.list_by_registration(registration,
+                 types: [:employee_health_insurance, :employee_dependents_health_insurance]
+               )
+    end
+
+    test "when voucher from a type does't exist" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+
+      insert(:employee_voucher,
+        org: org,
+        registration: registration,
+        type: :transport,
+        start_date: ~D[2020-01-01]
+      )
+
+      assert Vouchers.list_by_registration(registration, types: [:employee_health_insurance]) ==
+               []
+    end
+
+    test "when types opts is empty " do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+
+      insert(:employee_voucher,
+        org: org,
+        registration: registration,
+        type: :transport,
+        start_date: ~D[2020-01-01]
+      )
+
+      assert Vouchers.list_by_registration(registration, types: []) == []
+    end
+
+    test "in_effect_on_date filter" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+
+      insert(:employee_voucher,
+        org: org,
+        registration: registration,
+        type: :transport,
+        amount: 500_00,
+        start_date: ~D[2020-01-01]
+      )
+
+      insert(:employee_voucher,
+        org: org,
+        registration: registration,
+        type: :employee_health_insurance,
+        amount: 300_00,
+        start_date: ~D[2020-06-01],
+        end_date: ~D[2020-12-31]
+      )
+
+      insert(:employee_voucher,
+        org: org,
+        registration: registration,
+        type: :employee_health_insurance,
+        amount: 320_00,
+        start_date: ~D[2021-01-01]
+      )
+
+      insert(:employee_voucher,
+        org: org,
+        registration: registration,
+        type: :employee_dependents_health_insurance,
+        amount: 250_00,
+        start_date: ~D[2020-06-01],
+        end_date: ~D[2020-12-31]
+      )
+
+      insert(:employee_voucher,
+        org: org,
+        registration: registration,
+        amount: 260_00,
+        type: :employee_dependents_health_insurance,
+        start_date: ~D[2021-01-02]
+      )
+
+      assert [
+               %Voucher{amount: %Money{amount: 500_00}, start_date: ~D[2020-01-01]},
+               %Voucher{amount: %Money{amount: 320_00}, start_date: ~D[2021-01-01]},
+               %Voucher{amount: %Money{amount: 260_00}, start_date: ~D[2021-01-02]}
+             ] =
+               Vouchers.list_by_registration(registration, in_effect_on_date: ~D[2021-07-01])
+    end
+
+    test "types and in_effect_on_date filters combined" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+
+      insert(:employee_voucher,
+        org: org,
+        registration: registration,
+        type: :transport,
+        start_date: ~D[2020-01-01]
+      )
+
+      insert(:employee_voucher,
+        org: org,
+        registration: registration,
+        type: :employee_health_insurance,
+        amount: 300_00,
+        start_date: ~D[2020-06-01]
+      )
+
+      insert(:employee_voucher,
+        org: org,
+        registration: registration,
+        type: :employee_dependents_health_insurance,
+        amount: 350_00,
+        start_date: ~D[2020-06-01],
+        end_date: ~D[2020-12-31]
+      )
+
+      insert(:employee_voucher,
+        org: org,
+        registration: registration,
+        amount: 370_00,
+        type: :employee_dependents_health_insurance,
+        start_date: ~D[2021-01-01]
+      )
+
+      insert(:employee_voucher,
+        org: org,
+        registration: registration,
+        amount: 360_00,
+        type: :employee_dependents_health_insurance,
+        start_date: ~D[2021-08-01]
+      )
+
+      assert [
+               %Voucher{amount: %Money{amount: 300_00}},
+               %Voucher{amount: %Money{amount: 370_00}}
+             ] =
+               Vouchers.list_by_registration(registration,
+                 types: [:employee_health_insurance, :employee_dependents_health_insurance],
+                 in_effect_on_date: ~D[2021-07-01]
+               )
+    end
+
     test "registration has no voucher" do
       org = insert(:org)
       registration = insert(:employee_registration, org: org)
