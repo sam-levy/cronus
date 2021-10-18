@@ -1,15 +1,7 @@
 defmodule Sig.Repo.Migrations.CreateEmployeeBenefitsTable do
   use Ecto.Migration
-  import EctoEnumMigration
 
   def change do
-    create_type(:employee_benefit_type, [
-      :meal_voucher,
-      :food_voucher,
-      :transportation_voucher,
-      :health_insurance
-    ])
-
     create table(:employee_benefits) do
       add :org_id, references(:orgs), primary_key: true
 
@@ -17,11 +9,18 @@ defmodule Sig.Repo.Migrations.CreateEmployeeBenefitsTable do
         primary_key: true
 
       add :description, :string
-      add :type, :employee_benefit_type, null: false
-      add :amount, :integer, null: false
+      add :benefit_type, :employee_benefit_type
+      add :benefit_amount, :integer
       add :is_for_dependent, :boolean, null: false, default: false
       add :start_date, :date, null: false
       add :end_date, :date
+      add :is_from_model, :boolean, null: false
+
+      add :benefit_model_id,
+          references(:employee_benefit_models,
+            with: [org_id: :org_id],
+            name: :employee_benefits_benefit_model
+          )
 
       timestamps()
     end
@@ -29,13 +28,29 @@ defmodule Sig.Repo.Migrations.CreateEmployeeBenefitsTable do
     create constraint(
              :employee_benefits,
              :employee_benefits_amount_greater_than_zero,
-             check: "amount > 0"
+             check: "benefit_amount > 0"
            )
 
     create constraint(
              :employee_benefits,
              :employee_benefits_start_date_before_end_date,
              check: "start_date < end_date"
+           )
+
+    create constraint(
+             :employee_benefits,
+             :employee_benefits_is_from_model_conditional,
+             check: """
+               CASE WHEN is_from_model = true THEN
+                 benefit_amount IS NULL AND
+                 benefit_type IS NULL AND
+                 benefit_model_id IS NOT NULL
+               ELSE
+                 benefit_amount IS NOT NULL AND
+                 benefit_type IS NOT NULL AND
+                 benefit_model_id IS NULL
+               END
+             """
            )
 
     # TODO: Add trigger function to ensure the [type, end_date = nil]
