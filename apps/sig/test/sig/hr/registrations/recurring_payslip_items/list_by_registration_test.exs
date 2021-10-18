@@ -167,11 +167,11 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
       )
 
       assert [
-               %RecurringPayslipItem{code: "12", amount: %Money{amount: 800_00}},
+               %RecurringPayslipItem{code: "1038", amount: %Money{amount: 43_05}},
                %RecurringPayslipItem{code: "109", amount: %Money{amount: 18_00}},
                %RecurringPayslipItem{code: "115", amount: %Money{amount: 150_00}},
+               %RecurringPayslipItem{code: "12", amount: %Money{amount: 800_00}},
                %RecurringPayslipItem{code: "123", amount: %Money{amount: 100_00}},
-               %RecurringPayslipItem{code: "1038", amount: %Money{amount: 43_05}},
                %RecurringPayslipItem{code: nil, amount: %Money{amount: 200_00}}
              ] = ListByRegistration.call(registration)
     end

@@ -135,8 +135,11 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistration do
 
     indexed_items
     |> Enum.flat_map(&fill_virtual_fields(&1, salary_amount, indexed_benefits))
-    |> Enum.sort_by(&to_integer(&1.code))
+    |> Enum.sort_by(&handle_sort(&1.code))
   end
+
+  defp handle_sort(string) when is_binary(string), do: string
+  defp handle_sort(_), do: "ZZZ"
 
   defp fill_virtual_fields({:outside_item, items}, _salary_amount, _indexed_benefits) do
     Enum.map(items, fn item ->
@@ -237,14 +240,6 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistration do
         end)
     end
   end
-
-  defp to_integer(string) when is_binary(string) do
-    String.to_integer(string)
-  rescue
-    _ -> string
-  end
-
-  defp to_integer(_), do: nil
 
   defp put_item(map, key, item) do
     existing_items = Map.get(map, key, [])
