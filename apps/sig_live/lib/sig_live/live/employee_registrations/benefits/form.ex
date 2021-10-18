@@ -2,7 +2,7 @@ defmodule SigLive.EmployeeRegistrations.Benefits.Form do
   use SigLive, :surface_live_component
 
   alias Sig.HR
-  alias Sig.HR.Registrations.Benefits.Benefit.BenefitType
+  alias Sig.HR.BenefitModels.BenefitType
 
   alias Surface.Components.Form
 
@@ -64,7 +64,7 @@ defmodule SigLive.EmployeeRegistrations.Benefits.Form do
           <ErrorTag class="form-error-tag"/>
         </Field>
 
-        <Field name={:type} :if={@form_state != :edit_mode} class="form-field">
+        <Field name={:benefit_type} :if={@form_state != :edit_mode} class="form-field">
           <Label class="form-label">Benefício</Label>
           <Select
             prompt=""
@@ -74,7 +74,7 @@ defmodule SigLive.EmployeeRegistrations.Benefits.Form do
           <ErrorTag class="form-error-tag"/>
         </Field>
 
-        <Field name={:amount} :if={@form_state != :edit_mode} class="form-field">
+        <Field name={:benefit_amount} :if={@form_state != :edit_mode} class="form-field">
           <Label class="form-label">Valor</Label>
           <TextInput
             value={format_benefit_amount(@changeset)}
