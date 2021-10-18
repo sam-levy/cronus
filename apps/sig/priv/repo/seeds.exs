@@ -1,3 +1,4 @@
+alias Sig.Finance.HistoricalAmount
 alias Sig.Repo
 
 # Orgs
@@ -277,9 +278,30 @@ Repo.insert!(%RecurringItemModel{
 Repo.insert!(%RecurringItemModel{
   org_id: main_org.id,
   category_id: health_insurance_category.id,
-  description: "Assistência médica de dependentes",
+  description: "Assistência médica",
   is_fixed_amount: false,
   percentage: 100,
   percentage_target: :employee_benefit,
   employee_benefit_type_percentage_target: :health_insurance
+})
+
+# Benefit Models
+alias Sig.HR.BenefitModels.BenefitModel
+
+Repo.insert!(%BenefitModel{
+  org_id: main_org.id,
+  description: "Sulamérica Saúde Standard ||",
+  type: :health_insurance,
+  amount: 280_00,
+  amount_date: ~D[2020-01-01],
+  historical_amounts: [%HistoricalAmount{date: ~D[2020-01-01], amount: Money.new(280_00)}]
+})
+
+Repo.insert!(%BenefitModel{
+  org_id: main_org.id,
+  description: "Sulamérica Saúde Standard |",
+  type: :health_insurance,
+  amount: 250_00,
+  amount_date: ~D[2020-01-01],
+  historical_amounts: [%HistoricalAmount{date: ~D[2020-01-01], amount: Money.new(250_00)}]
 })
