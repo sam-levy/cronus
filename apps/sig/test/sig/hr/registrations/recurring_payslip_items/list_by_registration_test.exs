@@ -8,7 +8,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
     test "lists recurring payslip items ordered by code" do
       org = insert(:org)
       registration = insert(:employee_registration, org: org)
-      insert(:employee_salary, org: org, registration: registration, amount: 2000_00)
+      insert(:employee_salary, org: org, registration: registration, amount: 2_000_00)
 
       # outside_item
 
@@ -86,13 +86,13 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
         payslip_recurring_item_model: salary_payslip_recurring_item_model
       )
 
-      # payslip_item_model employee_benefit
+      # payslip_item_model employee_benefit is_from_model false
 
       insert(:employee_benefit,
         org: org,
         registration: registration,
-        type: :health_insurance,
-        amount: 300_00
+        benefit_type: :health_insurance,
+        benefit_amount: 300_00
       )
 
       health_insurance_discount_category =
@@ -103,7 +103,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
           description: "ASSISTÊNCIA MÉDICA"
         )
 
-      benefit_payslip_recurring_item_model =
+      health_insurance_benefit_payslip_recurring_item_model =
         insert({:payslip_recurring_item_model, :percentage},
           org: org,
           description: "Desconto Seguro Saúde 50%",
@@ -116,15 +116,63 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
       insert({:employee_registration_recurring_payslip_item, :payslip_item_model},
         org: org,
         registration: registration,
-        payslip_recurring_item_model: benefit_payslip_recurring_item_model
+        payslip_recurring_item_model: health_insurance_benefit_payslip_recurring_item_model
+      )
+
+      # payslip_item_model employee_benefit is_from_model true
+
+      historical_amounts = [
+        build(:historical_amount, date: ~D[2021-01-01], amount: %Money{amount: 300_00}),
+        build(:historical_amount, date: ~D[2020-06-01], amount: %Money{amount: 200_00})
+      ]
+
+      transportation_voucher_benefit_model =
+        insert(:employee_benefit_model,
+          org: org,
+          type: :transportation_voucher,
+          amount_date: ~D[2021-01-01],
+          amount: 300_00,
+          historical_amounts: historical_amounts
+        )
+
+      insert(:employee_benefit_from_model,
+        org: org,
+        registration: registration,
+        start_date: ~D[2020-04-01],
+        benefit_model: transportation_voucher_benefit_model
+      )
+
+      transportation_voucher_discount_category =
+        insert(:payslip_category,
+          org: org,
+          code: "109",
+          entry_type: :debit,
+          description: "DESC. VALE TRANSPORTE"
+        )
+
+      transportation_voucher_benefit_payslip_recurring_item_model =
+        insert({:payslip_recurring_item_model, :percentage},
+          org: org,
+          description: "Desconto Vale Transporte 6%",
+          percentage: 6,
+          percentage_target: :employee_benefit,
+          employee_benefit_type_percentage_target: :transportation_voucher,
+          category: transportation_voucher_discount_category
+        )
+
+      insert({:employee_registration_recurring_payslip_item, :payslip_item_model},
+        org: org,
+        registration: registration,
+        payslip_recurring_item_model: transportation_voucher_benefit_payslip_recurring_item_model
       )
 
       assert [
-               %RecurringPayslipItem{code: "12"},
-               %RecurringPayslipItem{code: "115"},
-               %RecurringPayslipItem{code: "123"},
-               %RecurringPayslipItem{code: "1038"},
-               %RecurringPayslipItem{code: nil}
+               %RecurringPayslipItem{code: "12", amount: %Money{amount: 800_00}},
+               %RecurringPayslipItem{code: "109", amount: %Money{amount: 18_00}},
+               %RecurringPayslipItem{code: "115", amount: %Money{amount: 150_00}},
+               %RecurringPayslipItem{code: "123", amount: %Money{amount: 100_00}},
+               %RecurringPayslipItem{code: "1038", amount: %Money{amount: 43_05}},
+               %RecurringPayslipItem{code: nil, amount: %Money{amount: 200_00}}
              ] = ListByRegistration.call(registration)
     end
 
@@ -351,15 +399,16 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
              ] = ListByRegistration.call(registration, ~D[2021-02-01])
     end
 
-    test "payslip_item_model virtual fields from employee_benefit" do
+    test "payslip_item_model virtual fields from employee_benefit is_from_model false" do
       org = insert(:org)
       registration = insert(:employee_registration, org: org)
 
       insert(:employee_benefit,
         org: org,
         registration: registration,
-        type: :health_insurance,
-        amount: 300_00
+        is_from_model: false,
+        benefit_amount: 300_00,
+        benefit_type: :health_insurance
       )
 
       category =
@@ -398,15 +447,16 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
              ] = ListByRegistration.call(registration)
     end
 
-    test "payslip_item_model virtual fields from employee_benefit considers the benefit in effect" do
+    test "payslip_item_model virtual fields from employee_benefit is_from_model false considers the benefit in effect" do
       org = insert(:org)
       registration = insert(:employee_registration, org: org)
 
       insert(:employee_benefit,
         org: org,
         registration: registration,
-        type: :health_insurance,
-        amount: 300_00,
+        is_from_model: false,
+        benefit_amount: 300_00,
+        benefit_type: :health_insurance,
         start_date: ~D[2020-01-01],
         end_date: ~D[2020-06-01]
       )
@@ -414,8 +464,9 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
       insert(:employee_benefit,
         org: org,
         registration: registration,
-        type: :health_insurance,
-        amount: 350_00,
+        is_from_model: false,
+        benefit_amount: 350_00,
+        benefit_type: :health_insurance,
         start_date: ~D[2021-01-01]
       )
 
@@ -485,12 +536,171 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
              ] = ListByRegistration.call(registration, ~D[2021-01-01])
     end
 
+    test "payslip_item_model virtual fields from employee_benefit is_from_model true considers the benefit in effect" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+
+      historical_amounts = [
+        build(:historical_amount, date: ~D[2021-01-01], amount: %Money{amount: 300_00}),
+        build(:historical_amount, date: ~D[2020-06-01], amount: %Money{amount: 200_00}),
+        build(:historical_amount, date: ~D[2020-01-01], amount: %Money{amount: 100_00})
+      ]
+
+      benefit_model =
+        insert(:employee_benefit_model,
+          org: org,
+          type: :health_insurance,
+          amount_date: ~D[2020-01-01],
+          amount: 300_00,
+          historical_amounts: historical_amounts
+        )
+
+      insert(:employee_benefit_from_model,
+        org: org,
+        registration: registration,
+        start_date: ~D[2020-04-01],
+        benefit_model: benefit_model,
+        is_for_dependent: true
+      )
+
+      discount_category =
+        insert(:payslip_category,
+          org: org,
+          code: "115",
+          entry_type: :debit,
+          description: "ASSISTÊNCIA MÉDICA"
+        )
+
+      benefit_payslip_recurring_item_model =
+        insert({:payslip_recurring_item_model, :percentage},
+          org: org,
+          description: "Assistência médica de dependentes",
+          percentage: 100,
+          percentage_target: :employee_benefit,
+          employee_benefit_type_percentage_target: :health_insurance,
+          category: discount_category
+        )
+
+      %{id: id} =
+        insert({:employee_registration_recurring_payslip_item, :payslip_item_model},
+          org: org,
+          registration: registration,
+          payslip_recurring_item_model: benefit_payslip_recurring_item_model
+        )
+
+      assert [
+               %RecurringPayslipItem{
+                 id: ^id,
+                 code: "115",
+                 description: "ASSISTÊNCIA MÉDICA",
+                 entry_type: :debit,
+                 amount: %Money{amount: 0}
+               }
+             ] = ListByRegistration.call(registration, ~D[2020-01-01])
+
+      assert [
+               %RecurringPayslipItem{
+                 id: ^id,
+                 code: "115",
+                 description: "ASSISTÊNCIA MÉDICA",
+                 entry_type: :debit,
+                 amount: %Money{amount: 100_00}
+               }
+             ] = ListByRegistration.call(registration, ~D[2020-04-01])
+
+      assert [
+               %RecurringPayslipItem{
+                 id: ^id,
+                 code: "115",
+                 description: "ASSISTÊNCIA MÉDICA",
+                 entry_type: :debit,
+                 amount: %Money{amount: 200_00}
+               }
+             ] = ListByRegistration.call(registration, ~D[2020-06-01])
+
+      assert [
+               %RecurringPayslipItem{
+                 id: ^id,
+                 code: "115",
+                 description: "ASSISTÊNCIA MÉDICA",
+                 entry_type: :debit,
+                 amount: %Money{amount: 300_00}
+               }
+             ] = ListByRegistration.call(registration, ~D[2021-01-01])
+
+      assert [
+               %RecurringPayslipItem{
+                 id: ^id,
+                 code: "115",
+                 description: "ASSISTÊNCIA MÉDICA",
+                 entry_type: :debit,
+                 amount: %Money{amount: 300_00}
+               }
+             ] = ListByRegistration.call(registration)
+    end
+
     test "when registration has no recurring payslip items" do
       registration = insert(:employee_registration)
 
       assert ListByRegistration.call(registration) == []
     end
 
-    # TODO: Test aggregation of models from the same type
+    test "aggregate benefits from the same type" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+
+      insert(:employee_benefit,
+        org: org,
+        registration: registration,
+        is_for_dependent: true,
+        is_from_model: false,
+        benefit_amount: 300_00,
+        benefit_type: :health_insurance
+      )
+
+      insert(:employee_benefit,
+        org: org,
+        registration: registration,
+        is_for_dependent: true,
+        is_from_model: false,
+        benefit_amount: 300_00,
+        benefit_type: :health_insurance
+      )
+
+      category =
+        insert(:payslip_category,
+          org: org,
+          code: "115",
+          entry_type: :debit,
+          description: "ASSISTÊNCIA MÉDICA"
+        )
+
+      payslip_recurring_item_model =
+        insert({:payslip_recurring_item_model, :percentage},
+          org: org,
+          description: "Desconto Seguro Saúde 50%",
+          percentage: 100,
+          percentage_target: :employee_benefit,
+          employee_benefit_type_percentage_target: :health_insurance,
+          category: category
+        )
+
+      %{id: id} =
+        insert({:employee_registration_recurring_payslip_item, :payslip_item_model},
+          org: org,
+          registration: registration,
+          payslip_recurring_item_model: payslip_recurring_item_model
+        )
+
+        assert [
+          %RecurringPayslipItem{
+            id: ^id,
+            code: "115",
+            description: "ASSISTÊNCIA MÉDICA",
+            entry_type: :debit,
+            amount: %Money{amount: 600_00}
+          }
+        ] = ListByRegistration.call(registration)
+    end
   end
 end

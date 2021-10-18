@@ -124,7 +124,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistration do
         in_effect_on_date: context.start_date
       )
 
-    %{context | indexed_benefits: Map.new(benefits, &{&1.type, &1})}
+    %{context | indexed_benefits: Enum.reduce(benefits, %{}, &put_item(&2, &1.type, &1))}
   end
 
   defp handle_virtual_fields(%{status: :halted}), do: []
@@ -223,8 +223,18 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistration do
 
   defp handle_benefit_amount(indexed_benefits, benefit_type, percentage) do
     case Map.get(indexed_benefits, benefit_type) do
-      nil -> Money.new(0)
-      %{amount: amount} -> Money.multiply(amount, percentage / 100)
+      nil ->
+        Money.new(0)
+
+      [%{amount: amount}] ->
+        Money.multiply(amount, percentage / 100)
+
+      benefits ->
+        Enum.reduce(benefits, 0, fn %{amount: amount}, acc ->
+          amount
+          |> Money.multiply(percentage / 100)
+          |> Money.add(acc)
+        end)
     end
   end
 
