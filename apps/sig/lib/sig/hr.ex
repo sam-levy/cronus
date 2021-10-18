@@ -1,4 +1,5 @@
 defmodule Sig.HR do
+  alias Sig.HR.BenefitModels
   alias Sig.HR.Payslips.Categories
   alias Sig.HR.Payslips.RecurringItemModels
   alias Sig.HR.Registrations
@@ -36,6 +37,8 @@ defmodule Sig.HR do
   defdelegate broadcast_registration_salaries(registration), to: Salaries
   defdelegate create_salary_change(attrs \\ %{}), to: Salaries, as: :create_change
 
+  defdelegate list_benefit_models(org), to: BenefitModels, as: :list
+
   defdelegate list_benefits_by_registration(registration), to: Benefits, as: :list_by_registration
   defdelegate get_benefit(registration, id), to: Benefits, as: :get
   defdelegate create_benefit(registration, attrs), to: Benefits, as: :create
@@ -44,6 +47,7 @@ defmodule Sig.HR do
   defdelegate subscribe_to_registration_benefits(registration), to: Benefits
   defdelegate broadcast_registration_benefits(registration), to: Benefits
   defdelegate create_benefit_change(attrs \\ %{}), to: Benefits, as: :create_change
+  defdelegate create_benefit_from_model_change(attrs \\ %{}), to: Benefits, as: :create_from_model_change
   defdelegate update_benefit_change(benefit, attrs \\ %{}), to: Benefits, as: :update_change
 
   defdelegate list_warnings_by_registration(registration), to: Warnings, as: :list_by_registration
