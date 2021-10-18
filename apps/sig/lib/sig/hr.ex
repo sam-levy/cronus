@@ -37,9 +37,9 @@ defmodule Sig.HR do
   defdelegate create_salary_change(attrs \\ %{}), to: Salaries, as: :create_change
 
   defdelegate list_benefits_by_registration(registration), to: Benefits, as: :list_by_registration
-  defdelegate list_benefit_types, to: Benefits
   defdelegate get_benefit(registration, id), to: Benefits, as: :get
   defdelegate create_benefit(registration, attrs), to: Benefits, as: :create
+  defdelegate create_benefit_from_model(registration, attrs), to: Benefits, as: :create_from_model
   defdelegate update_benefit(benefit, attrs), to: Benefits, as: :update
   defdelegate subscribe_to_registration_benefits(registration), to: Benefits
   defdelegate broadcast_registration_benefits(registration), to: Benefits
