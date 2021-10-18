@@ -2,7 +2,7 @@ defmodule Sig.HR.Payslips.RecurringItemModels.RecurringItemModel do
   use Sig.Schema
 
   alias Sig.HR.Payslips.Categories.Category
-  alias Sig.HR.Registrations.Benefits.Benefit.BenefitType
+  alias Sig.HR.BenefitModels.BenefitType
   alias Sig.Organizations.Org
 
   defenum(PercentageTarget, :payslip_recurring_item_model_percentage_target, [
@@ -78,4 +78,6 @@ defmodule Sig.HR.Payslips.RecurringItemModels.RecurringItemModel do
   end
 
   defp handle_percentage_changeset(changeset), do: changeset
+
+  # TODO: Add amount_start_date and historical_amounts
 end

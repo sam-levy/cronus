@@ -8,6 +8,8 @@ defmodule Sig.Factory do
   use Sig.Factories.RegistrationFactory
   use Sig.Factories.UserFactory
   use Sig.Factories.SalaryFactory
+  use Sig.Factories.HistoricalAmountFactory
+  use Sig.Factories.EmployeeBenefitModelFactory
   use Sig.Factories.EmployeeBenefitFactory
   use Sig.Factories.WarningFactory
   use Sig.Factories.SuspensionFactory
