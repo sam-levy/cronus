@@ -115,7 +115,7 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
 
                 <DropdownBtn text="Adicionar">
                   <a :on-click="open_new_payslip_item_form" class="dropdown-item">Item do holerite</a>
-                  <a :on-click="open_new_payslip_item_model_form" class="dropdown-item">Item partir de modelo</a>
+                  <a :on-click="open_new_payslip_item_model_form" class="dropdown-item">Item a partir de modelo</a>
                   <a :on-click="open_new_outside_item_form" class="dropdown-item">Item fora do holerite</a>
                 </DropdownBtn>
               </div>
