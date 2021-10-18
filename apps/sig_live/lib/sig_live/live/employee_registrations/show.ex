@@ -91,7 +91,7 @@ defmodule SigLive.EmployeeRegistrations.Show do
   def render(assigns) do
     ~F"""
     <div>
-      <RecurringPayslipItems.List id="recurring_payslip_items_list" {=@org} {=@registration} {=@recurring_payslip_items}/>
+      <RecurringPayslipItems.List id="recurring_payslip_items_list" {=@registration} {=@recurring_payslip_items}/>
       <Salaries.List id="benefit_list" {=@registration} {=@salaries}/>
       <Benefits.List id="salary_list" {=@registration} {=@benefits}/>
       <Warnings.List id="warning_list" {=@registration} {=@warnings}/>

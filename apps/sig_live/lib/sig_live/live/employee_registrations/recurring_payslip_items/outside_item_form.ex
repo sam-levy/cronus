@@ -20,7 +20,6 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.OutsideItemForm do
 
   prop close_event, :event, required: true
   prop close_fun, :fun, required: true
-  prop org, :struct, required: true
   prop registration, :struct, required: true
 
   data changeset, :struct, default: HR.create_recurring_payslip_item_change(:outside_item)

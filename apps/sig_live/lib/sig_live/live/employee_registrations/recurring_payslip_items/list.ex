@@ -10,7 +10,6 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
   alias SigLive.EmployeeRegistrations.RecurringPayslipItems.PayslipItemModelForm
   alias SigLive.EmployeeRegistrations.RecurringPayslipItems.OutsideItemForm
 
-  prop org, :struct, required: true
   prop registration, :struct, required: true
   prop recurring_payslip_items, :list, required: true
 
@@ -82,7 +81,6 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
         id="payslip_item_form"
         close_event="close_modals"
         close_fun={fn -> close_modals(@id) end}
-        {=@org}
         {=@registration}
       />
 
@@ -91,7 +89,6 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
         id="payslip_item_model_form"
         close_event="close_modals"
         close_fun={fn -> close_modals(@id) end}
-        {=@org}
         {=@registration}
       />
 
@@ -100,7 +97,6 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
         id="outside_item_form"
         close_event="close_modals"
         close_fun={fn -> close_modals(@id) end}
-        {=@org}
         {=@registration}
       />
 

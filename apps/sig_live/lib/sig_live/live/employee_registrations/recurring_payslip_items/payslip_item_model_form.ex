@@ -19,7 +19,6 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.PayslipItemModelFo
 
   prop close_event, :event, required: true
   prop close_fun, :fun, required: true
-  prop org, :struct, required: true
   prop registration, :struct, required: true
 
   data changeset, :struct, default: HR.create_recurring_payslip_item_change(:payslip_item_model)
@@ -41,7 +40,7 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.PayslipItemModelFo
           <Label class="form-label">A partir do modelo</Label>
           <Select
             prompt=""
-            options={recurring_item_model_for_select(@org)}
+            options={recurring_item_model_for_select(@registration.org)}
             class="form-input"
           />
           <ErrorTag class="form-error-tag"/>

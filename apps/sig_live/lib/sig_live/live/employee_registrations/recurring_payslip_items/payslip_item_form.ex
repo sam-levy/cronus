@@ -20,7 +20,6 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.PayslipItemForm do
 
   prop close_event, :event, required: true
   prop close_fun, :fun, required: true
-  prop org, :struct, required: true
   prop registration, :struct, required: true
 
   data changeset, :struct, default: HR.create_recurring_payslip_item_change(:payslip_item)
@@ -42,7 +41,7 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.PayslipItemForm do
           <Label class="form-label">Categoria</Label>
           <Select
             prompt=""
-            options={payslip_categories_for_select(@org)}
+            options={payslip_categories_for_select(@registration.org)}
             class="form-input"
           />
           <ErrorTag class="form-error-tag"/>
