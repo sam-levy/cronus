@@ -1,3 +1,4 @@
+alias Sig.Finance.HistoricalAmount
 alias Sig.Repo
 
 # Orgs
@@ -55,6 +56,7 @@ alias Sig.Entities.Entity
 alias Sig.Entities.Companies.Company
 
 entity = Repo.insert!(%Entity{org_id: main_org.id, type: :company})
+
 Repo.insert!(%Company{
   trade_name: "CiB Mogi",
   is_virtual: false,
@@ -65,6 +67,7 @@ Repo.insert!(%Company{
 })
 
 entity = Repo.insert!(%Entity{org_id: main_org.id, type: :company})
+
 Repo.insert!(%Company{
   trade_name: "CiB Suzano",
   is_virtual: false,
@@ -75,6 +78,7 @@ Repo.insert!(%Company{
 })
 
 entity = Repo.insert!(%Entity{org_id: main_org.id, type: :company})
+
 Repo.insert!(%Company{
   trade_name: "CiB Penha",
   is_virtual: false,
@@ -85,6 +89,7 @@ Repo.insert!(%Company{
 })
 
 entity = Repo.insert!(%Entity{org_id: main_org.id, type: :company})
+
 Repo.insert!(%Company{
   trade_name: "CiB São Miguel",
   is_virtual: false,
@@ -95,6 +100,7 @@ Repo.insert!(%Company{
 })
 
 entity = Repo.insert!(%Entity{org_id: main_org.id, type: :company})
+
 Repo.insert!(%Company{
   trade_name: "Escritório",
   is_virtual: true,
@@ -103,6 +109,7 @@ Repo.insert!(%Company{
 })
 
 entity = Repo.insert!(%Entity{org_id: main_org.id, type: :company})
+
 Repo.insert!(%Company{
   trade_name: "Call Center",
   is_virtual: true,
@@ -111,6 +118,7 @@ Repo.insert!(%Company{
 })
 
 entity = Repo.insert!(%Entity{org_id: main_org.id, type: :company})
+
 Repo.insert!(%Company{
   trade_name: "Central de Processamento",
   is_virtual: true,
@@ -139,3 +147,167 @@ Repo.insert!(%Position{org_id: main_org.id, name: "Atendente"})
 Repo.insert!(%Position{org_id: main_org.id, name: "Assistente Administrativo"})
 Repo.insert!(%Position{org_id: main_org.id, name: "Auxiliar de Escritório"})
 Repo.insert!(%Position{org_id: main_org.id, name: "Entregador Motorizado"})
+
+# Payslip Categories
+alias Sig.HR.Payslips.Categories.Category
+
+salary_category = Repo.insert!(%Category{
+  org_id: main_org.id,
+  code: "1",
+  description: "SALÁRIO",
+  entry_type: :credit
+})
+
+Repo.insert!(%Category{
+  org_id: main_org.id,
+  code: "5",
+  description: "D.S.R. SOBRE HORAS EXTRAS",
+  entry_type: :credit
+})
+
+Repo.insert!(%Category{
+  org_id: main_org.id,
+  code: "82",
+  description: "HORA EXTRAS 100%",
+  entry_type: :credit
+})
+
+Repo.insert!(%Category{
+  org_id: main_org.id,
+  code: "1221",
+  description: "ADIC. NOTURNO 50%",
+  entry_type: :credit
+})
+
+Repo.insert!(%Category{
+  org_id: main_org.id,
+  code: "152",
+  description: "DSR ADICIONAL NOTURNO",
+  entry_type: :credit
+})
+
+cashier_bonus_category = Repo.insert!(%Category{
+  org_id: main_org.id,
+  code: "1000",
+  description: "QUEBRA DE CAIXA",
+  entry_type: :credit
+})
+
+uniform_cleaning = Repo.insert!(%Category{
+  org_id: main_org.id,
+  code: "1038",
+  description: "LAVAR UNIFORME",
+  entry_type: :credit
+})
+
+Repo.insert!(%Category{
+  org_id: main_org.id,
+  code: "11",
+  description: "INSS SOBRE SALÁRIO",
+  entry_type: :debit
+})
+
+in_advance_payments_category = Repo.insert!(%Category{
+  org_id: main_org.id,
+  code: "12",
+  description: "ADIANTAMENTO ANTERIOR",
+  entry_type: :debit
+})
+
+transportation_voucher_discount_category = Repo.insert!(%Category{
+  org_id: main_org.id,
+  code: "109",
+  description: "DESC. VALE TRANSPORTE",
+  entry_type: :debit
+})
+
+health_insurance_category = Repo.insert!(%Category{
+  org_id: main_org.id,
+  code: "115",
+  description: "ASSISTÊNCIA MÉDICA",
+  entry_type: :debit
+})
+
+# Payslip Recurring Item Moddels
+alias Sig.HR.Payslips.RecurringItemModels.RecurringItemModel
+
+Repo.insert!(%RecurringItemModel{
+  org_id: main_org.id,
+  category_id: cashier_bonus_category.id,
+  description: "Quebra de caixa - Mogi das Cruzes",
+  is_fixed_amount: true,
+  amount: 60_70
+})
+
+Repo.insert!(%RecurringItemModel{
+  org_id: main_org.id,
+  category_id: uniform_cleaning.id,
+  description: "Lavagem de uniformes - Mogi das Cruzes",
+  is_fixed_amount: true,
+  amount: 43_05
+})
+
+Repo.insert!(%RecurringItemModel{
+  org_id: main_org.id,
+  category_id: salary_category.id,
+  description: "Salário",
+  is_fixed_amount: false,
+  percentage: 100,
+  percentage_target: :employee_salary
+})
+
+Repo.insert!(%RecurringItemModel{
+  org_id: main_org.id,
+  category_id: in_advance_payments_category.id,
+  description: "Adiantamento de salário",
+  is_fixed_amount: false,
+  percentage: 40,
+  percentage_target: :employee_salary
+})
+
+Repo.insert!(%RecurringItemModel{
+  org_id: main_org.id,
+  category_id: transportation_voucher_discount_category.id,
+  description: "Desconto de vale transporte",
+  is_fixed_amount: false,
+  percentage: 6,
+  percentage_target: :employee_benefit,
+  employee_benefit_type_percentage_target: :transportation_voucher
+})
+
+Repo.insert!(%RecurringItemModel{
+  org_id: main_org.id,
+  category_id: health_insurance_category.id,
+  description: "Assistência médica",
+  is_fixed_amount: false,
+  percentage: 100,
+  percentage_target: :employee_benefit,
+  employee_benefit_type_percentage_target: :health_insurance
+})
+
+# Benefit Models
+alias Sig.HR.BenefitModels.BenefitModel
+
+Repo.insert!(%BenefitModel{
+  org_id: main_org.id,
+  description: "Sulamérica Saúde Standard ||",
+  type: :health_insurance,
+  amount: 280_00,
+  amount_date: ~D[2020-01-01],
+  historical_amounts: [
+    %HistoricalAmount{date: ~D[2020-06-01], amount: Money.new(300_00)},
+    %HistoricalAmount{date: ~D[2020-01-01], amount: Money.new(280_00)}
+  ]
+})
+
+Repo.insert!(%BenefitModel{
+  org_id: main_org.id,
+  description: "Sulamérica Saúde Standard |",
+  type: :health_insurance,
+  amount: 250_00,
+  amount_date: ~D[2020-01-01],
+  historical_amounts: [
+    %HistoricalAmount{date: ~D[2020-06-01], amount: Money.new(280_00)},
+    %HistoricalAmount{date: ~D[2020-01-01], amount: Money.new(250_00)}
+  ]
+})

@@ -5,6 +5,7 @@ defmodule Sig.HR.RegistrationsTest do
   alias Sig.HR.Registrations
   alias Sig.HR.Registrations.Salaries.Salary
   alias Sig.HR.Registrations.Registration
+  alias Sig.Organizations.Org
 
   @endpoint SigLive.Endpoint
 
@@ -232,12 +233,13 @@ defmodule Sig.HR.RegistrationsTest do
     end
 
     test "preloads" do
-      org = insert(:org)
+      %{id: org_id} = org = insert(:org)
       individual = insert(:individual, org: org)
       registration = insert(:employee_registration, org: org, individual: individual)
       insert_list(2, :employee_salary, org: org, registration: registration)
 
-      assert %Registration{salaries: [%Salary{}, %Salary{}]} = Registrations.get(individual, registration.id)
+      assert %Registration{salaries: [%Salary{}, %Salary{}], org: %Org{id: ^org_id}} =
+               Registrations.get(individual, registration.id)
     end
 
     test "registration from other individual" do

@@ -68,8 +68,8 @@ defmodule SigLive.ViewHelpersTest do
 
     test "returns a map of enums with strings keys" do
       assert ViewHelpers.enum_for_select(TestEnum) == %{
-               "first item" => "first_item",
-               "second item" => "second_item"
+               "First Item" => "first_item",
+               "Second Item" => "second_item"
              }
     end
   end
@@ -79,9 +79,9 @@ defmodule SigLive.ViewHelpersTest do
       list = [:first_item, :second_item]
 
       assert ViewHelpers.list_for_select(list) == %{
-        "first item" => "first_item",
-        "second item" => "second_item"
-      }
+               "First Item" => "first_item",
+               "Second Item" => "second_item"
+             }
     end
   end
 
@@ -117,6 +117,16 @@ defmodule SigLive.ViewHelpersTest do
     end
   end
 
+  describe "format_type/1" do
+    assert ViewHelpers.format_type(:health_insurance) == "health insurance"
+    assert ViewHelpers.format_type("health_insurance") == "health insurance"
+  end
+
+  describe "capitalize_type/1" do
+    assert ViewHelpers.capitalize_type(:health_insurance) == "Health Insurance"
+    assert ViewHelpers.capitalize_type("health_insurance") == "Health Insurance"
+  end
+
   describe "companies_for_select/1" do
     test "returns a map with companies registration name as keys and entity ids as values" do
       %{entity_id: acme_id} = acme = insert(:company, registration_name: "Acme LLC")
@@ -149,6 +159,10 @@ defmodule SigLive.ViewHelpersTest do
 
   describe "format_amount/1" do
     test "formats amount" do
+      assert ViewHelpers.format_amount(%Ecto.Changeset{
+               changes: %{amount: %Money{amount: 2_000_00}}
+             }) == "2.000,00"
+
       assert ViewHelpers.format_amount(%Money{amount: 1_500_00}) == "1.500,00"
       assert ViewHelpers.format_amount(nil) == ""
     end

@@ -41,7 +41,7 @@
     <type label="Inet CIDR Addr" length="0" sql="CIDR" quote="'"/>
     <type label="Geometry" length="0" sql="GEOMETRY" quote="'"/>
   </group>
-</datatypes><table x="571" y="1225" name="products">
+</datatypes><table x="367" y="1275" name="products">
 <row name="id" null="1" autoincrement="1">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
@@ -64,7 +64,7 @@
 <part>id</part>
 </key>
 </table>
-<table x="570" y="1022" name="sale_prices">
+<table x="366" y="1091" name="sale_prices">
 <row name="id" null="1" autoincrement="1">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
@@ -82,7 +82,7 @@
 <part>id</part>
 </key>
 </table>
-<table x="1069" y="1288" name="invoices">
+<table x="865" y="1338" name="invoices">
 <row name="customer_id" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
 <default>NULL</default><relation table="entities" row="id" />
@@ -110,18 +110,21 @@
 <part>id</part>
 </key>
 </table>
-<table x="1325" y="1204" name="entities">
+<table x="1121" y="1254" name="entities">
 <row name="id" null="1" autoincrement="1">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
 <row name="org_id" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
+<row name="type" null="1" autoincrement="0">
+<datatype>INTEGER</datatype>
+<default>NULL</default></row>
 <key type="PRIMARY" name="">
 <part>id</part>
 </key>
 </table>
-<table x="1764" y="1281" name="users*">
+<table x="1560" y="1331" name="users*">
 <row name="id" null="1" autoincrement="1">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
@@ -154,7 +157,7 @@
 </key>
 <comment>Reference table -&gt; shared across all Citus nodes</comment>
 </table>
-<table x="260" y="1225" name="product_combinations">
+<table x="353" y="1503" name="product_combinations">
 <row name="parent_id" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
 <default>NULL</default><relation table="products" row="id" />
@@ -169,7 +172,7 @@
 <key type="PRIMARY" name="">
 </key>
 </table>
-<table x="1034" y="1023" name="ledger_entries">
+<table x="830" y="1092" name="ledger_entries">
 <row name="id" null="1" autoincrement="1">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
@@ -196,7 +199,7 @@
 <part>id</part>
 </key>
 </table>
-<table x="832" y="1179" name="invoice_items">
+<table x="628" y="1229" name="invoice_items">
 <row name="id" null="1" autoincrement="1">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
@@ -228,7 +231,7 @@
 <part>id</part>
 </key>
 </table>
-<table x="1555" y="1304" name="individuals">
+<table x="1351" y="1354" name="individuals">
 <row name="id" null="1" autoincrement="1">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
@@ -253,7 +256,7 @@
 <part>id</part>
 </key>
 </table>
-<table x="1547" y="1031" name="companies">
+<table x="1342" y="1082" name="companies">
 <row name="id" null="1" autoincrement="1">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
@@ -285,7 +288,7 @@
 <part>id</part>
 </key>
 </table>
-<table x="934" y="1534" name="entity_sale_products">
+<table x="730" y="1584" name="entity_sale_products">
 <row name="product_id" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
 <default>NULL</default><relation table="products" row="id" />
@@ -303,7 +306,7 @@
 <key type="PRIMARY" name="">
 </key>
 </table>
-<table x="762" y="1024" name="services">
+<table x="558" y="1093" name="services">
 <row name="id" null="1" autoincrement="1">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
@@ -314,7 +317,7 @@
 <part>id</part>
 </key>
 </table>
-<table x="1219" y="1817" name="bills">
+<table x="1015" y="1867" name="bills">
 <row name="id" null="1" autoincrement="1">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
@@ -352,7 +355,7 @@
 <part>id</part>
 </key>
 </table>
-<table x="1812" y="1609" name="bank_transactions">
+<table x="1608" y="1659" name="bank_transactions">
 <row name="id" null="1" autoincrement="1">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
@@ -381,7 +384,7 @@
 <part>id</part>
 </key>
 </table>
-<table x="1521" y="1701" name="bank_accounts">
+<table x="1317" y="1751" name="bank_accounts">
 <row name="entity_id" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
 <default>NULL</default><relation table="entities" row="id" />
@@ -427,7 +430,7 @@
 <part>id</part>
 </key>
 </table>
-<table x="1520" y="1494" name="entity_bank_accounts">
+<table x="1316" y="1544" name="entity_bank_accounts">
 <row name="org_id" null="0" autoincrement="0">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
@@ -451,7 +454,7 @@
 <key type="PRIMARY" name="">
 </key>
 </table>
-<table x="764" y="783" name="ledger_categories">
+<table x="577" y="921" name="ledger_categories">
 <row name="org_id" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
 <default>NULL</default><relation table="orgs*" row="id" />
@@ -472,7 +475,7 @@
 <part>id</part>
 </key>
 </table>
-<table x="1852" y="782" name="employee_registrations">
+<table x="1648" y="832" name="employee_registrations">
 <row name="id" null="1" autoincrement="1">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
@@ -512,7 +515,7 @@
 <part>id</part>
 </key>
 </table>
-<table x="2138" y="981" name="payslips">
+<table x="1967" y="1035" name="payslips">
 <row name="paylisp_group_id" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
 <default>NULL</default><relation table="payslip_groups" row="id" />
@@ -523,38 +526,38 @@
 <row name="org_id" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
-<row name="employee_registration_id" null="1" autoincrement="0">
+<row name="registration_id" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
 <default>NULL</default><relation table="employee_registrations" row="id" />
 </row>
-<row name="period_start_date" null="1" autoincrement="0">
+<row name="start_date" null="1" autoincrement="0">
 <datatype>DATE</datatype>
 <default>NULL</default></row>
-<row name="period_end_date" null="1" autoincrement="0">
+<row name="end_date" null="1" autoincrement="0">
 <datatype>DATE</datatype>
 <default>NULL</default></row>
 <key type="PRIMARY" name="">
 <part>id</part>
 </key>
 </table>
-<table x="2409" y="928" name="payslip_items">
+<table x="2269" y="1012" name="payslip_items">
 <row name="id" null="1" autoincrement="1">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
 <row name="org_id" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
-<row name="paylisp_id" null="1" autoincrement="0">
+<row name="payslip_id" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
 <default>NULL</default><relation table="payslips" row="id" />
 </row>
+<row name="in_payslip" null="1" autoincrement="0">
+<datatype>BOOLEAN</datatype>
+<default>NULL</default></row>
 <row name="category_code" null="1" autoincrement="0">
 <datatype>VARCHAR</datatype>
 <default>NULL</default></row>
 <row name="description" null="1" autoincrement="0">
-<datatype>VARCHAR</datatype>
-<default>NULL</default></row>
-<row name="reference" null="1" autoincrement="0">
 <datatype>VARCHAR</datatype>
 <default>NULL</default></row>
 <row name="entry_type" null="1" autoincrement="0">
@@ -563,14 +566,14 @@
 <row name="amount" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
-<row name="in_payslip" null="1" autoincrement="0">
-<datatype>BOOLEAN</datatype>
+<row name="reference" null="1" autoincrement="0">
+<datatype>VARCHAR</datatype>
 <default>NULL</default></row>
 <key type="PRIMARY" name="">
 <part>id</part>
 </key>
 </table>
-<table x="2102" y="1935" name="financial_transactions">
+<table x="1898" y="1985" name="financial_transactions">
 <row name="id" null="1" autoincrement="1">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
@@ -585,7 +588,7 @@
 <part>id</part>
 </key>
 </table>
-<table x="1123" y="275" name="employee_salaries">
+<table x="1056" y="326" name="employee_salaries">
 <row name="id" null="1" autoincrement="1">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
@@ -606,7 +609,7 @@
 <part>id</part>
 </key>
 </table>
-<table x="2097" y="1610" name="cashier_transactions">
+<table x="1893" y="1660" name="cashier_transactions">
 <row name="cashier_shift_id" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
 <default>NULL</default><relation table="cashier_shifts" row="id" />
@@ -645,7 +648,7 @@
 <part>id</part>
 </key>
 </table>
-<table x="2637" y="590" name="payslip_categories">
+<table x="2464" y="496" name="payslip_categories">
 <row name="id" null="1" autoincrement="1">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
@@ -661,14 +664,11 @@
 <row name="entry_type" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
-<row name="in_payslip" null="1" autoincrement="0">
-<datatype>BOOLEAN</datatype>
-<default>'true'</default></row>
 <key type="PRIMARY" name="">
 <part>id</part>
 </key>
 </table>
-<table x="2018" y="1283" name="cashier_shifts">
+<table x="1814" y="1333" name="cashier_shifts">
 <row name="company_id" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
 <default>NULL</default><relation table="companies" row="id" />
@@ -690,8 +690,8 @@
 <part>id</part>
 </key>
 </table>
-<table x="2414" y="1237" name="employee_payments">
-<row name="paylisp_id" null="1" autoincrement="0">
+<table x="2269" y="1292" name="employee_payments">
+<row name="payslip_id" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
 <default>NULL</default><relation table="payslips" row="id" />
 </row>
@@ -725,7 +725,7 @@
 <part>id</part>
 </key>
 </table>
-<table x="1235" y="1652" name="invoice_bills">
+<table x="1031" y="1702" name="invoice_bills">
 <row name="invoice_id" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
 <default>NULL</default><relation table="invoices" row="id" />
@@ -737,7 +737,7 @@
 <key type="PRIMARY" name="">
 </key>
 </table>
-<table x="2404" y="2024" name="payables">
+<table x="2200" y="2074" name="payables">
 <row name="id" null="1" autoincrement="1">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
@@ -748,7 +748,7 @@
 <part>id</part>
 </key>
 </table>
-<table x="1245" y="783" name="orgs*">
+<table x="1058" y="921" name="orgs*">
 <row name="id" null="1" autoincrement="1">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
@@ -760,30 +760,7 @@
 </key>
 <comment>Reference table -&gt; shared across all Citus nodes</comment>
 </table>
-<table x="2114" y="349" name="employee_registration_payslip_recurring_items">
-<row name="id" null="1" autoincrement="1">
-<datatype>INTEGER</datatype>
-<default>NULL</default></row>
-<row name="org_id" null="1" autoincrement="0">
-<datatype>INTEGER</datatype>
-<default>NULL</default></row>
-<row name="registration_id" null="1" autoincrement="0">
-<datatype>INTEGER</datatype>
-<default>NULL</default><relation table="employee_registrations" row="id" />
-</row>
-<row name="model_id" null="1" autoincrement="0">
-<datatype>INTEGER</datatype>
-<default>NULL</default><relation table="payslip_recurring_item_models" row="id" />
-</row>
-<row name="amount" null="1" autoincrement="0">
-<datatype>INTEGER</datatype>
-<default>NULL</default><comment>Virtual field. The amount will be calculated on the fly based on the criteria stated in the item model</comment>
-</row>
-<key type="PRIMARY" name="">
-<part>id</part>
-</key>
-</table>
-<table x="1852" y="17" name="employee_leave_periods">
+<table x="1648" y="66" name="employee_leave_periods">
 <row name="id" null="1" autoincrement="1">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
@@ -807,7 +784,7 @@
 <part>id</part>
 </key>
 </table>
-<table x="2410" y="739" name="payslip_groups">
+<table x="2269" y="820" name="payslip_groups">
 <row name="org_id" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
@@ -827,7 +804,7 @@
 <part>id</part>
 </key>
 </table>
-<table x="2001" y="226" name="payslip_templates">
+<table x="2463" y="109" name="payslip_templates">
 <row name="id" null="1" autoincrement="1">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
@@ -841,7 +818,7 @@
 <part>id</part>
 </key>
 </table>
-<table x="2265" y="180" name="payslip_template_items">
+<table x="2173" y="166" name="payslip_template_items">
 <row name="id" null="1" autoincrement="1">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
@@ -860,7 +837,7 @@
 <part>id</part>
 </key>
 </table>
-<table x="1538" y="781" name="org_sectors">
+<table x="1334" y="831" name="org_sectors">
 <row name="id" null="1" autoincrement="1">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
@@ -874,7 +851,7 @@
 <part>id</part>
 </key>
 </table>
-<table x="1528" y="905" name="org_positions">
+<table x="1324" y="955" name="org_positions">
 <row name="id" null="1" autoincrement="1">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
@@ -888,7 +865,7 @@
 <part>id</part>
 </key>
 </table>
-<table x="1122" y="440" name="employee_benefits">
+<table x="1049" y="491" name="employee_benefits">
 <row name="id" null="1" autoincrement="1">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
@@ -899,21 +876,30 @@
 <datatype>INTEGER</datatype>
 <default>NULL</default><relation table="employee_registrations" row="id" />
 </row>
+<row name="description" null="1" autoincrement="0">
+<datatype>VARCHAR</datatype>
+<default>NULL</default></row>
+<row name="is_for_dependent" null="1" autoincrement="0">
+<datatype>BOOLEAN</datatype>
+<default>NULL</default></row>
 <row name="is_from_model" null="1" autoincrement="0">
 <datatype>BOOLEAN</datatype>
 <default>NULL</default></row>
-<row name="model_id" null="1" autoincrement="0">
+<row name="benefit_model_id" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
 <default>NULL</default><relation table="employee_benefit_models" row="id" />
 </row>
-<row name="type" null="1" autoincrement="0">
+<row name="benefit_type" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
-<row name="amount" null="1" autoincrement="0">
+<row name="benefit_amount" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
-<row name="description" null="1" autoincrement="0">
-<datatype>VARCHAR</datatype>
+<row name="benefit_amount_date" null="1" autoincrement="0">
+<datatype>DATE</datatype>
+<default>NULL</default></row>
+<row name="benefit_historical_amounts" null="1" autoincrement="0">
+<datatype>INTEGER</datatype>
 <default>NULL</default></row>
 <row name="start_date" null="1" autoincrement="0">
 <datatype>DATE</datatype>
@@ -921,11 +907,17 @@
 <row name="end_date" null="1" autoincrement="0">
 <datatype>DATE</datatype>
 <default>NULL</default></row>
+<row name="_type" null="1" autoincrement="0">
+<datatype>VARCHAR</datatype>
+<default>NULL</default></row>
+<row name="_amount" null="1" autoincrement="0">
+<datatype>VARCHAR</datatype>
+<default>NULL</default></row>
 <key type="PRIMARY" name="">
 <part>id</part>
 </key>
 </table>
-<table x="1115" y="110" name="employee_warnings">
+<table x="1048" y="161" name="employee_warnings">
 <row name="id" null="1" autoincrement="1">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
@@ -946,7 +938,7 @@
 <part>id</part>
 </key>
 </table>
-<table x="1595" y="17" name="employee_supensions">
+<table x="1391" y="67" name="employee_supensions">
 <row name="id" null="1" autoincrement="1">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
@@ -970,7 +962,7 @@
 <part>id</part>
 </key>
 </table>
-<table x="2246" y="15" name="scheduled_discounts">
+<table x="1051" y="67" name="scheduled_discounts">
 <row name="id" null="1" autoincrement="1">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
@@ -978,7 +970,7 @@
 <part>id</part>
 </key>
 </table>
-<table x="1597" y="208" name="employee_vacations">
+<table x="1393" y="258" name="employee_vacations">
 <row name="id" null="1" autoincrement="1">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
@@ -1002,7 +994,7 @@
 <part>id</part>
 </key>
 </table>
-<table x="2133" y="736" name="employee_orvertime">
+<table x="1968" y="786" name="employee_orvertime">
 <row name="id" null="1" autoincrement="1">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
@@ -1030,7 +1022,7 @@
 <part>id</part>
 </key>
 </table>
-<table x="2551" y="249" name="payslip_recurring_item_models">
+<table x="2463" y="235" name="payslip_recurring_item_models">
 <row name="id" null="1" autoincrement="1">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
@@ -1053,18 +1045,21 @@
 <row name="percentage" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
-<row name="percentage_target_table" null="1" autoincrement="0">
+<row name="percentage_target" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
-<row name="percentage_target_type" null="1" autoincrement="0">
+<row name="employee_benefit_type_percentage_target" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
 <key type="PRIMARY" name="">
 <part>id</part>
 </key>
 </table>
-<table x="830" y="441" name="employee_benefit_models">
+<table x="748" y="491" name="employee_benefit_models">
 <row name="id" null="1" autoincrement="1">
+<datatype>INTEGER</datatype>
+<default>NULL</default></row>
+<row name="org_id" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
 <row name="description" null="1" autoincrement="0">
@@ -1076,27 +1071,62 @@
 <row name="amount" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
+<row name="amount_date" null="1" autoincrement="0">
+<datatype>DATE</datatype>
+<default>NULL</default></row>
+<row name="historical_amounts" null="1" autoincrement="0">
+<datatype>INTEGER</datatype>
+<default>NULL</default><comment>Json field with a map representing the history of amounts</comment>
+</row>
+<row name="disabled_at" null="1" autoincrement="0">
+<datatype>DATE</datatype>
+<default>NULL</default></row>
 <key type="PRIMARY" name="">
 <part>id</part>
 </key>
 </table>
-<table x="2119" y="544" name="employee_registration_custom_payslip_recurring_items">
+<table x="1932" y="381" name="employee_registration_recurring_payslip_items">
 <row name="id" null="1" autoincrement="1">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
 <row name="org_id" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
-<row name="category_id" null="1" autoincrement="0">
-<datatype>INTEGER</datatype>
-<default>NULL</default><relation table="payslip_categories" row="id" />
-</row>
 <row name="registration_id" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
 <default>NULL</default><relation table="employee_registrations" row="id" />
 </row>
-<row name="amount" null="1" autoincrement="0">
+<row name="type" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
+<default>NULL</default></row>
+<row name="payslip_recurring_item_model_id" null="1" autoincrement="0">
+<datatype>INTEGER</datatype>
+<default>NULL</default><relation table="payslip_recurring_item_models" row="id" />
+</row>
+<row name="payslip_category_id" null="1" autoincrement="0">
+<datatype>INTEGER</datatype>
+<default>NULL</default><relation table="payslip_categories" row="id" />
+</row>
+<row name="outside_description" null="1" autoincrement="0">
+<datatype>VARCHAR</datatype>
+<default>NULL</default></row>
+<row name="outside_entry_type" null="1" autoincrement="0">
+<datatype>INTEGER</datatype>
+<default>NULL</default></row>
+<row name="item_amount" null="1" autoincrement="0">
+<datatype>VARCHAR</datatype>
+<default>NULL</default></row>
+<row name="_code" null="1" autoincrement="0">
+<datatype>VARCHAR</datatype>
+<default>NULL</default></row>
+<row name="_description" null="1" autoincrement="0">
+<datatype>VARCHAR</datatype>
+<default>NULL</default></row>
+<row name="_entry_type" null="1" autoincrement="0">
+<datatype>VARCHAR</datatype>
+<default>NULL</default></row>
+<row name="_amount" null="1" autoincrement="0">
+<datatype>VARCHAR</datatype>
 <default>NULL</default></row>
 <key type="PRIMARY" name="">
 <part>id</part>

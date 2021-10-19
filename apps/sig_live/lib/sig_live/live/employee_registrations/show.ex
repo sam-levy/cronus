@@ -7,10 +7,11 @@ defmodule SigLive.EmployeeRegistrations.Show do
 
   alias SigLive.EmployeeRegistrations.{
     Salaries,
-    Vouchers,
+    Benefits,
     Warnings,
     Suspensions,
-    LeavePeriods
+    LeavePeriods,
+    RecurringPayslipItems
   }
 
   @impl true
@@ -21,10 +22,11 @@ defmodule SigLive.EmployeeRegistrations.Show do
 
     if connected?(socket) do
       HR.subscribe_to_registration_salaries(registration)
-      HR.subscribe_to_registration_vouchers(registration)
+      HR.subscribe_to_registration_benefits(registration)
       HR.subscribe_to_registration_warnings(registration)
       HR.subscribe_to_registration_suspensions(registration)
       HR.subscribe_to_registration_leave_periods(registration)
+      HR.subscribe_to_registration_recurring_payslip_items(registration)
     end
 
     socket =
@@ -32,19 +34,21 @@ defmodule SigLive.EmployeeRegistrations.Show do
         individual: individual,
         registration: registration,
         salaries: HR.list_salaries_by_registration(registration),
-        vouchers: HR.list_vouchers_by_registration(registration),
+        benefits: HR.list_benefits_by_registration(registration),
         warnings: HR.list_warnings_by_registration(registration),
         suspensions: HR.list_suspensions_by_registration(registration),
-        leave_periods: HR.list_leave_periods_by_registration(registration)
+        leave_periods: HR.list_leave_periods_by_registration(registration),
+        recurring_payslip_items: HR.list_recurring_payslip_items_by_registration(registration)
       )
 
     {:ok, socket,
      temporary_assigns: [
        salaries: [],
-       vouchers: [],
+       benefits: [],
        warnings: [],
        suspensions: [],
-       leave_periods: []
+       leave_periods: [],
+       recurring_payslip_items: nil
      ]}
   end
 
@@ -54,8 +58,8 @@ defmodule SigLive.EmployeeRegistrations.Show do
   end
 
   @impl true
-  def handle_info({:updated_registration_vouchers, vouchers}, socket) do
-    {:noreply, assign(socket, vouchers: vouchers)}
+  def handle_info({:updated_registration_benefits, benefits}, socket) do
+    {:noreply, assign(socket, benefits: benefits)}
   end
 
   @impl true
@@ -68,13 +72,14 @@ defmodule SigLive.EmployeeRegistrations.Show do
     {:noreply, assign(socket, suspensions: suspensions)}
   end
 
+  @impl true
   def handle_info({:updated_registration_leave_periods, leave_periods}, socket) do
     {:noreply, assign(socket, leave_periods: leave_periods)}
   end
 
   @impl true
-  def handle_info({:updated_registration_leave_periods, leave_periods}, socket) do
-    {:noreply, assign(socket, leave_periods: leave_periods)}
+  def handle_info({:updated_registration_recurring_payslip_items, items}, socket) do
+    {:noreply, assign(socket, recurring_payslip_items: items)}
   end
 
   @impl true
@@ -86,8 +91,9 @@ defmodule SigLive.EmployeeRegistrations.Show do
   def render(assigns) do
     ~F"""
     <div>
-      <Salaries.List id="voucher_list" {=@registration} {=@salaries}/>
-      <Vouchers.List id="salary_list" {=@registration} {=@vouchers}/>
+      <RecurringPayslipItems.List id="recurring_payslip_items_list" {=@registration} {=@recurring_payslip_items}/>
+      <Salaries.List id="benefit_list" {=@registration} {=@salaries}/>
+      <Benefits.List id="salary_list" {=@registration} {=@benefits}/>
       <Warnings.List id="warning_list" {=@registration} {=@warnings}/>
       <Suspensions.List id="suspension_list" {=@registration} {=@suspensions}/>
       <LeavePeriods.List id="leave_period_list" {=@registration} {=@leave_periods}/>

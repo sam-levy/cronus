@@ -45,15 +45,11 @@ defmodule SigLive.ViewHelpers do
   def enum_for_select(enum) do
     enum.__valid_values__()
     |> Enum.filter(&is_binary/1)
-    |> Map.new(&{String.replace(&1, "_", " "), &1})
+    |> Map.new(&{capitalize_type(&1), &1})
   end
 
   def list_for_select(list) when is_list(list) do
-    Map.new(list, fn el ->
-      el = to_string(el)
-
-      {String.replace(el, "_", " "), el}
-    end)
+    Map.new(list, &{capitalize_type(&1), to_string(&1)})
   end
 
   def format_cpf(%CPF{number: cpf}), do: format_cpf(cpf)
@@ -79,6 +75,17 @@ defmodule SigLive.ViewHelpers do
   def format_date(nil, _format), do: ""
   def format_date(date, format), do: Calendar.strftime(date, format)
 
+  def format_type(atom) when is_atom(atom), do: atom |> to_string() |> format_type()
+  def format_type(string) when is_binary(string), do: String.replace(string, "_", " ")
+
+  def capitalize_type(type) when is_atom(type) or is_binary(type) do
+    type
+    |> format_type()
+    |> String.split(" ")
+    |> Enum.map(&String.capitalize/1)
+    |> Enum.join(" ")
+  end
+
   @spec companies_for_select([Company.t()]) :: %{String.t() => String.t()}
   def companies_for_select(companies) when is_list(companies) do
     Map.new(companies, &{&1.registration_name, &1.entity_id})
@@ -89,6 +96,7 @@ defmodule SigLive.ViewHelpers do
     Map.new(resources, &{&1.name, &1.id})
   end
 
+  def format_amount(%Ecto.Changeset{changes: %{amount: amount}}), do: format_amount(amount)
   def format_amount(%Money{} = amount), do: Money.to_string(amount)
-  def format_amount(nil), do: ""
+  def format_amount(_), do: ""
 end

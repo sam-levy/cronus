@@ -102,6 +102,8 @@ defmodule SigLive.EmployeeRegistrations.Salaries.Form do
     %{registration: registration, close_fun: close_fun} = socket.assigns
 
     HR.broadcast_registration_salaries(registration)
+    HR.broadcast_registration_recurring_payslip_items(registration)
+
     send(self(), {:flash, :info, "Salário Atualizado"})
     close_fun.()
 
