@@ -17,6 +17,7 @@ defmodule SigLive.EmployeeRegistrations.Benefits.BenefitFromModelForm do
   }
 
   alias SigLive.Components.Modal
+  alias SigLive.EmployeeRegistrations.Benefits.HistoricalAmounts
 
   @form_states [:new_mode, :show_mode, :closed]
 
@@ -104,6 +105,11 @@ defmodule SigLive.EmployeeRegistrations.Benefits.BenefitFromModelForm do
           <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Salvando..."}/>
         </div>
       </Form>
+
+      <HistoricalAmounts
+        :if={show_field?(:benefit_model_historical_amounts, @form_state, @benefit)}
+        historical_amounts={@benefit.benefit_model.historical_amounts}
+      />
     </Modal>
     """
   end
@@ -114,7 +120,8 @@ defmodule SigLive.EmployeeRegistrations.Benefits.BenefitFromModelForm do
   defp get_benefit(registration, benefit_id), do: HR.get_benefit(registration, benefit_id)
 
   defp set_changeset(nil), do: HR.create_benefit_from_model_change()
-  defp set_changeset(benefit), do: HR.update_benefit_change(benefit)
+  # TODO: Add a proper changeset when implement edit
+  defp set_changeset(benefit), do: HR.finalize_benefit_change(benefit)
 
   defp validate_params(%{form_state: :new_mode} = context) do
     changeset =
@@ -165,7 +172,7 @@ defmodule SigLive.EmployeeRegistrations.Benefits.BenefitFromModelForm do
 
   defp handle_flash(:new_mode), do: send(self(), {:flash, :info, "Benefício criado"})
 
-  defp handle_title(:new_mode), do: "Adicionar Benefício"
+  defp handle_title(:new_mode), do: "Adicionar Benefício de um Modelo"
   defp handle_title(:show_mode), do: "Benefício"
 
   @input_enabled [opts: [disabled: false], class: ["form-input"]]
@@ -179,6 +186,16 @@ defmodule SigLive.EmployeeRegistrations.Benefits.BenefitFromModelForm do
 
   defp props_for_checkbox(:is_for_dependent, :new_mode), do: @checkbox_enabled
   defp props_for_checkbox(:is_for_dependent, _form_state), do: @checkbox_disabled
+
+  defp show_field?(:benefit_model_historical_amounts, :show_mode, %{is_from_model: true, benefit_model: %{historical_amounts: [_]}}) do
+    false
+  end
+
+  defp show_field?(:benefit_model_historical_amounts, :show_mode, %{is_from_model: true}), do: true
+
+  defp show_field?(:benefit_model_historical_amounts, :show_mode, _benefit), do: false
+
+  defp show_field?(_field, _form_state, _benefit), do: false
 
   defp benefit_models_for_select(benefit_models) do
     Map.new(benefit_models, fn model ->
