@@ -329,8 +329,8 @@ defmodule Sig.ChangesetTest do
       refute changeset.valid?
 
       assert errors_on(changeset) == %{
-        amount: ["must be greater than 1.500,00"]
-      }
+               amount: ["must be greater than 1.500,00"]
+             }
     end
 
     test ":eq true" do
@@ -359,8 +359,8 @@ defmodule Sig.ChangesetTest do
       refute changeset.valid?
 
       assert errors_on(changeset) == %{
-        amount: ["must be equal to 2.000,00"]
-      }
+               amount: ["must be equal to 2.000,00"]
+             }
     end
 
     test ":lt true" do
@@ -389,8 +389,8 @@ defmodule Sig.ChangesetTest do
       refute changeset.valid?
 
       assert errors_on(changeset) == %{
-        amount: ["must be less than 2.000,00"]
-      }
+               amount: ["must be less than 2.000,00"]
+             }
     end
 
     test "[:lt, :eq] true when :lt" do
@@ -432,8 +432,8 @@ defmodule Sig.ChangesetTest do
       refute changeset.valid?
 
       assert errors_on(changeset) == %{
-        amount: ["must be less than or equal to 2.000,00"]
-      }
+               amount: ["must be less than or equal to 2.000,00"]
+             }
     end
 
     test "[:eq, :gt] true when :eq" do
@@ -475,15 +475,21 @@ defmodule Sig.ChangesetTest do
       refute changeset.valid?
 
       assert errors_on(changeset) == %{
-        amount: ["must be equal to or greater than 2.000,00"]
-      }
+               amount: ["must be equal to or greater than 2.000,00"]
+             }
     end
   end
 
   describe "drop_changes/4" do
     test "drops fields from changeset" do
       data = %{}
-      types = %{is_joint_account_holder: :boolean, relationship_with_holder: :string, other: :string}
+
+      types = %{
+        is_joint_account_holder: :boolean,
+        relationship_with_holder: :string,
+        other: :string
+      }
+
       params = %{is_joint_account_holder: true, relationship_with_holder: "child", other: "test"}
 
       changeset =
@@ -515,13 +521,22 @@ defmodule Sig.ChangesetTest do
   describe "drop_changes_if/4" do
     test "drops fields if condition is met" do
       data = %{}
-      types = %{is_joint_account_holder: :boolean, relationship_with_holder: :string, other: :string}
+
+      types = %{
+        is_joint_account_holder: :boolean,
+        relationship_with_holder: :string,
+        other: :string
+      }
+
       params = %{is_joint_account_holder: true, relationship_with_holder: "child", other: "test"}
 
       changeset =
         {data, types}
         |> Ecto.Changeset.cast(params, Map.keys(types))
-        |> Sig.Changeset.drop_changes_if(:is_joint_account_holder, true, [:relationship_with_holder, :other])
+        |> Sig.Changeset.drop_changes_if(:is_joint_account_holder, true, [
+          :relationship_with_holder,
+          :other
+        ])
 
       assert changeset.valid?
 
@@ -530,13 +545,22 @@ defmodule Sig.ChangesetTest do
 
     test "keeps fields if condition is not met" do
       data = %{}
-      types = %{is_joint_account_holder: :boolean, relationship_with_holder: :string, other: :string}
+
+      types = %{
+        is_joint_account_holder: :boolean,
+        relationship_with_holder: :string,
+        other: :string
+      }
+
       params = %{is_joint_account_holder: false, relationship_with_holder: "child", other: "test"}
 
       changeset =
         {data, types}
         |> Ecto.Changeset.cast(params, Map.keys(types))
-        |> Sig.Changeset.drop_changes_if(:is_joint_account_holder, true, [:relationship_with_holder, :other])
+        |> Sig.Changeset.drop_changes_if(:is_joint_account_holder, true, [
+          :relationship_with_holder,
+          :other
+        ])
 
       assert changeset.valid?
 
@@ -555,11 +579,90 @@ defmodule Sig.ChangesetTest do
       changeset =
         {data, types}
         |> Ecto.Changeset.cast(params, Map.keys(types))
-        |> Sig.Changeset.drop_changes_if(:is_joint_account_holder, true, :relationship_with_holder)
+        |> Sig.Changeset.drop_changes_if(
+          :is_joint_account_holder,
+          true,
+          :relationship_with_holder
+        )
 
       assert changeset.valid?
 
       assert changeset.changes == %{is_joint_account_holder: true}
+    end
+  end
+
+  describe "copy_change_value/3" do
+    test "copy a value from a field in change to another" do
+      data = %{}
+      types = %{start_date: :integer, benefit_amount_date: :integer}
+      params = %{start_date: 10, benefit_amount_date: nil}
+
+      changeset =
+        {data, types}
+        |> Ecto.Changeset.cast(params, Map.keys(types))
+        |> Sig.Changeset.copy_change_value(:start_date, :benefit_amount_date)
+
+      assert changeset.valid?
+
+      assert changeset.changes == %{start_date: 10, benefit_amount_date: 10}
+    end
+
+    test "raises when source field doesn't exist" do
+      data = %{}
+      types = %{start_date: :integer, benefit_amount_date: :integer}
+      params = %{start_date: 10, benefit_amount_date: nil}
+
+      assert_raise ArgumentError,
+                   ~r/field inexistent not found/,
+                   fn ->
+                     {data, types}
+                     |> Ecto.Changeset.cast(params, Map.keys(types))
+                     |> Sig.Changeset.copy_change_value(:inexistent, :benefit_amount_date)
+                   end
+    end
+
+    test "raises when target field doesn't exist" do
+      data = %{}
+      types = %{start_date: :integer, benefit_amount_date: :integer}
+      params = %{start_date: 10, benefit_amount_date: nil}
+
+      assert_raise ArgumentError,
+                   ~r/unknown field `:inexistent` in %{}/,
+                   fn ->
+                     {data, types}
+                     |> Ecto.Changeset.cast(params, Map.keys(types))
+                     |> Sig.Changeset.copy_change_value(:start_date, :inexistent)
+                   end
+    end
+  end
+
+  describe "validate_is_active/2" do
+    test "validate a data field is nil" do
+      data = %{end_date: nil}
+      types = %{end_date: :date}
+      params = %{}
+
+      changeset =
+        {data, types}
+        |> Ecto.Changeset.cast(params, Map.keys(types))
+        |> Sig.Changeset.validate_is_active(:end_date)
+
+      assert changeset.valid?
+    end
+
+    test "when field is not nil" do
+      data = %{end_date: ~D[2020-01-01]}
+      types = %{end_date: :date}
+      params = %{}
+
+      changeset =
+        {data, types}
+        |> Ecto.Changeset.cast(params, Map.keys(types))
+        |> Sig.Changeset.validate_is_active(:end_date)
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{end_date: ["is already filled"]}
     end
   end
 end

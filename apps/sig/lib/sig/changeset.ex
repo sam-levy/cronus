@@ -113,6 +113,24 @@ defmodule Sig.Changeset do
 
   def drop_changes_if(changeset, _, _, _), do: changeset
 
+  def copy_change_value(%{valid?: true} = changeset, from_field, to_field) do
+    case fetch_change(changeset, from_field) do
+      {:ok, value} -> put_change(changeset, to_field, value)
+      :error -> raise(ArgumentError, "field #{from_field} not found")
+    end
+  end
+
+  def copy_change_value(changeset, _, _), do: changeset
+
+  def validate_is_active(%{valid?: true} = changeset, soft_delete_field) do
+    case Map.get(changeset.data, soft_delete_field) do
+      nil -> changeset
+      _ -> add_error(changeset, soft_delete_field, "is already filled")
+    end
+  end
+
+  def validate_is_active(changeset, _), do: changeset
+
   defp compare_numbers(num, num), do: :eq
   defp compare_numbers(first, second) when first < second, do: :lt
   defp compare_numbers(_first, _second), do: :gt
