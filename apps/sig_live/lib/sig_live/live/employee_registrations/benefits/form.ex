@@ -18,8 +18,9 @@ defmodule SigLive.EmployeeRegistrations.Benefits.Form do
   }
 
   alias SigLive.Components.Modal
+  alias SigLive.EmployeeRegistrations.Benefits.HistoricalAmounts
 
-  @form_states [:new_mode, :edit_mode, :show_mode, :closed]
+  @form_states [:new_mode, :show_mode, :edit_amount_mode, :finalize_mode, :closed]
 
   prop close_event, :event, required: true
   prop close_fun, :fun, required: true
@@ -58,38 +59,41 @@ defmodule SigLive.EmployeeRegistrations.Benefits.Form do
     ~F"""
     <Modal title={handle_title(@form_state)} close={@close_event}>
       <Form for={@changeset} submit="save" opts={autocomplete: "off"}>
-        <Field name={:start_date} :if={@form_state != :edit_mode} class="form-field">
+        <Field name={:start_date} :if={show_field?(:start_date, @form_state)} class="form-field">
           <Label class="form-label">Data de Início</Label>
           <DateInput {...props_for(:start_date, @form_state)}/>
           <ErrorTag class="form-error-tag"/>
         </Field>
 
-        <Field name={:benefit_type} :if={@form_state != :edit_mode} class="form-field">
+        <Field name={:benefit_type} :if={show_field?(:benefit_type, @form_state)} class="form-field">
           <Label class="form-label">Benefício</Label>
           <Select
             prompt=""
             options={enum_for_select(BenefitType)}
-            {...props_for(:type, @form_state)}
+            {...props_for(:benefit_type, @form_state)}
           />
           <ErrorTag class="form-error-tag"/>
         </Field>
 
-        <Field name={:benefit_amount} :if={@form_state != :edit_mode} class="form-field">
+        <Field name={:benefit_amount} :if={show_field?(:benefit_amount, @form_state)} class="form-field">
           <Label class="form-label">Valor</Label>
-          <TextInput
-            value={format_benefit_amount(@changeset)}
-            {...props_for(:amount, @form_state)}
-          />
+          <TextInput value={format_benefit_amount(@changeset)} {...props_for(:benefit_amount, @form_state)}/>
           <ErrorTag class="form-error-tag"/>
         </Field>
 
-        <Field name={:end_date} :if={@form_state != :new_mode} class="form-field">
+        <Field name={:benefit_amount_date} :if={show_field?(:benefit_amount_date, @form_state)} class="form-field">
+          <Label class="form-label">Data de Início do Novo Valor</Label>
+          <DateInput {...props_for(:benefit_amount_date, @form_state)}/>
+          <ErrorTag class="form-error-tag"/>
+        </Field>
+
+        <Field name={:end_date} :if={show_field?(:end_date, @form_state)} class="form-field">
           <Label class="form-label">Data de Término</Label>
           <DateInput {...props_for(:end_date, @form_state)}/>
           <ErrorTag class="form-error-tag"/>
         </Field>
 
-        <Field name={:description} :if={@form_state != :edit_mode} class="form-field">
+        <Field name={:description} :if={show_field?(:description, @form_state)} class="form-field">
           <Label class="form-label">
             Descrição
 
@@ -101,7 +105,7 @@ defmodule SigLive.EmployeeRegistrations.Benefits.Form do
           <ErrorTag class="form-error-tag"/>
         </Field>
 
-        <Field :if={@form_state != :edit_mode} name={:is_for_dependent} class="form-checkbox-field">
+        <Field name={:is_for_dependent} :if={show_field?(:is_for_dependent, @form_state)} class="form-checkbox-field">
           <Checkbox {...props_for_checkbox(:is_for_dependent, @form_state)}/>
           <Label class="form-side-label">Para Dependente</Label>
           <ErrorTag class="form-error-tag"/>
@@ -109,10 +113,15 @@ defmodule SigLive.EmployeeRegistrations.Benefits.Form do
 
         <div :if={@message} class="form-error-tag mb-3">{@message}</div>
 
-        <div :if={@form_state != :show_mode} class="flex justify-end">
+        <div :if={show_field?(:submit, @form_state)} class="flex justify-end">
           <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Salvando..."}/>
         </div>
       </Form>
+
+      <HistoricalAmounts
+        :if={show_field?(:benefit_historical_amounts, @form_state, @benefit)}
+        historical_amounts={@benefit.benefit_historical_amounts}
+      />
     </Modal>
     """
   end
@@ -123,7 +132,7 @@ defmodule SigLive.EmployeeRegistrations.Benefits.Form do
   defp get_benefit(registration, benefit_id), do: HR.get_benefit(registration, benefit_id)
 
   defp set_changeset(nil), do: HR.create_benefit_change()
-  defp set_changeset(benefit), do: HR.update_benefit_change(benefit)
+  defp set_changeset(benefit), do: HR.finalize_benefit_change(benefit)
 
   defp validate_params(%{form_state: :new_mode} = context) do
     changeset =
@@ -138,9 +147,19 @@ defmodule SigLive.EmployeeRegistrations.Benefits.Form do
     end
   end
 
-  defp validate_params(%{form_state: :edit_mode} = context) do
+  defp validate_params(%{form_state: :finalize_mode} = context) do
     %{benefit: benefit} = context.socket.assigns
-    changeset = HR.update_benefit_change(benefit, context.params)
+    changeset = HR.finalize_benefit_change(benefit, context.params)
+
+    case apply_action(changeset, :update) do
+      {:error, changeset} -> Map.put(context, :validation, {:error, changeset})
+      {:ok, _schema} -> Map.put(context, :validation, {:ok, changeset})
+    end
+  end
+
+  defp validate_params(%{form_state: :edit_amount_mode} = context) do
+    %{benefit: benefit} = context.socket.assigns
+    changeset = HR.update_benefit_amount_change(benefit, context.params)
 
     case apply_action(changeset, :update) do
       {:error, changeset} -> Map.put(context, :validation, {:error, changeset})
@@ -156,10 +175,16 @@ defmodule SigLive.EmployeeRegistrations.Benefits.Form do
     Map.put(context, :return, HR.create_benefit(registration, changeset.changes))
   end
 
-  defp persist(%{validation: {:ok, changeset}, form_state: :edit_mode} = context) do
+  defp persist(%{validation: {:ok, changeset}, form_state: :finalize_mode} = context) do
     %{benefit: benefit} = context.socket.assigns
 
-    Map.put(context, :return, HR.update_benefit(benefit, changeset.changes))
+    Map.put(context, :return, HR.finalize_benefit(benefit, changeset.changes))
+  end
+
+  defp persist(%{validation: {:ok, changeset}, form_state: :edit_amount_mode} = context) do
+    %{benefit: benefit} = context.socket.assigns
+
+    Map.put(context, :return, HR.update_benefit_amount(benefit, changeset.changes))
   end
 
   defp handle_return(%{validation: {:error, changeset}, socket: socket}) do
@@ -192,11 +217,40 @@ defmodule SigLive.EmployeeRegistrations.Benefits.Form do
   defp format_benefit_amount(_), do: ""
 
   defp handle_flash(:new_mode), do: send(self(), {:flash, :info, "Benefício criado"})
-  defp handle_flash(:edit_mode), do: send(self(), {:flash, :info, "Benefício alterado"})
+  defp handle_flash(:finalize_mode), do: send(self(), {:flash, :info, "Benefício finalizado"})
+  defp handle_flash(_), do: send(self(), {:flash, :info, "Benefício atualizado"})
 
   defp handle_title(:new_mode), do: "Adicionar Benefício"
-  defp handle_title(:edit_mode), do: "Finalizar Benefício"
   defp handle_title(:show_mode), do: "Benefício"
+  defp handle_title(:edit_amount_mode), do: "Alterar Valor"
+  defp handle_title(:finalize_mode), do: "Finalizar Benefício"
+
+  defp show_field?(:benefit_amount, :edit_amount_mode), do: true
+
+  defp show_field?(:benefit_amount_date, :edit_amount_mode), do: true
+  defp show_field?(:benefit_amount_date, _form_state), do: false
+
+  defp show_field?(:end_date, :finalize_mode), do: true
+  defp show_field?(:end_date, _form_state), do: false
+
+  defp show_field?(:submit, :show_mode), do: false
+  defp show_field?(:submit, _form_state), do: true
+
+  defp show_field?(_field, :new_mode), do: true
+  defp show_field?(_field, :show_mode), do: true
+  defp show_field?(_field, _form_state), do: false
+
+  defp show_field?(:benefit_historical_amounts, :show_mode, %{is_from_model: false, benefit_historical_amounts: [_]}) do
+    false
+  end
+
+  defp show_field?(:benefit_historical_amounts, :show_mode, %{is_from_model: false}), do: true
+
+  defp show_field?(:benefit_historical_amounts, :show_mode, _benefit), do: false
+
+  defp show_field?(:benefit_historical_amounts, :edit_amount_mode, _benefit), do: true
+
+  defp show_field?(:benefit_historical_amounts, _form_state, _benefit), do: false
 
   @input_enabled [opts: [disabled: false], class: ["form-input"]]
   @input_disabled [opts: [disabled: true], class: ["form-input-disabled"]]
@@ -204,7 +258,11 @@ defmodule SigLive.EmployeeRegistrations.Benefits.Form do
   @checkbox_enabled [opts: [disabled: false], class: ["form-checkbox"]]
   @checkbox_disabled [opts: [disabled: true], class: ["form-checkbox-disabled"]]
 
-  defp props_for(:end_date, :edit_mode), do: @input_enabled
+  defp props_for(:benefit_amount, :edit_amount_mode), do: @input_enabled
+
+  defp props_for(:benefit_amount_date, :edit_amount_mode), do: @input_enabled
+
+  defp props_for(:end_date, :finalize_mode), do: @input_enabled
   defp props_for(:end_date, _form_state), do: @input_disabled
 
   defp props_for(_field, :new_mode), do: @input_enabled
