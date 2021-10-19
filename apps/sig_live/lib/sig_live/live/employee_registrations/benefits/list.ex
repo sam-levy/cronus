@@ -19,13 +19,18 @@ defmodule SigLive.EmployeeRegistrations.Benefits.List do
   end
 
   @impl true
-  def handle_event("open_edit_benefit_form", %{"benefit-id" => id}, socket) do
-    {:noreply, assign(socket, form_state: :edit_mode, benefit_id: id)}
+  def handle_event("open_show_benefit_form", %{"benefit-id" => id}, socket) do
+    {:noreply, assign(socket, form_state: :show_mode, benefit_id: id)}
   end
 
   @impl true
-  def handle_event("open_show_benefit_form", %{"benefit-id" => id}, socket) do
-    {:noreply, assign(socket, form_state: :show_mode, benefit_id: id)}
+  def handle_event("open_edit_benefit_amount_form", %{"benefit-id" => id}, socket) do
+    {:noreply, assign(socket, form_state: :edit_amount_mode, benefit_id: id)}
+  end
+
+  @impl true
+  def handle_event("open_finalize_benefit_form", %{"benefit-id" => id}, socket) do
+    {:noreply, assign(socket, form_state: :finalize_mode, benefit_id: id)}
   end
 
   @impl true
@@ -133,7 +138,22 @@ defmodule SigLive.EmployeeRegistrations.Benefits.List do
               <td class="pr-5 text-right">
                 <span :if={is_nil(benefit.end_date)}>
                   <DropdownOpts>
-                    <a :on-click="open_edit_benefit_form" phx-value-benefit_id={benefit.id} class="dropdown-item">Finalizar Benefício</a>
+                    <a
+                      :if={!benefit.is_from_model}
+                      :on-click="open_edit_benefit_amount_form"
+                      phx-value-benefit_id={benefit.id}
+                      class="dropdown-item"
+                    >
+                      Alterar Valor
+                    </a>
+
+                    <a
+                      :on-click="open_finalize_benefit_form"
+                      phx-value-benefit_id={benefit.id}
+                      class="dropdown-item"
+                    >
+                      Finalizar Benefício
+                    </a>
                   </DropdownOpts>
                 </span>
               </td>
