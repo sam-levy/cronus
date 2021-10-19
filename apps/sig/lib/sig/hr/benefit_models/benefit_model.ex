@@ -34,6 +34,7 @@ defmodule Sig.HR.BenefitModels.BenefitModel do
   def update_amount_changeset(%__MODULE__{} = target, attrs) do
     target
     |> cast(attrs, [:amount, :amount_date])
+    |> validate_required([:amount, :amount_date])
     |> validate_money(:amount, :gt, 0)
     |> HistoricalAmount.add(:amount, :amount_date, :historical_amounts)
   end
