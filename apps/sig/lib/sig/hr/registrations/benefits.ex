@@ -127,18 +127,22 @@ defmodule Sig.HR.Registrations.Benefits do
     Enum.map(benefits, &fill_virtual_fields(&1, opts))
   end
 
-  defp fill_virtual_fields(%Benefit{is_from_model: false} = benefit, _opts) do
-    %{benefit | amount: benefit.benefit_amount, type: benefit.benefit_type}
-  end
-
   defp fill_virtual_fields(
          %Benefit{
-           is_from_model: true,
-           benefit_model: %{historical_amounts: []} = benefit_model
+           is_from_model: false,
+           benefit_historical_amounts: historical_amounts
          } = benefit,
-         _opts
+         opts
        ) do
-    %{benefit | amount: benefit_model.amount, type: benefit_model.type}
+    with true <- Enum.count(historical_amounts) > 1,
+         %Date{} = date <- Keyword.get(opts, :in_effect_on_date) do
+      %{amount: amount} =
+        Enum.find(historical_amounts, &(Date.compare(date, &1.date) in [:gt, :eq]))
+
+      %{benefit | amount: amount, type: benefit.benefit_type}
+    else
+      _ -> %{benefit | amount: benefit.benefit_amount, type: benefit.benefit_type}
+    end
   end
 
   defp fill_virtual_fields(
@@ -148,15 +152,15 @@ defmodule Sig.HR.Registrations.Benefits do
          } = benefit,
          opts
        ) do
-    case Keyword.get(opts, :in_effect_on_date) do
-      nil ->
-        %{benefit | amount: benefit_model.amount, type: benefit_model.type}
+    with true <- Enum.count(historical_amounts) > 1,
+         %Date{} = date <- Keyword.get(opts, :in_effect_on_date) do
 
-      date ->
-        %{amount: amount} =
-          Enum.find(historical_amounts, &(Date.compare(date, &1.date) in [:gt, :eq]))
+      %{amount: amount} =
+        Enum.find(historical_amounts, &(Date.compare(date, &1.date) in [:gt, :eq]))
 
-        %{benefit | amount: amount, type: benefit_model.type}
+      %{benefit | amount: amount, type: benefit_model.type}
+    else
+      _ -> %{benefit | amount: benefit_model.amount, type: benefit_model.type}
     end
   end
 end

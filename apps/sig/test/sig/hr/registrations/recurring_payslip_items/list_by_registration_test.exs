@@ -456,6 +456,11 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
         registration: registration,
         is_from_model: false,
         benefit_amount: 300_00,
+        benefit_amount_date: ~D[2020-04-01],
+        benefit_historical_amounts: [
+          build(:historical_amount, date: ~D[2020-04-01], amount: Money.new(300_00)),
+          build(:historical_amount, date: ~D[2020-01-01], amount: Money.new(200_00))
+        ],
         benefit_type: :health_insurance,
         start_date: ~D[2020-01-01],
         end_date: ~D[2020-06-01]
@@ -465,7 +470,12 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
         org: org,
         registration: registration,
         is_from_model: false,
-        benefit_amount: 350_00,
+        benefit_amount: 500_00,
+        benefit_amount_date: ~D[2021-06-01],
+        benefit_historical_amounts: [
+          build(:historical_amount, date: ~D[2021-06-01], amount: Money.new(500_00)),
+          build(:historical_amount, date: ~D[2021-01-01], amount: Money.new(400_00))
+        ],
         benefit_type: :health_insurance,
         start_date: ~D[2021-01-01]
       )
@@ -511,9 +521,19 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
                  code: "115",
                  description: "ASSISTÊNCIA MÉDICA",
                  entry_type: :debit,
-                 amount: %Money{amount: 150_00}
+                 amount: %Money{amount: 100_00}
                }
              ] = ListByRegistration.call(registration, ~D[2020-02-01])
+
+      assert [
+               %RecurringPayslipItem{
+                 id: ^id,
+                 code: "115",
+                 description: "ASSISTÊNCIA MÉDICA",
+                 entry_type: :debit,
+                 amount: %Money{amount: 150_00}
+               }
+             ] = ListByRegistration.call(registration, ~D[2020-04-01])
 
       assert [
                %RecurringPayslipItem{
@@ -531,9 +551,19 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
                  code: "115",
                  description: "ASSISTÊNCIA MÉDICA",
                  entry_type: :debit,
-                 amount: %Money{amount: 175_00}
+                 amount: %Money{amount: 200_00}
                }
              ] = ListByRegistration.call(registration, ~D[2021-01-01])
+
+      assert [
+               %RecurringPayslipItem{
+                 id: ^id,
+                 code: "115",
+                 description: "ASSISTÊNCIA MÉDICA",
+                 entry_type: :debit,
+                 amount: %Money{amount: 250_00}
+               }
+             ] = ListByRegistration.call(registration, ~D[2021-07-01])
     end
 
     test "payslip_item_model virtual fields from employee_benefit is_from_model true considers the benefit in effect" do
