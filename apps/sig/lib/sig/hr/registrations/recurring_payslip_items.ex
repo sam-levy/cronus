@@ -6,7 +6,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems do
   alias Sig.HR.Registrations.RecurringPayslipItems.ListByRegistration
   alias Sig.Repo
 
-  defdelegate list_by_registration(registration), to: ListByRegistration, as: :call
+  defdelegate list_by_registration(registration, opts \\ []), to: ListByRegistration, as: :call
 
   def create_change(attrs \\ %{}, type)
 

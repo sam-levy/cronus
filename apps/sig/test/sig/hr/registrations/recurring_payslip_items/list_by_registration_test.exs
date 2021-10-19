@@ -366,7 +366,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
                  entry_type: :credit,
                  amount: %Money{amount: 0}
                }
-             ] = ListByRegistration.call(registration, ~D[2019-12-31])
+             ] = ListByRegistration.call(registration, start_date: ~D[2019-12-31])
 
       assert [
                %RecurringPayslipItem{
@@ -376,7 +376,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
                  entry_type: :credit,
                  amount: %Money{amount: 1_000_00}
                }
-             ] = ListByRegistration.call(registration, ~D[2020-02-01])
+             ] = ListByRegistration.call(registration, start_date: ~D[2020-02-01])
 
       assert [
                %RecurringPayslipItem{
@@ -386,7 +386,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
                  entry_type: :credit,
                  amount: %Money{amount: 1_200_00}
                }
-             ] = ListByRegistration.call(registration, ~D[2020-07-01])
+             ] = ListByRegistration.call(registration, start_date: ~D[2020-07-01])
 
       assert [
                %RecurringPayslipItem{
@@ -396,7 +396,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
                  entry_type: :credit,
                  amount: %Money{amount: 1_500_00}
                }
-             ] = ListByRegistration.call(registration, ~D[2021-02-01])
+             ] = ListByRegistration.call(registration, start_date: ~D[2021-02-01])
     end
 
     test "payslip_item_model virtual fields from employee_benefit is_from_model false" do
@@ -513,7 +513,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
                  entry_type: :debit,
                  amount: %Money{amount: 0}
                }
-             ] = ListByRegistration.call(registration, ~D[2019-12-31])
+             ] = ListByRegistration.call(registration, start_date: ~D[2019-12-31])
 
       assert [
                %RecurringPayslipItem{
@@ -523,7 +523,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
                  entry_type: :debit,
                  amount: %Money{amount: 100_00}
                }
-             ] = ListByRegistration.call(registration, ~D[2020-02-01])
+             ] = ListByRegistration.call(registration, start_date: ~D[2020-02-01])
 
       assert [
                %RecurringPayslipItem{
@@ -533,7 +533,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
                  entry_type: :debit,
                  amount: %Money{amount: 150_00}
                }
-             ] = ListByRegistration.call(registration, ~D[2020-04-01])
+             ] = ListByRegistration.call(registration, start_date: ~D[2020-04-01])
 
       assert [
                %RecurringPayslipItem{
@@ -543,7 +543,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
                  entry_type: :debit,
                  amount: %Money{amount: 0}
                }
-             ] = ListByRegistration.call(registration, ~D[2020-07-01])
+             ] = ListByRegistration.call(registration, start_date: ~D[2020-07-01])
 
       assert [
                %RecurringPayslipItem{
@@ -553,7 +553,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
                  entry_type: :debit,
                  amount: %Money{amount: 200_00}
                }
-             ] = ListByRegistration.call(registration, ~D[2021-01-01])
+             ] = ListByRegistration.call(registration, start_date: ~D[2021-01-01])
 
       assert [
                %RecurringPayslipItem{
@@ -563,7 +563,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
                  entry_type: :debit,
                  amount: %Money{amount: 250_00}
                }
-             ] = ListByRegistration.call(registration, ~D[2021-07-01])
+             ] = ListByRegistration.call(registration, start_date: ~D[2021-07-01])
     end
 
     test "payslip_item_model virtual fields from employee_benefit is_from_model true considers the benefit in effect" do
@@ -626,7 +626,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
                  entry_type: :debit,
                  amount: %Money{amount: 0}
                }
-             ] = ListByRegistration.call(registration, ~D[2020-01-01])
+             ] = ListByRegistration.call(registration, start_date: ~D[2020-01-01])
 
       assert [
                %RecurringPayslipItem{
@@ -636,7 +636,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
                  entry_type: :debit,
                  amount: %Money{amount: 100_00}
                }
-             ] = ListByRegistration.call(registration, ~D[2020-04-01])
+             ] = ListByRegistration.call(registration, start_date: ~D[2020-04-01])
 
       assert [
                %RecurringPayslipItem{
@@ -646,7 +646,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
                  entry_type: :debit,
                  amount: %Money{amount: 200_00}
                }
-             ] = ListByRegistration.call(registration, ~D[2020-06-01])
+             ] = ListByRegistration.call(registration, start_date: ~D[2020-06-01])
 
       assert [
                %RecurringPayslipItem{
@@ -656,7 +656,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
                  entry_type: :debit,
                  amount: %Money{amount: 300_00}
                }
-             ] = ListByRegistration.call(registration, ~D[2021-01-01])
+             ] = ListByRegistration.call(registration, start_date: ~D[2021-01-01])
 
       assert [
                %RecurringPayslipItem{
