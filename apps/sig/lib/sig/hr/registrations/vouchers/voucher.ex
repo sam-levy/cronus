@@ -31,6 +31,6 @@ defmodule Sig.HR.Registrations.Vouchers.Voucher do
     target
     |> cast(attrs, [:end_date])
     |> validate_required([:end_date])
-    |> validate_second_date_after_first(:start_date, :end_date)
+    |> validate_dates(:end_date, :gt, :start_date)
   end
 end

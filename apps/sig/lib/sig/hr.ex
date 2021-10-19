@@ -3,6 +3,7 @@ defmodule Sig.HR do
   alias Sig.HR.Registrations.Salaries
   alias Sig.HR.Registrations.Vouchers
   alias Sig.HR.Registrations.Warnings
+  alias Sig.HR.Registrations.Suspensions
 
   defdelegate create_registration_change(attrs \\ %{}), to: Registrations, as: :create_change
 
@@ -49,4 +50,13 @@ defmodule Sig.HR do
   defdelegate broadcast_registration_warnings(registration), to: Warnings
   defdelegate create_warning_change(attrs \\ %{}), to: Warnings, as: :create_change
   defdelegate update_warning_change(warning, attrs \\ %{}), to: Warnings, as: :update_change
+
+  defdelegate list_suspensions_by_registration(registration), to: Suspensions, as: :list_by_registration
+  defdelegate get_suspension(registration, id), to: Suspensions, as: :get
+  defdelegate create_suspension(registration, attrs), to: Suspensions, as: :create
+  defdelegate update_suspension(suspension, attrs), to: Suspensions, as: :update
+  defdelegate subscribe_to_registration_suspensions(registration), to: Suspensions
+  defdelegate broadcast_registration_suspensions(registration), to: Suspensions
+  defdelegate create_suspension_change(attrs \\ %{}), to: Suspensions, as: :create_change
+  defdelegate update_suspension_change(suspension, attrs \\ %{}), to: Suspensions, as: :update_change
 end

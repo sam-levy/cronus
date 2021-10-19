@@ -72,7 +72,7 @@ defmodule Sig.HR.Registrations.Registration do
     target
     |> cast(attrs, [:resignation_date, :resignation_type])
     |> validate_required([:resignation_date, :resignation_type])
-    |> validate_first_date_before_second(:admission_date, :resignation_date)
+    |> validate_dates(:admission_date, :lt, :resignation_date)
   end
 
   defp maybe_put_work_at_id(changeset) do

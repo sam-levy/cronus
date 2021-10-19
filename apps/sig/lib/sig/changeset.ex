@@ -32,27 +32,33 @@ defmodule Sig.Changeset do
     end
   end
 
-  def validate_first_date_before_second(changeset, first_date_field, second_date_field) do
-    with {_, first_date} <- fetch_field(changeset, first_date_field),
-         {:ok, second_date} <- fetch_change(changeset, second_date_field),
-         :lt <- Date.compare(first_date, second_date) do
+  @comparison_dict %{lt: "before", eq: "equal to", gt: "after"}
+
+  def validate_dates(%{valid?: true} = changeset, first_date_field, criteria, second_date_field) do
+    criteria = List.wrap(criteria)
+
+    with {_, first_date} when not is_nil(first_date) <-
+           fetch_field(changeset, first_date_field),
+         {_, second_date} when not is_nil(first_date) <-
+           fetch_field(changeset, second_date_field),
+         result <- Date.compare(first_date, second_date),
+         true <- Enum.member?(criteria, result) do
       changeset
     else
-      :gt -> add_error(changeset, first_date_field, "cannot be after #{second_date_field}")
-      _ -> changeset
+      false ->
+        criteria_message =
+          criteria
+          |> Enum.map(fn item -> Map.get(@comparison_dict, item) end)
+          |> Enum.join(" or ")
+
+        add_error(changeset, first_date_field, "must be #{criteria_message} #{second_date_field}")
+
+      _ ->
+        changeset
     end
   end
 
-  def validate_second_date_after_first(changeset, first_date_field, second_date_field) do
-    with {_, first_date} <- fetch_field(changeset, first_date_field),
-         {:ok, second_date} <- fetch_change(changeset, second_date_field),
-         :lt <- Date.compare(first_date, second_date) do
-      changeset
-    else
-      result when result in [:eq, :gt] -> add_error(changeset, second_date_field, "must be after #{first_date_field}")
-      _ -> changeset
-    end
-  end
+  def validate_dates(changeset, _first_date_field, _criteria, _second_date_field), do: changeset
 
   def validate_money(changeset, field) do
     validate_change(changeset, field, fn

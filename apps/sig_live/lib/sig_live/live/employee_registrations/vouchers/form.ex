@@ -173,7 +173,7 @@ defmodule SigLive.EmployeeRegistrations.Vouchers.Form do
   defp handle_flash(:edit_mode), do: send(self(), {:flash, :info, "Benefício alterado"})
 
   defp handle_title(:new_mode), do: "Adicionar Benefício"
-  defp handle_title(:edit_mode), do: "Finalizar Benefífio"
+  defp handle_title(:edit_mode), do: "Finalizar Benefício"
   defp handle_title(:show_mode), do: "Benefício"
 
   @input_enabled [opts: [disabled: false], class: ["form-input"]]

@@ -777,7 +777,7 @@ defmodule Sig.HR.Registrations.RegistrationTest do
       refute changeset.valid?
 
       assert errors_on(changeset) == %{
-               admission_date: ["cannot be after resignation_date"]
+               admission_date: ["must be before resignation_date"]
              }
     end
   end
