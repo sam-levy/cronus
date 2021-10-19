@@ -265,17 +265,14 @@ defmodule Sig.HR.BenefitModels.BenefitModelTest do
     end
 
     test "ignores non permitted attrs" do
-      benefit_model =
-        insert(:employee_benefit_model,
-          historical_amounts: [build(:historical_amount, date: ~D[2021-01-01], amount: 100)]
-        )
+      benefit_model = insert(:employee_benefit_model, amount_date: ~D[2020-01-01], amount: 100_00)
 
       attrs = %{
         org_id: UUID.generate(),
         description: Faker.Lorem.sentence(),
         type: random_enum_value(:employee_benefit_type),
-        amount: Enum.random(400_00..600_00),
-        amount_date: Faker.Date.backward(100),
+        amount: 200_00,
+        amount_date: ~D[2020-06-01],
         disabled_at: Date.utc_today(),
         historical_amounts: []
       }
@@ -309,7 +306,7 @@ defmodule Sig.HR.BenefitModels.BenefitModelTest do
         )
 
       attrs = %{
-        amount: 100_00,
+        amount: 200_00,
         amount_date: ~D[2020-06-01]
       }
 
@@ -323,7 +320,7 @@ defmodule Sig.HR.BenefitModels.BenefitModelTest do
 
       assert return.historical_amounts == [
                %HistoricalAmount{
-                 amount: %Money{amount: 100_00, currency: :BRL},
+                 amount: %Money{amount: 200_00, currency: :BRL},
                  date: ~D[2020-06-01]
                },
                %HistoricalAmount{
