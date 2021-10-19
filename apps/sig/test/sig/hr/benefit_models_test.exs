@@ -5,7 +5,7 @@ defmodule Sig.HR.BenefitModelsTest do
   alias Sig.HR.BenefitModels.BenefitModel
 
   describe "list/2" do
-    test "lists benefit models from an org ordered by iserted_at" do
+    test "lists benefit models from an org ordered by inserted_at" do
       org = insert(:org)
 
       insert(:employee_benefit_model, org: org, type: :transportation_voucher)
