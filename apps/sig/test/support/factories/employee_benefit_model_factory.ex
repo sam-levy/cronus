@@ -13,7 +13,7 @@ defmodule Sig.Factories.EmployeeBenefitModelFactory do
           Keyword.get(
             attrs,
             :historical_amounts,
-            build(:historical_amount, amount: amount, amount_date: amount_date)
+            build(:historical_amount, amount: amount, date: amount_date)
           )
 
         %BenefitModel{
