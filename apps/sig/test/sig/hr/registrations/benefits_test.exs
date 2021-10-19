@@ -1,6 +1,7 @@
 defmodule Sig.HR.Registrations.BenefitsTest do
   use Sig.DataCase
 
+  alias Sig.Finance.HistoricalAmount
   alias Sig.HR.Registrations.Benefits
   alias Sig.HR.Registrations.Benefits.Benefit
 
@@ -18,10 +19,19 @@ defmodule Sig.HR.Registrations.BenefitsTest do
     end
   end
 
-  describe "update_change/1" do
+  describe "update_benefit_amount_change/2" do
     test "returns a changeset" do
-      assert %Ecto.Changeset{data: %Benefit{}} = Benefits.update_change(%Benefit{}, %{})
-      assert %Ecto.Changeset{data: %Benefit{}} = Benefits.update_change(%Benefit{})
+      assert %Ecto.Changeset{data: %Benefit{}} =
+               Benefits.update_benefit_amount_change(%Benefit{}, %{})
+
+      assert %Ecto.Changeset{data: %Benefit{}} = Benefits.update_benefit_amount_change(%Benefit{})
+    end
+  end
+
+  describe "finalize_change/2" do
+    test "returns a changeset" do
+      assert %Ecto.Changeset{data: %Benefit{}} = Benefits.finalize_change(%Benefit{}, %{})
+      assert %Ecto.Changeset{data: %Benefit{}} = Benefits.finalize_change(%Benefit{})
     end
   end
 
@@ -506,6 +516,34 @@ defmodule Sig.HR.Registrations.BenefitsTest do
                )
     end
 
+    test "last_by filter" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+
+      insert(:employee_benefit,
+        org: org,
+        registration: registration,
+        benefit_type: :health_insurance,
+        benefit_amount: 370_00,
+        is_for_dependent: true,
+        start_date: ~D[2021-01-01]
+      )
+
+      insert(:employee_benefit,
+        org: org,
+        registration: registration,
+        benefit_type: :health_insurance,
+        benefit_amount: 360_00,
+        is_for_dependent: true,
+        start_date: ~D[2021-08-01]
+      )
+
+      assert [
+               %Benefit{amount: %Money{amount: 360_00}},
+             ] =
+               Benefits.list_by_registration(registration, last_by: :start_date)
+    end
+
     test "registration has no benefit" do
       org = insert(:org)
       registration = insert(:employee_registration, org: org)
@@ -514,13 +552,55 @@ defmodule Sig.HR.Registrations.BenefitsTest do
     end
   end
 
-  describe "update/2" do
-    test "updates a benefit" do
+  describe "update_benefit_amount/2" do
+    test "updates the amount of a benefit" do
+      benefit =
+        insert(:employee_benefit, benefit_amount_date: ~D[2020-01-01], benefit_amount: 100_00)
+
+      attrs = %{benefit_amount: 200_00, benefit_amount_date: ~D[2020-06-01]}
+
+      assert {:ok, _return} = Benefits.update_benefit_amount(benefit, attrs)
+
+      assert fetched_benefit =
+               Repo.get_by(Benefit,
+                 id: benefit.id,
+                 org_id: benefit.org_id,
+                 registration_id: benefit.registration_id,
+                 start_date: benefit.start_date,
+                 benefit_amount: attrs[:benefit_amount],
+                 benefit_amount_date: attrs[:benefit_amount_date]
+               )
+
+      assert fetched_benefit.benefit_historical_amounts == [
+               %HistoricalAmount{
+                 amount: %Money{amount: 20000, currency: :BRL},
+                 date: ~D[2020-06-01]
+               },
+               %HistoricalAmount{
+                 amount: %Money{amount: 10000, currency: :BRL},
+                 date: ~D[2020-01-01]
+               }
+             ]
+    end
+
+    test "when benefit is from model" do
+      benefit = insert(:employee_benefit_from_model)
+
+      attrs = %{benefit_amount: 200_00, benefit_amount_date: ~D[2020-06-01]}
+
+      assert_raise Ecto.ConstraintError,
+      ~r/employee_benefits_is_from_model_conditional \(check_constraint\)/,
+      fn -> Benefits.update_benefit_amount(benefit, attrs) end
+    end
+  end
+
+  describe "finalize/2" do
+    test "finalizes a benefit" do
       benefit = insert(:employee_benefit, start_date: ~D[2020-01-01], end_date: nil)
 
       attrs = %{end_date: ~D[2021-01-01]}
 
-      assert {:ok, _return} = Benefits.update(benefit, attrs)
+      assert {:ok, _return} = Benefits.finalize(benefit, attrs)
 
       assert Repo.get_by(Benefit,
                id: benefit.id,
@@ -533,7 +613,7 @@ defmodule Sig.HR.Registrations.BenefitsTest do
     test "changeset errors" do
       benefit = insert(:employee_benefit)
 
-      assert {:error, changeset} = Benefits.update(benefit, %{})
+      assert {:error, changeset} = Benefits.finalize(benefit, %{})
 
       assert errors_on(changeset) == %{end_date: ["can't be blank"]}
     end

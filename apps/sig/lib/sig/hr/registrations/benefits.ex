@@ -15,8 +15,12 @@ defmodule Sig.HR.Registrations.Benefits do
     Benefit.create_from_model_changeset(attrs)
   end
 
-  def update_change(%Benefit{} = benefit, %{} = attrs \\ %{}) do
-    Benefit.update_changeset(benefit, attrs)
+  def update_benefit_amount_change(%Benefit{} = benefit, %{} = attrs \\ %{}) do
+    Benefit.update_benefit_amount_changeset(benefit, attrs)
+  end
+
+  def finalize_change(%Benefit{} = benefit, %{} = attrs \\ %{}) do
+    Benefit.finalize_changeset(benefit, attrs)
   end
 
   def get(%Registration{} = registration, id) when is_binary(id) do
@@ -40,9 +44,15 @@ defmodule Sig.HR.Registrations.Benefits do
     |> fill_virtual_fields(opts)
   end
 
-  def update(%Benefit{} = benefit, %{} = attrs) do
+  def update_benefit_amount(%Benefit{} = benefit, %{} = attrs) do
     benefit
-    |> Benefit.update_changeset(attrs)
+    |> Benefit.update_benefit_amount_changeset(attrs)
+    |> Repo.update()
+  end
+
+  def finalize(%Benefit{} = benefit, %{} = attrs) do
+    benefit
+    |> Benefit.finalize_changeset(attrs)
     |> Repo.update()
   end
 
@@ -100,7 +110,6 @@ defmodule Sig.HR.Registrations.Benefits do
     end
   end
 
-  # TODO: Add test
   defp last_by(query, opts) do
     case Keyword.get(opts, :last_by, nil) do
       nil -> query

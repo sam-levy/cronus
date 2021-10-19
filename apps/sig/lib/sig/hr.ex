@@ -43,12 +43,14 @@ defmodule Sig.HR do
   defdelegate get_benefit(registration, id), to: Benefits, as: :get
   defdelegate create_benefit(registration, attrs), to: Benefits, as: :create
   defdelegate create_benefit_from_model(registration, attrs), to: Benefits, as: :create_from_model
-  defdelegate update_benefit(benefit, attrs), to: Benefits, as: :update
+  defdelegate update_benefit_amount(benefit, attrs), to: Benefits, as: :update_benefit_amount
+  defdelegate finalize_benefit(benefit, attrs), to: Benefits, as: :finalize
   defdelegate subscribe_to_registration_benefits(registration), to: Benefits
   defdelegate broadcast_registration_benefits(registration), to: Benefits
   defdelegate create_benefit_change(attrs \\ %{}), to: Benefits, as: :create_change
   defdelegate create_benefit_from_model_change(attrs \\ %{}), to: Benefits, as: :create_from_model_change
-  defdelegate update_benefit_change(benefit, attrs \\ %{}), to: Benefits, as: :update_change
+  defdelegate update_benefit_amount_change(benefit, attrs), to: Benefits, as: :update_benefit_amount_change
+  defdelegate finalize_benefit_change(benefit, attrs \\ %{}), to: Benefits, as: :finalize_change
 
   defdelegate list_warnings_by_registration(registration), to: Warnings, as: :list_by_registration
   defdelegate get_warning(registration, id), to: Warnings, as: :get
