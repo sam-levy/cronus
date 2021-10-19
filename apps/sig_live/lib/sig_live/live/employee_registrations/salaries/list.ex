@@ -41,7 +41,7 @@ defmodule SigLive.EmployeeRegistrations.Salaries.List do
                     Histórico de Salários
                   </span>
 
-                  <ButtonPlus value="Adicionar" on_click="new_salary"/>
+                  <ButtonPlus on_click="new_salary"/>
                 </div>
               </th>
             </tr>

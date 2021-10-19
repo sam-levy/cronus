@@ -54,7 +54,7 @@ defmodule SigLive.EmployeeRegistrations.Warnings.List do
                   Advertências
                 </span>
 
-                <ButtonPlus value="Adicionar" on_click="open_new_warning_form"/>
+                <ButtonPlus on_click="open_new_warning_form"/>
               </div>
             </th>
           </tr>

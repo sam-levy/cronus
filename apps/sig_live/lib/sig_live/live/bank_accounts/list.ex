@@ -82,7 +82,7 @@ defmodule SigLive.BankAccounts.List do
               <div class="flex justify-between items-center py-3 px-6">
                 <span class="text-gray-500 font-medium tracking-wider">Contas Bancárias</span>
 
-                <DropdownBtn text="Adicionar">
+                <DropdownBtn>
                   <a :on-click="open_new_account_form" class="dropdown-item">Conta Bancária</a>
                   <a :on-click="open_new_association_form" class="dropdown-item">Associação Entre Contas</a>
                 </DropdownBtn>

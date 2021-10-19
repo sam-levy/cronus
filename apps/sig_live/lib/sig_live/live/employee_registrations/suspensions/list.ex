@@ -54,7 +54,7 @@ defmodule SigLive.EmployeeRegistrations.Suspensions.List do
                   Suspensões
                 </span>
 
-                <ButtonPlus value="Adicionar" on_click="open_new_suspension_form"/>
+                <ButtonPlus on_click="open_new_suspension_form"/>
               </div>
             </th>
           </tr>

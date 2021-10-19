@@ -81,7 +81,7 @@ defmodule SigLive.EmployeeRegistrations.Benefits.List do
                   Benefícios
                 </span>
 
-                <DropdownBtn text="Adicionar">
+                <DropdownBtn>
                   <a :on-click="open_new_benefit_form" class="dropdown-item">Novo benefício</a>
                   <a :on-click="open_new_benefit_from_model_form" class="dropdown-item">Benefício a partir de modelo</a>
                 </DropdownBtn>

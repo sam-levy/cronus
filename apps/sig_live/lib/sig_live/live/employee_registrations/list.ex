@@ -47,7 +47,7 @@ defmodule SigLive.EmployeeRegistrations.List do
                   Registros de Trabalho
                 </span>
 
-                <ButtonPlus value="Adicionar" on_click="open_form"/>
+                <ButtonPlus on_click="open_form"/>
               </div>
             </th>
           </tr>

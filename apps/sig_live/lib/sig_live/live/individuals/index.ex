@@ -62,7 +62,7 @@ defmodule SigLive.Individuals.Index do
             <div class="flex justify-between items-center py-3 px-6">
               <span class="text-gray-500 font-medium tracking-wider">Pessoas</span>
 
-              <ButtonPlus value="Adicionar" on_click="toggle_new_individual_modal"/>
+              <ButtonPlus on_click="toggle_new_individual_modal"/>
             </div>
           </th>
         </tr>

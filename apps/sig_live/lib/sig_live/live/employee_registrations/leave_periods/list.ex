@@ -54,7 +54,7 @@ defmodule SigLive.EmployeeRegistrations.LeavePeriods.List do
                   Licenças
                 </span>
 
-                <ButtonPlus value="Adicionar" on_click="open_new_leave_period_form"/>
+                <ButtonPlus on_click="open_new_leave_period_form"/>
               </div>
             </th>
           </tr>
