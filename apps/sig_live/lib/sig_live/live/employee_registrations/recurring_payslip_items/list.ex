@@ -3,12 +3,13 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
 
   alias Sig.HR
 
+  alias SigLive.Components.ConfirmationDialog
   alias SigLive.Components.DropdownBtn
   alias SigLive.Components.DropdownOpts
-  alias SigLive.Components.ConfirmationDialog
+  alias SigLive.EmployeeRegistrations.RecurringPayslipItems.OutsideItemForm
   alias SigLive.EmployeeRegistrations.RecurringPayslipItems.PayslipItemForm
   alias SigLive.EmployeeRegistrations.RecurringPayslipItems.PayslipItemModelForm
-  alias SigLive.EmployeeRegistrations.RecurringPayslipItems.OutsideItemForm
+  alias SigLive.EmployeeRegistrations.RecurringPayslipItems.MonthToggle
 
   prop registration, :struct, required: true
   prop recurring_payslip_items, :list, required: true
@@ -19,6 +20,28 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
   data outside_item_form_state, :atom, default: :closed, values!: OutsideItemForm.states()
 
   data item_id, :string, default: nil
+  data target_date, :date, default: Date.utc_today() |> Date.end_of_month()
+
+  @impl true
+  def handle_event("previous_month", _, socket) do
+    {:noreply,
+     update(socket, :target_date, fn date ->
+       date
+       |> Date.beginning_of_month()
+       |> Date.add(-1)
+     end)}
+  end
+
+  @impl true
+  def handle_event("next_month", _, socket) do
+    {:noreply,
+     update(socket, :target_date, fn date ->
+       date
+       |> Date.end_of_month()
+       |> Date.add(1)
+       |> Date.end_of_month()
+     end)}
+  end
 
   @impl true
   def handle_event("open_new_payslip_item_form", _, socket) do
@@ -105,9 +128,13 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
           <tr class="bg-white">
             <th colspan="6">
               <div class="flex justify-between items-center py-3 px-6">
-                <span class="text-gray-500 font-medium tracking-wider">
-                  Itens Recorrentes do Holerite
-                </span>
+                <div class="flex items-center">
+                  <span class="text-gray-500 font-medium tracking-wider mr-4">
+                    Itens Recorrentes do Holerite
+                  </span>
+
+                  <MonthToggle target_date={@target_date} previous="previous_month" next="next_month"/>
+                </div>
 
                 <DropdownBtn>
                   <a :on-click="open_new_payslip_item_form" class="dropdown-item">Item do holerite</a>
