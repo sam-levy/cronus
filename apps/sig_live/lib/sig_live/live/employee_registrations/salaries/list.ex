@@ -33,7 +33,7 @@ defmodule SigLive.EmployeeRegistrations.Salaries.List do
         />
 
         <table class="w-full bg-white shadow-lg my-7">
-          <thead class="sticky top-0 z-20">
+          <thead class="top-0 z-20">
             <tr class="bg-white">
               <th colspan="2">
                 <div class="flex justify-between items-center py-3 px-6">
