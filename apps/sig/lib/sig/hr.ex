@@ -2,6 +2,7 @@ defmodule Sig.HR do
   alias Sig.HR.Registrations
   alias Sig.HR.Registrations.Salaries
   alias Sig.HR.Registrations.Vouchers
+  alias Sig.HR.Registrations.Warnings
 
   defdelegate create_registration_change(attrs \\ %{}), to: Registrations, as: :create_change
 
@@ -39,4 +40,13 @@ defmodule Sig.HR do
   defdelegate broadcast_registration_vouchers(registration), to: Vouchers
   defdelegate create_voucher_change(attrs \\ %{}), to: Vouchers, as: :create_change
   defdelegate update_voucher_change(voucher, attrs \\ %{}), to: Vouchers, as: :update_change
+
+  defdelegate list_warnings_by_registration(registration), to: Warnings, as: :list_by_registration
+  defdelegate get_warning(registration, id), to: Warnings, as: :get
+  defdelegate create_warning(registration, attrs), to: Warnings, as: :create
+  defdelegate update_warning(warning, attrs), to: Warnings, as: :update
+  defdelegate subscribe_to_registration_warnings(registration), to: Warnings
+  defdelegate broadcast_registration_warnings(registration), to: Warnings
+  defdelegate create_warning_change(attrs \\ %{}), to: Warnings, as: :create_change
+  defdelegate update_warning_change(warning, attrs \\ %{}), to: Warnings, as: :update_change
 end
