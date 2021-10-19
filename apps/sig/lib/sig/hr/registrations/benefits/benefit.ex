@@ -1,6 +1,7 @@
 defmodule Sig.HR.Registrations.Benefits.Benefit do
   use Sig.Schema
 
+  alias Sig.Finance.HistoricalAmount
   alias Sig.HR.BenefitModels.BenefitModel
   alias Sig.HR.BenefitModels.BenefitType
   alias Sig.HR.Registrations.Registration
@@ -13,12 +14,15 @@ defmodule Sig.HR.Registrations.Benefits.Benefit do
     field :description, :string
     field :benefit_type, BenefitType
     field :benefit_amount, Money.Ecto.Amount.Type
+    field :benefit_amount_date, :date
     field :is_for_dependent, :boolean
     field :start_date, :date
     field :end_date, :date
     field :is_from_model, :boolean
 
     belongs_to :benefit_model, BenefitModel
+
+    embeds_many :benefit_historical_amounts, HistoricalAmount
 
     field :type, BenefitType, virtual: true
     field :amount, Money.Ecto.Amount.Type, virtual: true
@@ -42,6 +46,8 @@ defmodule Sig.HR.Registrations.Benefits.Benefit do
     |> put_change(:is_from_model, false)
     |> validate_length(:description, max: 255)
     |> validate_money(:benefit_amount, :gt, 0)
+    |> copy_change_value(:start_date, :benefit_amount_date)
+    |> HistoricalAmount.add(:benefit_amount, :benefit_amount_date, :benefit_historical_amounts)
   end
 
   def create_from_model_changeset(attrs) do
@@ -53,12 +59,20 @@ defmodule Sig.HR.Registrations.Benefits.Benefit do
     |> assoc_constraint(:benefit_model, name: :employee_benefits_benefit_model)
   end
 
-  def update_changeset(%__MODULE__{} = target, attrs) do
+  def update_benefit_amount_changeset(%__MODULE__{} = target, attrs) do
+    target
+    |> cast(attrs, [:benefit_amount, :benefit_amount_date])
+    |> validate_required([:benefit_amount, :benefit_amount_date])
+    |> validate_is_active(:end_date)
+    |> validate_money(:benefit_amount, :gt, 0)
+    |> HistoricalAmount.add(:benefit_amount, :benefit_amount_date, :benefit_historical_amounts)
+  end
+
+  def finalize_changeset(%__MODULE__{} = target, attrs) do
     target
     |> cast(attrs, [:end_date])
     |> validate_required([:end_date])
+    |> validate_is_active(:end_date)
     |> validate_dates(:end_date, :gt, :start_date)
   end
-
-  # TODO: Add benefit_amount_start_date and benefit_historical_amounts
 end

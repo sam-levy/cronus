@@ -11,6 +11,7 @@ defmodule Sig.Repo.Migrations.CreateEmployeeBenefitsTable do
       add :description, :string
       add :benefit_type, :employee_benefit_type
       add :benefit_amount, :integer
+      add :benefit_amount_date, :date
       add :is_for_dependent, :boolean, null: false, default: false
       add :start_date, :date, null: false
       add :end_date, :date
@@ -21,6 +22,8 @@ defmodule Sig.Repo.Migrations.CreateEmployeeBenefitsTable do
             with: [org_id: :org_id],
             name: :employee_benefits_benefit_model
           )
+
+      add :benefit_historical_amounts, {:array, :map}
 
       timestamps()
     end
@@ -43,10 +46,14 @@ defmodule Sig.Repo.Migrations.CreateEmployeeBenefitsTable do
              check: """
                CASE WHEN is_from_model = true THEN
                  benefit_amount IS NULL AND
+                 benefit_amount_date IS NULL AND
+                 benefit_historical_amounts IS NULL AND
                  benefit_type IS NULL AND
                  benefit_model_id IS NOT NULL
                ELSE
                  benefit_amount IS NOT NULL AND
+                 benefit_amount_date IS NOT NULL AND
+                 benefit_historical_amounts IS NOT NULL AND
                  benefit_type IS NOT NULL AND
                  benefit_model_id IS NULL
                END
