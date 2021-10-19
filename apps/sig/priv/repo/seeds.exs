@@ -294,7 +294,10 @@ Repo.insert!(%BenefitModel{
   type: :health_insurance,
   amount: 280_00,
   amount_date: ~D[2020-01-01],
-  historical_amounts: [%HistoricalAmount{date: ~D[2020-01-01], amount: Money.new(280_00)}]
+  historical_amounts: [
+    %HistoricalAmount{date: ~D[2020-06-01], amount: Money.new(300_00)},
+    %HistoricalAmount{date: ~D[2020-01-01], amount: Money.new(280_00)}
+  ]
 })
 
 Repo.insert!(%BenefitModel{
@@ -303,5 +306,8 @@ Repo.insert!(%BenefitModel{
   type: :health_insurance,
   amount: 250_00,
   amount_date: ~D[2020-01-01],
-  historical_amounts: [%HistoricalAmount{date: ~D[2020-01-01], amount: Money.new(250_00)}]
+  historical_amounts: [
+    %HistoricalAmount{date: ~D[2020-06-01], amount: Money.new(280_00)},
+    %HistoricalAmount{date: ~D[2020-01-01], amount: Money.new(250_00)}
+  ]
 })
