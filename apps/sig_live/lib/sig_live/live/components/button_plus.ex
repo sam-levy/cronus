@@ -1,7 +1,7 @@
 defmodule SigLive.Components.ButtonPlus do
   use SigLive, :surface_component
 
-  prop value, :string, default: nil
+  prop value, :string
   prop on_click, :event
 
   def render(assigns) do

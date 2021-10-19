@@ -1,7 +1,7 @@
 defmodule SigLive.Components.DropdownBtn do
   use SigLive, :surface_component
 
-  prop text, :string, default: nil
+  prop text, :string
 
   slot default, required: true
 
