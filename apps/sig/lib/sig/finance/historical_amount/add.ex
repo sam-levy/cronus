@@ -32,7 +32,7 @@ defmodule Sig.Finance.HistoricalAmount.Add do
 
   def call(changeset, _, _, _), do: changeset
 
-  defp set_history(%{status: :error} = context), do: context
+  defp set_history(%{status: :halted} = context), do: context
 
   defp set_history(context) do
     %{changeset: changeset, history_field: history_field, amount_field: amount_field} = context
@@ -49,7 +49,7 @@ defmodule Sig.Finance.HistoricalAmount.Add do
     end
   end
 
-  defp set_date(%{status: :error} = context), do: context
+  defp set_date(%{status: :halted} = context), do: context
 
   defp set_date(context) do
     %{changeset: changeset, date_field: date_field} = context
@@ -60,7 +60,7 @@ defmodule Sig.Finance.HistoricalAmount.Add do
     end
   end
 
-  defp set_amount(%{status: :error} = context), do: context
+  defp set_amount(%{status: :halted} = context), do: context
 
   defp set_amount(context) do
     %{changeset: changeset, amount_field: amount_field} = context
@@ -71,7 +71,7 @@ defmodule Sig.Finance.HistoricalAmount.Add do
     end
   end
 
-  defp validate_historical_amount(%{status: :error} = context), do: context
+  defp validate_historical_amount(%{status: :halted} = context), do: context
 
   defp validate_historical_amount(context) do
     %{date: date, date_field: date_field, amount: amount, amount_field: amount_field} = context
@@ -96,7 +96,7 @@ defmodule Sig.Finance.HistoricalAmount.Add do
     end
   end
 
-  defp handle_history(%{status: :error} = context), do: context
+  defp handle_history(%{status: :halted} = context), do: context
 
   defp handle_history(%{history: []} = context), do: add_historical_amount(context)
 
@@ -150,7 +150,7 @@ defmodule Sig.Finance.HistoricalAmount.Add do
   defp add_changeset_error(context, field, error) do
     changeset = add_error(context.changeset, field, error)
 
-    %{context | status: :error, changeset: changeset}
+    %{context | status: :halted, changeset: changeset}
   end
 
   defp handle_return(%{changeset: changeset}), do: changeset
