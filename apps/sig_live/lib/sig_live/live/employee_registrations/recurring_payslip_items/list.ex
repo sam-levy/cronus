@@ -28,14 +28,17 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
       |> assign(assigns)
       |> assign(
         target_date: Date.utc_today() |> Date.end_of_month(),
-        recurring_payslip_items: items
+        recurring_payslip_items: items,
       )
+      |> assign_totals()
 
     {:ok, socket}
   end
 
   @impl true
-  def update(assigns, socket), do: {:ok, assign(socket, assigns)}
+  def update(assigns, socket) do
+    {:ok, assign(socket, assigns)}
+  end
 
   @impl true
   def handle_event("previous_month", _, socket) do
@@ -183,7 +186,7 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
 
         <tbody class="text-gray-600 text-sm font-light">
           {#for item <- @recurring_payslip_items}
-            <tr class="border-b border-gray-200 hover:bg-gray-50">
+            <tr class="border-b hover:bg-gray-50">
               <td class="py-3 px-6 text-left">
                 {item.code}
               </td>
@@ -214,6 +217,21 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
             </tr>
           {/for}
         </tbody>
+
+        <tfoot>
+          <tr class="border-b italic bg-gray-50 text-sm text-gray-500 tracking-wider">
+            <td class="py-2 px-6 text-left" colspan="2">Subtotais</td>
+            <td class="py-2 px-6 text-right">{format_amount(@credit_subtotal)}</td>
+            <td class="py-2 px-6 text-right">{format_amount(@debit_subtotal)}</td>
+            <td></td>
+          </tr>
+
+          <tr class="text-sm font-medium text-gray-500 tracking-wider">
+            <td class="py-2 px-6 text-left" colspan="3">Líquido</td>
+            <td class="py-2 px-6 text-right">{format_amount(@total)}</td>
+            <td></td>
+          </tr>
+        </tfoot>
       </table>
     </div>
     """
@@ -236,11 +254,33 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
   defp update_items(socket, date) do
     %{registration: registration} = socket.assigns
 
-    {:noreply,
-     assign(socket,
-       target_date: date,
-       recurring_payslip_items:
-         HR.list_recurring_payslip_items_by_registration(registration, start_date: date)
-     )}
+    socket =
+      socket
+      |> assign(
+        target_date: date,
+        recurring_payslip_items:
+          HR.list_recurring_payslip_items_by_registration(registration, start_date: date)
+      )
+      |> assign_totals()
+
+    {:noreply, socket}
+  end
+
+  defp assign_totals(%{assigns: %{recurring_payslip_items: items}} = socket) do
+    credit_subtotal = sum_by(:credit, items)
+    debit_subtotal = sum_by(:debit, items)
+
+    assign(socket,
+      credit_subtotal: credit_subtotal,
+      debit_subtotal: debit_subtotal,
+      total: Money.subtract(credit_subtotal, debit_subtotal)
+    )
+  end
+
+  def sum_by(entry_type, items) do
+    Enum.reduce(items, 0, fn
+      %{entry_type: ^entry_type, amount: amount}, acc -> Money.add(amount, acc)
+      _, acc -> acc
+    end)
   end
 end
