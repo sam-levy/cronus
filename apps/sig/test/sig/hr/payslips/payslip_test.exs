@@ -1,0 +1,307 @@
+defmodule Sig.HR.Payslips.PayslipTest do
+  use Sig.DataCase
+
+  alias Sig.HR.Payslips.Payslip
+
+  describe "payslips table constraints" do
+    test "org_id not_null_violation" do
+      registration = insert(:employee_registration)
+      group = insert(:payslip_group, org: registration.org)
+
+      payslip = %Payslip{
+        amount: Enum.random(1_000_00..2_000_00),
+        type: group.type,
+        start_date: Date.utc_today() |> Date.beginning_of_month(),
+        end_date: Date.utc_today() |> Date.end_of_month(),
+        is_closed: false,
+        group_id: group.id,
+        registration_id: registration.id
+      }
+
+      assert_raise Postgrex.Error,
+                   ~r/\(not_null_violation\) null value in column \"org_id\" of relation \"payslips\" violates not-null constraint/,
+                   fn -> Repo.insert(payslip) end
+    end
+
+    test "org_id foreign_key_constraint" do
+      registration = insert(:employee_registration)
+      group = insert(:payslip_group, org: registration.org)
+
+      payslip = %Payslip{
+        org_id: UUID.generate(),
+        amount: Enum.random(1_000_00..2_000_00),
+        type: group.type,
+        start_date: Date.utc_today() |> Date.beginning_of_month(),
+        end_date: Date.utc_today() |> Date.end_of_month(),
+        is_closed: false,
+        group_id: group.id,
+        registration_id: registration.id
+      }
+
+      assert_raise Ecto.ConstraintError,
+                   ~r/payslips_org_id_fkey \(foreign_key_constraint\)/,
+                   fn -> Repo.insert(payslip) end
+    end
+
+    test "payslips_amount_positive constraint" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+      group = insert(:payslip_group, org: org)
+
+      payslip = %Payslip{
+        org_id: org.id,
+        amount: -1,
+        type: group.type,
+        start_date: Date.utc_today() |> Date.beginning_of_month(),
+        end_date: Date.utc_today() |> Date.end_of_month(),
+        is_closed: false,
+        group_id: group.id,
+        registration_id: registration.id
+      }
+
+      assert_raise Ecto.ConstraintError,
+                   ~r/payslips_amount_positive \(check_constraint\)/,
+                   fn -> Repo.insert(payslip) end
+    end
+
+    test "payslips_start_date_before_end_date constraint" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+      group = insert(:payslip_group, org: org)
+
+      payslip = %Payslip{
+        org_id: org.id,
+        amount: Enum.random(1_000_00..2_000_00),
+        type: group.type,
+        start_date: ~D[2020-01-01],
+        end_date: ~D[2020-01-01],
+        is_closed: false,
+        group_id: group.id,
+        registration_id: registration.id
+      }
+
+      assert_raise Ecto.ConstraintError,
+                   ~r/payslips_start_date_before_end_date \(check_constraint\)/,
+                   fn -> Repo.insert(payslip) end
+    end
+
+    test "insert" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+      group = insert(:payslip_group, org: org)
+
+      payslip = %Payslip{
+        org_id: org.id,
+        amount: Enum.random(1_000_00..2_000_00),
+        type: group.type,
+        start_date: Date.utc_today() |> Date.beginning_of_month(),
+        end_date: Date.utc_today() |> Date.end_of_month(),
+        is_closed: true,
+        group_id: group.id,
+        registration_id: registration.id
+      }
+
+      assert {:ok, _return} = Repo.insert(payslip)
+    end
+
+    test "default values" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+      group = insert(:payslip_group, org: org)
+
+      payslip = %Payslip{
+        org_id: org.id,
+        type: group.type,
+        start_date: Date.utc_today() |> Date.beginning_of_month(),
+        end_date: Date.utc_today() |> Date.end_of_month(),
+        group_id: group.id,
+        registration_id: registration.id
+      }
+
+      assert {:ok, %{id: id}} = Repo.insert(payslip)
+
+      assert Repo.get_by(Payslip, org_id: org.id, id: id, is_closed: false, amount: 0)
+    end
+  end
+
+  describe "create_changeset/2" do
+    test "valid attrs" do
+      attrs = %{
+        org_id: UUID.generate(),
+        type: random_enum_value(:payslip_group_type),
+        start_date: Date.utc_today() |> Date.beginning_of_month(),
+        end_date: Date.utc_today() |> Date.end_of_month(),
+        group_id: UUID.generate(),
+        registration_id: UUID.generate()
+      }
+
+      assert changeset = Payslip.create_changeset(attrs)
+
+      assert changeset.valid?
+
+      assert changeset.changes == %{
+               org_id: attrs[:org_id],
+               type: attrs[:type],
+               start_date: attrs[:start_date],
+               end_date: attrs[:end_date],
+               group_id: attrs[:group_id],
+               registration_id: attrs[:registration_id]
+             }
+    end
+
+    test "missing required attrs" do
+      assert changeset = Payslip.create_changeset(%{})
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+               end_date: ["can't be blank"],
+               group_id: ["can't be blank"],
+               org_id: ["can't be blank"],
+               registration_id: ["can't be blank"],
+               start_date: ["can't be blank"],
+               type: ["can't be blank"]
+             }
+    end
+
+    test "invalid attrs" do
+      attrs = %{
+        org_id: :invalid,
+        type: :invalid,
+        start_date: :invalid,
+        end_date: :invalid,
+        group_id: :invalid,
+        registration_id: :invalid
+      }
+
+      assert changeset = Payslip.create_changeset(attrs)
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+               end_date: ["is invalid"],
+               group_id: ["is invalid"],
+               org_id: ["is invalid"],
+               registration_id: ["is invalid"],
+               start_date: ["is invalid"],
+               type: ["is invalid"]
+             }
+    end
+
+    test "ignores non permitted attrs" do
+      attrs = %{
+        org_id: UUID.generate(),
+        type: random_enum_value(:payslip_group_type),
+        start_date: Date.utc_today() |> Date.beginning_of_month(),
+        end_date: Date.utc_today() |> Date.end_of_month(),
+        group_id: UUID.generate(),
+        is_closed: true,
+        registration_id: UUID.generate(),
+        amount: Enum.random(1_000_00..2_000_00)
+      }
+
+      assert changeset = Payslip.create_changeset(attrs)
+
+      assert changeset.valid?
+
+      assert changeset.changes == %{
+               org_id: attrs[:org_id],
+               type: attrs[:type],
+               start_date: attrs[:start_date],
+               end_date: attrs[:end_date],
+               group_id: attrs[:group_id],
+               registration_id: attrs[:registration_id]
+             }
+    end
+
+    test "end_date before start_date" do
+      attrs = %{
+        org_id: UUID.generate(),
+        type: random_enum_value(:payslip_group_type),
+        start_date: ~D[2020-01-01],
+        end_date: ~D[2019-12-31],
+        group_id: UUID.generate(),
+        registration_id: UUID.generate()
+      }
+
+      assert changeset = Payslip.create_changeset(attrs)
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+               end_date: ["must be after start_date"]
+             }
+    end
+
+    test "end_date equal to start_date" do
+      attrs = %{
+        org_id: UUID.generate(),
+        type: random_enum_value(:payslip_group_type),
+        start_date: ~D[2020-01-01],
+        end_date: ~D[2020-01-01],
+        group_id: UUID.generate(),
+        registration_id: UUID.generate()
+      }
+
+      assert changeset = Payslip.create_changeset(attrs)
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+               end_date: ["must be after start_date"]
+             }
+    end
+  end
+
+  describe "update_amount_changeset/2" do
+    test "valid attrs" do
+      payslip = insert(:payslip, amount: 1_000_00)
+      attrs = %{amount: 1_100_00}
+
+      assert changeset = Payslip.update_amount_changeset(payslip, attrs)
+
+      assert changeset.valid?
+      assert changeset.changes == %{amount: %Money{amount: attrs[:amount], currency: :BRL}}
+    end
+
+    test "ignores non permitted attrs" do
+      payslip = insert(:payslip, amount: 1_000_00)
+
+      attrs = %{
+        org_id: UUID.generate(),
+        type: random_enum_value(:payslip_group_type),
+        start_date: Date.utc_today() |> Date.beginning_of_month(),
+        end_date: Date.utc_today() |> Date.end_of_month(),
+        is_closed: true,
+        group_id: UUID.generate(),
+        registration_id: UUID.generate(),
+        amount: 1_100_00
+      }
+
+      assert changeset = Payslip.update_amount_changeset(payslip, attrs)
+
+      assert changeset.valid?
+      assert changeset.changes == %{amount: %Money{amount: attrs[:amount], currency: :BRL}}
+    end
+
+    test "invalid attrs" do
+      payslip = insert(:payslip, amount: 1_000_00)
+      attrs = %{amount: :invalid}
+
+      assert changeset = Payslip.update_amount_changeset(payslip, attrs)
+
+      refute changeset.valid?
+      assert errors_on(changeset) == %{amount: ["is invalid"]}
+    end
+
+    test "negative amount" do
+      payslip = insert(:payslip, amount: 1_000_00)
+      attrs = %{amount: -1}
+
+      assert changeset = Payslip.update_amount_changeset(payslip, attrs)
+
+      refute changeset.valid?
+      assert errors_on(changeset) == %{amount: ["must be greater than 0,00"]}
+    end
+  end
+end

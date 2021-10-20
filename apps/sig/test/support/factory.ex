@@ -14,6 +14,7 @@ defmodule Sig.Factory do
   use Sig.Factories.WarningFactory
   use Sig.Factories.SuspensionFactory
   use Sig.Factories.LeavePeriodFactory
+  use Sig.Factories.PayslipFactory
   use Sig.Factories.PayslipCategoryFactory
   use Sig.Factories.PayslipGroupFactory
   use Sig.Factories.PayslipRecurringItemModelFactory
