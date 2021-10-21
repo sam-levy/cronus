@@ -101,22 +101,22 @@ defmodule Sig.HR.Payslips.PayslipTest do
         )
 
       # Allow when there is no overlap
-        insert(:payslip,
-          org: org,
-          registration: registration,
-          type: group.type,
-          start_date: ~D[2021-02-01],
-          end_date: ~D[2021-02-28]
-        )
+      insert(:payslip,
+        org: org,
+        registration: registration,
+        type: group.type,
+        start_date: ~D[2021-02-01],
+        end_date: ~D[2021-02-28]
+      )
 
       # Allow overlapping for different registration
-        insert(:payslip,
-          org: org,
-          type: group.type,
-          group: group,
-          start_date: ~D[2021-01-15],
-          end_date: ~D[2021-02-15]
-        )
+      insert(:payslip,
+        org: org,
+        type: group.type,
+        group: group,
+        start_date: ~D[2021-01-15],
+        end_date: ~D[2021-02-15]
+      )
 
       payslip = %Payslip{
         org_id: org.id,
@@ -149,12 +149,12 @@ defmodule Sig.HR.Payslips.PayslipTest do
         )
 
       # Allow overlapping for different registration
-        insert(:payslip,
-          org: org,
-          group: group,
-          start_date: ~D[2020-12-15],
-          end_date: ~D[2021-01-15]
-        )
+      insert(:payslip,
+        org: org,
+        group: group,
+        start_date: ~D[2020-12-15],
+        end_date: ~D[2021-01-15]
+      )
 
       payslip = %Payslip{
         org_id: org.id,
@@ -217,7 +217,6 @@ defmodule Sig.HR.Payslips.PayslipTest do
         type: random_enum_value(:payslip_group_type),
         start_date: Date.utc_today() |> Date.beginning_of_month(),
         end_date: Date.utc_today() |> Date.end_of_month(),
-        group_id: UUID.generate(),
         registration_id: UUID.generate()
       }
 
@@ -230,7 +229,6 @@ defmodule Sig.HR.Payslips.PayslipTest do
                type: attrs[:type],
                start_date: attrs[:start_date],
                end_date: attrs[:end_date],
-               group_id: attrs[:group_id],
                registration_id: attrs[:registration_id]
              }
     end
@@ -242,7 +240,6 @@ defmodule Sig.HR.Payslips.PayslipTest do
 
       assert errors_on(changeset) == %{
                end_date: ["can't be blank"],
-               group_id: ["can't be blank"],
                org_id: ["can't be blank"],
                registration_id: ["can't be blank"],
                start_date: ["can't be blank"],
@@ -256,7 +253,6 @@ defmodule Sig.HR.Payslips.PayslipTest do
         type: :invalid,
         start_date: :invalid,
         end_date: :invalid,
-        group_id: :invalid,
         registration_id: :invalid
       }
 
@@ -266,7 +262,6 @@ defmodule Sig.HR.Payslips.PayslipTest do
 
       assert errors_on(changeset) == %{
                end_date: ["is invalid"],
-               group_id: ["is invalid"],
                org_id: ["is invalid"],
                registration_id: ["is invalid"],
                start_date: ["is invalid"],
@@ -295,7 +290,6 @@ defmodule Sig.HR.Payslips.PayslipTest do
                type: attrs[:type],
                start_date: attrs[:start_date],
                end_date: attrs[:end_date],
-               group_id: attrs[:group_id],
                registration_id: attrs[:registration_id]
              }
     end
@@ -306,7 +300,6 @@ defmodule Sig.HR.Payslips.PayslipTest do
         type: random_enum_value(:payslip_group_type),
         start_date: ~D[2020-01-01],
         end_date: ~D[2019-12-31],
-        group_id: UUID.generate(),
         registration_id: UUID.generate()
       }
 
@@ -325,7 +318,6 @@ defmodule Sig.HR.Payslips.PayslipTest do
         type: random_enum_value(:payslip_group_type),
         start_date: ~D[2020-01-01],
         end_date: ~D[2020-01-01],
-        group_id: UUID.generate(),
         registration_id: UUID.generate()
       }
 
@@ -359,13 +351,13 @@ defmodule Sig.HR.Payslips.PayslipTest do
         type: group.type,
         start_date: ~D[2021-01-15],
         end_date: ~D[2021-02-15],
-        group_id: group.id,
         registration_id: registration.id
       }
 
       assert {:error, changeset} =
                attrs
                |> Payslip.create_changeset()
+               |> put_change(:group_id, group.id)
                |> Repo.insert()
 
       assert errors_on(changeset) == %{
@@ -394,13 +386,13 @@ defmodule Sig.HR.Payslips.PayslipTest do
         type: group.type,
         start_date: ~D[2020-12-15],
         end_date: ~D[2021-01-15],
-        group_id: group.id,
         registration_id: registration.id
       }
 
       assert {:error, changeset} =
                attrs
                |> Payslip.create_changeset()
+               |> put_change(:group_id, group.id)
                |> Repo.insert()
 
       assert errors_on(changeset) == %{
@@ -428,13 +420,13 @@ defmodule Sig.HR.Payslips.PayslipTest do
         type: group.type,
         start_date: ~D[2021-02-01],
         end_date: ~D[2021-02-28],
-        group_id: group.id,
         registration_id: registration.id
       }
 
       assert {:ok, _return} =
                attrs
                |> Payslip.create_changeset()
+               |> put_change(:group_id, group.id)
                |> Repo.insert()
     end
   end
@@ -488,6 +480,109 @@ defmodule Sig.HR.Payslips.PayslipTest do
 
       refute changeset.valid?
       assert errors_on(changeset) == %{amount: ["must be greater than 0,00"]}
+    end
+  end
+
+  describe "assign_group/2" do
+    test "assigns group_id to changeset" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+      group = insert(:payslip_group, org: org, type: :regular, date: ~D[2021-02-01])
+
+      attrs = %{
+        org_id: org.id,
+        type: :regular,
+        start_date: ~D[2021-02-01],
+        end_date: ~D[2021-02-28],
+        registration_id: registration.id
+      }
+
+      assert changeset =
+               attrs
+               |> Payslip.create_changeset()
+               |> Payslip.assign_group(group)
+
+      assert changeset.valid?
+
+      assert changeset.changes == %{
+               org_id: attrs[:org_id],
+               type: attrs[:type],
+               start_date: attrs[:start_date],
+               end_date: attrs[:end_date],
+               registration_id: attrs[:registration_id],
+               group_id: group.id
+             }
+
+      assert {:ok, _return} = Repo.insert(changeset)
+    end
+
+    test "when payslip and group belongs to different orgs" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+      group = insert(:payslip_group, type: :regular, date: ~D[2021-02-01])
+
+      attrs = %{
+        org_id: org.id,
+        type: :regular,
+        start_date: ~D[2021-02-01],
+        end_date: ~D[2021-02-28],
+        registration_id: registration.id
+      }
+
+      assert_raise Postgrex.Error,
+                   ~r/\(not_null_violation\) null value in column \"group_id\" of relation \"payslips\" violates not-null constraint/,
+                   fn ->
+                     attrs
+                     |> Payslip.create_changeset()
+                     |> Payslip.assign_group(group)
+                     |> Repo.insert()
+                   end
+    end
+
+    test "when payslip and group have different types" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+      group = insert(:payslip_group, org: org, type: :regular, date: ~D[2021-02-01])
+
+      attrs = %{
+        org_id: org.id,
+        type: :vacation,
+        start_date: ~D[2021-02-01],
+        end_date: ~D[2021-02-28],
+        registration_id: registration.id
+      }
+
+      assert_raise Postgrex.Error,
+                   ~r/\(not_null_violation\) null value in column \"group_id\" of relation \"payslips\" violates not-null constraint/,
+                   fn ->
+                     attrs
+                     |> Payslip.create_changeset()
+                     |> Payslip.assign_group(group)
+                     |> Repo.insert()
+                   end
+    end
+
+    test "when payslip and group belongs to different month" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+      group = insert(:payslip_group, org: org, type: :regular, date: ~D[2021-02-01])
+
+      attrs = %{
+        org_id: org.id,
+        type: :regular,
+        start_date: ~D[2021-01-01],
+        end_date: ~D[2021-01-31],
+        registration_id: registration.id
+      }
+
+      assert_raise Postgrex.Error,
+                   ~r/\(not_null_violation\) null value in column \"group_id\" of relation \"payslips\" violates not-null constraint/,
+                   fn ->
+                     attrs
+                     |> Payslip.create_changeset()
+                     |> Payslip.assign_group(group)
+                     |> Repo.insert()
+                   end
     end
   end
 end

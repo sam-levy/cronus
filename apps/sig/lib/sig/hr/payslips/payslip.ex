@@ -26,7 +26,6 @@ defmodule Sig.HR.Payslips.Payslip do
     :type,
     :start_date,
     :end_date,
-    :group_id,
     :registration_id
   ]
 
@@ -43,4 +42,19 @@ defmodule Sig.HR.Payslips.Payslip do
     |> validate_required([:amount])
     |> validate_money(:amount, :gt, 0)
   end
+
+  def assign_group(
+        %Ecto.Changeset{valid?: true, data: %__MODULE__{}, changes: %{org_id: org_id, type: type}} =
+          changeset,
+        %Group{org_id: org_id, type: type} = group
+      ) do
+    with payslip_beginning_of_month <- Date.beginning_of_month(changeset.changes.start_date),
+         :eq <- Date.compare(group.date, payslip_beginning_of_month) do
+      put_change(changeset, :group_id, group.id)
+    else
+      _ -> changeset
+    end
+  end
+
+  def assign_group(changeset, _group), do: changeset
 end
