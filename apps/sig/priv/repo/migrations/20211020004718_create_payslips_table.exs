@@ -37,6 +37,9 @@ defmodule Sig.Repo.Migrations.CreatePayslipsTable do
       FOR EACH ROW
       EXECUTE PROCEDURE ensure_no_period_overlap_with_registration ();
     """)
+
+    # TODO: Add trigger to ensure org_id and type are the same for
+    # payslip and group and that both belongs to the same org
   end
 
   def down do

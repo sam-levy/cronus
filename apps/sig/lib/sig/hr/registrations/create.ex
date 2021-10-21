@@ -14,6 +14,7 @@ defmodule Sig.HR.Registrations.Create do
     defstruct status: :ok, attrs: nil, changeset: nil, org: nil, individual: nil, result: nil
   end
 
+  # REFACTOR: Remove unnecessary org
   def call(%Org{} = org, %Individual{} = individual, %{} = attrs) do
     %Context{attrs: attrs, org: org, individual: individual}
     |> build_registration_changeset()

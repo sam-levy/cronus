@@ -45,5 +45,7 @@ defmodule Sig.Repo.Migrations.CreateEmployeeRegistrationsTable do
              :employee_registrations_admission_before_resignation,
              check: "admission_date < resignation_date"
            )
+
+    #TODO: Add trigger function to ensure no period overlap
   end
 end
