@@ -85,6 +85,92 @@ defmodule Sig.HR.Payslips.PayslipTest do
                    fn -> Repo.insert(payslip) end
     end
 
+    test "start date cannot be before existing record end date" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+      group = insert(:payslip_group, org: org, date: ~D[2021-01-01])
+
+      _existing_payslip =
+        insert(:payslip,
+          org: org,
+          registration: registration,
+          type: group.type,
+          group: group,
+          start_date: ~D[2021-01-01],
+          end_date: ~D[2021-01-31]
+        )
+
+      # Allow when there is no overlap
+        insert(:payslip,
+          org: org,
+          registration: registration,
+          type: group.type,
+          start_date: ~D[2021-02-01],
+          end_date: ~D[2021-02-28]
+        )
+
+      # Allow overlapping for different registration
+        insert(:payslip,
+          org: org,
+          type: group.type,
+          group: group,
+          start_date: ~D[2021-01-15],
+          end_date: ~D[2021-02-15]
+        )
+
+      payslip = %Payslip{
+        org_id: org.id,
+        amount: Enum.random(1_000_00..2_000_00),
+        type: group.type,
+        start_date: ~D[2021-01-15],
+        end_date: ~D[2021-02-15],
+        group_id: group.id,
+        registration_id: registration.id
+      }
+
+      assert_raise Postgrex.Error,
+                   ~r/\(integrity_constraint_violation\) start_date before or equal to an existing record end_date/,
+                   fn -> Repo.insert(payslip) end
+    end
+
+    test "end date cannot be after existing record start date" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+      group = insert(:payslip_group, org: org, date: ~D[2021-01-01])
+
+      _existing_payslip =
+        insert(:payslip,
+          org: org,
+          registration: registration,
+          type: group.type,
+          group: group,
+          start_date: ~D[2021-01-01],
+          end_date: ~D[2021-01-31]
+        )
+
+      # Allow overlapping for different registration
+        insert(:payslip,
+          org: org,
+          group: group,
+          start_date: ~D[2020-12-15],
+          end_date: ~D[2021-01-15]
+        )
+
+      payslip = %Payslip{
+        org_id: org.id,
+        amount: Enum.random(1_000_00..2_000_00),
+        type: group.type,
+        start_date: ~D[2020-12-15],
+        end_date: ~D[2021-01-15],
+        group_id: group.id,
+        registration_id: registration.id
+      }
+
+      assert_raise Postgrex.Error,
+                   ~r/\(integrity_constraint_violation\) end_date after or equal to an existing record start_date/,
+                   fn -> Repo.insert(payslip) end
+    end
+
     test "insert" do
       org = insert(:org)
       registration = insert(:employee_registration, org: org)
@@ -250,6 +336,106 @@ defmodule Sig.HR.Payslips.PayslipTest do
       assert errors_on(changeset) == %{
                end_date: ["must be after start_date"]
              }
+    end
+
+    test "start date cannot be before existing record end date" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+      group = insert(:payslip_group, org: org, date: ~D[2021-01-01])
+
+      _existing_payslip =
+        insert(:payslip,
+          org: org,
+          registration: registration,
+          type: group.type,
+          group: group,
+          start_date: ~D[2021-01-01],
+          end_date: ~D[2021-01-31]
+        )
+
+      attrs = %{
+        org_id: org.id,
+        amount: Enum.random(1_000_00..2_000_00),
+        type: group.type,
+        start_date: ~D[2021-01-15],
+        end_date: ~D[2021-02-15],
+        group_id: group.id,
+        registration_id: registration.id
+      }
+
+      assert {:error, changeset} =
+               attrs
+               |> Payslip.create_changeset()
+               |> Repo.insert()
+
+      assert errors_on(changeset) == %{
+               start_date: ["cannot be before or equal to an existing record end_date"]
+             }
+    end
+
+    test "end date cannot be after existing record start date" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+      group = insert(:payslip_group, org: org, date: ~D[2021-01-01])
+
+      _existing_payslip =
+        insert(:payslip,
+          org: org,
+          registration: registration,
+          type: group.type,
+          group: group,
+          start_date: ~D[2021-01-01],
+          end_date: ~D[2021-01-31]
+        )
+
+      attrs = %{
+        org_id: org.id,
+        amount: Enum.random(1_000_00..2_000_00),
+        type: group.type,
+        start_date: ~D[2020-12-15],
+        end_date: ~D[2021-01-15],
+        group_id: group.id,
+        registration_id: registration.id
+      }
+
+      assert {:error, changeset} =
+               attrs
+               |> Payslip.create_changeset()
+               |> Repo.insert()
+
+      assert errors_on(changeset) == %{
+               end_date: ["cannot be after or equal to an existing record start_date"]
+             }
+    end
+
+    test "success" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+      group = insert(:payslip_group, org: org, date: ~D[2021-02-01])
+
+      _existing_payslip =
+        insert(:payslip,
+          org: org,
+          registration: registration,
+          type: :regular,
+          start_date: ~D[2021-01-01],
+          end_date: ~D[2021-01-31]
+        )
+
+      attrs = %{
+        org_id: org.id,
+        amount: Enum.random(1_000_00..2_000_00),
+        type: group.type,
+        start_date: ~D[2021-02-01],
+        end_date: ~D[2021-02-28],
+        group_id: group.id,
+        registration_id: registration.id
+      }
+
+      assert {:ok, _return} =
+               attrs
+               |> Payslip.create_changeset()
+               |> Repo.insert()
     end
   end
 

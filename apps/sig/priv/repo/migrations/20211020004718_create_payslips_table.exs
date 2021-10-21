@@ -1,7 +1,7 @@
 defmodule Sig.Repo.Migrations.CreatePayslipsTable do
   use Ecto.Migration
 
-  def change do
+  def up do
     create table(:payslips) do
       add :org_id, references(:orgs), primary_key: true
 
@@ -30,5 +30,21 @@ defmodule Sig.Repo.Migrations.CreatePayslipsTable do
              :payslips_start_date_before_end_date,
              check: "start_date < end_date"
            )
+
+    execute("""
+      CREATE TRIGGER payslips_cannot_overlap
+      BEFORE INSERT OR UPDATE ON payslips
+      FOR EACH ROW
+      EXECUTE PROCEDURE ensure_no_period_overlap_with_registration ();
+    """)
+  end
+
+  def down do
+    execute("DROP TRIGGER payslips_cannot_overlap ON payslips;")
+
+    drop constraint(:payslips, :payslips_amount_positive)
+    drop constraint(:payslips, :payslips_start_date_before_end_date)
+
+    drop table(:payslips)
   end
 end
