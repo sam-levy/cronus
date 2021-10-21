@@ -5,10 +5,8 @@ defmodule Sig.Factories.PayslipGroupFactory do
       alias Sig.HR.Payslips.PayslipGroupType
 
       def factory(:payslip_group, attrs) do
-        org = Keyword.get(attrs, :org, insert(:org))
-
         %Group{
-          org: org,
+          org: insert(:org),
           date: Date.utc_today() |> Date.beginning_of_month(),
           type: random_enum_value(:payslip_group_type)
         }

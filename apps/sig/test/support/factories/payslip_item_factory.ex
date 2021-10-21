@@ -4,9 +4,9 @@ defmodule Sig.Factories.PayslipItemFactory do
       alias Sig.HR.Payslips.Items.Item
 
       def factory(:payslip_item, attrs) do
-        org = Keyword.get(attrs, :org, insert(:org))
-        category = Keyword.get(attrs, :category, insert(:payslip_category, org: org))
-        payslip = Keyword.get(attrs, :payslip, insert(:payslip, org: org))
+        org = Keyword.get(attrs, :org) || insert(:org)
+        category = Keyword.get(attrs, :category) || insert(:payslip_category, org: org)
+        payslip = Keyword.get(attrs, :payslip) || insert(:payslip, org: org)
 
         %Item{
           org: org,
@@ -19,8 +19,8 @@ defmodule Sig.Factories.PayslipItemFactory do
       end
 
       def factory(:payslip_outside_item, attrs) do
-        org = Keyword.get(attrs, :org, insert(:org))
-        payslip = Keyword.get(attrs, :payslip, insert(:payslip, org: org))
+        org = Keyword.get(attrs, :org) || insert(:org)
+        payslip = Keyword.get(attrs, :payslip) || insert(:payslip, org: org)
 
         %Item{
           org: org,

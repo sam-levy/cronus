@@ -4,10 +4,8 @@ defmodule Sig.Factories.PayslipCategoryFactory do
       alias Sig.HR.Payslips.Categories.Category
 
       def factory(:payslip_category, attrs) do
-        org = Keyword.get(attrs, :org, insert(:org))
-
         %Category{
-          org: org,
+          org: insert(:org),
           code: random_string_number(),
           entry_type: random_enum_value(:entry_type),
           description: Faker.Lorem.sentence()
