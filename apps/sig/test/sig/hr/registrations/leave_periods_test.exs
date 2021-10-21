@@ -166,10 +166,10 @@ defmodule Sig.HR.Registrations.LeavePeriodsTest do
       assert {:error, changeset} = LeavePeriods.update(leave_period, attrs)
 
       assert errors_on(changeset) == %{
-        type: ["is invalid"],
-        start_date: ["is invalid"],
-        end_date: ["is invalid"],
-      }
+               type: ["is invalid"],
+               start_date: ["is invalid"],
+               end_date: ["is invalid"]
+             }
     end
   end
 

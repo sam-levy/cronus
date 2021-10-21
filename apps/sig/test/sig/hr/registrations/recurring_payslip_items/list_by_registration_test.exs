@@ -722,15 +722,15 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
           payslip_recurring_item_model: payslip_recurring_item_model
         )
 
-        assert [
-          %RecurringPayslipItem{
-            id: ^id,
-            code: "115",
-            description: "ASSISTÊNCIA MÉDICA",
-            entry_type: :debit,
-            amount: %Money{amount: 600_00}
-          }
-        ] = ListByRegistration.call(registration)
+      assert [
+               %RecurringPayslipItem{
+                 id: ^id,
+                 code: "115",
+                 description: "ASSISTÊNCIA MÉDICA",
+                 entry_type: :debit,
+                 amount: %Money{amount: 600_00}
+               }
+             ] = ListByRegistration.call(registration)
     end
   end
 end

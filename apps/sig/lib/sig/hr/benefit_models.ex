@@ -5,7 +5,7 @@ defmodule Sig.HR.BenefitModels do
   alias Sig.HR.BenefitModels.BenefitModel
   alias Sig.Repo
 
-  def list(%Org{} = org)do
+  def list(%Org{} = org) do
     BenefitModel
     |> where(org_id: ^org.id)
     |> where([model], is_nil(model.disabled_at))

@@ -539,9 +539,8 @@ defmodule Sig.HR.Registrations.BenefitsTest do
       )
 
       assert [
-               %Benefit{amount: %Money{amount: 360_00}},
-             ] =
-               Benefits.list_by_registration(registration, last_by: :start_date)
+               %Benefit{amount: %Money{amount: 360_00}}
+             ] = Benefits.list_by_registration(registration, last_by: :start_date)
     end
 
     test "registration has no benefit" do
@@ -589,8 +588,8 @@ defmodule Sig.HR.Registrations.BenefitsTest do
       attrs = %{benefit_amount: 200_00, benefit_amount_date: ~D[2020-06-01]}
 
       assert_raise Ecto.ConstraintError,
-      ~r/employee_benefits_is_from_model_conditional \(check_constraint\)/,
-      fn -> Benefits.update_benefit_amount(benefit, attrs) end
+                   ~r/employee_benefits_is_from_model_conditional \(check_constraint\)/,
+                   fn -> Benefits.update_benefit_amount(benefit, attrs) end
     end
   end
 

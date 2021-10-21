@@ -510,7 +510,8 @@ defmodule Sig.HR.Registrations.Benefits.CreatorTest do
         end_date: nil
       )
 
-      benefit_model = insert(:employee_benefit_model, org: registration.org, type: :transportation_voucher)
+      benefit_model =
+        insert(:employee_benefit_model, org: registration.org, type: :transportation_voucher)
 
       attrs = %{
         description: Faker.Lorem.sentence(),
@@ -535,7 +536,8 @@ defmodule Sig.HR.Registrations.Benefits.CreatorTest do
         end_date: nil
       )
 
-      benefit_model = insert(:employee_benefit_model, org: registration.org, type: :transportation_voucher)
+      benefit_model =
+        insert(:employee_benefit_model, org: registration.org, type: :transportation_voucher)
 
       attrs = %{
         description: Faker.Lorem.sentence(),
@@ -567,7 +569,8 @@ defmodule Sig.HR.Registrations.Benefits.CreatorTest do
         end_date: nil
       )
 
-      benefit_model = insert(:employee_benefit_model, org: registration.org, type: :health_insurance)
+      benefit_model =
+        insert(:employee_benefit_model, org: registration.org, type: :health_insurance)
 
       attrs = %{
         description: Faker.Lorem.sentence(),
@@ -598,7 +601,8 @@ defmodule Sig.HR.Registrations.Benefits.CreatorTest do
         end_date: nil
       )
 
-      benefit_model = insert(:employee_benefit_model, org: registration.org, type: :health_insurance)
+      benefit_model =
+        insert(:employee_benefit_model, org: registration.org, type: :health_insurance)
 
       attrs = %{
         description: Faker.Lorem.sentence(),
@@ -629,7 +633,8 @@ defmodule Sig.HR.Registrations.Benefits.CreatorTest do
         end_date: nil
       )
 
-      benefit_model = insert(:employee_benefit_model, org: registration.org, type: :health_insurance)
+      benefit_model =
+        insert(:employee_benefit_model, org: registration.org, type: :health_insurance)
 
       attrs = %{
         description: Faker.Lorem.sentence(),
@@ -729,7 +734,7 @@ defmodule Sig.HR.Registrations.Benefits.CreatorTest do
           org: org,
           type: :health_insurance,
           amount_date: ~D[2020-01-01],
-          amount: 300_00,
+          amount: 300_00
         )
 
       insert(:employee_benefit_from_model,

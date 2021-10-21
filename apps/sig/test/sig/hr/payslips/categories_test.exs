@@ -14,7 +14,7 @@ defmodule Sig.HR.Payslips.CategoriesTest do
 
       assert Enum.count(return) == 2
 
-      assert Enum.all?(return, & &1.org_id == org.id)
+      assert Enum.all?(return, &(&1.org_id == org.id))
     end
 
     test "when org has no category" do

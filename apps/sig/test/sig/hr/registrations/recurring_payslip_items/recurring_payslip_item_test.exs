@@ -490,7 +490,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.RecurringPayslipItemTest do
                item_amount: ["is invalid"],
                org_id: ["is invalid"],
                payslip_category_id: ["is invalid"],
-               registration_id: ["is invalid"],
+               registration_id: ["is invalid"]
              }
     end
 
@@ -585,7 +585,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.RecurringPayslipItemTest do
       assert errors_on(changeset) == %{
                payslip_recurring_item_model_id: ["can't be blank"],
                org_id: ["can't be blank"],
-               registration_id: ["can't be blank"],
+               registration_id: ["can't be blank"]
              }
     end
 
@@ -622,7 +622,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.RecurringPayslipItemTest do
       assert errors_on(changeset) == %{
                org_id: ["is invalid"],
                payslip_recurring_item_model_id: ["is invalid"],
-               registration_id: ["is invalid"],
+               registration_id: ["is invalid"]
              }
     end
 
@@ -701,7 +701,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.RecurringPayslipItemTest do
                outside_item_description: ["can't be blank"],
                outside_item_entry_type: ["can't be blank"],
                org_id: ["can't be blank"],
-               registration_id: ["can't be blank"],
+               registration_id: ["can't be blank"]
              }
     end
 
@@ -746,7 +746,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.RecurringPayslipItemTest do
                org_id: ["is invalid"],
                outside_item_description: ["is invalid"],
                outside_item_entry_type: ["is invalid"],
-               registration_id: ["is invalid"],
+               registration_id: ["is invalid"]
              }
     end
 

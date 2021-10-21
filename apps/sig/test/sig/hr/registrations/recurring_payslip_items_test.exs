@@ -162,7 +162,8 @@ defmodule Sig.HR.Registrations.RecurringPayslipItemsTest do
       registration = insert(:employee_registration)
       topic = "registration_id:" <> registration.id <> ":recurring_payslip_items"
 
-      assert RecurringPayslipItems.subscribe_to_registration_recurring_payslip_items(registration) == :ok
+      assert RecurringPayslipItems.subscribe_to_registration_recurring_payslip_items(registration) ==
+               :ok
 
       Phoenix.PubSub.broadcast(
         Sig.PubSub,
@@ -195,9 +196,11 @@ defmodule Sig.HR.Registrations.RecurringPayslipItemsTest do
 
       @endpoint.subscribe(topic)
 
-      assert RecurringPayslipItems.broadcast_registration_recurring_payslip_items(registration) == :ok
+      assert RecurringPayslipItems.broadcast_registration_recurring_payslip_items(registration) ==
+               :ok
 
-      assert_receive {:updated_registration_recurring_payslip_items, received_recurring_payslip_items}
+      assert_receive {:updated_registration_recurring_payslip_items,
+                      received_recurring_payslip_items}
 
       assert Enum.count(received_recurring_payslip_items) == 2
 

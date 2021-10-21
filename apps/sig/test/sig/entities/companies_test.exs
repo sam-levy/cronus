@@ -38,9 +38,9 @@ defmodule Sig.Entities.CompaniesTest do
       _to_ignore = insert(:company)
 
       assert [
-          %Company{trade_name: "Acme"},
-          %Company{trade_name: "Dunder Mifflin"}
-        ] = Companies.list(org)
+               %Company{trade_name: "Acme"},
+               %Company{trade_name: "Dunder Mifflin"}
+             ] = Companies.list(org)
     end
 
     test "when org has no company" do

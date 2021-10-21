@@ -19,9 +19,9 @@ defmodule Sig.Repo.Migrations.CreateEmployeeLeavePeriodsTable do
     end
 
     create constraint(
-      :employee_leave_periods,
-      :employee_leave_periods_start_date_before_end_date,
-      check: "start_date < end_date"
-    )
+             :employee_leave_periods,
+             :employee_leave_periods_start_date_before_end_date,
+             check: "start_date < end_date"
+           )
   end
 end

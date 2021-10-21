@@ -182,23 +182,23 @@ defmodule Sig.HR.Registrations.CreateTest do
           org: org,
           individual: individual,
           registered_at: company_1,
-          admission_date: ~D[2010-01-01],
+          admission_date: ~D[2010-01-01]
         )
 
-        sector = insert(:org_sector, org: org)
-        position = insert(:org_position, org: org)
+      sector = insert(:org_sector, org: org)
+      position = insert(:org_position, org: org)
 
-        attrs = %{
-          org_id: org.id,
-          admission_date: ~D[2011-02-02],
-          sector_id: sector.id,
-          position_id: position.id,
-          individual_id: individual.entity_id,
-          registered_at_id: company_2.entity_id,
-          salary_amount: 1_200_00
-        }
+      attrs = %{
+        org_id: org.id,
+        admission_date: ~D[2011-02-02],
+        sector_id: sector.id,
+        position_id: position.id,
+        individual_id: individual.entity_id,
+        registered_at_id: company_2.entity_id,
+        salary_amount: 1_200_00
+      }
 
-        assert {:ok, %Registration{}} = Create.call(org, individual, attrs)
+      assert {:ok, %Registration{}} = Create.call(org, individual, attrs)
     end
   end
 end

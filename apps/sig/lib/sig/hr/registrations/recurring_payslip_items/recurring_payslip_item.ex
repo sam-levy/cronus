@@ -54,7 +54,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.RecurringPayslipItem do
     %__MODULE__{}
     |> cast(attrs, @create_payslip_item_model_fields)
     |> validate_required(@create_payslip_item_model_fields)
-    |> put_change(:type,:payslip_item_model)
+    |> put_change(:type, :payslip_item_model)
     |> assoc_constraint(:payslip_recurring_item_model,
       name: :employee_registration_recurring_payslip_items_item_model
     )

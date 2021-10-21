@@ -151,12 +151,13 @@ Repo.insert!(%Position{org_id: main_org.id, name: "Entregador Motorizado"})
 # Payslip Categories
 alias Sig.HR.Payslips.Categories.Category
 
-salary_category = Repo.insert!(%Category{
-  org_id: main_org.id,
-  code: "1",
-  description: "SALÁRIO",
-  entry_type: :credit
-})
+salary_category =
+  Repo.insert!(%Category{
+    org_id: main_org.id,
+    code: "1",
+    description: "SALÁRIO",
+    entry_type: :credit
+  })
 
 Repo.insert!(%Category{
   org_id: main_org.id,
@@ -186,19 +187,21 @@ Repo.insert!(%Category{
   entry_type: :credit
 })
 
-cashier_bonus_category = Repo.insert!(%Category{
-  org_id: main_org.id,
-  code: "1000",
-  description: "QUEBRA DE CAIXA",
-  entry_type: :credit
-})
+cashier_bonus_category =
+  Repo.insert!(%Category{
+    org_id: main_org.id,
+    code: "1000",
+    description: "QUEBRA DE CAIXA",
+    entry_type: :credit
+  })
 
-uniform_cleaning = Repo.insert!(%Category{
-  org_id: main_org.id,
-  code: "1038",
-  description: "LAVAR UNIFORME",
-  entry_type: :credit
-})
+uniform_cleaning =
+  Repo.insert!(%Category{
+    org_id: main_org.id,
+    code: "1038",
+    description: "LAVAR UNIFORME",
+    entry_type: :credit
+  })
 
 Repo.insert!(%Category{
   org_id: main_org.id,
@@ -207,26 +210,29 @@ Repo.insert!(%Category{
   entry_type: :debit
 })
 
-in_advance_payments_category = Repo.insert!(%Category{
-  org_id: main_org.id,
-  code: "12",
-  description: "ADIANTAMENTO ANTERIOR",
-  entry_type: :debit
-})
+in_advance_payments_category =
+  Repo.insert!(%Category{
+    org_id: main_org.id,
+    code: "12",
+    description: "ADIANTAMENTO ANTERIOR",
+    entry_type: :debit
+  })
 
-transportation_voucher_discount_category = Repo.insert!(%Category{
-  org_id: main_org.id,
-  code: "109",
-  description: "DESC. VALE TRANSPORTE",
-  entry_type: :debit
-})
+transportation_voucher_discount_category =
+  Repo.insert!(%Category{
+    org_id: main_org.id,
+    code: "109",
+    description: "DESC. VALE TRANSPORTE",
+    entry_type: :debit
+  })
 
-health_insurance_category = Repo.insert!(%Category{
-  org_id: main_org.id,
-  code: "115",
-  description: "ASSISTÊNCIA MÉDICA",
-  entry_type: :debit
-})
+health_insurance_category =
+  Repo.insert!(%Category{
+    org_id: main_org.id,
+    code: "115",
+    description: "ASSISTÊNCIA MÉDICA",
+    entry_type: :debit
+  })
 
 # Payslip Recurring Item Moddels
 alias Sig.HR.Payslips.RecurringItemModels.RecurringItemModel
