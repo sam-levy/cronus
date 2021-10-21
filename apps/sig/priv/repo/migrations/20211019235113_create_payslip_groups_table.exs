@@ -19,7 +19,7 @@ defmodule Sig.Repo.Migrations.CreatePayslipGroupsTable do
 
     create constraint(
              :payslip_groups,
-             :payslip_groups_date_first_day_of_month,
+             :payslip_groups_date_beginning_of_month,
              check: "(extract (day from date) = 1)"
            )
   end

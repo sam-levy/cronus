@@ -42,7 +42,7 @@ defmodule Sig.HR.Payslips.Groups.GroupTest do
                    fn -> Repo.insert(group) end
     end
 
-    test "payslip_groups_date_first_day_of_month constraint" do
+    test "payslip_groups_date_beginning_of_month constraint" do
       org = insert(:org)
 
       group = %Group{
@@ -52,8 +52,76 @@ defmodule Sig.HR.Payslips.Groups.GroupTest do
       }
 
       assert_raise Ecto.ConstraintError,
-                   ~r/payslip_groups_date_first_day_of_month \(check_constraint\)/,
+                   ~r/payslip_groups_date_beginning_of_month \(check_constraint\)/,
                    fn -> Repo.insert(group) end
+    end
+  end
+
+  describe "create_changeset/2" do
+    test "valid attrs" do
+      attrs = %{
+        org_id: UUID.generate(),
+        date: ~D[2021-01-01],
+        type: random_enum_value(:payslip_group_type)
+      }
+
+      assert changeset = Group.create_changeset(attrs)
+
+      assert changeset.valid?
+
+      assert changeset.changes == %{
+               org_id: attrs[:org_id],
+               date: attrs[:date],
+               type: attrs[:type]
+             }
+    end
+
+    test "invalid attrs" do
+      attrs = %{
+        org_id: :invalid,
+        date: :invalid,
+        type: :invalid
+      }
+
+      assert changeset = Group.create_changeset(attrs)
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+               date: ["is invalid"],
+               org_id: ["is invalid"],
+               type: ["is invalid"]
+             }
+    end
+
+    test "missing required attrs" do
+      assert changeset = Group.create_changeset(%{})
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+               date: ["can't be blank"],
+               org_id: ["can't be blank"],
+               type: ["can't be blank"]
+             }
+    end
+
+    test "ensure date is beginning of month" do
+      attrs = %{
+        org_id: UUID.generate(),
+        date: ~D[2021-01-15],
+        type: random_enum_value(:payslip_group_type)
+      }
+
+      assert changeset = Group.create_changeset(attrs)
+
+      assert changeset.valid?
+
+      assert changeset.changes == %{
+               org_id: attrs[:org_id],
+               date: ~D[2021-01-01],
+               type: attrs[:type]
+             }
     end
   end
 end
