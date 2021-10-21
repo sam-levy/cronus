@@ -25,18 +25,18 @@ defmodule Sig.Repo.Migrations.CreateEmployeeSuspensionsTable do
       CREATE TRIGGER employee_suspensions_cannot_overlap
       BEFORE INSERT OR UPDATE ON employee_suspensions
       FOR EACH ROW
-      EXECUTE PROCEDURE ensure_no_period_overlap ();
+      EXECUTE PROCEDURE ensure_no_period_overlap_with_registration ();
     """)
   end
 
   def down do
-    drop table(:employee_suspensions)
+    execute("DROP TRIGGER employee_suspensions_cannot_overlap ON employee_suspensions;")
 
     drop constraint(
            :employee_suspensions,
            :employee_suspensions_start_date_before_or_equal_end_date
          )
 
-    execute("DROP TRIGGER employee_suspensions_cannot_overlap ON employee_suspensions;")
+    drop table(:employee_suspensions)
   end
 end

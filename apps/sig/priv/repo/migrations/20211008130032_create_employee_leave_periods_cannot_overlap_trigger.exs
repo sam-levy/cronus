@@ -6,7 +6,7 @@ defmodule Sig.Repo.Migrations.CreateEmployeeLeavePeriodsCannotOverlapTrigger do
     CREATE TRIGGER employee_leave_periods_cannot_overlap
       BEFORE INSERT OR UPDATE ON employee_leave_periods
       FOR EACH ROW
-      EXECUTE PROCEDURE ensure_no_period_overlap ();
+      EXECUTE PROCEDURE ensure_no_period_overlap_with_registration ();
     """)
   end
 

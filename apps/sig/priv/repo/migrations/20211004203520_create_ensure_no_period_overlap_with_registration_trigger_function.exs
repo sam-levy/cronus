@@ -1,9 +1,9 @@
-defmodule Sig.Repo.Migrations.CreateEnsureNoPeriodOverlapTriggerFunction do
+defmodule Sig.Repo.Migrations.CreateEnsureNoPeriodOverlapWithRegistrationTriggerFunction do
   use Ecto.Migration
 
   def up do
     execute("""
-    CREATE OR REPLACE FUNCTION ensure_no_period_overlap ()
+    CREATE OR REPLACE FUNCTION ensure_no_period_overlap_with_registration ()
       RETURNS TRIGGER
       LANGUAGE PLPGSQL
       AS
@@ -61,6 +61,6 @@ defmodule Sig.Repo.Migrations.CreateEnsureNoPeriodOverlapTriggerFunction do
   end
 
   def down do
-    execute("DROP FUNCTION ensure_no_period_overlap;")
+    execute("DROP FUNCTION ensure_no_period_overlap_with_registration;")
   end
 end
