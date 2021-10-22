@@ -4,8 +4,10 @@ defmodule Sig.Factories.SalaryFactory do
       alias Sig.HR.Registrations.Salaries.Salary
 
       def factory(:employee_salary, attrs) do
-        org = Keyword.get(attrs, :org, insert(:org))
-        registration = Keyword.get(attrs, :registration, insert(:employee_registration, org: org))
+        org = Keyword.get(attrs, :org) || insert(:org)
+
+        registration =
+          Keyword.get(attrs, :registration) || insert(:employee_registration, org: org)
 
         %Salary{
           org: org,

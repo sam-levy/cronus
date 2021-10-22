@@ -4,8 +4,10 @@ defmodule Sig.Factories.WarningFactory do
       alias Sig.HR.Registrations.Warnings.Warning
 
       def factory(:employee_warning, attrs) do
-        org = Keyword.get(attrs, :org, insert(:org))
-        registration = Keyword.get(attrs, :registration, insert(:employee_registration, org: org))
+        org = Keyword.get(attrs, :org) || insert(:org)
+
+        registration =
+          Keyword.get(attrs, :registration) || insert(:employee_registration, org: org)
 
         %Warning{
           org: org,

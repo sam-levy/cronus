@@ -4,8 +4,8 @@ defmodule Sig.Factories.PayslipRecurringItemModelFactory do
       alias Sig.HR.Payslips.RecurringItemModels.RecurringItemModel
 
       def factory({:payslip_recurring_item_model, :fixed_amount}, attrs) do
-        org = Keyword.get(attrs, :org, insert(:org))
-        category = Keyword.get(attrs, :category, insert(:payslip_category, org: org))
+        org = Keyword.get(attrs, :org) || insert(:org)
+        category = Keyword.get(attrs, :category) || insert(:payslip_category, org: org)
 
         %RecurringItemModel{
           org: org,
@@ -17,8 +17,8 @@ defmodule Sig.Factories.PayslipRecurringItemModelFactory do
       end
 
       def factory({:payslip_recurring_item_model, :percentage}, attrs) do
-        org = Keyword.get(attrs, :org, insert(:org))
-        category = Keyword.get(attrs, :category, insert(:payslip_category, org: org))
+        org = Keyword.get(attrs, :org) || insert(:org)
+        category = Keyword.get(attrs, :category) || insert(:payslip_category, org: org)
 
         %RecurringItemModel{
           org: org,

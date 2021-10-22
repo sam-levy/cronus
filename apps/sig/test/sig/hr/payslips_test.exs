@@ -2,7 +2,6 @@ defmodule Sig.HR.PayslipsTest do
   use Sig.DataCase
 
   alias Sig.HR.Payslips
-  alias Sig.HR.Payslips.Items.Item
   alias Sig.HR.Payslips.Payslip
 
   describe "create_change/1" do

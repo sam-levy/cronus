@@ -5,16 +5,13 @@ defmodule Sig.Factories.EmployeeBenefitModelFactory do
       alias Sig.HR.BenefitModels.BenefitType
 
       def factory(:employee_benefit_model, attrs) do
-        org = Keyword.get(attrs, :org, insert(:org))
-        amount = Keyword.get(attrs, :amount, Enum.random(100_00..500_00))
-        amount_date = Keyword.get(attrs, :amount_date, Faker.Date.backward(100))
+        org = Keyword.get(attrs, :org) || insert(:org)
+        amount = Keyword.get(attrs, :amount) || Enum.random(100_00..500_00)
+        amount_date = Keyword.get(attrs, :amount_date) || Faker.Date.backward(100)
 
         historical_amounts =
-          Keyword.get(
-            attrs,
-            :historical_amounts,
+          Keyword.get(attrs, :historical_amounts) ||
             build(:historical_amount, amount: amount, date: amount_date)
-          )
 
         %BenefitModel{
           org: org,

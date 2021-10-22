@@ -4,8 +4,8 @@ defmodule Sig.Factories.CompanyFactory do
       alias Sig.Entities.Companies.Company
 
       def factory(:company, attrs) do
-        org = Keyword.get(attrs, :org, insert(:org))
-        entity = Keyword.get(attrs, :entity, insert(:entity, org: org, type: :company))
+        org = Keyword.get(attrs, :org) || insert(:org)
+        entity = Keyword.get(attrs, :entity) || insert(:entity, org: org, type: :company)
 
         %Company{
           org: org,
@@ -18,8 +18,8 @@ defmodule Sig.Factories.CompanyFactory do
       end
 
       def factory(:virtual_company, attrs) do
-        org = Keyword.get(attrs, :org, insert(:org))
-        entity = Keyword.get(attrs, :entity, insert(:entity, org: org, type: :company))
+        org = Keyword.get(attrs, :org) || insert(:org)
+        entity = Keyword.get(attrs, :entity) || insert(:entity, org: org, type: :company)
 
         %Company{
           org: org,
