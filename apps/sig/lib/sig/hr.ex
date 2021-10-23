@@ -2,6 +2,7 @@ defmodule Sig.HR do
   alias Sig.HR.BenefitModels
   alias Sig.HR.Payslips
   alias Sig.HR.Payslips.Categories
+  alias Sig.HR.Payslips.Items
   alias Sig.HR.Payslips.RecurringItemModels
   alias Sig.HR.Registrations
   alias Sig.HR.Registrations.Salaries
@@ -130,4 +131,10 @@ defmodule Sig.HR do
   defdelegate list_payslips_by_registration(registration), to: Payslips, as: :list_by_registration
   defdelegate get_payslip(registration, id), to: Payslips, as: :get
   defdelegate create_payslip_change(attrs), to: Payslips, as: :create_change
+
+  defdelegate list_items_by_payslip(payslip), to: Items, as: :list_by_payslip
+  defdelegate get_payslip_item(payslip, id), to: Items, as: :get
+  defdelegate create_payslip_item(payslip, attrs), to: Items
+  defdelegate create_payslip_outside_item(payslip, attrs), to: Items, as: :create_outside_item
+  defdelegate update_payslip_item_amount(payslip, item, attrs), to: Items, as: :update_amount
 end
