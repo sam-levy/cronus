@@ -32,17 +32,61 @@ defmodule Sig.Repo.Migrations.CreatePayslipsTable do
            )
 
     execute("""
+    CREATE OR REPLACE FUNCTION validate_payslip_and_payslip_group ()
+      RETURNS TRIGGER
+      LANGUAGE PLPGSQL
+      AS
+    $$
+    DECLARE
+      payslip_group record;
+    BEGIN
+      SELECT type, date
+      FROM payslip_groups
+      WHERE
+        id = NEW.group_id AND
+        org_id = NEW.org_id
+      INTO payslip_group;
+
+      IF
+        payslip_group.type != NEW.type
+      THEN
+        RAISE 'payslip and payslip group must have the same type'
+        USING ERRCODE = 'integrity_constraint_violation';
+      END IF;
+
+      IF
+        extract (month from payslip_group.date) != extract (month from NEW.start_date) AND
+        extract (year from payslip_group.date) != extract (year from NEW.start_date)
+      THEN
+        RAISE 'payslip start_date and payslip group date must belong to the same year and month'
+        USING ERRCODE = 'integrity_constraint_violation';
+      END IF;
+
+      RETURN NEW;
+    END;
+    $$
+    """)
+
+    execute("""
+      CREATE TRIGGER validate_payslip_and_payslip_group
+      BEFORE INSERT OR UPDATE ON payslips
+      FOR EACH ROW
+      EXECUTE PROCEDURE validate_payslip_and_payslip_group ();
+    """)
+
+    execute("""
       CREATE TRIGGER payslips_cannot_overlap
       BEFORE INSERT OR UPDATE ON payslips
       FOR EACH ROW
       EXECUTE PROCEDURE ensure_no_period_overlap_with_registration ();
     """)
 
-    # TODO: Add trigger to ensure org_id and type are the same for
-    # payslip and group and that both belongs to the same org
+    # TODO: Add trigger to ensure the amount is the sum of the
+    # amounts of its items
   end
 
   def down do
+    execute("DROP TRIGGER validate_payslip_and_payslip_group ON payslips;")
     execute("DROP TRIGGER payslips_cannot_overlap ON payslips;")
 
     drop constraint(:payslips, :payslips_amount_positive)

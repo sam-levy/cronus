@@ -6,13 +6,15 @@ defmodule Sig.HR.Payslips.PayslipTest do
   describe "payslips table constraints" do
     test "org_id not_null_violation" do
       registration = insert(:employee_registration)
-      group = insert(:payslip_group, org: registration.org)
+      date = Date.utc_today()
+
+      group = insert(:payslip_group, org: registration.org, date: Date.beginning_of_month(date))
 
       payslip = %Payslip{
         amount: Enum.random(1_000_00..2_000_00),
         type: group.type,
-        start_date: Date.utc_today() |> Date.beginning_of_month(),
-        end_date: Date.utc_today() |> Date.end_of_month(),
+        start_date: Date.beginning_of_month(date),
+        end_date: Date.end_of_month(date),
         is_closed: false,
         group_id: group.id,
         registration_id: registration.id
@@ -25,14 +27,16 @@ defmodule Sig.HR.Payslips.PayslipTest do
 
     test "org_id foreign_key_constraint" do
       registration = insert(:employee_registration)
-      group = insert(:payslip_group, org: registration.org)
+      date = Date.utc_today()
+
+      group = insert(:payslip_group, org: registration.org, date: Date.beginning_of_month(date))
 
       payslip = %Payslip{
         org_id: UUID.generate(),
         amount: Enum.random(1_000_00..2_000_00),
         type: group.type,
-        start_date: Date.utc_today() |> Date.beginning_of_month(),
-        end_date: Date.utc_today() |> Date.end_of_month(),
+        start_date: Date.beginning_of_month(date),
+        end_date: Date.end_of_month(date),
         is_closed: false,
         group_id: group.id,
         registration_id: registration.id
@@ -46,14 +50,17 @@ defmodule Sig.HR.Payslips.PayslipTest do
     test "payslips_amount_positive constraint" do
       org = insert(:org)
       registration = insert(:employee_registration, org: org)
-      group = insert(:payslip_group, org: org)
+
+      date = Date.utc_today()
+
+      group = insert(:payslip_group, org: org, date: Date.beginning_of_month(date))
 
       payslip = %Payslip{
         org_id: org.id,
         amount: -1,
         type: group.type,
-        start_date: Date.utc_today() |> Date.beginning_of_month(),
-        end_date: Date.utc_today() |> Date.end_of_month(),
+        start_date: Date.beginning_of_month(date),
+        end_date: Date.end_of_month(date),
         is_closed: false,
         group_id: group.id,
         registration_id: registration.id
@@ -67,7 +74,7 @@ defmodule Sig.HR.Payslips.PayslipTest do
     test "payslips_start_date_before_end_date constraint" do
       org = insert(:org)
       registration = insert(:employee_registration, org: org)
-      group = insert(:payslip_group, org: org)
+      group = insert(:payslip_group, org: org, date: ~D[2020-01-01])
 
       payslip = %Payslip{
         org_id: org.id,
@@ -88,14 +95,16 @@ defmodule Sig.HR.Payslips.PayslipTest do
     test "start date cannot be before existing record end date" do
       org = insert(:org)
       registration = insert(:employee_registration, org: org)
-      group = insert(:payslip_group, org: org, date: ~D[2021-01-01])
+
+      jan_group = insert(:payslip_group, org: org, date: ~D[2021-01-01])
+      feb_group = insert(:payslip_group, org: org, date: ~D[2021-02-01])
 
       _existing_payslip =
         insert(:payslip,
           org: org,
           registration: registration,
-          type: group.type,
-          group: group,
+          type: jan_group.type,
+          group: jan_group,
           start_date: ~D[2021-01-01],
           end_date: ~D[2021-01-31]
         )
@@ -104,7 +113,8 @@ defmodule Sig.HR.Payslips.PayslipTest do
       insert(:payslip,
         org: org,
         registration: registration,
-        type: group.type,
+        type: feb_group.type,
+        group: feb_group,
         start_date: ~D[2021-02-01],
         end_date: ~D[2021-02-28]
       )
@@ -112,8 +122,8 @@ defmodule Sig.HR.Payslips.PayslipTest do
       # Allow overlapping for different registration
       insert(:payslip,
         org: org,
-        type: group.type,
-        group: group,
+        type: jan_group.type,
+        group: jan_group,
         start_date: ~D[2021-01-15],
         end_date: ~D[2021-02-15]
       )
@@ -121,10 +131,10 @@ defmodule Sig.HR.Payslips.PayslipTest do
       payslip = %Payslip{
         org_id: org.id,
         amount: Enum.random(1_000_00..2_000_00),
-        type: group.type,
         start_date: ~D[2021-01-15],
         end_date: ~D[2021-02-15],
-        group_id: group.id,
+        type: jan_group.type,
+        group_id: jan_group.id,
         registration_id: registration.id
       }
 
@@ -136,14 +146,16 @@ defmodule Sig.HR.Payslips.PayslipTest do
     test "end date cannot be after existing record start date" do
       org = insert(:org)
       registration = insert(:employee_registration, org: org)
-      group = insert(:payslip_group, org: org, date: ~D[2021-01-01])
+
+      dez_group = insert(:payslip_group, org: org, date: ~D[2020-12-01])
+      jan_group = insert(:payslip_group, org: org, date: ~D[2021-01-01])
 
       _existing_payslip =
         insert(:payslip,
           org: org,
           registration: registration,
-          type: group.type,
-          group: group,
+          type: jan_group.type,
+          group: jan_group,
           start_date: ~D[2021-01-01],
           end_date: ~D[2021-01-31]
         )
@@ -151,7 +163,8 @@ defmodule Sig.HR.Payslips.PayslipTest do
       # Allow overlapping for different registration
       insert(:payslip,
         org: org,
-        group: group,
+        type: dez_group.type,
+        group: dez_group,
         start_date: ~D[2020-12-15],
         end_date: ~D[2021-01-15]
       )
@@ -159,10 +172,10 @@ defmodule Sig.HR.Payslips.PayslipTest do
       payslip = %Payslip{
         org_id: org.id,
         amount: Enum.random(1_000_00..2_000_00),
-        type: group.type,
         start_date: ~D[2020-12-15],
         end_date: ~D[2021-01-15],
-        group_id: group.id,
+        type: dez_group.type,
+        group_id: dez_group.id,
         registration_id: registration.id
       }
 
@@ -171,17 +184,44 @@ defmodule Sig.HR.Payslips.PayslipTest do
                    fn -> Repo.insert(payslip) end
     end
 
+    test "payslip and payslip group must have the same type" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+
+      date = Date.utc_today() |> Date.beginning_of_month()
+
+      group = insert(:payslip_group, org: org, type: :regular, date: date)
+
+      payslip = %Payslip{
+        org_id: org.id,
+        amount: Enum.random(1_000_00..2_000_00),
+        type: :vacation,
+        start_date: date,
+        end_date: Date.end_of_month(date),
+        is_closed: true,
+        group_id: group.id,
+        registration_id: registration.id
+      }
+
+      assert_raise Postgrex.Error,
+                   ~r/\(integrity_constraint_violation\) payslip and payslip group must have the same type/,
+                   fn -> Repo.insert(payslip) end
+    end
+
     test "insert" do
       org = insert(:org)
       registration = insert(:employee_registration, org: org)
-      group = insert(:payslip_group, org: org)
+
+      date = Date.utc_today()
+
+      group = insert(:payslip_group, org: org, date: Date.beginning_of_month(date))
 
       payslip = %Payslip{
         org_id: org.id,
         amount: Enum.random(1_000_00..2_000_00),
         type: group.type,
-        start_date: Date.utc_today() |> Date.beginning_of_month(),
-        end_date: Date.utc_today() |> Date.end_of_month(),
+        start_date: Date.beginning_of_month(date),
+        end_date: Date.end_of_month(date),
         is_closed: true,
         group_id: group.id,
         registration_id: registration.id
@@ -193,13 +233,15 @@ defmodule Sig.HR.Payslips.PayslipTest do
     test "default values" do
       org = insert(:org)
       registration = insert(:employee_registration, org: org)
-      group = insert(:payslip_group, org: org)
+      date = Date.utc_today()
+
+      group = insert(:payslip_group, org: org, date: Date.beginning_of_month(date))
 
       payslip = %Payslip{
         org_id: org.id,
         type: group.type,
-        start_date: Date.utc_today() |> Date.beginning_of_month(),
-        end_date: Date.utc_today() |> Date.end_of_month(),
+        start_date: Date.beginning_of_month(date),
+        end_date: Date.end_of_month(date),
         group_id: group.id,
         registration_id: registration.id
       }
