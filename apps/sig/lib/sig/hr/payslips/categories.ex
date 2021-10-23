@@ -10,4 +10,11 @@ defmodule Sig.HR.Payslips.Categories do
     |> where(org_id: ^org.id)
     |> Repo.all()
   end
+
+  def get(%Org{} = org, id) when is_binary(id) do
+    Category
+    |> where(org_id: ^org.id)
+    |> where(id: ^id)
+    |> Repo.one()
+  end
 end

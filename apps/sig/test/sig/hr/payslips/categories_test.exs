@@ -2,6 +2,7 @@ defmodule Sig.HR.Payslips.CategoriesTest do
   use Sig.DataCase
 
   alias Sig.HR.Payslips.Categories
+  alias Sig.HR.Payslips.Categories.Category
 
   describe "list/1" do
     test "lists payslips categories from an organization" do
@@ -21,6 +22,29 @@ defmodule Sig.HR.Payslips.CategoriesTest do
       org = insert(:org)
 
       assert Categories.list(org) == []
+    end
+  end
+
+  describe "get/2" do
+    test "returns a category" do
+      org = insert(:org)
+      %{id: id} = insert(:payslip_category, org: org)
+
+      assert %Category{id: ^id} = Categories.get(org, id)
+    end
+
+    test "when category belongs to another org" do
+      org = insert(:org)
+      another_org = insert(:org)
+      %{id: id} = insert(:payslip_category, org: another_org)
+
+      assert Categories.get(org, id) == nil
+    end
+
+    test "when category doesn't exist" do
+      org = insert(:org)
+
+      assert Categories.get(org, UUID.generate()) == nil
     end
   end
 end

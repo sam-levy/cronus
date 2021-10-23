@@ -4,6 +4,7 @@ defmodule Sig.HR.Payslips do
   alias Sig.HR.Registrations.Registration
   alias Sig.HR.Payslips.Create
   alias Sig.HR.Payslips.Payslip
+  alias Sig.Organizations
   alias Sig.Repo
 
   defdelegate create(registration, attrs), to: Create, as: :call
@@ -23,8 +24,11 @@ defmodule Sig.HR.Payslips do
     registration
     |> query_by_registration()
     |> where(id: ^id)
+    |> Organizations.preload_org()
     |> Repo.one()
   end
+
+  def get_by(attrs), do: Repo.get_by(Payslip, attrs)
 
   defp query_by_registration(registration) do
     Payslip

@@ -64,4 +64,21 @@ defmodule Sig.HR.PayslipsTest do
       assert Payslips.get(registration, UUID.generate()) == nil
     end
   end
+
+  describe "get_by/2" do
+    test "gets a payslip by attrs" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+
+      %{id: id} = insert(:payslip, org: org, registration: registration)
+
+      assert %Payslip{id: ^id} = Payslips.get_by(id: id, org_id: org.id)
+    end
+
+    test "when field does't exist" do
+      org = insert(:org)
+
+      assert Payslips.get_by(id: UUID.generate(), org_id: org.id) == nil
+    end
+  end
 end
