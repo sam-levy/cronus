@@ -236,7 +236,9 @@ defmodule Sig.HR.RegistrationsTest do
       %{id: org_id} = org = insert(:org)
       individual = insert(:individual, org: org)
       registration = insert(:employee_registration, org: org, individual: individual)
-      insert_list(2, :employee_salary, org: org, registration: registration)
+
+      insert(:employee_salary, org: org, registration: registration, start_date: registration.admission_date)
+      insert(:employee_salary, org: org, registration: registration, start_date: Date.add(registration.admission_date, 100))
 
       assert %Registration{salaries: [%Salary{}, %Salary{}], org: %Org{id: ^org_id}} =
                Registrations.get(individual, registration.id)
