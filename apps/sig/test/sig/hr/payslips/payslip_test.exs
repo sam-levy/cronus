@@ -472,6 +472,15 @@ defmodule Sig.HR.Payslips.PayslipTest do
       assert errors_on(changeset) == %{amount: ["is invalid"]}
     end
 
+    test "amount is zero" do
+      payslip = insert(:payslip, amount: 1_000_00)
+      attrs = %{amount: 0}
+
+      assert changeset = Payslip.update_amount_changeset(payslip, attrs)
+
+      assert changeset.valid?
+    end
+
     test "negative amount" do
       payslip = insert(:payslip, amount: 1_000_00)
       attrs = %{amount: -1}
@@ -479,7 +488,7 @@ defmodule Sig.HR.Payslips.PayslipTest do
       assert changeset = Payslip.update_amount_changeset(payslip, attrs)
 
       refute changeset.valid?
-      assert errors_on(changeset) == %{amount: ["must be greater than 0,00"]}
+      assert errors_on(changeset) == %{amount: ["must be equal to or greater than 0,00"]}
     end
   end
 

@@ -40,7 +40,7 @@ defmodule Sig.HR.Payslips.Payslip do
     target
     |> cast(attrs, [:amount])
     |> validate_required([:amount])
-    |> validate_money(:amount, :gt, 0)
+    |> validate_money(:amount, [:eq, :gt], 0)
   end
 
   def assign_group(
