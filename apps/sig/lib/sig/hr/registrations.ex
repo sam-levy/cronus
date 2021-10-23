@@ -4,6 +4,7 @@ defmodule Sig.HR.Registrations do
   alias Sig.Entities.Individuals.Individual
   alias Sig.HR.Registrations.Create
   alias Sig.HR.Registrations.Registration
+  alias Sig.Organizations
   alias Sig.Repo
 
   defdelegate create(org, individual, attrs), to: Create, as: :call
@@ -40,7 +41,7 @@ defmodule Sig.HR.Registrations do
   def get(%Individual{} = individual, id) when is_binary(id) do
     individual
     |> query_by_individual()
-    |> preload_org()
+    |> Organizations.preload_org()
     |> where(id: ^id)
     |> preload_salaries()
     |> Repo.one()
@@ -86,12 +87,6 @@ defmodule Sig.HR.Registrations do
     queryable
     |> join(:left, [registration], salaries in assoc(registration, :salaries), as: :salaries)
     |> preload([_registration, salaries: salaries], salaries: salaries)
-  end
-
-  defp preload_org(queryable) do
-    queryable
-    |> join(:left, [registration], org in assoc(registration, :org), as: :org)
-    |> preload([_registration, org: org], org: org)
   end
 
   defp handle_salary_amount(registrations) when is_list(registrations) do

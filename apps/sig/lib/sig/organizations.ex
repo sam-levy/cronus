@@ -30,4 +30,10 @@ defmodule Sig.Organizations do
     |> order_by(:name)
     |> Repo.all()
   end
+
+  def preload_org(queryable) do
+    queryable
+    |> join(:left, [resource], org in assoc(resource, :org), as: :org)
+    |> preload([_resource, org: org], org: org)
+  end
 end
