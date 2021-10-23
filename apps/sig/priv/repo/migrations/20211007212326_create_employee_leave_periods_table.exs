@@ -2,7 +2,7 @@ defmodule Sig.Repo.Migrations.CreateEmployeeLeavePeriodsTable do
   use Ecto.Migration
   import EctoEnumMigration
 
-  def change do
+  def up do
     create_type(:employee_leave_period_type, [:maternity_leave, :medical_license])
 
     create table(:employee_leave_periods) do
@@ -23,5 +23,22 @@ defmodule Sig.Repo.Migrations.CreateEmployeeLeavePeriodsTable do
              :employee_leave_periods_start_date_before_end_date,
              check: "start_date < end_date"
            )
+
+    execute("""
+    CREATE TRIGGER employee_leave_periods_cannot_overlap
+      BEFORE INSERT OR UPDATE ON employee_leave_periods
+      FOR EACH ROW
+      EXECUTE PROCEDURE ensure_no_period_overlap_with_registration ();
+    """)
+  end
+
+  def down do
+    execute("DROP TRIGGER employee_leave_periods_cannot_overlap ON employee_leave_periods;")
+
+    drop constraint(:employee_leave_periods, :employee_leave_periods_start_date_before_end_date)
+
+    drop table(:employee_leave_period_type)
+
+    drop_type(:employee_leave_period_type)
   end
 end
