@@ -13,7 +13,7 @@ defmodule Sig.HR.Payslips.Create do
     |> handle_create(registration.org)
   end
 
-  def handle_create(%{valid?: true} = changeset, org) do
+  defp handle_create(%{valid?: true} = changeset, org) do
     %{type: type, start_date: start_date} = changeset.changes
 
     Multi.new()
@@ -26,5 +26,5 @@ defmodule Sig.HR.Payslips.Create do
     end
   end
 
-  def handle_create(changeset, _org), do: {:error, changeset}
+  defp handle_create(changeset, _org), do: {:error, changeset}
 end
