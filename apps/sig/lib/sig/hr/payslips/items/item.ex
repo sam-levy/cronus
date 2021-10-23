@@ -19,6 +19,7 @@ defmodule Sig.HR.Payslips.Items.Item do
     belongs_to :payslip, Payslip
     belongs_to :category, Category
 
+    field :code, :string, virtual: true
     field :description, :string, virtual: true
     field :entry_type, Sig.EntryType, virtual: true
 
@@ -35,6 +36,9 @@ defmodule Sig.HR.Payslips.Items.Item do
     |> validate_length(:reference, max: 255)
     |> validate_money(:amount, [:gt, :eq], 0)
     |> assoc_constraint(:category, name: :payslip_items_category)
+    |> unique_constraint([:category_id, :payslip_id, :org_id],
+      name: :payslip_items_category_unique
+    )
   end
 
   @create_outside_item_fields @create_base_required_fields ++

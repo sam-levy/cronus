@@ -388,6 +388,31 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
                category: ["does not exist"]
              }
     end
+
+    test "category_id unique constraint" do
+      org = insert(:org)
+      payslip = insert(:payslip, org: org)
+      category = insert(:payslip_category, org: org)
+
+      insert(:payslip_item, org: org, payslip: payslip, category: category)
+
+      attrs = %{
+        org_id: org.id,
+        reference: random_string_number(),
+        amount: Enum.random(100_00..300_00),
+        payslip_id: payslip.id,
+        category_id: category.id
+      }
+
+      assert {:error, changeset} =
+               attrs
+               |> Item.create_changeset()
+               |> Repo.insert()
+
+      assert errors_on(changeset) == %{
+               category_id: ["has already been taken"]
+             }
+    end
   end
 
   describe "create_outside_item_changeset/1" do
