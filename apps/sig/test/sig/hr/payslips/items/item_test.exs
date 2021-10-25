@@ -57,6 +57,67 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
                    ~r/payslip_items_amount_positive \(check_constraint\)/,
                    fn -> Repo.insert(item) end
     end
+
+    test "insertion when payslip is closed" do
+      org = insert(:org)
+      payslip = insert(:payslip, org: org, is_closed: true, amount: 0)
+      category = insert(:payslip_category, org: org)
+
+      item = %Item{
+        org_id: org.id,
+        type: :payslip_item,
+        reference: random_string_number(),
+        amount: 100_00,
+        payslip_id: payslip.id,
+        category_id: category.id
+      }
+
+      assert_raise Postgrex.Error,
+                   ~r/\(integrity_constraint_violation\) closed payslip cannot be updated/,
+                   fn -> Repo.insert(item) end
+    end
+
+    test "update when payslip is closed" do
+      org = insert(:org)
+      payslip = insert(:payslip, org: org, is_closed: false)
+      category = insert(:payslip_category, org: org, entry_type: :credit)
+
+      item = insert(:payslip_item,
+        org: org,
+        reference: "30 dias",
+        amount: 100_00,
+        payslip: payslip,
+        category: category
+      )
+
+      #close payslip
+     Repo.update!(change(payslip, amount: 100_00, is_closed: true))
+
+      assert_raise Postgrex.Error,
+                   ~r/\(integrity_constraint_violation\) closed payslip cannot be updated/,
+                   fn -> Repo.update(change(item, reference: "28 dias")) end
+    end
+
+    test "deletion when payslip is closed" do
+      org = insert(:org)
+      payslip = insert(:payslip, org: org, is_closed: false)
+      category = insert(:payslip_category, org: org, entry_type: :credit)
+
+      item = insert(:payslip_item,
+        org: org,
+        reference: random_string_number(),
+        amount: 100_00,
+        payslip: payslip,
+        category: category
+      )
+
+      #close payslip
+     Repo.update!(change(payslip, amount: 100_00, is_closed: true))
+
+      assert_raise Postgrex.Error,
+                   ~r/\(integrity_constraint_violation\) closed payslip cannot be updated/,
+                   fn -> Repo.delete(item) end
+    end
   end
 
   describe "payslip_items table `payslip_item` type conditional constraints" do

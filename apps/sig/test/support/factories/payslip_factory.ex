@@ -20,7 +20,7 @@ defmodule Sig.Factories.PayslipFactory do
         %Payslip{
           org: org,
           type: type,
-          amount: Enum.random(1_000_00..2_000_00),
+          amount: 0,
           start_date: start_date,
           end_date: Date.end_of_month(start_date),
           is_closed: false,

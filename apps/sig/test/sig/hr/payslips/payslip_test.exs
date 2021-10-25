@@ -11,7 +11,7 @@ defmodule Sig.HR.Payslips.PayslipTest do
       group = insert(:payslip_group, org: registration.org, date: Date.beginning_of_month(date))
 
       payslip = %Payslip{
-        amount: Enum.random(1_000_00..2_000_00),
+        amount: 0,
         type: group.type,
         start_date: Date.beginning_of_month(date),
         end_date: Date.end_of_month(date),
@@ -33,7 +33,7 @@ defmodule Sig.HR.Payslips.PayslipTest do
 
       payslip = %Payslip{
         org_id: UUID.generate(),
-        amount: Enum.random(1_000_00..2_000_00),
+        amount: 0,
         type: group.type,
         start_date: Date.beginning_of_month(date),
         end_date: Date.end_of_month(date),
@@ -49,6 +49,22 @@ defmodule Sig.HR.Payslips.PayslipTest do
 
     test "payslips_amount_positive constraint" do
       org = insert(:org)
+      payslip = insert(:payslip, org: org)
+
+      insert(:payslip_outside_item,
+        org: org,
+        payslip: payslip,
+        outside_item_entry_type: :debit,
+        amount: 100_00
+      )
+
+      assert_raise Ecto.ConstraintError,
+                   ~r/payslips_amount_positive \(check_constraint\)/,
+                   fn -> Repo.update!(change(payslip, amount: -100_00)) end
+    end
+
+    test "payslips are inserted with amount zero" do
+      org = insert(:org)
       registration = insert(:employee_registration, org: org)
 
       date = Date.utc_today()
@@ -57,7 +73,7 @@ defmodule Sig.HR.Payslips.PayslipTest do
 
       payslip = %Payslip{
         org_id: org.id,
-        amount: -1,
+        amount: 100_00,
         type: group.type,
         start_date: Date.beginning_of_month(date),
         end_date: Date.end_of_month(date),
@@ -66,9 +82,9 @@ defmodule Sig.HR.Payslips.PayslipTest do
         registration_id: registration.id
       }
 
-      assert_raise Ecto.ConstraintError,
-                   ~r/payslips_amount_positive \(check_constraint\)/,
-                   fn -> Repo.insert(payslip) end
+      assert return = Repo.insert!(payslip)
+
+      assert Repo.get_by(Payslip, id: return.id, org_id: org.id, amount: 0)
     end
 
     test "payslips_start_date_before_end_date constraint" do
@@ -78,7 +94,7 @@ defmodule Sig.HR.Payslips.PayslipTest do
 
       payslip = %Payslip{
         org_id: org.id,
-        amount: Enum.random(1_000_00..2_000_00),
+        amount: 0,
         type: group.type,
         start_date: ~D[2020-01-01],
         end_date: ~D[2020-01-01],
@@ -130,7 +146,7 @@ defmodule Sig.HR.Payslips.PayslipTest do
 
       payslip = %Payslip{
         org_id: org.id,
-        amount: Enum.random(1_000_00..2_000_00),
+        amount: 0,
         start_date: ~D[2021-01-15],
         end_date: ~D[2021-02-15],
         type: jan_group.type,
@@ -171,7 +187,7 @@ defmodule Sig.HR.Payslips.PayslipTest do
 
       payslip = %Payslip{
         org_id: org.id,
-        amount: Enum.random(1_000_00..2_000_00),
+        amount: 0,
         start_date: ~D[2020-12-15],
         end_date: ~D[2021-01-15],
         type: dez_group.type,
@@ -184,7 +200,7 @@ defmodule Sig.HR.Payslips.PayslipTest do
                    fn -> Repo.insert(payslip) end
     end
 
-    test "payslip and payslip group must have the same type" do
+    test "new payslip type and payslip group type are different" do
       org = insert(:org)
       registration = insert(:employee_registration, org: org)
 
@@ -194,11 +210,11 @@ defmodule Sig.HR.Payslips.PayslipTest do
 
       payslip = %Payslip{
         org_id: org.id,
-        amount: Enum.random(1_000_00..2_000_00),
+        amount: 0,
         type: :vacation,
         start_date: date,
         end_date: Date.end_of_month(date),
-        is_closed: true,
+        is_closed: false,
         group_id: group.id,
         registration_id: registration.id
       }
@@ -206,6 +222,140 @@ defmodule Sig.HR.Payslips.PayslipTest do
       assert_raise Postgrex.Error,
                    ~r/\(integrity_constraint_violation\) payslip and payslip group must have the same type/,
                    fn -> Repo.insert(payslip) end
+    end
+
+    test "updated payslip type and payslip group type are different" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+
+      date = Date.utc_today() |> Date.beginning_of_month()
+
+      regular_group = insert(:payslip_group, org: org, type: :regular, date: date)
+
+      payslip = insert(:payslip,
+        org: org,
+        amount: 0,
+        type: :regular,
+        start_date: date,
+        end_date: Date.end_of_month(date),
+        is_closed: false,
+        group: regular_group,
+        registration: registration
+      )
+
+      vacation_group = insert(:payslip_group, org: org, type: :vacation, date: date)
+
+      assert_raise Postgrex.Error,
+                   ~r/\(integrity_constraint_violation\) payslip and payslip group must have the same type/,
+                   fn -> Repo.update(change(payslip, group_id: vacation_group.id)) end
+    end
+
+    test "new payslip start date and payslip group date are from different month" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+      group = insert(:payslip_group, org: org, type: :regular, date: ~D[2020-02-01])
+
+      payslip = %Payslip{
+        org_id: org.id,
+        amount: 0,
+        type: :regular,
+        start_date: ~D[2020-01-01],
+        end_date: ~D[2020-01-31],
+        is_closed: false,
+        group_id: group.id,
+        registration_id: registration.id
+      }
+
+      assert_raise Postgrex.Error,
+                   ~r/\(integrity_constraint_violation\) payslip start_date and payslip group date must belong to the same month and year/,
+                   fn -> Repo.insert(payslip) end
+    end
+
+    test "new payslip start date and payslip group date are from different year" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+      group = insert(:payslip_group, org: org, type: :regular, date: ~D[2020-01-01])
+
+      payslip = %Payslip{
+        org_id: org.id,
+        amount: 0,
+        type: :regular,
+        start_date: ~D[2021-01-01],
+        end_date: ~D[2021-01-31],
+        is_closed: false,
+        group_id: group.id,
+        registration_id: registration.id
+      }
+
+      assert_raise Postgrex.Error,
+                   ~r/\(integrity_constraint_violation\) payslip start_date and payslip group date must belong to the same month and year/,
+                   fn -> Repo.insert(payslip) end
+    end
+
+    test "updated payslip start date and payslip group date are from different month" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+      group = insert(:payslip_group, org: org, type: :regular, date: ~D[2021-01-01])
+
+      payslip =
+        insert(:payslip,
+          org: org,
+          amount: 1_000_00,
+          type: :regular,
+          start_date: ~D[2021-01-01],
+          end_date: ~D[2021-01-31],
+          is_closed: false,
+          group: group,
+          registration: registration
+        )
+
+      assert_raise Postgrex.Error,
+                   ~r/\(integrity_constraint_violation\) payslip start_date and payslip group date must belong to the same month and year/,
+                   fn ->
+                     Repo.update(
+                       change(payslip, start_date: ~D[2021-02-01], end_date: ~D[2021-02-28])
+                     )
+                   end
+    end
+
+    test "updated payslip amount is different from the sum of its items amounts" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+      group = insert(:payslip_group, org: org, type: :regular, date: ~D[2021-01-01])
+
+      payslip =
+        insert(:payslip,
+          org: org,
+          amount: 0,
+          type: :regular,
+          start_date: ~D[2021-01-01],
+          end_date: ~D[2021-01-31],
+          is_closed: false,
+          group: group,
+          registration: registration
+        )
+
+      credit_category = insert(:payslip_category, org: org, entry_type: :credit)
+
+      insert(:payslip_item,
+        org: org,
+        payslip: payslip,
+        category: credit_category,
+        amount: 1_000_00
+      )
+
+      insert(:payslip_outside_item,
+        org: org,
+        payslip: payslip,
+        outside_item_entry_type: :debit,
+        amount: 200_00
+      )
+
+      assert_raise Postgrex.Error,
+                   ~r/\(integrity_constraint_violation\) payslip items amount sum is different from payslip amount/,
+                   fn -> Repo.update(change(payslip, amount: 500_00)) end
+
+      assert {:ok, _return} = Repo.update(change(payslip, amount: 800_00))
     end
 
     test "insert" do
@@ -218,7 +368,7 @@ defmodule Sig.HR.Payslips.PayslipTest do
 
       payslip = %Payslip{
         org_id: org.id,
-        amount: Enum.random(1_000_00..2_000_00),
+        amount: 0,
         type: group.type,
         start_date: Date.beginning_of_month(date),
         end_date: Date.end_of_month(date),
@@ -320,7 +470,7 @@ defmodule Sig.HR.Payslips.PayslipTest do
         group_id: UUID.generate(),
         is_closed: true,
         registration_id: UUID.generate(),
-        amount: Enum.random(1_000_00..2_000_00)
+        amount: 0
       }
 
       assert changeset = Payslip.create_changeset(attrs)
@@ -389,7 +539,7 @@ defmodule Sig.HR.Payslips.PayslipTest do
 
       attrs = %{
         org_id: org.id,
-        amount: Enum.random(1_000_00..2_000_00),
+        amount: 0,
         type: group.type,
         start_date: ~D[2021-01-15],
         end_date: ~D[2021-02-15],
@@ -424,7 +574,7 @@ defmodule Sig.HR.Payslips.PayslipTest do
 
       attrs = %{
         org_id: org.id,
-        amount: Enum.random(1_000_00..2_000_00),
+        amount: 0,
         type: group.type,
         start_date: ~D[2020-12-15],
         end_date: ~D[2021-01-15],
@@ -458,7 +608,7 @@ defmodule Sig.HR.Payslips.PayslipTest do
 
       attrs = %{
         org_id: org.id,
-        amount: Enum.random(1_000_00..2_000_00),
+        amount: 0,
         type: group.type,
         start_date: ~D[2021-02-01],
         end_date: ~D[2021-02-28],

@@ -55,8 +55,9 @@ defmodule Sig.Repo.Migrations.CreatePayslipItemsTable do
                END
              """
            )
-  end
 
-  # TODO: Add a trigger function on to ensure that the payslip amount
-  # is the sum of the amounts of its items.
+    # TODO: Add trigger to ensure the sum of the amounts is
+    # equal to the payslip amount. Must be a deffered trigger
+    # which is tricky to implement for ecto.
+  end
 end

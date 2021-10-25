@@ -197,7 +197,7 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
 
     test "when new payslip item brings payslip amount to zero" do
       org = insert(:org)
-      payslip = insert(:payslip, org: org, amount: Money.new(900_00))
+      payslip = insert(:payslip, org: org)
 
       salary_category =
         insert(:payslip_category, org: org, code: "1", entry_type: :credit, description: "SALÁRIO")
@@ -215,6 +215,9 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
         outside_item_entry_type: :debit,
         amount: 100_00
       )
+
+      # Update payslip amount
+      Repo.update!(change(payslip, amount: 900_00))
 
       health_insurance_category =
         insert(:payslip_category,
@@ -251,7 +254,7 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
 
     test "when payslip is initially closed" do
       org = insert(:org)
-      payslip = insert(:payslip, org: org, amount: Money.new(900_00), is_closed: true)
+      payslip = insert(:payslip, org: org, is_closed: false)
 
       salary_category =
         insert(:payslip_category, org: org, code: "1", entry_type: :credit, description: "SALÁRIO")
@@ -277,6 +280,9 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
           entry_type: :debit,
           description: "ASSISTÊNCIA MÉDICA"
         )
+
+      # Close payslip
+      payslip = Repo.update!(change(payslip, amount: 900_00, is_closed: true))
 
       attrs = %{
         reference: random_string_number(),
@@ -325,13 +331,7 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
       )
 
       # Close payslip
-      assert {1, _} =
-               from(p in Payslip,
-                 where: p.id == ^payslip.id,
-                 where: p.org_id == ^payslip.org_id,
-                 update: [set: [is_closed: true]]
-               )
-               |> Repo.update_all([])
+      Repo.update!(change(payslip, is_closed: true))
 
       health_insurance_category =
         insert(:payslip_category,
@@ -594,7 +594,7 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
 
     test "when payslip is initially closed" do
       org = insert(:org)
-      payslip = insert(:payslip, org: org, amount: Money.new(900_00), is_closed: true)
+      payslip = insert(:payslip, org: org, is_closed: false)
 
       salary_category =
         insert(:payslip_category, org: org, code: "1", entry_type: :credit, description: "SALÁRIO")
@@ -612,6 +612,9 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
         outside_item_entry_type: :debit,
         amount: 100_00
       )
+
+      # Close payslip
+      payslip = Repo.update!(change(payslip, amount: 900_00, is_closed: true))
 
       attrs = %{
         amount: 300_00,
@@ -641,7 +644,7 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
     test "when payslip is closed after is loaded" do
       org = insert(:org)
 
-      payslip = insert(:payslip, org: org, amount: Money.new(900_00), is_closed: false)
+      payslip = insert(:payslip, org: org, is_closed: false)
 
       salary_category =
         insert(:payslip_category, org: org, code: "1", entry_type: :credit, description: "SALÁRIO")
@@ -661,14 +664,7 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
       )
 
       # Close payslip
-      assert {1, _} =
-               from(p in Payslip,
-                 where: p.id == ^payslip.id,
-                 where: p.org_id == ^payslip.org_id,
-                 where: p.registration_id == ^payslip.registration_id,
-                 update: [set: [is_closed: true]]
-               )
-               |> Repo.update_all([])
+      Repo.update!(change(payslip, amount: 900_00, is_closed: true))
 
       attrs = %{
         amount: 300_00,
@@ -922,7 +918,7 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
 
     test "when payslip is initially closed" do
       org = insert(:org)
-      payslip = insert(:payslip, org: org, amount: Money.new(900_00), is_closed: true)
+      payslip = insert(:payslip, org: org)
 
       salary_category =
         insert(:payslip_category, org: org, code: "1", entry_type: :credit, description: "SALÁRIO")
@@ -941,6 +937,9 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
         amount: 100_00
       )
 
+      # Update payslip
+      payslip = Repo.update!(change(payslip, amount: 900_00, is_closed: true))
+
       assert {:error, "cannot modify a closed payslip"} =
                Mutator.update_amount(payslip, item, 1_200_00)
 
@@ -950,7 +949,14 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
 
     test "when payslip is closed after is loaded" do
       org = insert(:org)
-      payslip = insert(:payslip, org: org, amount: Money.new(100_00), is_closed: false)
+      payslip = insert(:payslip, org: org, is_closed: false)
+
+      insert(:payslip_outside_item,
+        org: org,
+        payslip: payslip,
+        outside_item_entry_type: :credit,
+        amount: 200_00
+      )
 
       item = insert(:payslip_outside_item,
         org: org,
@@ -960,13 +966,7 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
       )
 
       # Close payslip
-      assert {1, _} =
-               from(p in Payslip,
-                 where: p.id == ^payslip.id,
-                 where: p.org_id == ^payslip.org_id,
-                 update: [set: [is_closed: true]]
-               )
-               |> Repo.update_all([])
+      Repo.update!(change(payslip, amount: 100_00, is_closed: true))
 
       assert {:error, "cannot modify a closed payslip"} =
                Mutator.update_amount(payslip, item, 120_00)
