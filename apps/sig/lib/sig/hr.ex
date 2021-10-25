@@ -137,4 +137,5 @@ defmodule Sig.HR do
   defdelegate create_payslip_item(payslip, attrs), to: Items
   defdelegate create_payslip_outside_item(payslip, attrs), to: Items, as: :create_outside_item
   defdelegate update_payslip_item_amount(payslip, item, attrs), to: Items, as: :update_amount
+  defdelegate delete_payslip_item(payslip, item), to: Items, as: :delete_item
 end

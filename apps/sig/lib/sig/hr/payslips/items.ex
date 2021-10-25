@@ -9,6 +9,7 @@ defmodule Sig.HR.Payslips.Items do
   defdelegate create_payslip_item(payslip, attrs), to: Mutator
   defdelegate create_outside_item(payslip, attrs), to: Mutator
   defdelegate update_amount(payslip, item, attrs), to: Mutator
+  defdelegate delete_item(payslip, item), to: Mutator
 
   def list_by_payslip(%Payslip{} = payslip) do
     payslip
