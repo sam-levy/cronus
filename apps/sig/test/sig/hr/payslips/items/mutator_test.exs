@@ -855,19 +855,20 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
           description: "QUEBRA DE CAIXA"
         )
 
-      payslip_item = insert(:payslip_item,
-        org: org,
-        payslip: payslip,
-        category: cashier_category,
-        amount: 200_00
-      )
-
-        insert(:payslip_outside_item,
+      payslip_item =
+        insert(:payslip_item,
           org: org,
           payslip: payslip,
-          outside_item_entry_type: :debit,
-          amount: 100_00
+          category: cashier_category,
+          amount: 200_00
         )
+
+      insert(:payslip_outside_item,
+        org: org,
+        payslip: payslip,
+        outside_item_entry_type: :debit,
+        amount: 100_00
+      )
 
       assert {:ok, %Item{}} = Mutator.update_amount(payslip, payslip_item, 100_00)
 
@@ -923,12 +924,13 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
       salary_category =
         insert(:payslip_category, org: org, code: "1", entry_type: :credit, description: "SALÁRIO")
 
-      item = insert(:payslip_item,
-        org: org,
-        payslip: payslip,
-        category: salary_category,
-        amount: 1_000_00
-      )
+      item =
+        insert(:payslip_item,
+          org: org,
+          payslip: payslip,
+          category: salary_category,
+          amount: 1_000_00
+        )
 
       insert(:payslip_outside_item,
         org: org,
@@ -958,12 +960,13 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
         amount: 200_00
       )
 
-      item = insert(:payslip_outside_item,
-        org: org,
-        payslip: payslip,
-        outside_item_entry_type: :debit,
-        amount: 100_00
-      )
+      item =
+        insert(:payslip_outside_item,
+          org: org,
+          payslip: payslip,
+          outside_item_entry_type: :debit,
+          amount: 100_00
+        )
 
       # Close payslip
       Repo.update!(change(payslip, amount: 100_00, is_closed: true))
@@ -979,18 +982,19 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
       org = insert(:org)
       payslip = insert(:payslip, org: org, amount: Money.new(100_00))
 
-      item = insert(:payslip_outside_item,
-        org: org,
-        payslip: payslip,
-        outside_item_entry_type: :debit,
-        amount: 100_00
-      )
+      item =
+        insert(:payslip_outside_item,
+          org: org,
+          payslip: payslip,
+          outside_item_entry_type: :debit,
+          amount: 100_00
+        )
 
       assert {:error, changeset} = Mutator.update_amount(payslip, item, -1)
 
       assert errors_on(changeset) == %{
-        amount: ["must be greater than or equal to 0,00"]
-      }
+               amount: ["must be greater than or equal to 0,00"]
+             }
 
       assert Repo.get_by(Item, org_id: org.id, id: item.id, amount: 100_00)
       assert Repo.get_by(Payslip, org_id: org.id, id: payslip.id, amount: 100_00)
@@ -998,7 +1002,7 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
   end
 
   describe "delete_item/2" do
-    test "deletes an item when none exists" do
+    test "deletes the only item" do
       org = insert(:org)
       payslip = insert(:payslip, org: org, amount: Money.new(300_00))
 

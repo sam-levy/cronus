@@ -66,7 +66,7 @@ defmodule Sig.HR.PayslipsTest do
   end
 
   describe "get_by/2" do
-    test "gets a payslip by attrs" do
+    test "returns a payslip by attrs" do
       org = insert(:org)
       registration = insert(:employee_registration, org: org)
 

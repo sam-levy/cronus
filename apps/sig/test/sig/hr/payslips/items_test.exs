@@ -5,7 +5,7 @@ defmodule Sig.HR.Payslips.ItemsTest do
   alias Sig.HR.Payslips.Items.Item
 
   describe "list_by_payslip/1" do
-    test "lists payslip items by payslip" do
+    test "lists payslip items by payslip ordered by code" do
       org = insert(:org)
       payslip = insert(:payslip, org: org)
 
@@ -45,7 +45,7 @@ defmodule Sig.HR.Payslips.ItemsTest do
   end
 
   describe "get/2" do
-    test "gets a payslip_item" do
+    test "returns a payslip_item" do
       org = insert(:org)
       payslip = insert(:payslip, org: org)
 
@@ -58,7 +58,7 @@ defmodule Sig.HR.Payslips.ItemsTest do
                Items.get(payslip, id)
     end
 
-    test "gets a payslip_outside_item" do
+    test "returns an outside_item" do
       org = insert(:org)
       payslip = insert(:payslip, org: org)
 
@@ -74,7 +74,7 @@ defmodule Sig.HR.Payslips.ItemsTest do
                Items.get(payslip, id)
     end
 
-    test "item belongs to other payslip" do
+    test "when item belongs to other payslip" do
       org = insert(:org)
       payslip = insert(:payslip, org: org)
       other_payslip = insert(:payslip, org: org)
@@ -90,7 +90,7 @@ defmodule Sig.HR.Payslips.ItemsTest do
       assert Items.get(payslip, id) == nil
     end
 
-    test "item doesn't exist" do
+    test "when item doesn't exist" do
       payslip = insert(:payslip)
 
       assert Items.get(payslip, UUID.generate()) == nil

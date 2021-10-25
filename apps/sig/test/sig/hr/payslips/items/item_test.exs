@@ -82,16 +82,17 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
       payslip = insert(:payslip, org: org, is_closed: false)
       category = insert(:payslip_category, org: org, entry_type: :credit)
 
-      item = insert(:payslip_item,
-        org: org,
-        reference: "30 dias",
-        amount: 100_00,
-        payslip: payslip,
-        category: category
-      )
+      item =
+        insert(:payslip_item,
+          org: org,
+          reference: "30 dias",
+          amount: 100_00,
+          payslip: payslip,
+          category: category
+        )
 
-      #close payslip
-     Repo.update!(change(payslip, amount: 100_00, is_closed: true))
+      # close payslip
+      Repo.update!(change(payslip, amount: 100_00, is_closed: true))
 
       assert_raise Postgrex.Error,
                    ~r/\(integrity_constraint_violation\) closed payslip cannot be updated/,
@@ -103,16 +104,17 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
       payslip = insert(:payslip, org: org, is_closed: false)
       category = insert(:payslip_category, org: org, entry_type: :credit)
 
-      item = insert(:payslip_item,
-        org: org,
-        reference: random_string_number(),
-        amount: 100_00,
-        payslip: payslip,
-        category: category
-      )
+      item =
+        insert(:payslip_item,
+          org: org,
+          reference: random_string_number(),
+          amount: 100_00,
+          payslip: payslip,
+          category: category
+        )
 
-      #close payslip
-     Repo.update!(change(payslip, amount: 100_00, is_closed: true))
+      # close payslip
+      Repo.update!(change(payslip, amount: 100_00, is_closed: true))
 
       assert_raise Postgrex.Error,
                    ~r/\(integrity_constraint_violation\) closed payslip cannot be updated/,

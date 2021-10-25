@@ -232,16 +232,17 @@ defmodule Sig.HR.Payslips.PayslipTest do
 
       regular_group = insert(:payslip_group, org: org, type: :regular, date: date)
 
-      payslip = insert(:payslip,
-        org: org,
-        amount: 0,
-        type: :regular,
-        start_date: date,
-        end_date: Date.end_of_month(date),
-        is_closed: false,
-        group: regular_group,
-        registration: registration
-      )
+      payslip =
+        insert(:payslip,
+          org: org,
+          amount: 0,
+          type: :regular,
+          start_date: date,
+          end_date: Date.end_of_month(date),
+          is_closed: false,
+          group: regular_group,
+          registration: registration
+        )
 
       vacation_group = insert(:payslip_group, org: org, type: :vacation, date: date)
 
