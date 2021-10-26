@@ -108,19 +108,20 @@ defmodule Sig.HR.Payslips.PayslipTest do
                    fn -> Repo.insert(payslip) end
     end
 
-    test "start date cannot be before existing record end date" do
+    test "start date cannot be before existing record end date of the same type" do
       org = insert(:org)
       registration = insert(:employee_registration, org: org)
 
-      jan_group = insert(:payslip_group, org: org, date: ~D[2021-01-01])
-      feb_group = insert(:payslip_group, org: org, date: ~D[2021-02-01])
+      jan_regular_group = insert(:payslip_group, org: org, date: ~D[2021-01-01], type: :regular)
+      jan_vacation_group = insert(:payslip_group, org: org, date: ~D[2021-01-01], type: :vacation)
+      feb_regular_group = insert(:payslip_group, org: org, date: ~D[2021-02-01], type: :regular)
 
       _existing_payslip =
         insert(:payslip,
           org: org,
           registration: registration,
-          type: jan_group.type,
-          group: jan_group,
+          type: jan_regular_group.type,
+          group: jan_regular_group,
           start_date: ~D[2021-01-01],
           end_date: ~D[2021-01-31]
         )
@@ -129,8 +130,8 @@ defmodule Sig.HR.Payslips.PayslipTest do
       insert(:payslip,
         org: org,
         registration: registration,
-        type: feb_group.type,
-        group: feb_group,
+        type: feb_regular_group.type,
+        group: feb_regular_group,
         start_date: ~D[2021-02-01],
         end_date: ~D[2021-02-28]
       )
@@ -138,8 +139,18 @@ defmodule Sig.HR.Payslips.PayslipTest do
       # Allow overlapping for different registration
       insert(:payslip,
         org: org,
-        type: jan_group.type,
-        group: jan_group,
+        type: jan_regular_group.type,
+        group: jan_regular_group,
+        start_date: ~D[2021-01-15],
+        end_date: ~D[2021-02-15]
+      )
+
+      # Allow overlapping for different type
+      insert(:payslip,
+        org: org,
+        registration: registration,
+        type: jan_vacation_group.type,
+        group: jan_vacation_group,
         start_date: ~D[2021-01-15],
         end_date: ~D[2021-02-15]
       )
@@ -149,8 +160,8 @@ defmodule Sig.HR.Payslips.PayslipTest do
         amount: 0,
         start_date: ~D[2021-01-15],
         end_date: ~D[2021-02-15],
-        type: jan_group.type,
-        group_id: jan_group.id,
+        type: jan_regular_group.type,
+        group_id: jan_regular_group.id,
         registration_id: registration.id
       }
 
@@ -159,19 +170,20 @@ defmodule Sig.HR.Payslips.PayslipTest do
                    fn -> Repo.insert(payslip) end
     end
 
-    test "end date cannot be after existing record start date" do
+    test "end date cannot be after existing record start date of the same type" do
       org = insert(:org)
       registration = insert(:employee_registration, org: org)
 
-      dez_group = insert(:payslip_group, org: org, date: ~D[2020-12-01])
-      jan_group = insert(:payslip_group, org: org, date: ~D[2021-01-01])
+      dec_regular_group = insert(:payslip_group, org: org, date: ~D[2020-12-01], type: :regular)
+      dec_vacation_group = insert(:payslip_group, org: org, date: ~D[2020-12-01], type: :vacation)
+      jan_regular_group = insert(:payslip_group, org: org, date: ~D[2021-01-01], type: :regular)
 
       _existing_payslip =
         insert(:payslip,
           org: org,
           registration: registration,
-          type: jan_group.type,
-          group: jan_group,
+          type: jan_regular_group.type,
+          group: jan_regular_group,
           start_date: ~D[2021-01-01],
           end_date: ~D[2021-01-31]
         )
@@ -179,8 +191,18 @@ defmodule Sig.HR.Payslips.PayslipTest do
       # Allow overlapping for different registration
       insert(:payslip,
         org: org,
-        type: dez_group.type,
-        group: dez_group,
+        type: dec_regular_group.type,
+        group: dec_regular_group,
+        start_date: ~D[2020-12-15],
+        end_date: ~D[2021-01-15]
+      )
+
+      # Allow overlapping for different type
+      insert(:payslip,
+        org: org,
+        registration: registration,
+        type: dec_vacation_group.type,
+        group: dec_vacation_group,
         start_date: ~D[2020-12-15],
         end_date: ~D[2021-01-15]
       )
@@ -190,8 +212,8 @@ defmodule Sig.HR.Payslips.PayslipTest do
         amount: 0,
         start_date: ~D[2020-12-15],
         end_date: ~D[2021-01-15],
-        type: dez_group.type,
-        group_id: dez_group.id,
+        type: dec_regular_group.type,
+        group_id: dec_regular_group.id,
         registration_id: registration.id
       }
 
@@ -561,14 +583,16 @@ defmodule Sig.HR.Payslips.PayslipTest do
     test "end date cannot be after existing record start date" do
       org = insert(:org)
       registration = insert(:employee_registration, org: org)
-      group = insert(:payslip_group, org: org, date: ~D[2021-01-01])
+
+      dec_group = insert(:payslip_group, org: org, date: ~D[2020-12-01], type: :regular)
+      jan_group = insert(:payslip_group, org: org, date: ~D[2021-01-01], type: :regular)
 
       _existing_payslip =
         insert(:payslip,
           org: org,
           registration: registration,
-          type: group.type,
-          group: group,
+          type: jan_group.type,
+          group: jan_group,
           start_date: ~D[2021-01-01],
           end_date: ~D[2021-01-31]
         )
@@ -576,7 +600,7 @@ defmodule Sig.HR.Payslips.PayslipTest do
       attrs = %{
         org_id: org.id,
         amount: 0,
-        type: group.type,
+        type: dec_group.type,
         start_date: ~D[2020-12-15],
         end_date: ~D[2021-01-15],
         registration_id: registration.id
@@ -585,7 +609,7 @@ defmodule Sig.HR.Payslips.PayslipTest do
       assert {:error, changeset} =
                attrs
                |> Payslip.create_changeset()
-               |> put_change(:group_id, group.id)
+               |> put_change(:group_id, dec_group.id)
                |> Repo.insert()
 
       assert errors_on(changeset) == %{

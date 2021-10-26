@@ -143,7 +143,7 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
 
     test "when new payslip item brings payslip amount to negative" do
       org = insert(:org)
-      payslip = insert(:payslip, org: org, amount: Money.new(900_00))
+      payslip = insert(:payslip, org: org)
 
       salary_category =
         insert(:payslip_category, org: org, code: "1", entry_type: :credit, description: "SALÁRIO")
@@ -161,6 +161,9 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
         outside_item_entry_type: :debit,
         amount: 100_00
       )
+
+      # Update payslip amount
+      Repo.update!(change(payslip, amount: 900_00))
 
       health_insurance_category =
         insert(:payslip_category,
@@ -311,7 +314,7 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
 
     test "when payslip is closed after is loaded" do
       org = insert(:org)
-      payslip = insert(:payslip, org: org, amount: Money.new(900_00), is_closed: false)
+      payslip = insert(:payslip, org: org, is_closed: false)
 
       salary_category =
         insert(:payslip_category, org: org, code: "1", entry_type: :credit, description: "SALÁRIO")
@@ -331,7 +334,7 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
       )
 
       # Close payslip
-      Repo.update!(change(payslip, is_closed: true))
+      Repo.update!(change(payslip, amount: 900_00, is_closed: true))
 
       health_insurance_category =
         insert(:payslip_category,
@@ -502,7 +505,7 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
 
     test "when new outside item brings payslip amount to negative" do
       org = insert(:org)
-      payslip = insert(:payslip, org: org, amount: Money.new(900_00))
+      payslip = insert(:payslip, org: org)
 
       salary_category =
         insert(:payslip_category, org: org, code: "1", entry_type: :credit, description: "SALÁRIO")
@@ -520,6 +523,9 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
         outside_item_entry_type: :debit,
         amount: 100_00
       )
+
+      # Update payslip amount
+      Repo.update!(change(payslip, amount: 900_00))
 
       attrs = %{
         amount: 2_000_00,
@@ -548,7 +554,7 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
 
     test "when new outside item brings payslip amount to zero" do
       org = insert(:org)
-      payslip = insert(:payslip, org: org, amount: Money.new(900_00))
+      payslip = insert(:payslip, org: org)
 
       salary_category =
         insert(:payslip_category, org: org, code: "1", entry_type: :credit, description: "SALÁRIO")
@@ -566,6 +572,9 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
         outside_item_entry_type: :debit,
         amount: 100_00
       )
+
+      # Update payslip amount
+      Repo.update!(change(payslip, amount: 900_00))
 
       attrs = %{
         amount: 900_00,
@@ -801,7 +810,7 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
 
     test "when the item update brings payslip amount to negative" do
       org = insert(:org)
-      payslip = insert(:payslip, org: org, amount: Money.new(100_00))
+      payslip = insert(:payslip, org: org)
 
       cashier_category =
         insert(:payslip_category,
@@ -825,6 +834,9 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
           outside_item_entry_type: :debit,
           amount: 100_00
         )
+
+      # Update payslip amount
+      Repo.update!(change(payslip, amount: 100_00))
 
       assert {:error, "payslip amount cannot be negative"} =
                Mutator.update_amount(payslip, outside_item, 250_00)
@@ -888,8 +900,8 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
 
     test "when item belong to another payslip" do
       org = insert(:org)
-      payslip = insert(:payslip, org: org, amount: Money.new(0))
-      another_payslip = insert(:payslip, org: org, amount: Money.new(100_00))
+      payslip = insert(:payslip, org: org)
+      another_payslip = insert(:payslip, org: org)
 
       item =
         insert(:payslip_outside_item,
@@ -898,6 +910,9 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
           outside_item_entry_type: :credit,
           amount: 100_00
         )
+
+      # Update payslip amount
+      Repo.update!(change(another_payslip, amount: 100_00))
 
       assert {:error, "item doesn't belong to payslip"} =
                Mutator.update_amount(payslip, item, 200_00)
@@ -980,7 +995,14 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
 
     test "when amount is negative" do
       org = insert(:org)
-      payslip = insert(:payslip, org: org, amount: Money.new(100_00))
+      payslip = insert(:payslip, org: org)
+
+        insert(:payslip_outside_item,
+          org: org,
+          payslip: payslip,
+          outside_item_entry_type: :credit,
+          amount: 300_00
+        )
 
       item =
         insert(:payslip_outside_item,
@@ -990,6 +1012,9 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
           amount: 100_00
         )
 
+      # Update payslip amount
+      Repo.update!(change(payslip, amount: 200_00))
+
       assert {:error, changeset} = Mutator.update_amount(payslip, item, -1)
 
       assert errors_on(changeset) == %{
@@ -997,7 +1022,7 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
              }
 
       assert Repo.get_by(Item, org_id: org.id, id: item.id, amount: 100_00)
-      assert Repo.get_by(Payslip, org_id: org.id, id: payslip.id, amount: 100_00)
+      assert Repo.get_by(Payslip, org_id: org.id, id: payslip.id, amount: 200_00)
     end
   end
 
@@ -1067,8 +1092,8 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
 
     test "when item belongs to another payslip" do
       org = insert(:org)
-      payslip = insert(:payslip, org: org, amount: Money.new(0))
-      another_payslip = insert(:payslip, org: org, amount: Money.new(100_00))
+      payslip = insert(:payslip, org: org)
+      another_payslip = insert(:payslip, org: org)
 
       item =
         insert(:payslip_outside_item,
@@ -1077,6 +1102,9 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
           outside_item_entry_type: :credit,
           amount: 100_00
         )
+
+      # Update payslip amount
+      Repo.update!(change(another_payslip, amount: 100_00))
 
       assert {:error, "item doesn't belong to payslip"} = Mutator.delete_item(payslip, item)
 
