@@ -28,7 +28,8 @@ defmodule SigLive.Router do
 
     live "/individuals", Individuals.Index
     live "/individuals/:id", Individuals.Show, :show
-    live "/individuals/:entity_id/registrations/:id", EmployeeRegistrations.Show, :show
+    live "/individuals/:entity_id/registrations/:id", EmployeeRegistrations.Show, :registration_show
+    live "/individuals/:entity_id/registrations/:id/payslips", EmployeeRegistrations.Show, :payslips
   end
 
   if Mix.env() in [:dev, :test] do
