@@ -172,14 +172,16 @@ defmodule Sig.HR.Payslips.ItemsTest do
   describe "broadcast_payslip_items/1" do
     test "broadcasts items from a payslip" do
       org = insert(:org)
-      payslip = insert(:payslip, org: org)
+      payslip = insert(:payslip, org: org, start_date: ~D[2021-01-01])
 
       insert(:payslip_item, org: org, payslip: payslip)
       insert(:payslip_item, org: org, payslip: payslip)
       insert(:payslip_outside_item, org: org, payslip: payslip)
 
-      _to_ignore = insert(:payslip_item, org: org)
-      _to_ignore = insert(:payslip_outside_item)
+      another_org = insert(:org)
+      another_payslip = insert(:payslip, org: another_org, start_date: ~D[2021-02-01])
+
+      _to_ignore = insert(:payslip_item, org: another_org, payslip: another_payslip)
 
       topic = "payslip_id:" <> payslip.id <> ":items"
 
