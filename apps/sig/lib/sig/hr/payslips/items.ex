@@ -11,6 +11,18 @@ defmodule Sig.HR.Payslips.Items do
   defdelegate update_amount(payslip, item, attrs), to: Mutator
   defdelegate delete_item(payslip, item), to: Mutator
 
+  def create_change(%{} = attrs \\ %{}) do
+    Item.create_changeset(attrs)
+  end
+
+  def create_outside_item_change(%{} = attrs \\ %{}) do
+    Item.create_outside_item_changeset(attrs)
+  end
+
+  def update_amount_change(%Item{} = item, %{} = attrs \\ %{}) do
+    Item.update_amount_changeset(item, attrs)
+  end
+
   def list_by_payslip(%Payslip{} = payslip) do
     payslip
     |> query_by_payslip()
@@ -29,6 +41,13 @@ defmodule Sig.HR.Payslips.Items do
     |> fill_virtual_fields()
   end
 
+  def fetch(%Payslip{} = payslip, id) when is_binary(id) do
+    case get(payslip, id) do
+      %Item{} = item -> {:ok, item}
+      nil -> {:error, :not_found}
+    end
+  end
+
   def sum_by(entry_type, []) when entry_type in [:credit, :debit], do: Money.new(0)
 
   def sum_by(entry_type, [%Item{} | _] = items) when entry_type in [:credit, :debit] do
@@ -37,6 +56,24 @@ defmodule Sig.HR.Payslips.Items do
       _item, acc -> acc
     end)
   end
+
+  def subscribe_to_payslip_items(%Payslip{} = item) do
+    Phoenix.PubSub.subscribe(Sig.PubSub, topic(item))
+  end
+
+  def unsubscribe_from_payslip_items(%Payslip{} = item) do
+    Phoenix.PubSub.unsubscribe(Sig.PubSub, topic(item))
+  end
+
+  def broadcast_payslip_items(%Payslip{} = payslip) do
+    Phoenix.PubSub.broadcast(
+      Sig.PubSub,
+      topic(payslip),
+      {:updated_payslip_items, list_by_payslip(payslip)}
+    )
+  end
+
+  defp topic(%Payslip{} = payslip), do: "payslip_id:" <> payslip.id <> ":items"
 
   defp query_by_payslip(payslip) do
     Item

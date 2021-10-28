@@ -101,7 +101,7 @@ defmodule Sig.HR do
     to: LeavePeriods,
     as: :update_change
 
-  defdelegate list_payslip_categories(org), to: Categories, as: :list
+  defdelegate list_payslip_categories(org_id), to: Categories, as: :list
 
   defdelegate list_payslip_recurring_item_models(org), to: RecurringItemModels, as: :list
 
@@ -130,12 +130,22 @@ defmodule Sig.HR do
   defdelegate create_payslip(registration, attrs), to: Payslips, as: :create
   defdelegate list_payslips_by_registration(registration), to: Payslips, as: :list_by_registration
   defdelegate get_payslip(registration, id), to: Payslips, as: :get
-  defdelegate create_payslip_change(attrs), to: Payslips, as: :create_change
+  defdelegate create_payslip_change(attrs \\ %{}), to: Payslips, as: :create_change
+  defdelegate subscribe_to_registration_payslips(registration), to: Payslips
+  defdelegate broadcast_registration_payslips(registration), to: Payslips
 
   defdelegate list_items_by_payslip(payslip), to: Items, as: :list_by_payslip
   defdelegate get_payslip_item(payslip, id), to: Items, as: :get
+  defdelegate fetch_payslip_item(payslip, id), to: Items, as: :fetch
   defdelegate create_payslip_item(payslip, attrs), to: Items
   defdelegate create_payslip_outside_item(payslip, attrs), to: Items, as: :create_outside_item
   defdelegate update_payslip_item_amount(payslip, item, attrs), to: Items, as: :update_amount
   defdelegate delete_payslip_item(payslip, item), to: Items, as: :delete_item
+  defdelegate create_payslip_item_change(attrs \\ %{}), to: Items, as: :create_change
+  defdelegate create_payslip_outside_item_change(attrs \\ %{}), to: Items, as: :create_outside_item_change
+  defdelegate update_payslip_item_amount_change(item, attrs \\ %{}), to: Items, as: :update_amount_change
+  defdelegate subscribe_to_payslip_items(payslip), to: Items
+  defdelegate unsubscribe_from_payslip_items(payslip), to: Items
+  defdelegate broadcast_payslip_items(payslip), to: Items
+  defdelegate sum_payslip_items_by(entry_type, items), to: Items, as: :sum_by
 end
