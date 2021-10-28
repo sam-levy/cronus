@@ -4,6 +4,8 @@ defmodule Sig.HR.PayslipsTest do
   alias Sig.HR.Payslips
   alias Sig.HR.Payslips.Payslip
 
+  @endpoint SigLive.Endpoint
+
   describe "create_change/1" do
     test "returns a changeset" do
       assert %Ecto.Changeset{data: %Payslip{}} = Payslips.create_change()
@@ -11,7 +13,7 @@ defmodule Sig.HR.PayslipsTest do
   end
 
   describe "list_by_registration/1" do
-    test "lists payslips by registration ordered by start date" do
+    test "lists payslips by registration ordered by decending start date" do
       registration = insert(:employee_registration)
 
       insert(:payslip,
@@ -27,8 +29,8 @@ defmodule Sig.HR.PayslipsTest do
       )
 
       assert [
-               %Payslip{start_date: ~D[2021-01-01]},
-               %Payslip{start_date: ~D[2021-02-01]}
+               %Payslip{start_date: ~D[2021-02-01]},
+               %Payslip{start_date: ~D[2021-01-01]}
              ] = Payslips.list_by_registration(registration)
     end
 
@@ -79,6 +81,52 @@ defmodule Sig.HR.PayslipsTest do
       org = insert(:org)
 
       assert Payslips.get_by(id: UUID.generate(), org_id: org.id) == nil
+    end
+  end
+
+  describe "subscribe_to_registration_payslips/1" do
+    test "subscribes to registration payslips topic" do
+      registration = insert(:employee_registration)
+      topic = "registration_id:" <> registration.id <> ":payslips"
+
+      assert Payslips.subscribe_to_registration_payslips(registration) == :ok
+
+      Phoenix.PubSub.broadcast(
+        Sig.PubSub,
+        topic,
+        {:updated_registration_payslips, :payslips}
+      )
+
+      assert_receive {:updated_registration_payslips, :payslips}
+    end
+  end
+
+  describe "broadcast_registration_payslips/1" do
+    test "broadcasts payslips from a registration" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+
+      insert(:payslip, org: org, registration: registration)
+      insert(:payslip, org: org, registration: registration)
+
+      insert(:payslip, org: org)
+
+      topic = "registration_id:" <> registration.id <> ":payslips"
+
+      @endpoint.subscribe(topic)
+
+      assert Payslips.broadcast_registration_payslips(registration) == :ok
+
+      assert_receive {:updated_registration_payslips, received_payslips}
+
+      assert Enum.count(received_payslips) == 2
+
+      Enum.each(received_payslips, fn payslip ->
+        assert payslip.org_id == org.id
+        assert payslip.registration_id == registration.id
+      end)
+
+      @endpoint.unsubscribe(topic)
     end
   end
 end
