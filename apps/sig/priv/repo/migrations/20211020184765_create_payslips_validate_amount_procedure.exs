@@ -37,7 +37,7 @@ defmodule Sig.Repo.Migrations.CreatePayslipsValidateAmountProcedure do
         IF
           coalesce(items_credit_amount_sum, 0) - coalesce(items_debit_amount_sum, 0) != NEW.amount
         THEN
-          RAISE 'payslip items amount sum is different from payslip amount %', items_credit_amount_sum
+          RAISE 'payslip items amount sum is different from payslip amount'
           USING ERRCODE = 'integrity_constraint_violation';
         END IF;
 
