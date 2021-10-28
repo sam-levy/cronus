@@ -5,6 +5,7 @@ defmodule SigLive.ViewHelpers do
   alias Sig.Entities.Companies.Company
   alias Sig.Finance
   alias Sig.Finance.Banks.Bank
+  alias Sig.HR.Payslips.Categories.Category
 
   def bank_name(routing_number) when is_binary(routing_number) do
     case Finance.fetch_bank(routing_number) do
@@ -109,4 +110,13 @@ defmodule SigLive.ViewHelpers do
   def format_amount(%Ecto.Changeset{changes: %{amount: amount}}), do: format_amount(amount)
   def format_amount(%Money{} = amount), do: Money.to_string(amount)
   def format_amount(_), do: ""
+
+  @spec payslip_categories_for_select([Category.t()]) :: %{String.t() => String.t()}
+  def payslip_categories_for_select(categories) when is_list(categories) do
+    Map.new(categories, fn category ->
+      entry_type = if category.entry_type == :credit, do: "Crédito", else: "Débito"
+
+      {"#{category.code} - #{category.description} - #{entry_type}", category.id}
+    end)
+  end
 end

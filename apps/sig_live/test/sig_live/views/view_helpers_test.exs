@@ -174,4 +174,20 @@ defmodule SigLive.ViewHelpersTest do
       assert ViewHelpers.format_amount(nil) == ""
     end
   end
+
+  describe "payslip_categories_for_select/1" do
+    test "returns a maps of categories formated for select" do
+     category_1 = insert(:payslip_category, code: "1", description: "SALÁRIO", entry_type: :credit)
+     category_2 = insert(:payslip_category, code: "109", description: "DESC. VALE TRANSPORTE", entry_type: :debit)
+
+      assert ViewHelpers.payslip_categories_for_select([category_1, category_2]) == %{
+        "1 - SALÁRIO - Crédito" => category_1.id,
+        "109 - DESC. VALE TRANSPORTE - Débito" => category_2.id
+      }
+    end
+
+    test "empty list" do
+      assert ViewHelpers.payslip_categories_for_select([]) == %{}
+    end
+  end
 end
