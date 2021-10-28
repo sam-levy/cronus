@@ -3,10 +3,12 @@ defmodule Sig.DateTest do
 
   describe "list_by_month/3" do
     test "returns a list of next dates by month" do
-      assert Sig.Date.list_by_month(~D[2021-01-01], :next, 3) == [
+      assert Sig.Date.list_by_month(~D[2020-10-01], :next, 5) == [
+               ~D[2020-11-01],
+               ~D[2020-12-01],
+               ~D[2021-01-01],
                ~D[2021-02-01],
-               ~D[2021-03-01],
-               ~D[2021-04-01]
+               ~D[2021-03-01]
              ]
 
       assert Sig.Date.list_by_month(~D[2021-01-05], :next, 1) == [~D[2021-02-05]]
@@ -14,11 +16,12 @@ defmodule Sig.DateTest do
     end
 
     test "returns a list of prior dates by month" do
-      assert Sig.Date.list_by_month(~D[2021-01-15], :prior, 4) == [
+      assert Sig.Date.list_by_month(~D[2021-03-15], :prior, 5) == [
+               ~D[2021-02-15],
+               ~D[2021-01-15],
                ~D[2020-12-15],
                ~D[2020-11-15],
-               ~D[2020-10-15],
-               ~D[2020-09-15]
+               ~D[2020-10-15]
              ]
 
       assert Sig.Date.list_by_month(~D[2021-01-20], :prior, 1) == [~D[2020-12-20]]
@@ -31,13 +34,14 @@ defmodule Sig.DateTest do
                    fn -> Sig.Date.list_by_month(~D[2021-01-01], :next, -1) end
     end
 
-    test "reurn the last date of the month when day doesn't exist in next months" do
-      assert Sig.Date.list_by_month(~D[2021-01-31], :next, 4) == [
-        ~D[2021-02-28],
-        ~D[2021-03-31],
-        ~D[2021-04-30],
-        ~D[2021-05-31]
-      ]
+    test "reurn the last date of the month when day doesn't exist in next or prior months" do
+      assert Sig.Date.list_by_month(~D[2020-10-31], :next, 5) == [
+               ~D[2020-11-30],
+               ~D[2020-12-31],
+               ~D[2021-01-31],
+               ~D[2021-02-28],
+               ~D[2021-03-31]
+             ]
     end
   end
 
