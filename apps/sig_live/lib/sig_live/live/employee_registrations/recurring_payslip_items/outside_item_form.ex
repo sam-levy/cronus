@@ -6,8 +6,8 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.OutsideItemForm do
   alias Surface.Components.Form
 
   alias Surface.Components.Form.{
+    RadioButton,
     TextInput,
-    Select,
     ErrorTag,
     Field,
     Label,
@@ -43,14 +43,14 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.OutsideItemForm do
           <ErrorTag class="form-error-tag"/>
         </Field>
 
-        <Field name={:outside_item_entry_type} class="form-field">
-          <Label class="form-label">Tipo</Label>
-          <Select
-            prompt=""
-            options={enum_for_select(Sig.EntryType)}
-            class="form-input"
-          />
-          <ErrorTag class="form-error-tag"/>
+        <Field name={:outside_item_entry_type} class="form-field flex space-x-3">
+          <label class="form-side-label">
+            <RadioButton class="mr-1" value="credit" checked /> Crédito
+          </label>
+
+          <label class="form-side-label">
+            <RadioButton class="mr-1" value="debit" /> Débito
+          </label>
         </Field>
 
         <Field name={:item_amount} class="form-field">
