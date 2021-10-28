@@ -16,7 +16,7 @@ defmodule Sig.HR.Payslips do
   def list_by_registration(%Registration{} = registration) do
     registration
     |> query_by_registration()
-    |> order_by(:start_date)
+    |> order_by(desc: :start_date)
     |> Repo.all()
   end
 
@@ -29,6 +29,22 @@ defmodule Sig.HR.Payslips do
   end
 
   def get_by(attrs), do: Repo.get_by(Payslip, attrs)
+
+  def subscribe_to_registration_payslips(%Registration{} = registration) do
+    Phoenix.PubSub.subscribe(Sig.PubSub, topic(registration))
+  end
+
+  def broadcast_registration_payslips(%Registration{} = registration) do
+    Phoenix.PubSub.broadcast(
+      Sig.PubSub,
+      topic(registration),
+      {:updated_registration_payslips, list_by_registration(registration)}
+    )
+  end
+
+  defp topic(%Registration{} = registration) do
+    "registration_id:" <> registration.id <> ":payslips"
+  end
 
   defp query_by_registration(registration) do
     Payslip
