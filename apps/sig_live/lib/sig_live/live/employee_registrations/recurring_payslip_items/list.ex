@@ -81,12 +81,12 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
   end
 
   @impl true
-  def handle_event("open_payslip_item_delete_confirmation_dialog", %{"item-id" => id}, socket) do
+  def handle_event("open_payslip_item_delete_confirmation_dialog", %{"item_id" => id}, socket) do
     {:noreply, assign(socket, delete_confirmation_dialog_state: :open, item_id: id)}
   end
 
   @impl true
-  def handle_event("delete_recurrent_payslip_item", _, socket) do
+  def handle_event("delete_recurring_payslip_item", _, socket) do
     %{registration: registration, item_id: item_id} = socket.assigns
 
     case HR.delete_recurring_payslip_item(registration, item_id) do
@@ -115,7 +115,7 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
       <ConfirmationDialog
         :if={@delete_confirmation_dialog_state != :closed}
         close_event="close_modals"
-        action_event="delete_recurrent_payslip_item"
+        action_event="delete_recurring_payslip_item"
         dialog_title="Confirmar Remoção"
         confirmation_msg="Deseja realmente remover o item?"
         action_btn_msg="Remover"
@@ -123,7 +123,7 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
 
       <PayslipItemForm
         :if={@payslip_item_form_state != :closed}
-        id="payslip_item_form"
+        id="recurring_payslip_item_form"
         close_event="close_modals"
         close_fun={fn -> close_modals(@id) end}
         {=@registration}
@@ -139,7 +139,7 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
 
       <OutsideItemForm
         :if={@outside_item_form_state != :closed}
-        id="outside_item_form"
+        id="recurring_payslip_outside_item_form"
         close_event="close_modals"
         close_fun={fn -> close_modals(@id) end}
         {=@registration}
@@ -156,6 +156,7 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
                   </span>
 
                   <MonthToggle
+                    :if={@recurring_payslip_items != []}
                     target={@target_date}
                     floor={Date.end_of_month(@registration.admission_date)}
                     previous="previous_month"
@@ -164,9 +165,9 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
                 </div>
 
                 <DropdownBtn>
-                  <a :on-click="open_new_payslip_item_form" class="dropdown-item">Item do holerite</a>
                   <a :on-click="open_new_payslip_item_model_form" class="dropdown-item">Item a partir de modelo</a>
                   <a :on-click="open_new_outside_item_form" class="dropdown-item">Item fora do holerite</a>
+                  <a :on-click="open_new_payslip_item_form" class="dropdown-item">Item do holerite</a>
                 </DropdownBtn>
               </div>
             </th>
@@ -218,7 +219,7 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
           {/for}
         </tbody>
 
-        <tfoot>
+        <tfoot :if={@recurring_payslip_items != []}>
           <tr class="border-b italic bg-gray-50 text-sm text-gray-500 tracking-wider">
             <td class="py-2 px-6 text-left" colspan="2">Subtotais</td>
             <td class="py-2 px-6 text-right">{format_amount(@credit_subtotal)}</td>
@@ -226,7 +227,7 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
             <td></td>
           </tr>
 
-          <tr class="text-sm font-medium text-gray-500 tracking-wider">
+          <tr class="text-sm bg-gray-50 font-medium text-gray-500 tracking-wider">
             <td class="py-2 px-6 text-left" colspan="3">Líquido</td>
             <td class="py-2 px-6 text-right">{format_amount(@total)}</td>
             <td></td>
@@ -278,7 +279,7 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
   end
 
   def sum_by(entry_type, items) do
-    Enum.reduce(items, 0, fn
+    Enum.reduce(items, Money.new(0), fn
       %{entry_type: ^entry_type, amount: amount}, acc -> Money.add(amount, acc)
       _, acc -> acc
     end)

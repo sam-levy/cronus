@@ -17,12 +17,12 @@ defmodule SigLive.EmployeeRegistrations.Warnings.List do
   end
 
   @impl true
-  def handle_event("open_edit_warning_form", %{"warning-id" => id}, socket) do
+  def handle_event("open_edit_warning_form", %{"warning_id" => id}, socket) do
     {:noreply, assign(socket, form_state: :edit_mode, warning_id: id)}
   end
 
   @impl true
-  def handle_event("open_show_warning_form", %{"warning-id" => id}, socket) do
+  def handle_event("open_show_warning_form", %{"warning_id" => id}, socket) do
     {:noreply, assign(socket, form_state: :show_mode, warning_id: id)}
   end
 
