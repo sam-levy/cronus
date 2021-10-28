@@ -1011,12 +1011,12 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
       org = insert(:org)
       payslip = insert(:payslip, org: org)
 
-        insert(:payslip_outside_item,
-          org: org,
-          payslip: payslip,
-          outside_item_entry_type: :credit,
-          amount: 300_00
-        )
+      insert(:payslip_outside_item,
+        org: org,
+        payslip: payslip,
+        outside_item_entry_type: :credit,
+        amount: 300_00
+      )
 
       item =
         insert(:payslip_outside_item,

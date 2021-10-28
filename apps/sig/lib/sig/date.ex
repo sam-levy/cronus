@@ -8,11 +8,10 @@ defmodule Sig.Date do
              number_of_months > 0 do
     number_of_months
     |> build_range(direction)
-    |> Enum.reduce(%{}, fn
-      i, acc ->
-        last_date = Map.get(acc, i-1, from_date)
+    |> Enum.reduce(%{}, fn i, acc ->
+      last_date = Map.get(acc, i - 1, from_date)
 
-        Map.put(acc, i, build_date(direction, last_date, day))
+      Map.put(acc, i, build_date(direction, last_date, day))
     end)
     |> Map.values()
   end
@@ -28,7 +27,7 @@ defmodule Sig.Date do
       when direction in [:prior, :next] and
              is_integer(number_of_months) and
              number_of_months < 0 do
-      raise ArgumentError, "number_of_months cannot be negative"
+    raise ArgumentError, "number_of_months cannot be negative"
   end
 
   defp build_range(number_of_months, :next), do: 1..number_of_months

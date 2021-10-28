@@ -142,8 +142,15 @@ defmodule Sig.HR do
   defdelegate update_payslip_item_amount(payslip, item, attrs), to: Items, as: :update_amount
   defdelegate delete_payslip_item(payslip, item), to: Items, as: :delete_item
   defdelegate create_payslip_item_change(attrs \\ %{}), to: Items, as: :create_change
-  defdelegate create_payslip_outside_item_change(attrs \\ %{}), to: Items, as: :create_outside_item_change
-  defdelegate update_payslip_item_amount_change(item, attrs \\ %{}), to: Items, as: :update_amount_change
+
+  defdelegate create_payslip_outside_item_change(attrs \\ %{}),
+    to: Items,
+    as: :create_outside_item_change
+
+  defdelegate update_payslip_item_amount_change(item, attrs \\ %{}),
+    to: Items,
+    as: :update_amount_change
+
   defdelegate subscribe_to_payslip_items(payslip), to: Items
   defdelegate unsubscribe_from_payslip_items(payslip), to: Items
   defdelegate broadcast_payslip_items(payslip), to: Items
