@@ -20,8 +20,7 @@ defmodule Sig.Repo.Migrations.CreatePayslipsValidateAmountProcedure do
         WHERE
           i.payslip_id = NEW.id AND
           i.org_id = NEW.org_id AND
-          i.outside_item_entry_type = 'credit' OR
-          c.entry_type = 'credit'
+          (i.outside_item_entry_type = 'credit' OR c.entry_type = 'credit')
         INTO items_credit_amount_sum;
 
         SELECT SUM (amount)
@@ -32,14 +31,13 @@ defmodule Sig.Repo.Migrations.CreatePayslipsValidateAmountProcedure do
         WHERE
           i.payslip_id = NEW.id AND
           i.org_id = NEW.org_id AND
-          i.outside_item_entry_type = 'debit' OR
-          c.entry_type = 'debit'
+          (i.outside_item_entry_type = 'debit' OR c.entry_type = 'debit')
         INTO items_debit_amount_sum;
 
         IF
           coalesce(items_credit_amount_sum, 0) - coalesce(items_debit_amount_sum, 0) != NEW.amount
         THEN
-          RAISE 'payslip items amount sum is different from payslip amount'
+          RAISE 'payslip items amount sum is different from payslip amount %', items_credit_amount_sum
           USING ERRCODE = 'integrity_constraint_violation';
         END IF;
 

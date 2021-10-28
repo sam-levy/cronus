@@ -323,7 +323,6 @@ defmodule Sig.HR.Payslips.PayslipTest do
       payslip =
         insert(:payslip,
           org: org,
-          amount: 1_000_00,
           type: :regular,
           start_date: ~D[2021-01-01],
           end_date: ~D[2021-01-31],
@@ -344,17 +343,18 @@ defmodule Sig.HR.Payslips.PayslipTest do
     test "updated payslip amount is different from the sum of its items amounts" do
       org = insert(:org)
       registration = insert(:employee_registration, org: org)
-      group = insert(:payslip_group, org: org, type: :regular, date: ~D[2021-01-01])
 
-      payslip =
+      jan_group = insert(:payslip_group, org: org, type: :regular, date: ~D[2021-01-01])
+      feb_group = insert(:payslip_group, org: org, type: :regular, date: ~D[2021-02-01])
+
+      jan_payslip =
         insert(:payslip,
           org: org,
-          amount: 0,
-          type: :regular,
           start_date: ~D[2021-01-01],
           end_date: ~D[2021-01-31],
           is_closed: false,
-          group: group,
+          type: jan_group.type,
+          group: jan_group,
           registration: registration
         )
 
@@ -362,23 +362,50 @@ defmodule Sig.HR.Payslips.PayslipTest do
 
       insert(:payslip_item,
         org: org,
-        payslip: payslip,
+        payslip: jan_payslip,
         category: credit_category,
         amount: 1_000_00
       )
 
       insert(:payslip_outside_item,
         org: org,
-        payslip: payslip,
+        payslip: jan_payslip,
         outside_item_entry_type: :debit,
         amount: 200_00
       )
 
+      assert Repo.update!(change(jan_payslip, amount: 800_00))
+
+      feb_payslip =
+        insert(:payslip,
+          org: org,
+          start_date: ~D[2021-02-01],
+          end_date: ~D[2021-02-28],
+          is_closed: false,
+          type: feb_group.type,
+          group: feb_group,
+          registration: registration
+        )
+
+      insert(:payslip_item,
+        org: org,
+        payslip: feb_payslip,
+        category: credit_category,
+        amount: 500_00
+      )
+
+      insert(:payslip_outside_item,
+        org: org,
+        payslip: feb_payslip,
+        outside_item_entry_type: :debit,
+        amount: 100_00
+      )
+
       assert_raise Postgrex.Error,
                    ~r/\(integrity_constraint_violation\) payslip items amount sum is different from payslip amount/,
-                   fn -> Repo.update(change(payslip, amount: 500_00)) end
+                   fn -> Repo.update(change(feb_payslip, amount: 500_00)) end
 
-      assert {:ok, _return} = Repo.update(change(payslip, amount: 800_00))
+      assert Repo.update!(change(feb_payslip, amount: 400_00))
     end
 
     test "insert" do
