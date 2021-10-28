@@ -41,8 +41,8 @@ defmodule Sig.HR.Payslips.Items.Mutator do
     |> handle_result()
   end
 
-  def update_amount(%Payslip{} = payslip, %Item{} = item, amount) when is_integer(amount) do
-    %Context{attrs: %{amount: amount}, item: item, payslip: payslip}
+  def update_amount(%Payslip{} = payslip, %Item{} = item, %{} = attrs) do
+    %Context{attrs: attrs, item: item, payslip: payslip}
     |> validate_payslip()
     |> build_update_amount_changeset()
     |> set_entry_type()
@@ -122,8 +122,8 @@ defmodule Sig.HR.Payslips.Items.Mutator do
   end
 
   defp set_entry_type(%{type: :payslip_item} = context) do
-    %{payslip: %{org: org}, attrs: %{category_id: category_id}} = context
-    category = Categories.get(org, category_id)
+    %{payslip: %{org_id: org_id}, attrs: %{category_id: category_id}} = context
+    category = Categories.get(org_id, category_id)
 
     %{context | entry_type: category.entry_type}
   end

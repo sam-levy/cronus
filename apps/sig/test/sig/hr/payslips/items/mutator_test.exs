@@ -741,8 +741,10 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
           amount: 200_00
         )
 
+      attrs = %{amount: 250_00}
+
       assert {:ok, %Item{amount: %Money{amount: 250_00}}} =
-               Mutator.update_amount(payslip, payslip_item, 250_00)
+               Mutator.update_amount(payslip, payslip_item, attrs)
 
       assert Repo.get_by(Item,
                id: payslip_item.id,
@@ -788,8 +790,10 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
           amount: 100_00
         )
 
+      attrs = %{amount: 200_00}
+
       assert {:ok, %Item{amount: %Money{amount: 200_00}}} =
-               Mutator.update_amount(payslip, outside_item, 200_00)
+               Mutator.update_amount(payslip, outside_item, attrs)
 
       assert Repo.get_by(Item,
                id: outside_item.id,
@@ -838,8 +842,10 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
       # Update payslip amount
       Repo.update!(change(payslip, amount: 100_00))
 
+      attrs = %{amount: 250_00}
+
       assert {:error, "payslip amount cannot be negative"} =
-               Mutator.update_amount(payslip, outside_item, 250_00)
+               Mutator.update_amount(payslip, outside_item, attrs)
 
       refute Repo.get_by(Item,
                id: outside_item.id,
@@ -882,7 +888,9 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
         amount: 100_00
       )
 
-      assert {:ok, %Item{}} = Mutator.update_amount(payslip, payslip_item, 100_00)
+      attrs = %{amount: 100_00}
+
+      assert {:ok, %Item{}} = Mutator.update_amount(payslip, payslip_item, attrs)
 
       assert Repo.get_by(Item,
                id: payslip_item.id,
@@ -914,8 +922,10 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
       # Update payslip amount
       Repo.update!(change(another_payslip, amount: 100_00))
 
+      attrs = %{amount: 200_00}
+
       assert {:error, "item doesn't belong to payslip"} =
-               Mutator.update_amount(payslip, item, 200_00)
+               Mutator.update_amount(payslip, item, attrs)
 
       assert Repo.get_by(Item, id: item.id, org_id: org.id, amount: 100_00)
 
@@ -957,8 +967,10 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
       # Update payslip
       payslip = Repo.update!(change(payslip, amount: 900_00, is_closed: true))
 
+      attrs = %{amount: 1_200_00}
+
       assert {:error, "cannot modify a closed payslip"} =
-               Mutator.update_amount(payslip, item, 1_200_00)
+               Mutator.update_amount(payslip, item, attrs)
 
       assert Repo.get_by(Item, org_id: org.id, id: item.id, amount: 1_000_00)
       assert Repo.get_by(Payslip, org_id: org.id, id: payslip.id, amount: 900_00)
@@ -986,8 +998,10 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
       # Close payslip
       Repo.update!(change(payslip, amount: 100_00, is_closed: true))
 
+      attrs = %{amount: 120_00}
+
       assert {:error, "cannot modify a closed payslip"} =
-               Mutator.update_amount(payslip, item, 120_00)
+               Mutator.update_amount(payslip, item, attrs)
 
       assert Repo.get_by(Item, org_id: org.id, id: item.id, amount: 100_00)
       assert Repo.get_by(Payslip, org_id: org.id, id: payslip.id, amount: 100_00)
@@ -1015,7 +1029,9 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
       # Update payslip amount
       Repo.update!(change(payslip, amount: 200_00))
 
-      assert {:error, changeset} = Mutator.update_amount(payslip, item, -1)
+      attrs = %{amount: -1}
+
+      assert {:error, changeset} = Mutator.update_amount(payslip, item, attrs)
 
       assert errors_on(changeset) == %{
                amount: ["must be greater than or equal to 0,00"]

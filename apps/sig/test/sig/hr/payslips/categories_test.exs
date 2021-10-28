@@ -11,7 +11,7 @@ defmodule Sig.HR.Payslips.CategoriesTest do
       insert_list(2, :payslip_category, org: org)
       _to_ignore = insert(:payslip_category)
 
-      assert return = Categories.list(org)
+      assert return = Categories.list(org.id)
 
       assert Enum.count(return) == 2
 
@@ -21,7 +21,7 @@ defmodule Sig.HR.Payslips.CategoriesTest do
     test "when org has no category" do
       org = insert(:org)
 
-      assert Categories.list(org) == []
+      assert Categories.list(org.id) == []
     end
   end
 
@@ -30,7 +30,7 @@ defmodule Sig.HR.Payslips.CategoriesTest do
       org = insert(:org)
       %{id: id} = insert(:payslip_category, org: org)
 
-      assert %Category{id: ^id} = Categories.get(org, id)
+      assert %Category{id: ^id} = Categories.get(org.id, id)
     end
 
     test "when category belongs to another org" do
@@ -38,13 +38,13 @@ defmodule Sig.HR.Payslips.CategoriesTest do
       another_org = insert(:org)
       %{id: id} = insert(:payslip_category, org: another_org)
 
-      assert Categories.get(org, id) == nil
+      assert Categories.get(org.id, id) == nil
     end
 
     test "when category doesn't exist" do
       org = insert(:org)
 
-      assert Categories.get(org, UUID.generate()) == nil
+      assert Categories.get(org.id, UUID.generate()) == nil
     end
   end
 end
