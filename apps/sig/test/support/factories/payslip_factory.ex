@@ -9,7 +9,7 @@ defmodule Sig.Factories.PayslipFactory do
 
         start_date =
           Keyword.get(attrs, :start_date) ||
-            Faker.Date.backward(3000) |> Date.beginning_of_month()
+            Faker.Date.backward(5000) |> Date.beginning_of_month()
 
         group =
           Keyword.get(attrs, :group) ||

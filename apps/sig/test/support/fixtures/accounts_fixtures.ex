@@ -18,8 +18,8 @@ defmodule Sig.AccountsFixtures do
   end
 
   def valid_user_attributes(attrs) when is_map(attrs) do
-    org = Map.get(attrs, :org, insert(:org))
-    individual = Map.get(attrs, :individual, insert(:individual, org: org))
+    org = Map.get(attrs, :org) || insert(:org)
+    individual = Map.get(attrs, :individual) || insert(:individual, org: org)
 
     Enum.into(attrs, %{
       email: unique_user_email(),

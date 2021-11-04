@@ -52,7 +52,7 @@ defmodule Sig.Finance.Banks.Accounts do
     |> handle_return()
   end
 
-  def fetch(%Entity{} = entity, id) do
+  def fetch(%Entity{} = entity, id) when is_binary(id) do
     entity
     |> query_by_entity()
     |> where(id: ^id)

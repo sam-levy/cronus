@@ -57,12 +57,12 @@ defmodule Sig.HR.Payslips.Items do
     end)
   end
 
-  def subscribe_to_payslip_items(%Payslip{} = item) do
-    Phoenix.PubSub.subscribe(Sig.PubSub, topic(item))
+  def subscribe_to_payslip_items(%Payslip{} = payslip) do
+    Phoenix.PubSub.subscribe(Sig.PubSub, topic(payslip))
   end
 
-  def unsubscribe_from_payslip_items(%Payslip{} = item) do
-    Phoenix.PubSub.unsubscribe(Sig.PubSub, topic(item))
+  def unsubscribe_from_payslip_items(%Payslip{} = payslip) do
+    Phoenix.PubSub.unsubscribe(Sig.PubSub, topic(payslip))
   end
 
   def broadcast_payslip_items(%Payslip{} = payslip) do
