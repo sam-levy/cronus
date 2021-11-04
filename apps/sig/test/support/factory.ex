@@ -22,6 +22,8 @@ defmodule Sig.Factory do
   use Sig.Factories.EmployeeRegistraionRecurringPayslipItemFactory
   use Sig.Factories.BankAccountFactory
   use Sig.Factories.EntityBankAccountFactory
+  use Sig.Factories.PayableFactory
+  use Sig.Factories.PayslipPayableFactory
 
   def build(factory_name, attributes \\ []) do
     factory_name |> factory(attributes) |> struct(attributes)
