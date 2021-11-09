@@ -8,6 +8,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.UpdateAutoAdjustableAmountPaya
 
   defmodule Context do
     defstruct status: :ok,
+              opts: nil,
               return: nil,
               payslip: nil,
               payables: nil,
@@ -15,9 +16,8 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.UpdateAutoAdjustableAmountPaya
               auto_adjustable_amount_payable: nil
   end
 
-  # TODO: Add test
-  def call(%Payslip{} = payslip) do
-    %Context{payslip: payslip}
+  def call(%Payslip{} = payslip, opts \\ []) do
+    %Context{payslip: payslip, opts: opts}
     |> list_payables()
     |> get_auto_adjustable_amount_payable()
     |> sum_non_adjustable_payables_amounts()
@@ -63,11 +63,19 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.UpdateAutoAdjustableAmountPaya
   defp do_update_auto_adjustable_amount_payable(%{status: :halt} = context), do: context
 
   defp do_update_auto_adjustable_amount_payable(context) do
-    %{payslip: payslip, non_adjustable_amount_sum: sum, auto_adjustable_amount_payable: payable} =
-      context
+    %{
+      opts: opts,
+      payslip: payslip,
+      non_adjustable_amount_sum: sum,
+      auto_adjustable_amount_payable: payable
+    } = context
 
     payslip = Payslips.get_by(org_id: payslip.org_id, id: payslip.id)
-    adjusted_amount = Money.subtract(payslip.amount, sum)
+
+    adjusted_amount =
+      payslip.amount
+      |> Money.subtract(sum)
+      |> handle_adjustment(opts)
 
     payable
     |> Payable.update_changeset(%{amount: adjusted_amount})
@@ -75,6 +83,13 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.UpdateAutoAdjustableAmountPaya
     |> case do
       {:ok, payable} -> %{context | return: payable}
       {:error, changeset} -> %{context | status: :halt, return: {:error, changeset}}
+    end
+  end
+
+  defp handle_adjustment(amount, opts) do
+    case Keyword.get(opts, :subtract) do
+      nil -> amount
+      amount_to_subtract -> Money.subtract(amount, amount_to_subtract)
     end
   end
 
