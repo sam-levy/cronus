@@ -914,7 +914,7 @@ defmodule Sig.Finance.Payables.PayableTest do
              }
     end
 
-  test "payables_validate_amount_sum_for_payslip_procedure when target is payslip" do
+    test "payables_validate_amount_sum_for_payslip_procedure when target is payslip" do
       org = insert(:org)
       payslip = insert(:payslip, org: org)
 
@@ -929,7 +929,13 @@ defmodule Sig.Finance.Payables.PayableTest do
       Repo.update!(change(payslip, amount: 100_00))
 
       payable = insert(:payable_cash, org: org, target: :payslip, amount: 100_00)
-      insert(:payslip_payable, org: org, payslip: payslip, payable: payable, is_auto_adjustable_amount: false)
+
+      insert(:payslip_payable,
+        org: org,
+        payslip: payslip,
+        payable: payable,
+        is_auto_adjustable_amount: false
+      )
 
       attrs = %{
         due_date: ~D[2021-01-15],
@@ -944,37 +950,37 @@ defmodule Sig.Finance.Payables.PayableTest do
       assert_raise Postgrex.Error,
                    ~r/\(integrity_constraint_violation\) payables amount sum cannot exceed the payslip amount/,
                    fn -> payable |> Payable.update_changeset(attrs) |> Repo.update() end
+    end
+
+    test "when target is not a payslip" do
+      org = insert(:org)
+      payable = insert(:payable_cash, org: org, target: :invoice, amount: 100_00)
+
+      attrs = %{
+        due_date: ~D[2021-01-15],
+        reference_date: ~D[2021-01-01],
+        description: "Updated description",
+        note: "Updated note",
+        method: :billet,
+        billet_barcode: random_string_number(),
+        amount: 200_00
+      }
+
+      assert changeset = Payable.update_changeset(payable, attrs)
+
+      assert changeset.valid?
+
+      assert changeset.changes == %{
+               due_date: attrs[:due_date],
+               reference_date: attrs[:reference_date],
+               description: attrs[:description],
+               note: attrs[:note],
+               method: attrs[:method],
+               billet_barcode: attrs[:billet_barcode],
+               amount: %Money{amount: attrs[:amount], currency: :BRL}
+             }
+    end
   end
-
-  test "when target is not a payslip" do
-    org = insert(:org)
-    payable = insert(:payable_cash, org: org, target: :invoice, amount: 100_00)
-
-    attrs = %{
-      due_date: ~D[2021-01-15],
-      reference_date: ~D[2021-01-01],
-      description: "Updated description",
-      note: "Updated note",
-      method: :billet,
-      billet_barcode: random_string_number(),
-      amount: 200_00
-    }
-
-    assert changeset = Payable.update_changeset(payable, attrs)
-
-    assert changeset.valid?
-
-    assert changeset.changes == %{
-              due_date: attrs[:due_date],
-              reference_date: attrs[:reference_date],
-              description: attrs[:description],
-              note: attrs[:note],
-              method: attrs[:method],
-              billet_barcode: attrs[:billet_barcode],
-              amount: %Money{amount: attrs[:amount], currency: :BRL}
-            }
-  end
-end
 
   describe "authorize_changeset/2" do
     test "valid attrs" do

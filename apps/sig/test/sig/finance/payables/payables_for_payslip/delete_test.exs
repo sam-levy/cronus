@@ -178,8 +178,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.DeleteTest do
 
       insert(:payslip_payable, org: org, payslip: payslip, payable: payable)
 
-      assert {:error, "cannot delete a fulfilled payable"} =
-               Delete.call(payslip, payable)
+      assert {:error, "cannot delete a fulfilled payable"} = Delete.call(payslip, payable)
 
       assert Repo.get_by(Payable, org_id: org.id, id: id)
 
