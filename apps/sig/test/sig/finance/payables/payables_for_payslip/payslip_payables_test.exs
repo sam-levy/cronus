@@ -4,7 +4,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.PayslipPayablesTest do
   alias Sig.Finance.Payables.PayablesForPayslip.PayslipPayables
   alias Sig.Finance.Payables.PayablesForPayslip.PayslipPayables.PayslipPayable
 
-  describe "set_is_auto_adjustable_amount/2" do
+  describe "set_as_auto_adjustable_amount/2" do
     test "sets is auto adjustable amount when there is no other payslip_payables" do
       org = insert(:org)
       payslip = insert(:payslip, org: org)
@@ -29,7 +29,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.PayslipPayablesTest do
       )
 
       assert {:ok, %PayslipPayable{is_auto_adjustable_amount: true}} =
-               PayslipPayables.set_is_auto_adjustable_amount(payslip, payable.id)
+               PayslipPayables.set_as_auto_adjustable_amount(payslip, payable)
 
       assert Repo.get_by!(PayslipPayable,
                org_id: org.id,
@@ -79,9 +79,9 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.PayslipPayablesTest do
       )
 
       assert {:ok, %PayslipPayable{is_auto_adjustable_amount: true}} =
-               PayslipPayables.set_is_auto_adjustable_amount(
+               PayslipPayables.set_as_auto_adjustable_amount(
                  payslip,
-                 non_adjustable_payable.id
+                 non_adjustable_payable
                )
 
       assert Repo.get_by!(PayslipPayable,
@@ -106,6 +106,83 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.PayslipPayablesTest do
              )
     end
 
+    test "when is auto adjustable amount is already true" do
+      org = insert(:org)
+      payslip = insert(:payslip, org: org)
+
+      insert(:payslip_outside_item,
+        org: org,
+        payslip: payslip,
+        outside_item_entry_type: :credit,
+        amount: 100_00
+      )
+
+      # Update payslip amount
+      Repo.update!(change(payslip, amount: 100_00))
+
+      payable = insert(:payable_cash, org: org, amount: 100_00)
+
+      insert(:payslip_payable,
+        org: org,
+        payslip: payslip,
+        payable: payable,
+        is_auto_adjustable_amount: true
+      )
+
+      assert {:ok, %PayslipPayable{is_auto_adjustable_amount: true}} =
+               PayslipPayables.set_as_auto_adjustable_amount(payslip, payable)
+
+      assert Repo.get_by!(PayslipPayable,
+               org_id: org.id,
+               payslip_id: payslip.id,
+               payable_id: payable.id,
+               is_auto_adjustable_amount: true
+             )
+    end
+
+    test "when payable is fulfilled" do
+      org = insert(:org)
+      payslip = insert(:payslip, org: org)
+
+      insert(:payslip_outside_item,
+        org: org,
+        payslip: payslip,
+        outside_item_entry_type: :credit,
+        amount: 100_00
+      )
+
+      # Update payslip amount
+      Repo.update!(change(payslip, amount: 100_00))
+
+      user = insert(:user, org: org)
+
+      payable =
+        insert(:payable_cash,
+          org: org,
+          target: :payslip,
+          amount: 100_00,
+          is_fulfilled: true,
+          authorized_by_id: user.id
+        )
+
+      insert(:payslip_payable,
+        org: org,
+        payslip: payslip,
+        payable: payable,
+        is_auto_adjustable_amount: false
+      )
+
+      assert PayslipPayables.set_as_auto_adjustable_amount(payslip, payable) ==
+               {:error, "can't modify a fulfilled payable"}
+
+      assert Repo.get_by!(PayslipPayable,
+               org_id: org.id,
+               payslip_id: payslip.id,
+               payable_id: payable.id,
+               is_auto_adjustable_amount: false
+             )
+    end
+
     test "when payable is from a different payslip" do
       org = insert(:org)
       payslip = insert(:payslip, org: org, amount: 0)
@@ -120,7 +197,10 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.PayslipPayablesTest do
 
       another_payslip = insert(:payslip, org: org, amount: 0)
 
-      assert PayslipPayables.set_is_auto_adjustable_amount(another_payslip, payable.id) ==
+      assert PayslipPayables.set_as_auto_adjustable_amount(
+               another_payslip,
+               payable
+             ) ==
                {:error, :not_found}
 
       assert Repo.get_by!(PayslipPayable,
@@ -128,6 +208,145 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.PayslipPayablesTest do
                payslip_id: payslip.id,
                payable_id: payable.id,
                is_auto_adjustable_amount: false
+             )
+    end
+  end
+
+  describe "unset_as_auto_adjustable_amount/2" do
+    test "unsets is auto adjustable amount" do
+      org = insert(:org)
+      payslip = insert(:payslip, org: org)
+
+      insert(:payslip_outside_item,
+        org: org,
+        payslip: payslip,
+        outside_item_entry_type: :credit,
+        amount: 100_00
+      )
+
+      # Update payslip amount
+      Repo.update!(change(payslip, amount: 100_00))
+
+      payable = insert(:payable_cash, org: org, amount: 100_00)
+
+      insert(:payslip_payable,
+        org: org,
+        payslip: payslip,
+        payable: payable,
+        is_auto_adjustable_amount: true
+      )
+
+      assert PayslipPayables.unset_as_auto_adjustable_amount(payslip, payable) == :ok
+
+      assert Repo.get_by!(PayslipPayable,
+               org_id: org.id,
+               payslip_id: payslip.id,
+               payable_id: payable.id,
+               is_auto_adjustable_amount: false
+             )
+    end
+
+    test "when is auto adjustable amount is already false" do
+      org = insert(:org)
+      payslip = insert(:payslip, org: org)
+
+      insert(:payslip_outside_item,
+        org: org,
+        payslip: payslip,
+        outside_item_entry_type: :credit,
+        amount: 100_00
+      )
+
+      # Update payslip amount
+      Repo.update!(change(payslip, amount: 100_00))
+
+      payable = insert(:payable_cash, org: org, amount: 100_00)
+
+      insert(:payslip_payable,
+        org: org,
+        payslip: payslip,
+        payable: payable,
+        is_auto_adjustable_amount: false
+      )
+
+      assert PayslipPayables.unset_as_auto_adjustable_amount(payslip, payable) == :ok
+
+      assert Repo.get_by!(PayslipPayable,
+               org_id: org.id,
+               payslip_id: payslip.id,
+               payable_id: payable.id,
+               is_auto_adjustable_amount: false
+             )
+    end
+
+    test "when payable is fulfilled" do
+      org = insert(:org)
+      payslip = insert(:payslip, org: org)
+
+      insert(:payslip_outside_item,
+        org: org,
+        payslip: payslip,
+        outside_item_entry_type: :credit,
+        amount: 100_00
+      )
+
+      # Update payslip amount
+      Repo.update!(change(payslip, amount: 100_00))
+
+      user = insert(:user, org: org)
+
+      payable =
+        insert(:payable_cash,
+          org: org,
+          target: :payslip,
+          amount: 100_00,
+          is_fulfilled: true,
+          authorized_by_id: user.id
+        )
+
+      insert(:payslip_payable,
+        org: org,
+        payslip: payslip,
+        payable: payable,
+        is_auto_adjustable_amount: true
+      )
+
+      assert PayslipPayables.unset_as_auto_adjustable_amount(payslip, payable) ==
+               {:error, "can't modify a fulfilled payable"}
+
+      assert Repo.get_by!(PayslipPayable,
+               org_id: org.id,
+               payslip_id: payslip.id,
+               payable_id: payable.id,
+               is_auto_adjustable_amount: true
+             )
+    end
+
+    test "when payable is from a different payslip" do
+      org = insert(:org)
+      payslip = insert(:payslip, org: org, amount: 0)
+      payable = insert(:payable_cash, org: org, amount: 0)
+
+      insert(:payslip_payable,
+        org: org,
+        payslip: payslip,
+        payable: payable,
+        is_auto_adjustable_amount: true
+      )
+
+      another_payslip = insert(:payslip, org: org, amount: 0)
+
+      assert PayslipPayables.unset_as_auto_adjustable_amount(
+               another_payslip,
+               payable
+             ) ==
+               {:error, :not_found}
+
+      assert Repo.get_by!(PayslipPayable,
+               org_id: org.id,
+               payslip_id: payslip.id,
+               payable_id: payable.id,
+               is_auto_adjustable_amount: true
              )
     end
   end
