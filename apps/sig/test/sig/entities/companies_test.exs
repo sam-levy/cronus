@@ -49,4 +49,16 @@ defmodule Sig.Entities.CompaniesTest do
       assert Companies.list(org) == []
     end
   end
+
+  describe "get_by_registration_with_entity/1" do
+    test "gets a company by registration" do
+      org = insert(:org)
+      entity = insert(:entity, org: org)
+      %{entity_id: entity_id} = company = insert(:company, org: org, entity: entity)
+      registration = insert(:employee_registration, org: org, registered_at: company)
+
+      assert %Company{entity_id: ^entity_id} =
+               Companies.get_by_registration_with_entity(registration)
+    end
+  end
 end
