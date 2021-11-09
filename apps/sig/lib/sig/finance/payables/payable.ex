@@ -72,7 +72,7 @@ defmodule Sig.Finance.Payables.Payable do
   def unauthorize_changeset(%__MODULE__{} = target) do
     target
     |> cast(%{}, [])
-    |> drop_changes(:authorized_by_id)
+    |> put_change(:authorized_by_id, nil)
   end
 
   defp validate_fields(changeset) do
