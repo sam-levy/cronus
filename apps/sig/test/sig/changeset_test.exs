@@ -502,6 +502,25 @@ defmodule Sig.ChangesetTest do
       assert changeset.changes == %{is_joint_account_holder: true}
     end
 
+    test "when fields are not present in changeset changes" do
+      data = %{}
+
+      types = %{
+        is_joint_account_holder: :boolean
+      }
+
+      params = %{is_joint_account_holder: true}
+
+      changeset =
+        {data, types}
+        |> Ecto.Changeset.cast(params, Map.keys(types))
+        |> Sig.Changeset.drop_changes([:not_present, :another_not_present])
+
+      assert changeset.valid?
+
+      assert changeset.changes == %{is_joint_account_holder: true}
+    end
+
     test "accepts an atom as field" do
       data = %{}
       types = %{is_joint_account_holder: :boolean, relationship_with_holder: :string}

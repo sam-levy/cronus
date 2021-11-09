@@ -92,7 +92,11 @@ defmodule Sig.Changeset do
     fields_to_drop
     |> List.wrap()
     |> Enum.reduce(changeset, fn field_to_drop, acc ->
-      put_change(acc, field_to_drop, nil)
+      if Map.has_key?(changeset.changes, field_to_drop) do
+        put_change(acc, field_to_drop, nil)
+      else
+        acc
+      end
     end)
   end
 
