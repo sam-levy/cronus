@@ -53,13 +53,11 @@ defmodule Sig.Finance.Payables.Payable do
     |> validate_fields()
   end
 
-  @update_required_fields [:due_date, :reference_date]
-  @update_fields @update_required_fields ++ @optional_fields
+  @update_fields @optional_fields ++ [:due_date, :reference_date]
 
   def update_changeset(%__MODULE__{} = target, attrs) do
     target
     |> cast(attrs, @update_fields)
-    |> validate_required(@update_required_fields)
     |> validate_is_fulfilled()
     |> validate_fields()
   end
