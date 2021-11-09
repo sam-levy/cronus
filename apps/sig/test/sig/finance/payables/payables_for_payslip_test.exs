@@ -36,9 +36,15 @@ defmodule Sig.Finance.Payables.PayablesForPayslipTest do
       Repo.update!(change(payslip, amount: 200_00))
 
       payable_billet =
-        insert(:payable_billet, org: org, target: :payslip, due_date: ~D[2021-07-05], amount: 100_00)
+        insert(:payable_billet,
+          org: org,
+          target: :payslip,
+          due_date: ~D[2021-07-05],
+          amount: 100_00
+        )
 
-      payable_cash = insert(:payable_cash, org: org, target: :payslip, due_date: ~D[2021-06-20], amount: 100_00)
+      payable_cash =
+        insert(:payable_cash, org: org, target: :payslip, due_date: ~D[2021-06-20], amount: 100_00)
 
       insert(:payslip_payable, org: org, payslip: payslip, payable: payable_cash)
       insert(:payslip_payable, org: org, payslip: payslip, payable: payable_billet)
@@ -50,7 +56,9 @@ defmodule Sig.Finance.Payables.PayablesForPayslipTest do
       insert(:payslip_payable, org: org, payable: from_another_payslip)
 
       # To ignore
-      from_another_org = insert(:payable_cash, target: :payslip, due_date: ~D[2021-09-01], amount: 0)
+      from_another_org =
+        insert(:payable_cash, target: :payslip, due_date: ~D[2021-09-01], amount: 0)
+
       insert(:payslip_payable, org: from_another_org.org, payable: from_another_org)
 
       assert [
@@ -73,7 +81,9 @@ defmodule Sig.Finance.Payables.PayablesForPayslipTest do
       # Update payslip amount
       Repo.update!(change(payslip, amount: 200_00))
 
-      payable_cash = insert(:payable_cash, org: org, target: :payslip, due_date: ~D[2021-06-20], amount: 200_00)
+      payable_cash =
+        insert(:payable_cash, org: org, target: :payslip, due_date: ~D[2021-06-20], amount: 200_00)
+
       insert(:payslip_payable, org: org, payslip: payslip, payable: payable_cash)
 
       assert [
@@ -178,9 +188,15 @@ defmodule Sig.Finance.Payables.PayablesForPayslipTest do
       Repo.update!(change(payslip, amount: 200_00))
 
       payable_billet =
-        insert(:payable_billet, org: org, target: :payslip, due_date: ~D[2021-07-05], amount: 100_00)
+        insert(:payable_billet,
+          org: org,
+          target: :payslip,
+          due_date: ~D[2021-07-05],
+          amount: 100_00
+        )
 
-      payable_cash = insert(:payable_cash, org: org, target: :payslip, due_date: ~D[2021-06-20], amount: 100_00)
+      payable_cash =
+        insert(:payable_cash, org: org, target: :payslip, due_date: ~D[2021-06-20], amount: 100_00)
 
       insert(:payslip_payable, org: org, payslip: payslip, payable: payable_cash)
       insert(:payslip_payable, org: org, payslip: payslip, payable: payable_billet)
@@ -192,7 +208,9 @@ defmodule Sig.Finance.Payables.PayablesForPayslipTest do
       insert(:payslip_payable, org: org, payable: from_another_payslip)
 
       # To ignore
-      from_another_org = insert(:payable_cash, target: :payslip, due_date: ~D[2021-09-01], amount: 0)
+      from_another_org =
+        insert(:payable_cash, target: :payslip, due_date: ~D[2021-09-01], amount: 0)
+
       insert(:payslip_payable, org: from_another_org.org, payable: from_another_org)
 
       topic = "payslip_id:" <> payslip.id <> ":payables"
