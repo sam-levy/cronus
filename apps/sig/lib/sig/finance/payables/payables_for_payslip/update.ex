@@ -196,12 +196,6 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.Update do
 
   defp handle_non_auto_adjustable_amount(_context), do: {:ok, nil}
 
-  # defp handle_auto_adjustable_amount(%{is_auto_adjustable_amount: true} = context) do
-  #   PayablesForPayslip.update_auto_adjustable_amount_payable(context.payslip)
-  # end
-
-  # defp handle_auto_adjustable_amount(_context), do: {:ok, nil}
-
   defp put_error(context, error), do: %{context | status: :halt, return: {:error, error}}
 
   defp handle_return(%{status: :ok, return: return}), do: {:ok, return}
