@@ -207,7 +207,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
           </tr>
 
           <tr :if={@payslip_items != []} class="border-b text-sm bg-gray-100 font-medium text-gray-500 tracking-wider">
-            <td class="py-2 px-6 text-left" colspan="3">Total Holerite</td>
+            <td class="py-2 px-6 text-left" colspan="3">Líquido Holerite</td>
             <td class="py-2 px-6 text-right">{format_amount(@payslip_items_total)}</td>
             <td></td>
           </tr>
@@ -252,7 +252,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
           {/for}
 
           <tr :if={@outside_items != []} class="text-sm bg-gray-100 font-medium text-gray-500 tracking-wider">
-            <td class="py-2 px-6 text-left" colspan="3">Líquido</td>
+            <td class="py-2 px-6 text-left" colspan="3">Total</td>
             <td class="py-2 px-6 text-right">{format_amount(@net_total)}</td>
             <td></td>
           </tr>

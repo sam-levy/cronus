@@ -5,6 +5,7 @@ defmodule SigLive.EmployeeRegistrations.Show do
   alias Surface.Components.LivePatch
 
   alias Sig.Entities
+  alias Sig.Finance
   alias Sig.HR
 
   alias SigLive.EmployeeRegistrations.{
@@ -30,7 +31,8 @@ defmodule SigLive.EmployeeRegistrations.Show do
         assigns_built_for: [],
         payslips: [],
         selected_payslip: nil,
-        selected_payslip_items: []
+        selected_payslip_items: [],
+        selected_payslip_payables: []
       )
 
     {:ok, socket,
@@ -89,7 +91,11 @@ defmodule SigLive.EmployeeRegistrations.Show do
 
     if connected?(socket) do
       HR.subscribe_to_registration_payslips(registration)
-      selected_payslip && HR.subscribe_to_payslip_items(selected_payslip)
+
+      if selected_payslip do
+        HR.subscribe_to_payslip_items(selected_payslip)
+        Finance.subscribe_to_payables_for_payslip(selected_payslip)
+      end
     end
 
     assign(
@@ -97,6 +103,7 @@ defmodule SigLive.EmployeeRegistrations.Show do
       payslips: payslips,
       selected_payslip: selected_payslip,
       selected_payslip_items: list_payslip_items(selected_payslip),
+      selected_payslip_payables: list_payslip_payables(selected_payslip),
       assigns_built_for: [:payslips | assigns_built_for]
     )
   end
@@ -150,17 +157,31 @@ defmodule SigLive.EmployeeRegistrations.Show do
 
   @impl true
   def handle_info({:updated_payslip_items, items}, socket) do
-
     {:noreply, assign(socket, selected_payslip_items: items)}
+  end
+
+  @impl true
+  def handle_info({:updated_payables_for_payslip, payables}, socket) do
+    {:noreply, assign(socket, selected_payslip_payables: payables)}
   end
 
   @impl true
   def handle_event("select_payslip", %{"payslip_id" => id}, socket) do
     payslip = HR.get_payslip(socket.assigns.registration, id)
+
     HR.unsubscribe_from_payslip_items(socket.assigns.selected_payslip)
     HR.subscribe_to_payslip_items(payslip)
 
-    {:noreply, assign(socket, selected_payslip: payslip, selected_payslip_items: list_payslip_items(payslip))}
+    Finance.unsubscribe_from_payables_for_payslip(socket.assigns.selected_payslip)
+    Finance.subscribe_to_payables_for_payslip(payslip)
+
+    socket = assign(socket,
+      selected_payslip: payslip,
+      selected_payslip_items: list_payslip_items(payslip),
+      selected_payslip_payables: list_payslip_payables(payslip)
+    )
+
+    {:noreply, socket}
   end
 
   @impl true
@@ -196,10 +217,12 @@ defmodule SigLive.EmployeeRegistrations.Show do
         <Payslips
           id="payslips"
           select_payslip="select_payslip"
+          entity={@individual.entity}
           {=@registration}
           {=@payslips}
           {=@selected_payslip}
           {=@selected_payslip_items}
+          {=@selected_payslip_payables}
         />
       </div>
     </div>
@@ -208,6 +231,9 @@ defmodule SigLive.EmployeeRegistrations.Show do
 
   defp list_payslip_items(nil), do: []
   defp list_payslip_items(payslip), do: HR.list_items_by_payslip(payslip)
+
+  defp list_payslip_payables(nil), do: []
+  defp list_payslip_payables(payslip), do: Finance.list_payables_by_payslip(payslip)
 
   defp tab_classes_for(screen, screen) do
     ~w(text-purple-500 bg-purple-300 bg-opacity-75) ++ tab_base_classes()

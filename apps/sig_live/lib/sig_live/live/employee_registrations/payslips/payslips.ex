@@ -3,12 +3,15 @@ defmodule SigLive.EmployeeRegistrations.Payslips do
 
   alias SigLive.EmployeeRegistrations.Payslips.List
   alias SigLive.EmployeeRegistrations.Payslips.Show
+  alias SigLive.EmployeeRegistrations.Payslips.Payables
 
   prop registration, :struct, required: true
+  prop entity, :struct, required: true
   prop payslips, :list, required: true
   prop select_payslip, :event, required: true
   prop selected_payslip, :struct, default: nil
   prop selected_payslip_items, :list, default: []
+  prop selected_payslip_payables, :list, default: []
   prop payslip_id, :string, default: nil
 
   @impl true
@@ -21,6 +24,15 @@ defmodule SigLive.EmployeeRegistrations.Payslips do
           payslip={@selected_payslip}
           items={@selected_payslip_items}
           {=@registration}
+        />
+
+        <Payables.List
+          :if={@selected_payslip_items != []}
+          id="payables_list"
+          payslip={@selected_payslip}
+          payables={@selected_payslip_payables}
+          {=@registration}
+          {=@entity}
         />
       </div>
 
