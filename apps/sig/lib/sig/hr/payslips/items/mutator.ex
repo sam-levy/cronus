@@ -18,7 +18,7 @@ defmodule Sig.HR.Payslips.Items.Mutator do
               changeset: nil,
               payslip: nil,
               item: nil,
-              error: nil
+              return: nil
   end
 
   def create_payslip_item(%Payslip{} = payslip, %{} = attrs) do
@@ -28,7 +28,7 @@ defmodule Sig.HR.Payslips.Items.Mutator do
     |> build_payslip_item_changeset()
     |> set_entry_type()
     |> create_multi()
-    |> handle_result()
+    |> handle_return()
   end
 
   def create_outside_item(%Payslip{} = payslip, %{} = attrs) do
@@ -38,7 +38,7 @@ defmodule Sig.HR.Payslips.Items.Mutator do
     |> build_outside_item_changeset()
     |> set_entry_type()
     |> create_multi()
-    |> handle_result()
+    |> handle_return()
   end
 
   def update_amount(%Payslip{} = payslip, %Item{} = item, %{} = attrs) do
@@ -47,14 +47,14 @@ defmodule Sig.HR.Payslips.Items.Mutator do
     |> build_update_amount_changeset()
     |> set_entry_type()
     |> update_multi()
-    |> handle_result()
+    |> handle_return()
   end
 
   def delete_item(%Payslip{} = payslip, %Item{} = item) do
     %Context{item: item, payslip: payslip}
     |> validate_payslip()
     |> delete_multi()
-    |> handle_result()
+    |> handle_return()
   end
 
   defp validate_payslip(%{payslip: %{is_closed: true}} = context) do
@@ -67,7 +67,7 @@ defmodule Sig.HR.Payslips.Items.Mutator do
 
   defp validate_payslip(context), do: put_error(context, "item doesn't belong to payslip")
 
-  defp set_attrs_primary_keys(%{status: :error} = context), do: context
+  defp set_attrs_primary_keys(%{status: :halt} = context), do: context
 
   defp set_attrs_primary_keys(%{attrs: attrs, payslip: payslip} = context) do
     attrs =
@@ -78,7 +78,7 @@ defmodule Sig.HR.Payslips.Items.Mutator do
     %{context | attrs: attrs}
   end
 
-  defp build_payslip_item_changeset(%{status: :error} = context), do: context
+  defp build_payslip_item_changeset(%{status: :halt} = context), do: context
 
   defp build_payslip_item_changeset(%{attrs: attrs} = context) do
     attrs
@@ -86,7 +86,7 @@ defmodule Sig.HR.Payslips.Items.Mutator do
     |> handle_changeset(context)
   end
 
-  defp build_outside_item_changeset(%{status: :error} = context), do: context
+  defp build_outside_item_changeset(%{status: :halt} = context), do: context
 
   defp build_outside_item_changeset(%{attrs: attrs} = context) do
     attrs
@@ -94,7 +94,7 @@ defmodule Sig.HR.Payslips.Items.Mutator do
     |> handle_changeset(context)
   end
 
-  defp build_update_amount_changeset(%{status: :error} = context), do: context
+  defp build_update_amount_changeset(%{status: :halt} = context), do: context
 
   defp build_update_amount_changeset(%{item: item, attrs: attrs} = context) do
     item
@@ -108,7 +108,7 @@ defmodule Sig.HR.Payslips.Items.Mutator do
 
   defp handle_changeset(changeset, context), do: put_error(context, changeset)
 
-  defp set_entry_type(%{status: :error} = context), do: context
+  defp set_entry_type(%{status: :halt} = context), do: context
 
   defp set_entry_type(%{item: %{entry_type: nil}} = context) do
     %{payslip: payslip, item: item} = context
@@ -132,7 +132,7 @@ defmodule Sig.HR.Payslips.Items.Mutator do
     %{context | entry_type: context.changeset.changes.outside_item_entry_type}
   end
 
-  defp create_multi(%{status: :error} = context), do: context
+  defp create_multi(%{status: :halt} = context), do: context
 
   defp create_multi(context) do
     Multi.new()
@@ -143,7 +143,7 @@ defmodule Sig.HR.Payslips.Items.Mutator do
     |> handle_multi_return(context)
   end
 
-  defp update_multi(%{status: :error} = context), do: context
+  defp update_multi(%{status: :halt} = context), do: context
 
   defp update_multi(context) do
     Multi.new()
@@ -154,7 +154,7 @@ defmodule Sig.HR.Payslips.Items.Mutator do
     |> handle_multi_return(context)
   end
 
-  defp delete_multi(%{status: :error} = context), do: context
+  defp delete_multi(%{status: :halt} = context), do: context
 
   defp delete_multi(context) do
     Multi.new()
@@ -194,11 +194,11 @@ defmodule Sig.HR.Payslips.Items.Mutator do
     Money.subtract(Items.sum_by(:credit, items), Items.sum_by(:debit, items))
   end
 
-  defp handle_multi_return({:ok, %{item: item}}, context), do: %{context | item: item}
+  defp handle_multi_return({:ok, %{item: item}}, context), do: %{context | return: item}
   defp handle_multi_return({:error, _, reason, _}, context), do: put_error(context, reason)
 
-  defp put_error(context, error), do: %{context | status: :error, error: error}
+  defp put_error(context, error), do: %{context | status: :halt, return: error}
 
-  defp handle_result(%{status: :ok, item: item}), do: {:ok, item}
-  defp handle_result(%{status: :error, error: error}), do: {:error, error}
+  defp handle_return(%{status: :ok, return: item}), do: {:ok, item}
+  defp handle_return(%{status: :halt, return: error}), do: {:error, error}
 end
