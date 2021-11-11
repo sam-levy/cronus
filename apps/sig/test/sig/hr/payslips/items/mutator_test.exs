@@ -293,7 +293,7 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
         category_id: health_insurance_category.id
       }
 
-      assert {:error, "cannot modify a closed payslip"} =
+      assert {:error, "can't modify a closed payslip"} =
                Mutator.create_payslip_item(payslip, attrs)
 
       refute Repo.get_by(Item,
@@ -350,7 +350,7 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
         category_id: health_insurance_category.id
       }
 
-      assert {:error, "cannot modify a closed payslip"} =
+      assert {:error, "can't modify a closed payslip"} =
                Mutator.create_payslip_item(payslip, attrs)
 
       refute Repo.get_by(Item,
@@ -631,7 +631,7 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
         outside_item_entry_type: :debit
       }
 
-      assert {:error, "cannot modify a closed payslip"} =
+      assert {:error, "can't modify a closed payslip"} =
                Mutator.create_outside_item(payslip, attrs)
 
       refute Repo.get_by(Item,
@@ -681,7 +681,7 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
         outside_item_entry_type: :debit
       }
 
-      assert {:error, "cannot modify a closed payslip"} =
+      assert {:error, "can't modify a closed payslip"} =
                Mutator.create_outside_item(payslip, attrs)
 
       refute Repo.get_by(Item,
@@ -969,7 +969,7 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
 
       attrs = %{amount: 1_200_00}
 
-      assert {:error, "cannot modify a closed payslip"} =
+      assert {:error, "can't modify a closed payslip"} =
                Mutator.update_amount(payslip, item, attrs)
 
       assert Repo.get_by(Item, org_id: org.id, id: item.id, amount: 1_000_00)
@@ -1000,7 +1000,7 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
 
       attrs = %{amount: 120_00}
 
-      assert {:error, "cannot modify a closed payslip"} =
+      assert {:error, "can't modify a closed payslip"} =
                Mutator.update_amount(payslip, item, attrs)
 
       assert Repo.get_by(Item, org_id: org.id, id: item.id, amount: 100_00)

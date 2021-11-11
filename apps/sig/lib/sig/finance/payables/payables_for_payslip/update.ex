@@ -5,12 +5,15 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.Update do
   alias Ecto.Multi
 
   alias Sig.Changeset
+  alias Sig.Finance.Payables
   alias Sig.Finance.Payables.Payable
   alias Sig.Finance.Payables.PayablesForPayslip
   alias Sig.Finance.Payables.PayablesForPayslip.PayslipPayables.PayslipPayable
   alias Sig.HR.Payslips
   alias Sig.HR.Payslips.Payslip
   alias Sig.Repo
+
+  @fulfilled_payable_message "can't modify a fulfilled payable"
 
   defmodule Context do
     defstruct status: :ok,
@@ -20,6 +23,10 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.Update do
               payable: nil,
               changeset: nil,
               is_auto_adjustable_amount: nil
+  end
+
+  def call(%Payslip{}, %Payable{is_fulfilled: true}, %{}) do
+    {:error, @fulfilled_payable_message}
   end
 
   def call(%Payslip{} = payslip, %Payable{} = payable, %{} = attrs) do
@@ -138,26 +145,34 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.Update do
 
   defp update_multi(context) do
     Multi.new()
-    |> Multi.run(:handle_non_auto_adjustable_amount_subtract, fn _, _ ->
-      handle_non_auto_adjustable_amount_subtract(context)
+    |> Multi.run(:payable, fn _, _ -> ensure_payable_is_not_fulfilled(context.payable) end)
+    |> Multi.run(:handle_non_auto_adjustable_amount_subtract, fn _, %{payable: payable} ->
+      handle_non_auto_adjustable_amount_subtract(context, payable)
     end)
-    |> Multi.update(:payable, context.changeset)
-    |> Multi.run(:handle_non_auto_adjustable_amount, fn _, _ ->
-      handle_non_auto_adjustable_amount(context)
+    |> Multi.update(:update_payable, context.changeset)
+    |> Multi.run(:handle_non_auto_adjustable_amount, fn _, %{payable: payable} ->
+      handle_non_auto_adjustable_amount(context, payable)
     end)
     |> Repo.transaction()
     |> case do
-      {:ok, %{payable: payable}} -> %{context | return: payable}
+      {:ok, %{update_payable: payable}} -> %{context | return: payable}
       {:error, _operation, reason, _changes} -> put_error(context, reason)
     end
   end
 
+  defp ensure_payable_is_not_fulfilled(%Payable{org_id: org_id, id: id}) do
+    case Payables.get_by(id: id, org_id: org_id) do
+      %{is_fulfilled: false} = payable -> {:ok, payable}
+      _payable -> {:error, @fulfilled_payable_message}
+    end
+  end
+
   defp handle_non_auto_adjustable_amount_subtract(
-         %{is_auto_adjustable_amount: false, changeset: %{changes: %{amount: changeset_amount}}} =
-           context
+         %{is_auto_adjustable_amount: false, changeset: %{changes: %{amount: changeset_amount}}} = context,
+         payable
        )
        when not is_nil(changeset_amount) do
-    %{payslip: payslip, payable: payable} = context
+    %{payslip: payslip} = context
 
     case Money.compare(changeset_amount, payable.amount) do
       -1 ->
@@ -173,14 +188,14 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.Update do
     end
   end
 
-  defp handle_non_auto_adjustable_amount_subtract(_context), do: {:ok, nil}
+  defp handle_non_auto_adjustable_amount_subtract(_context, _payable), do: {:ok, nil}
 
   defp handle_non_auto_adjustable_amount(
-         %{is_auto_adjustable_amount: false, changeset: %{changes: %{amount: changeset_amount}}} =
-           context
+         %{is_auto_adjustable_amount: false, changeset: %{changes: %{amount: changeset_amount}}} = context,
+         payable
        )
        when not is_nil(changeset_amount) do
-    %{payslip: payslip, payable: payable} = context
+    %{payslip: payslip} = context
 
     case Money.compare(changeset_amount, payable.amount) do
       -1 ->
@@ -194,7 +209,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.Update do
     end
   end
 
-  defp handle_non_auto_adjustable_amount(_context), do: {:ok, nil}
+  defp handle_non_auto_adjustable_amount(_context, _payable), do: {:ok, nil}
 
   defp put_error(context, error), do: %{context | status: :halt, return: {:error, error}}
 

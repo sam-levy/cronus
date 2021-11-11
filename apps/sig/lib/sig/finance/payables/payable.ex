@@ -58,7 +58,6 @@ defmodule Sig.Finance.Payables.Payable do
   def update_changeset(%__MODULE__{} = target, attrs) do
     target
     |> cast(attrs, @update_fields)
-    |> validate_is_fulfilled()
     |> validate_fields()
   end
 
@@ -87,15 +86,6 @@ defmodule Sig.Finance.Payables.Payable do
     |> validate_length(:note, max: 255)
     |> assoc_constraint(:check_bank_account)
     |> assoc_constraint(:credit_bank_account)
-  end
-
-  defp validate_is_fulfilled(changeset) do
-    with {:ok, _} <- fetch_change(changeset, :amount),
-         {_, true} <- fetch_field(changeset, :is_fulfilled) do
-      add_error(changeset, :amount, "can't be changed when payable is fulfilled")
-    else
-      _ -> changeset
-    end
   end
 
   # TODO: Add procedure to ensure payable is not fulfilled before delete or udpate amount

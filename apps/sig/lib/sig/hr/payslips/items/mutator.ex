@@ -8,7 +8,7 @@ defmodule Sig.HR.Payslips.Items.Mutator do
   alias Sig.HR.Payslips.Payslip
   alias Sig.Repo
 
-  @closed_payslip_message "cannot modify a closed payslip"
+  @closed_payslip_message "can't modify a closed payslip"
 
   defmodule Context do
     defstruct status: :ok,

@@ -208,7 +208,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.UpdateTest do
              )
     end
 
-    test "when payable is fulfilled" do
+    test "when payable is initially fulfilled" do
       org = insert(:org)
       payslip = insert(:payslip, org: org)
 
@@ -250,11 +250,53 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.UpdateTest do
         billet_barcode: random_string_number()
       }
 
-      assert {:error, changeset} = Update.call(payslip, payable, attrs)
+      assert Update.call(payslip, payable, attrs) == {:error, "can't modify a fulfilled payable"}
+    end
 
-      assert errors_on(changeset) == %{
-               amount: ["can't be changed when payable is fulfilled"]
-             }
+    test "when payable is fulfilled after is loaded" do
+      org = insert(:org)
+      payslip = insert(:payslip, org: org)
+
+      insert(:payslip_outside_item,
+        org: org,
+        payslip: payslip,
+        outside_item_entry_type: :credit,
+        amount: 100_00
+      )
+
+      # Update payslip amount
+      Repo.update!(change(payslip, amount: 100_00))
+
+      payable =
+        insert(:payable_cash,
+          org: org,
+          target: :payslip,
+          amount: Money.new(100_00)
+        )
+
+      insert(:payslip_payable,
+        org: org,
+        payslip: payslip,
+        payable: payable,
+        is_auto_adjustable_amount: false
+      )
+
+      user = insert(:user, org: org)
+
+      # Fulfill payable
+      Repo.update!(change(payable, is_fulfilled: true, authorized_by_id: user.id))
+
+      attrs = %{
+        due_date: ~D[2021-01-15],
+        reference_date: ~D[2021-01-01],
+        amount: 50_00,
+        description: "Updated description",
+        note: "Updated note",
+        method: :billet,
+        billet_barcode: random_string_number()
+      }
+
+      assert Update.call(payslip, payable, attrs) == {:error, "can't modify a fulfilled payable"}
     end
 
     test "amount can't exceed the payslip amount when not auto adjustable" do
