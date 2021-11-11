@@ -27,7 +27,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.UpdateAutoAdjustableAmountPaya
 
   defp list_payables(context) do
     case PayablesForPayslip.list_by_payslip(context.payslip) do
-      [] -> %{context | status: :halt}
+      [] -> halt(context)
       payables -> %{context | payables: payables}
     end
   end
@@ -36,8 +36,9 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.UpdateAutoAdjustableAmountPaya
 
   defp get_auto_adjustable_amount_payable(context) do
     case Enum.find(context.payables, & &1.payslip_payable.is_auto_adjustable_amount) do
-      %Payable{} = payable -> %{context | auto_adjustable_amount_payable: payable}
-      nil -> %{context | status: :halt}
+      %Payable{is_fulfilled: false} = payable -> %{context | auto_adjustable_amount_payable: payable}
+      %Payable{is_fulfilled: true} -> halt(context)
+      nil -> halt(context)
     end
   end
 
@@ -92,6 +93,8 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.UpdateAutoAdjustableAmountPaya
       amount_to_subtract -> Money.subtract(amount, amount_to_subtract)
     end
   end
+
+  defp halt(context), do: %{context | status: :halt}
 
   defp handle_return(%{status: :ok, return: return}), do: {:ok, return}
   defp handle_return(%{status: :halt, return: nil}), do: {:ok, nil}
