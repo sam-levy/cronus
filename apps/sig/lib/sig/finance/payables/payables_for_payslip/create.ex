@@ -76,7 +76,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.Create do
       {:error, changeset} =
         changeset
         |> add_error(:amount, "can't exceed payslip amount")
-        |> apply_action(:update)
+        |> apply_action(:insert)
 
       put_error(context, changeset)
     end
