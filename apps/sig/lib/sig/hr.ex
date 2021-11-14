@@ -133,6 +133,9 @@ defmodule Sig.HR do
   defdelegate create_payslip_change(attrs \\ %{}), to: Payslips, as: :create_change
   defdelegate subscribe_to_registration_payslips(registration), to: Payslips
   defdelegate broadcast_registration_payslips(registration), to: Payslips
+  defdelegate subscribe_to_payslip(payslip), to: Payslips
+  defdelegate unsubscribe_from_payslip(payslip), to: Payslips
+  defdelegate broadcast_payslip(registration), to: Payslips
 
   defdelegate list_items_by_payslip(payslip), to: Items, as: :list_by_payslip
   defdelegate get_payslip_item(payslip, id), to: Items, as: :get
@@ -155,4 +158,5 @@ defmodule Sig.HR do
   defdelegate unsubscribe_from_payslip_items(payslip), to: Items
   defdelegate broadcast_payslip_items(payslip), to: Items
   defdelegate sum_payslip_items_by(entry_type, items), to: Items, as: :sum_by
+  defdelegate sum_payments_in_advance_items_by_payslip(payslip), to: Items
 end
