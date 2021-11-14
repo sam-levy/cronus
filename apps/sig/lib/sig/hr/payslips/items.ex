@@ -26,19 +26,30 @@ defmodule Sig.HR.Payslips.Items do
   def list_by_payslip(%Payslip{} = payslip) do
     payslip
     |> query_by_payslip()
-    |> preaload_category()
     |> Repo.all()
-    |> fill_virtual_fields()
     |> Enum.sort_by(&handle_sort/1)
+  end
+
+  defp handle_sort(%Item{code: nil}), do: "ZZZ"
+  defp handle_sort(%Item{code: code}), do: code
+
+  def sum_payments_in_advance_items_by_payslip(%Payslip{} = payslip) do
+    payslip
+    |> query_by_payslip()
+    |> where(entry_type: :debit)
+    |> where(is_payment_advance: true)
+    |> Repo.aggregate(:sum, :amount)
+    |> case do
+      %Money{} = sum -> sum
+      nil -> Money.new(0)
+    end
   end
 
   def get(%Payslip{} = payslip, id) when is_binary(id) do
     payslip
     |> query_by_payslip()
     |> where(id: ^id)
-    |> preaload_category()
     |> Repo.one()
-    |> fill_virtual_fields()
   end
 
   def fetch(%Payslip{} = payslip, id) when is_binary(id) do
@@ -80,34 +91,4 @@ defmodule Sig.HR.Payslips.Items do
     |> where(org_id: ^payslip.org_id)
     |> where(payslip_id: ^payslip.id)
   end
-
-  defp preaload_category(queryable) do
-    queryable
-    |> join(:left, [item], category in assoc(item, :category), as: :category)
-    |> preload([_, category: category], category: category)
-  end
-
-  defp fill_virtual_fields([]), do: []
-
-  defp fill_virtual_fields([%Item{} | _] = items) do
-    Enum.map(items, &fill_virtual_fields/1)
-  end
-
-  defp fill_virtual_fields(nil), do: nil
-
-  defp fill_virtual_fields(%Item{type: :payslip_item, category: category} = item) do
-    %{
-      item
-      | code: category.code,
-        description: category.description,
-        entry_type: category.entry_type
-    }
-  end
-
-  defp fill_virtual_fields(%Item{type: :outside_item} = item) do
-    %{item | description: item.outside_item_description, entry_type: item.outside_item_entry_type}
-  end
-
-  defp handle_sort(%Item{type: :payslip_item, category: category}), do: category.code
-  defp handle_sort(_), do: "ZZZ"
 end

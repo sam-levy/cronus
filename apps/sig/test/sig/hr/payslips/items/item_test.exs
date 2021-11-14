@@ -10,7 +10,10 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
 
       item = %Item{
         type: :payslip_item,
+        code: random_string_number(),
         reference: random_string_number(),
+        description: Faker.Lorem.sentence(),
+        entry_type: random_enum_value(:entry_type),
         amount: Enum.random(100_00..300_00),
         payslip_id: payslip.id,
         category_id: category.id
@@ -28,7 +31,10 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
       item = %Item{
         org_id: UUID.generate(),
         type: :payslip_item,
+        code: random_string_number(),
         reference: random_string_number(),
+        description: Faker.Lorem.sentence(),
+        entry_type: random_enum_value(:entry_type),
         amount: Enum.random(100_00..300_00),
         payslip_id: payslip.id,
         category_id: category.id
@@ -47,7 +53,10 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
       item = %Item{
         org_id: org.id,
         type: :payslip_item,
+        code: random_string_number(),
         reference: random_string_number(),
+        description: Faker.Lorem.sentence(),
+        entry_type: random_enum_value(:entry_type),
         amount: -1,
         payslip_id: payslip.id,
         category_id: category.id
@@ -55,6 +64,29 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
 
       assert_raise Ecto.ConstraintError,
                    ~r/payslip_items_amount_positive \(check_constraint\)/,
+                   fn -> Repo.insert(item) end
+    end
+
+    test "payslip_items_is_payment_advance_entry_type_debit constraint" do
+      org = insert(:org)
+      payslip = insert(:payslip, org: org)
+      category = insert(:payslip_category, org: org)
+
+      item = %Item{
+        org_id: org.id,
+        type: :payslip_item,
+        code: random_string_number(),
+        reference: random_string_number(),
+        description: Faker.Lorem.sentence(),
+        amount: 100_00,
+        payslip_id: payslip.id,
+        category_id: category.id,
+        entry_type: :credit,
+        is_payment_advance: true
+      }
+
+      assert_raise Ecto.ConstraintError,
+                   ~r/payslip_items_is_payment_advance_entry_type_debit \(check_constraint\)/,
                    fn -> Repo.insert(item) end
     end
 
@@ -66,7 +98,10 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
       item = %Item{
         org_id: org.id,
         type: :payslip_item,
+        code: random_string_number(),
         reference: random_string_number(),
+        description: Faker.Lorem.sentence(),
+        entry_type: random_enum_value(:entry_type),
         amount: 100_00,
         payslip_id: payslip.id,
         category_id: category.id
@@ -86,6 +121,8 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
         insert(:payslip_item,
           org: org,
           reference: "30 dias",
+          description: Faker.Lorem.sentence(),
+          entry_type: :credit,
           amount: 100_00,
           payslip: payslip,
           category: category
@@ -108,6 +145,8 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
         insert(:payslip_item,
           org: org,
           reference: random_string_number(),
+          description: Faker.Lorem.sentence(),
+          entry_type: :credit,
           amount: 100_00,
           payslip: payslip,
           category: category
@@ -133,7 +172,10 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
       item = %Item{
         org_id: org.id,
         type: :payslip_item,
+        code: random_string_number(),
         reference: random_string_number(),
+        description: Faker.Lorem.sentence(),
+        entry_type: random_enum_value(:entry_type),
         amount: Enum.random(100_00..300_00),
         payslip_id: payslip.id,
         category_id: category.id
@@ -151,7 +193,10 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
       item = %Item{
         org_id: org.id,
         type: :payslip_item,
+        code: random_string_number(),
         reference: random_string_number(),
+        description: Faker.Lorem.sentence(),
+        entry_type: random_enum_value(:entry_type),
         amount: Enum.random(100_00..300_00),
         payslip_id: payslip.id
       }
@@ -161,7 +206,7 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
                    fn -> Repo.insert(item) end
     end
 
-    test "outside_item_description IS NULL" do
+    test "code IS NULL" do
       org = insert(:org)
       payslip = insert(:payslip, org: org)
       category = insert(:payslip_category, org: org)
@@ -170,30 +215,11 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
         org_id: org.id,
         type: :payslip_item,
         reference: random_string_number(),
+        description: Faker.Lorem.sentence(),
+        entry_type: random_enum_value(:entry_type),
         amount: Enum.random(100_00..300_00),
         payslip_id: payslip.id,
-        category_id: category.id,
-        outside_item_description: Faker.Lorem.sentence()
-      }
-
-      assert_raise Ecto.ConstraintError,
-                   ~r/payslip_items_conditional \(check_constraint\)/,
-                   fn -> Repo.insert(item) end
-    end
-
-    test "outside_item_entry_type IS NULL" do
-      org = insert(:org)
-      payslip = insert(:payslip, org: org)
-      category = insert(:payslip_category, org: org)
-
-      item = %Item{
-        org_id: org.id,
-        type: :payslip_item,
-        reference: random_string_number(),
-        amount: Enum.random(100_00..300_00),
-        payslip_id: payslip.id,
-        category_id: category.id,
-        outside_item_entry_type: :debit
+        category_id: category.id
       }
 
       assert_raise Ecto.ConstraintError,
@@ -209,7 +235,10 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
       item = %Item{
         org_id: org.id,
         type: :payslip_item,
+        code: random_string_number(),
         reference: random_string_number(),
+        description: Faker.Lorem.sentence(),
+        entry_type: random_enum_value(:entry_type),
         amount: Enum.random(100_00..300_00),
         payslip_id: payslip.id,
         category_id: category.id
@@ -229,8 +258,8 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
         org_id: org.id,
         type: :outside_item,
         amount: Enum.random(100_00..300_00),
-        outside_item_description: Faker.Lorem.sentence(),
-        outside_item_entry_type: random_enum_value(:entry_type),
+        description: Faker.Lorem.sentence(),
+        entry_type: random_enum_value(:entry_type),
         payslip_id: payslip.id,
         category_id: category.id
       }
@@ -248,8 +277,8 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
         org_id: org.id,
         type: :outside_item,
         amount: Enum.random(100_00..300_00),
-        outside_item_description: Faker.Lorem.sentence(),
-        outside_item_entry_type: random_enum_value(:entry_type),
+        description: Faker.Lorem.sentence(),
+        entry_type: random_enum_value(:entry_type),
         payslip_id: payslip.id,
         reference: random_string_number()
       }
@@ -259,7 +288,7 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
                    fn -> Repo.insert(item) end
     end
 
-    test "outside_item_description IS NOT NULL" do
+    test "code IS NULL" do
       org = insert(:org)
       payslip = insert(:payslip, org: org)
 
@@ -267,25 +296,10 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
         org_id: org.id,
         type: :outside_item,
         amount: Enum.random(100_00..300_00),
-        outside_item_entry_type: random_enum_value(:entry_type),
-        payslip_id: payslip.id
-      }
-
-      assert_raise Ecto.ConstraintError,
-                   ~r/payslip_items_conditional \(check_constraint\)/,
-                   fn -> Repo.insert(item) end
-    end
-
-    test "outside_item_entry_type IS NOT NULL" do
-      org = insert(:org)
-      payslip = insert(:payslip, org: org)
-
-      item = %Item{
-        org_id: org.id,
-        type: :outside_item,
-        amount: Enum.random(100_00..300_00),
-        outside_item_description: Faker.Lorem.sentence(),
-        payslip_id: payslip.id
+        description: Faker.Lorem.sentence(),
+        entry_type: random_enum_value(:entry_type),
+        payslip_id: payslip.id,
+        code: random_string_number()
       }
 
       assert_raise Ecto.ConstraintError,
@@ -301,8 +315,8 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
         org_id: org.id,
         type: :outside_item,
         amount: Enum.random(100_00..300_00),
-        outside_item_description: Faker.Lorem.sentence(),
-        outside_item_entry_type: random_enum_value(:entry_type),
+        description: Faker.Lorem.sentence(),
+        entry_type: random_enum_value(:entry_type),
         payslip_id: payslip.id
       }
 
@@ -315,9 +329,13 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
       attrs = %{
         org_id: UUID.generate(),
         reference: random_string_number(),
+        code: random_string_number(),
+        description: Faker.Lorem.sentence(),
+        entry_type: :credit,
         amount: Enum.random(100_00..300_00),
         payslip_id: UUID.generate(),
-        category_id: UUID.generate()
+        category_id: UUID.generate(),
+        is_payment_advance: true
       }
 
       assert changeset = Item.create_changeset(attrs)
@@ -327,9 +345,13 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
       assert changeset.changes == %{
                org_id: attrs[:org_id],
                reference: attrs[:reference],
+               code: attrs[:code],
+               description: attrs[:description],
+               entry_type: attrs[:entry_type],
                amount: %Money{amount: attrs[:amount], currency: :BRL},
                payslip_id: attrs[:payslip_id],
                category_id: attrs[:category_id],
+               is_payment_advance: attrs[:is_payment_advance],
                type: :payslip_item
              }
     end
@@ -338,9 +360,13 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
       attrs = %{
         org_id: :invalid,
         reference: :invalid,
+        code: :invalid,
+        description: :invalid,
+        entry_type: :invalid,
         amount: :invalid,
         payslip_id: :invalid,
-        category_id: :invalid
+        category_id: :invalid,
+        is_payment_advance: :invalid
       }
 
       assert changeset = Item.create_changeset(attrs)
@@ -349,10 +375,14 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
 
       assert errors_on(changeset) == %{
                amount: ["is invalid"],
+               description: ["is invalid"],
+               entry_type: ["is invalid"],
+               code: ["is invalid"],
                category_id: ["is invalid"],
                org_id: ["is invalid"],
                payslip_id: ["is invalid"],
-               reference: ["is invalid"]
+               reference: ["is invalid"],
+               is_payment_advance: ["is invalid"]
              }
     end
 
@@ -363,6 +393,9 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
 
       assert errors_on(changeset) == %{
                amount: ["can't be blank"],
+               description: ["can't be blank"],
+               code: ["can't be blank"],
+               entry_type: ["can't be blank"],
                category_id: ["can't be blank"],
                org_id: ["can't be blank"],
                payslip_id: ["can't be blank"]
@@ -372,12 +405,14 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
     test "ignores non permitted attrs" do
       attrs = %{
         org_id: UUID.generate(),
-        outside_item_description: Faker.Lorem.sentence(),
-        outside_item_entry_type: random_enum_value(:entry_type),
+        code: random_string_number(),
+        description: Faker.Lorem.sentence(),
+        entry_type: random_enum_value(:entry_type),
         reference: random_string_number(),
         amount: Enum.random(100_00..300_00),
         payslip_id: UUID.generate(),
-        category_id: UUID.generate()
+        category_id: UUID.generate(),
+        is_payment_advance: false
       }
 
       assert changeset = Item.create_changeset(attrs)
@@ -390,6 +425,9 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
                amount: %Money{amount: attrs[:amount], currency: :BRL},
                payslip_id: attrs[:payslip_id],
                category_id: attrs[:category_id],
+               code: attrs[:code],
+               description: attrs[:description],
+               entry_type: attrs[:entry_type],
                type: :payslip_item
              }
     end
@@ -398,6 +436,9 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
       attrs = %{
         org_id: UUID.generate(),
         reference: String.duplicate("a", 256),
+        code: random_string_number(),
+        description: Faker.Lorem.sentence(),
+        entry_type: random_enum_value(:entry_type),
         amount: Enum.random(100_00..300_00),
         payslip_id: UUID.generate(),
         category_id: UUID.generate()
@@ -416,6 +457,9 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
       attrs = %{
         org_id: UUID.generate(),
         reference: random_string_number(),
+        code: random_string_number(),
+        description: Faker.Lorem.sentence(),
+        entry_type: random_enum_value(:entry_type),
         amount: -1,
         payslip_id: UUID.generate(),
         category_id: UUID.generate()
@@ -437,6 +481,9 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
       attrs = %{
         org_id: org.id,
         reference: random_string_number(),
+        code: random_string_number(),
+        description: Faker.Lorem.sentence(),
+        entry_type: random_enum_value(:entry_type),
         amount: Enum.random(100_00..300_00),
         payslip_id: payslip.id,
         category_id: UUID.generate()
@@ -462,6 +509,9 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
       attrs = %{
         org_id: org.id,
         reference: random_string_number(),
+        code: random_string_number(),
+        description: Faker.Lorem.sentence(),
+        entry_type: random_enum_value(:entry_type),
         amount: Enum.random(100_00..300_00),
         payslip_id: payslip.id,
         category_id: category.id
@@ -482,8 +532,8 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
     test "valid attrs" do
       attrs = %{
         org_id: UUID.generate(),
-        outside_item_description: Faker.Lorem.sentence(),
-        outside_item_entry_type: random_enum_value(:entry_type),
+        description: Faker.Lorem.sentence(),
+        entry_type: random_enum_value(:entry_type),
         amount: Enum.random(100_00..300_00),
         payslip_id: UUID.generate()
       }
@@ -494,8 +544,8 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
 
       assert changeset.changes == %{
                org_id: attrs[:org_id],
-               outside_item_description: attrs[:outside_item_description],
-               outside_item_entry_type: attrs[:outside_item_entry_type],
+               description: attrs[:description],
+               entry_type: attrs[:entry_type],
                amount: %Money{amount: attrs[:amount], currency: :BRL},
                payslip_id: attrs[:payslip_id],
                type: :outside_item
@@ -510,8 +560,8 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
       assert errors_on(changeset) == %{
                amount: ["can't be blank"],
                org_id: ["can't be blank"],
-               outside_item_description: ["can't be blank"],
-               outside_item_entry_type: ["can't be blank"],
+               description: ["can't be blank"],
+               entry_type: ["can't be blank"],
                payslip_id: ["can't be blank"]
              }
     end
@@ -519,8 +569,8 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
     test "misssing required attrs" do
       attrs = %{
         org_id: :invalid,
-        outside_item_description: :invalid,
-        outside_item_entry_type: :invalid,
+        description: :invalid,
+        entry_type: :invalid,
         amount: :invalid,
         payslip_id: :invalid
       }
@@ -533,16 +583,16 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
                amount: ["is invalid"],
                org_id: ["is invalid"],
                payslip_id: ["is invalid"],
-               outside_item_description: ["is invalid"],
-               outside_item_entry_type: ["is invalid"]
+               description: ["is invalid"],
+               entry_type: ["is invalid"]
              }
     end
 
     test "ignores non permitted attrs" do
       attrs = %{
         org_id: UUID.generate(),
-        outside_item_description: Faker.Lorem.sentence(),
-        outside_item_entry_type: random_enum_value(:entry_type),
+        description: Faker.Lorem.sentence(),
+        entry_type: random_enum_value(:entry_type),
         reference: random_string_number(),
         amount: Enum.random(100_00..300_00),
         payslip_id: UUID.generate(),
@@ -555,8 +605,8 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
 
       assert changeset.changes == %{
                org_id: attrs[:org_id],
-               outside_item_description: attrs[:outside_item_description],
-               outside_item_entry_type: attrs[:outside_item_entry_type],
+               description: attrs[:description],
+               entry_type: attrs[:entry_type],
                amount: %Money{amount: attrs[:amount], currency: :BRL},
                payslip_id: attrs[:payslip_id],
                type: :outside_item
@@ -566,8 +616,8 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
     test "string fields length greater than 255 chars" do
       attrs = %{
         org_id: UUID.generate(),
-        outside_item_description: String.duplicate("a", 256),
-        outside_item_entry_type: random_enum_value(:entry_type),
+        description: String.duplicate("a", 256),
+        entry_type: random_enum_value(:entry_type),
         amount: Enum.random(100_00..300_00),
         payslip_id: UUID.generate()
       }
@@ -577,15 +627,15 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
       refute changeset.valid?
 
       assert errors_on(changeset) == %{
-               outside_item_description: ["should be at most 255 character(s)"]
+               description: ["should be at most 255 character(s)"]
              }
     end
 
     test "negative amount" do
       attrs = %{
         org_id: UUID.generate(),
-        outside_item_description: Faker.Lorem.sentence(),
-        outside_item_entry_type: random_enum_value(:entry_type),
+        description: Faker.Lorem.sentence(),
+        entry_type: random_enum_value(:entry_type),
         amount: -1,
         payslip_id: UUID.generate()
       }
@@ -596,6 +646,33 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
 
       assert errors_on(changeset) == %{
                amount: ["must be greater than or equal to 0,00"]
+             }
+    end
+
+    test "payment advance validation" do
+      org = insert(:org)
+      payslip = insert(:payslip, org: org)
+      category = insert(:payslip_category, org: org)
+
+      attrs = %{
+        org_id: org.id,
+        reference: random_string_number(),
+        code: random_string_number(),
+        description: Faker.Lorem.sentence(),
+        amount: Enum.random(100_00..300_00),
+        payslip_id: payslip.id,
+        category_id: category.id,
+        entry_type: :credit,
+        is_payment_advance: true
+      }
+
+      assert {:error, changeset} =
+               attrs
+               |> Item.create_outside_item_changeset()
+               |> Repo.insert()
+
+      assert errors_on(changeset) == %{
+               is_payment_advance: ["payments in advance must be entry type debit"]
              }
     end
   end
@@ -617,8 +694,8 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
 
       attrs = %{
         org_id: UUID.generate(),
-        outside_item_description: Faker.Lorem.sentence(),
-        outside_item_entry_type: random_enum_value(:entry_type),
+        description: Faker.Lorem.sentence(),
+        entry_type: random_enum_value(:entry_type),
         reference: random_string_number(),
         amount: 100_00,
         payslip_id: UUID.generate(),

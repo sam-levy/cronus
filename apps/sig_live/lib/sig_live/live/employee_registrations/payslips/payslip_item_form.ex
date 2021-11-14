@@ -2,6 +2,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.PayslipItemForm do
   use SigLive, :surface_live_component
 
   alias Sig.HR
+  alias Sig.Finance
 
   alias Surface.Components.Form
 
@@ -81,6 +82,9 @@ defmodule SigLive.EmployeeRegistrations.Payslips.PayslipItemForm do
       context.params
       |> Map.put("org_id", "org_id")
       |> Map.put("payslip_id", "payslip_id")
+      |> Map.put("code", "code")
+      |> Map.put("entry_type", "credit")
+      |> Map.put("description", "description")
       |> HR.create_payslip_item_change()
 
     case apply_action(changeset, :insert) do
@@ -114,7 +118,10 @@ defmodule SigLive.EmployeeRegistrations.Payslips.PayslipItemForm do
   defp handle_return(%{return: {:ok, _item}, socket: socket}) do
     %{payslip: payslip, close_fun: close_fun} = socket.assigns
 
+    HR.broadcast_payslip(payslip)
     HR.broadcast_payslip_items(payslip)
+    Finance.broadcast_payables_for_payslip(payslip)
+
     send(self(), {:flash, :info, "Item adicionado"})
     close_fun.()
 

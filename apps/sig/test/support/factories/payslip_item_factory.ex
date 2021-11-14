@@ -8,7 +8,7 @@ defmodule Sig.Factories.PayslipItemFactory do
 
         category =
           Keyword.get(attrs, :category) ||
-            insert(:payslip_category, org: org, entry_type: :credit)
+            insert(:payslip_category, org: org, entry_type: :credit) # TODO randomize entry_type
 
         amount = Keyword.get(attrs, :amount) || Enum.random(100_00..300_00)
         payslip = Keyword.get(attrs, :payslip) || insert(:payslip, org: org, amount: amount)
@@ -16,10 +16,14 @@ defmodule Sig.Factories.PayslipItemFactory do
         %Item{
           org: org,
           type: :payslip_item,
+          code: category.code,
           reference: random_string_number(),
+          description: category.description,
+          entry_type: category.entry_type,
           amount: amount,
           payslip: payslip,
-          category: category
+          category: category,
+          is_payment_advance: category.is_payment_advance
         }
       end
 
@@ -31,10 +35,11 @@ defmodule Sig.Factories.PayslipItemFactory do
         %Item{
           org: org,
           type: :outside_item,
+          description: Faker.Lorem.sentence(),
+          entry_type: :credit,
           amount: amount,
-          outside_item_description: Faker.Lorem.sentence(),
-          outside_item_entry_type: :credit,
-          payslip: payslip
+          payslip: payslip,
+          is_payment_advance: false
         }
       end
     end

@@ -8,13 +8,12 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
   describe "create_payslip_item/2" do
     test "creates a payslip item and updates payslip amount when no item exist" do
       org = insert(:org)
-      payslip = insert(:payslip, org: org, amount: Money.new(0))
+      payslip = insert(:payslip, org: org)
 
       category =
         insert(:payslip_category, org: org, code: "1", entry_type: :credit, description: "SALÁRIO")
 
       attrs = %{
-        reference: random_string_number(),
         amount: 2_000_00,
         category_id: category.id
       }
@@ -26,9 +25,12 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
                org_id: org.id,
                payslip_id: payslip.id,
                category_id: category.id,
+               description: category.description,
+               entry_type: category.entry_type,
+               code: category.code,
                type: :payslip_item,
-               reference: attrs[:reference],
-               amount: attrs[:amount]
+               amount: attrs[:amount],
+               is_payment_advance: category.is_payment_advance
              )
 
       assert Repo.get_by(Payslip,
@@ -40,7 +42,7 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
 
     test "creates a positive payslip item and updates payslip amount when items already exist" do
       org = insert(:org)
-      payslip = insert(:payslip, org: org, amount: Money.new(300_00))
+      payslip = insert(:payslip, org: org)
 
       cashier_category =
         insert(:payslip_category,
@@ -55,15 +57,17 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
       insert(:payslip_outside_item,
         org: org,
         payslip: payslip,
-        outside_item_entry_type: :credit,
+        entry_type: :credit,
         amount: 100_00
       )
+
+      # Update payslip amount
+      Repo.update!(change(payslip, amount: 300_00))
 
       salary_category =
         insert(:payslip_category, org: org, code: "1", entry_type: :credit, description: "SALÁRIO")
 
       attrs = %{
-        reference: random_string_number(),
         amount: 1_000_00,
         category_id: salary_category.id
       }
@@ -75,9 +79,12 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
                org_id: org.id,
                payslip_id: payslip.id,
                category_id: salary_category.id,
+               description: salary_category.description,
+               entry_type: salary_category.entry_type,
+               code: salary_category.code,
                type: :payslip_item,
-               reference: attrs[:reference],
-               amount: attrs[:amount]
+               amount: attrs[:amount],
+               is_payment_advance: salary_category.is_payment_advance
              )
 
       assert Repo.get_by(Payslip,
@@ -89,7 +96,7 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
 
     test "creates a negative payslip item and updates payslip amount when items already exist" do
       org = insert(:org)
-      payslip = insert(:payslip, org: org, amount: Money.new(900_00))
+      payslip = insert(:payslip, org: org)
 
       salary_category =
         insert(:payslip_category, org: org, code: "1", entry_type: :credit, description: "SALÁRIO")
@@ -104,9 +111,12 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
       insert(:payslip_outside_item,
         org: org,
         payslip: payslip,
-        outside_item_entry_type: :debit,
+        entry_type: :debit,
         amount: 100_00
       )
+
+      # Update payslip amount
+      Repo.update!(change(payslip, amount: 900_00))
 
       health_insurance_category =
         insert(:payslip_category,
@@ -117,7 +127,6 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
         )
 
       attrs = %{
-        reference: random_string_number(),
         amount: 300_00,
         category_id: health_insurance_category.id
       }
@@ -129,9 +138,12 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
                org_id: org.id,
                payslip_id: payslip.id,
                category_id: health_insurance_category.id,
+               description: health_insurance_category.description,
+               entry_type: health_insurance_category.entry_type,
+               code: health_insurance_category.code,
                type: :payslip_item,
-               reference: attrs[:reference],
-               amount: attrs[:amount]
+               amount: attrs[:amount],
+               is_payment_advance: health_insurance_category.is_payment_advance
              )
 
       assert Repo.get_by(Payslip,
@@ -158,7 +170,7 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
       insert(:payslip_outside_item,
         org: org,
         payslip: payslip,
-        outside_item_entry_type: :debit,
+        entry_type: :debit,
         amount: 100_00
       )
 
@@ -174,12 +186,11 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
         )
 
       attrs = %{
-        reference: random_string_number(),
         amount: 2_000_00,
         category_id: health_insurance_category.id
       }
 
-      assert {:error, "payslip amount cannot be negative"} =
+      assert {:error, "payslip amount can't be negative"} =
                Mutator.create_payslip_item(payslip, attrs)
 
       refute Repo.get_by(Item,
@@ -187,7 +198,6 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
                payslip_id: payslip.id,
                category_id: health_insurance_category.id,
                type: :payslip_item,
-               reference: attrs[:reference],
                amount: attrs[:amount]
              )
 
@@ -215,7 +225,7 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
       insert(:payslip_outside_item,
         org: org,
         payslip: payslip,
-        outside_item_entry_type: :debit,
+        entry_type: :debit,
         amount: 100_00
       )
 
@@ -231,7 +241,6 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
         )
 
       attrs = %{
-        reference: random_string_number(),
         amount: 900_00,
         category_id: health_insurance_category.id
       }
@@ -243,9 +252,12 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
                org_id: org.id,
                payslip_id: payslip.id,
                category_id: health_insurance_category.id,
+               description: health_insurance_category.description,
+               entry_type: health_insurance_category.entry_type,
+               code: health_insurance_category.code,
                type: :payslip_item,
-               reference: attrs[:reference],
-               amount: attrs[:amount]
+               amount: attrs[:amount],
+               is_payment_advance: health_insurance_category.is_payment_advance
              )
 
       assert Repo.get_by(Payslip,
@@ -272,7 +284,7 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
       insert(:payslip_outside_item,
         org: org,
         payslip: payslip,
-        outside_item_entry_type: :debit,
+        entry_type: :debit,
         amount: 100_00
       )
 
@@ -288,7 +300,6 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
       payslip = Repo.update!(change(payslip, amount: 900_00, is_closed: true))
 
       attrs = %{
-        reference: random_string_number(),
         amount: 300_00,
         category_id: health_insurance_category.id
       }
@@ -300,9 +311,12 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
                org_id: org.id,
                payslip_id: payslip.id,
                category_id: health_insurance_category.id,
+               description: health_insurance_category.description,
+               entry_type: health_insurance_category.entry_type,
+               code: health_insurance_category.code,
                type: :payslip_item,
-               reference: attrs[:reference],
-               amount: attrs[:amount]
+               amount: attrs[:amount],
+               is_payment_advance: health_insurance_category.is_payment_advance
              )
 
       assert Repo.get_by(Payslip,
@@ -329,7 +343,7 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
       insert(:payslip_outside_item,
         org: org,
         payslip: payslip,
-        outside_item_entry_type: :debit,
+        entry_type: :debit,
         amount: 100_00
       )
 
@@ -345,7 +359,6 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
         )
 
       attrs = %{
-        reference: random_string_number(),
         amount: 300_00,
         category_id: health_insurance_category.id
       }
@@ -358,7 +371,6 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
                payslip_id: payslip.id,
                category_id: health_insurance_category.id,
                type: :payslip_item,
-               reference: attrs[:reference],
                amount: attrs[:amount]
              )
 
@@ -376,7 +388,10 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
 
       assert errors_on(changeset) == %{
                amount: ["can't be blank"],
-               category_id: ["can't be blank"]
+               category_id: ["can't be blank"],
+               code: ["can't be blank"],
+                description: ["can't be blank"],
+                entry_type: ["can't be blank"]
              }
     end
   end
@@ -388,8 +403,8 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
 
       attrs = %{
         amount: 2_000_00,
-        outside_item_description: Faker.Lorem.sentence(),
-        outside_item_entry_type: :credit
+        description: Faker.Lorem.sentence(),
+        entry_type: :credit
       }
 
       assert {:ok, %Item{id: id}} = Mutator.create_outside_item(payslip, attrs)
@@ -400,8 +415,8 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
                payslip_id: payslip.id,
                type: :outside_item,
                amount: attrs[:amount],
-               outside_item_description: attrs[:outside_item_description],
-               outside_item_entry_type: attrs[:outside_item_entry_type]
+               description: attrs[:description],
+               entry_type: attrs[:entry_type]
              )
 
       assert Repo.get_by(Payslip,
@@ -428,14 +443,14 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
       insert(:payslip_outside_item,
         org: org,
         payslip: payslip,
-        outside_item_entry_type: :credit,
+        entry_type: :credit,
         amount: 100_00
       )
 
       attrs = %{
         amount: 1_000_00,
-        outside_item_description: Faker.Lorem.sentence(),
-        outside_item_entry_type: :credit
+        description: Faker.Lorem.sentence(),
+        entry_type: :credit
       }
 
       assert {:ok, %Item{id: id}} = Mutator.create_outside_item(payslip, attrs)
@@ -446,8 +461,8 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
                payslip_id: payslip.id,
                type: :outside_item,
                amount: attrs[:amount],
-               outside_item_description: attrs[:outside_item_description],
-               outside_item_entry_type: attrs[:outside_item_entry_type]
+               description: attrs[:description],
+               entry_type: attrs[:entry_type]
              )
 
       assert Repo.get_by(Payslip,
@@ -474,14 +489,14 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
       insert(:payslip_outside_item,
         org: org,
         payslip: payslip,
-        outside_item_entry_type: :debit,
+        entry_type: :debit,
         amount: 100_00
       )
 
       attrs = %{
         amount: 300_00,
-        outside_item_description: Faker.Lorem.sentence(),
-        outside_item_entry_type: :debit
+        description: Faker.Lorem.sentence(),
+        entry_type: :debit
       }
 
       assert {:ok, %Item{id: id}} = Mutator.create_outside_item(payslip, attrs)
@@ -492,8 +507,8 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
                payslip_id: payslip.id,
                type: :outside_item,
                amount: attrs[:amount],
-               outside_item_description: attrs[:outside_item_description],
-               outside_item_entry_type: attrs[:outside_item_entry_type]
+               description: attrs[:description],
+               entry_type: attrs[:entry_type]
              )
 
       assert Repo.get_by(Payslip,
@@ -520,7 +535,7 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
       insert(:payslip_outside_item,
         org: org,
         payslip: payslip,
-        outside_item_entry_type: :debit,
+        entry_type: :debit,
         amount: 100_00
       )
 
@@ -529,11 +544,11 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
 
       attrs = %{
         amount: 2_000_00,
-        outside_item_description: Faker.Lorem.sentence(),
-        outside_item_entry_type: :debit
+        description: Faker.Lorem.sentence(),
+        entry_type: :debit
       }
 
-      assert {:error, "payslip amount cannot be negative"} =
+      assert {:error, "payslip amount can't be negative"} =
                Mutator.create_outside_item(payslip, attrs)
 
       refute Repo.get_by(Item,
@@ -541,8 +556,8 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
                payslip_id: payslip.id,
                type: :outside_item,
                amount: attrs[:amount],
-               outside_item_description: attrs[:outside_item_description],
-               outside_item_entry_type: attrs[:outside_item_entry_type]
+               description: attrs[:description],
+               entry_type: attrs[:entry_type]
              )
 
       assert Repo.get_by(Payslip,
@@ -569,7 +584,7 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
       insert(:payslip_outside_item,
         org: org,
         payslip: payslip,
-        outside_item_entry_type: :debit,
+        entry_type: :debit,
         amount: 100_00
       )
 
@@ -578,8 +593,8 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
 
       attrs = %{
         amount: 900_00,
-        outside_item_description: Faker.Lorem.sentence(),
-        outside_item_entry_type: :debit
+        description: Faker.Lorem.sentence(),
+        entry_type: :debit
       }
 
       assert {:ok, %Item{id: id}} = Mutator.create_outside_item(payslip, attrs)
@@ -590,8 +605,8 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
                payslip_id: payslip.id,
                type: :outside_item,
                amount: attrs[:amount],
-               outside_item_description: attrs[:outside_item_description],
-               outside_item_entry_type: attrs[:outside_item_entry_type]
+               description: attrs[:description],
+               entry_type: attrs[:entry_type]
              )
 
       assert Repo.get_by(Payslip,
@@ -618,7 +633,7 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
       insert(:payslip_outside_item,
         org: org,
         payslip: payslip,
-        outside_item_entry_type: :debit,
+        entry_type: :debit,
         amount: 100_00
       )
 
@@ -627,8 +642,8 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
 
       attrs = %{
         amount: 300_00,
-        outside_item_description: Faker.Lorem.sentence(),
-        outside_item_entry_type: :debit
+        description: Faker.Lorem.sentence(),
+        entry_type: :debit
       }
 
       assert {:error, "can't modify a closed payslip"} =
@@ -639,8 +654,8 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
                payslip_id: payslip.id,
                type: :outside_item,
                amount: attrs[:amount],
-               outside_item_description: attrs[:outside_item_description],
-               outside_item_entry_type: attrs[:outside_item_entry_type]
+               description: attrs[:description],
+               entry_type: attrs[:entry_type]
              )
 
       assert Repo.get_by(Payslip,
@@ -668,7 +683,7 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
       insert(:payslip_outside_item,
         org: org,
         payslip: payslip,
-        outside_item_entry_type: :debit,
+        entry_type: :debit,
         amount: 100_00
       )
 
@@ -677,8 +692,8 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
 
       attrs = %{
         amount: 300_00,
-        outside_item_description: Faker.Lorem.sentence(),
-        outside_item_entry_type: :debit
+        description: Faker.Lorem.sentence(),
+        entry_type: :debit
       }
 
       assert {:error, "can't modify a closed payslip"} =
@@ -689,8 +704,8 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
                payslip_id: payslip.id,
                type: :outside_item,
                amount: attrs[:amount],
-               outside_item_description: attrs[:outside_item_description],
-               outside_item_entry_type: attrs[:outside_item_entry_type]
+               description: attrs[:description],
+               entry_type: attrs[:entry_type]
              )
 
       assert Repo.get_by(Payslip,
@@ -707,8 +722,8 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
 
       assert errors_on(changeset) == %{
                amount: ["can't be blank"],
-               outside_item_description: ["can't be blank"],
-               outside_item_entry_type: ["can't be blank"]
+               description: ["can't be blank"],
+               entry_type: ["can't be blank"]
              }
     end
   end
@@ -721,7 +736,7 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
       insert(:payslip_outside_item,
         org: org,
         payslip: payslip,
-        outside_item_entry_type: :credit,
+        entry_type: :credit,
         amount: 100_00
       )
 
@@ -786,7 +801,7 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
         insert(:payslip_outside_item,
           org: org,
           payslip: payslip,
-          outside_item_entry_type: :credit,
+          entry_type: :credit,
           amount: 100_00
         )
 
@@ -800,8 +815,8 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
                org_id: org.id,
                payslip_id: payslip.id,
                type: :outside_item,
-               outside_item_description: outside_item.outside_item_description,
-               outside_item_entry_type: outside_item.outside_item_entry_type,
+               description: outside_item.description,
+               entry_type: outside_item.entry_type,
                amount: 200_00
              )
 
@@ -835,7 +850,7 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
         insert(:payslip_outside_item,
           org: org,
           payslip: payslip,
-          outside_item_entry_type: :debit,
+          entry_type: :debit,
           amount: 100_00
         )
 
@@ -844,7 +859,7 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
 
       attrs = %{amount: 250_00}
 
-      assert {:error, "payslip amount cannot be negative"} =
+      assert {:error, "payslip amount can't be negative"} =
                Mutator.update_amount(payslip, outside_item, attrs)
 
       refute Repo.get_by(Item,
@@ -884,7 +899,7 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
       insert(:payslip_outside_item,
         org: org,
         payslip: payslip,
-        outside_item_entry_type: :debit,
+        entry_type: :debit,
         amount: 100_00
       )
 
@@ -915,7 +930,7 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
         insert(:payslip_outside_item,
           org: org,
           payslip: another_payslip,
-          outside_item_entry_type: :credit,
+          entry_type: :credit,
           amount: 100_00
         )
 
@@ -960,7 +975,7 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
       insert(:payslip_outside_item,
         org: org,
         payslip: payslip,
-        outside_item_entry_type: :debit,
+        entry_type: :debit,
         amount: 100_00
       )
 
@@ -983,7 +998,7 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
       insert(:payslip_outside_item,
         org: org,
         payslip: payslip,
-        outside_item_entry_type: :credit,
+        entry_type: :credit,
         amount: 200_00
       )
 
@@ -991,7 +1006,7 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
         insert(:payslip_outside_item,
           org: org,
           payslip: payslip,
-          outside_item_entry_type: :debit,
+          entry_type: :debit,
           amount: 100_00
         )
 
@@ -1014,7 +1029,7 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
       insert(:payslip_outside_item,
         org: org,
         payslip: payslip,
-        outside_item_entry_type: :credit,
+        entry_type: :credit,
         amount: 300_00
       )
 
@@ -1022,7 +1037,7 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
         insert(:payslip_outside_item,
           org: org,
           payslip: payslip,
-          outside_item_entry_type: :debit,
+          entry_type: :debit,
           amount: 100_00
         )
 
@@ -1052,7 +1067,7 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
         insert(:payslip_outside_item,
           org: org,
           payslip: payslip,
-          outside_item_entry_type: :credit,
+          entry_type: :credit,
           amount: 300_00
         )
 
@@ -1074,7 +1089,7 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
       insert(:payslip_outside_item,
         org: org,
         payslip: payslip,
-        outside_item_entry_type: :credit,
+        entry_type: :credit,
         amount: 100_00
       )
 
@@ -1115,7 +1130,7 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
         insert(:payslip_outside_item,
           org: org,
           payslip: another_payslip,
-          outside_item_entry_type: :credit,
+          entry_type: :credit,
           amount: 100_00
         )
 

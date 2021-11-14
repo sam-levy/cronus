@@ -54,7 +54,7 @@ defmodule Sig.HR.Payslips.PayslipTest do
       insert(:payslip_outside_item,
         org: org,
         payslip: payslip,
-        outside_item_entry_type: :debit,
+        entry_type: :debit,
         amount: 100_00
       )
 
@@ -370,7 +370,7 @@ defmodule Sig.HR.Payslips.PayslipTest do
       insert(:payslip_outside_item,
         org: org,
         payslip: jan_payslip,
-        outside_item_entry_type: :debit,
+        entry_type: :debit,
         amount: 200_00
       )
 
@@ -397,7 +397,7 @@ defmodule Sig.HR.Payslips.PayslipTest do
       insert(:payslip_outside_item,
         org: org,
         payslip: feb_payslip,
-        outside_item_entry_type: :debit,
+        entry_type: :debit,
         amount: 100_00
       )
 
