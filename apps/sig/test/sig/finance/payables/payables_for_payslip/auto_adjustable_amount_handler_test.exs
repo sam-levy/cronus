@@ -13,7 +13,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.AutoAdjustableAmountHandlerTes
       insert(:payslip_outside_item,
         org: org,
         payslip: payslip,
-        outside_item_entry_type: :credit,
+        entry_type: :credit,
         amount: 400_00
       )
 
@@ -98,7 +98,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.AutoAdjustableAmountHandlerTes
       insert(:payslip_outside_item,
         org: org,
         payslip: payslip,
-        outside_item_entry_type: :credit,
+        entry_type: :credit,
         amount: 200_00
       )
 

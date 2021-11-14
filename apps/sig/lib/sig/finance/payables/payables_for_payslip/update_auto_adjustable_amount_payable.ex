@@ -3,6 +3,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.UpdateAutoAdjustableAmountPaya
   alias Sig.Finance.Payables.PayablesForPayslip
   alias Sig.Finance.Payables.PayablesForPayslip.PayslipPayables.PayslipPayable
   alias Sig.HR.Payslips
+  alias Sig.HR.Payslips.Items
   alias Sig.HR.Payslips.Payslip
   alias Sig.Repo
 
@@ -12,8 +13,8 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.UpdateAutoAdjustableAmountPaya
               return: nil,
               payslip: nil,
               payables: nil,
-              non_adjustable_amount_sum: nil,
-              auto_adjustable_amount_payable: nil
+              auto_adjustable_amount_payable: nil,
+              non_adjustable_payables_amount_sum: nil
   end
 
   def call(%Payslip{} = payslip, opts \\ []) do
@@ -58,7 +59,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.UpdateAutoAdjustableAmountPaya
           acc
       end)
 
-    %{context | non_adjustable_amount_sum: sum}
+    %{context | non_adjustable_payables_amount_sum: sum}
   end
 
   defp do_update_auto_adjustable_amount_payable(%{status: :halt} = context), do: context
@@ -67,15 +68,18 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.UpdateAutoAdjustableAmountPaya
     %{
       opts: opts,
       payslip: payslip,
-      non_adjustable_amount_sum: sum,
-      auto_adjustable_amount_payable: payable
+      auto_adjustable_amount_payable: payable,
+      non_adjustable_payables_amount_sum: non_adjustable_payables_amount_sum
     } = context
 
     payslip = Payslips.get_by(org_id: payslip.org_id, id: payslip.id)
 
+    payments_in_advance_items_amount_sum = Items.sum_payments_in_advance_items_by_payslip(payslip)
+
     adjusted_amount =
       payslip.amount
-      |> Money.subtract(sum)
+      |> Money.subtract(non_adjustable_payables_amount_sum)
+      |> Money.add(payments_in_advance_items_amount_sum)
       |> handle_adjustment(opts)
 
     payable
