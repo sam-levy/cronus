@@ -129,4 +129,55 @@ defmodule Sig.HR.PayslipsTest do
       @endpoint.unsubscribe(topic)
     end
   end
+
+  describe "subscribe_to_payslip/1" do
+    test "subscribes to a payslip topic" do
+      payslip = insert(:payslip)
+
+      topic = "payslip_id:" <> payslip.id
+
+      assert Payslips.subscribe_to_payslip(payslip) == :ok
+
+      Phoenix.PubSub.broadcast(
+        Sig.PubSub,
+        topic,
+        {:updated_payslip, :payslip}
+      )
+
+      assert_receive {:updated_payslip, :payslip}
+    end
+  end
+
+  describe "broadcast_payslip/1" do
+    test "broadcasts a payslip" do
+      payslip = insert(:payslip)
+
+      topic = "payslip_id:" <> payslip.id
+
+      @endpoint.subscribe(topic)
+
+      assert Payslips.broadcast_payslip(payslip) == :ok
+
+      assert_receive {:updated_payslip, received_payslip}
+
+      assert received_payslip.id == payslip.id
+
+      @endpoint.unsubscribe(topic)
+    end
+  end
+
+  describe "unsubscribe_from_payslip/1" do
+    test "unsubscribes from a payslip topic" do
+      payslip = insert(:payslip)
+      topic = "payslip_id:" <> payslip.id
+
+      @endpoint.subscribe(topic)
+
+      assert Payslips.unsubscribe_from_payslip(payslip) == :ok
+
+      Phoenix.PubSub.broadcast(Sig.PubSub, topic, {:updated_payslip, :payslip})
+
+      refute_receive {:updated_payslip, :payslip}
+    end
+  end
 end
