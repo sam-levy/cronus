@@ -2,6 +2,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.UpdateItemAmountForm do
   use SigLive, :surface_live_component
 
   alias Sig.HR
+  alias Sig.Finance
 
   alias Surface.Components.Form
 
@@ -111,7 +112,10 @@ defmodule SigLive.EmployeeRegistrations.Payslips.UpdateItemAmountForm do
   defp handle_return(%{return: {:ok, _item}, socket: socket}) do
     %{payslip: payslip, close_fun: close_fun} = socket.assigns
 
+    HR.broadcast_payslip(payslip)
     HR.broadcast_payslip_items(payslip)
+    Finance.broadcast_payables_for_payslip(payslip)
+
     send(self(), {:flash, :info, "Item adicionado"})
     close_fun.()
 

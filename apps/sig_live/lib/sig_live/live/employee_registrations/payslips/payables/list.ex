@@ -12,26 +12,13 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.List do
   prop payslip, :struct, required: true
   prop entity, :struct, required: true
   prop payables, :list, default: []
+  prop payment_difference, :struct, default: Money.new(0)
 
   data delete_confirmation_dialog_state, :atom, default: :closed, values!: ConfirmationDialog.states()
   data form_state, :atom, default: :closed, values!: Form.states()
+  data payable_id, :string, default: nil
 
   data message, :string, default: nil
-
-  @impl true
-  def update(%{payables: _payables} = assigns, socket) do
-    socket =
-      socket
-      |> assign(assigns)
-      |> assign_difference()
-
-    {:ok, socket}
-  end
-
-  @impl true
-  def update(assigns, socket) do
-    {:ok, assign(socket, assigns)}
-  end
 
   @impl true
   def handle_event("open_new_payable_form", _, socket) do
@@ -228,26 +215,17 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.List do
           {/for}
 
           <tr
-            :if={@payables != [] and @difference != Money.new(0)}
+            :if={@payment_difference != Money.new(0)}
             class="text-sm bg-gray-100 font-medium text-gray-500 tracking-wider"
           >
             <td class="py-2 px-6 text-left" colspan="3">Diferença</td>
-            <td class="py-2 px-6 text-right">{format_amount(@difference)}</td>
+            <td class="py-2 px-6 text-right">{format_amount(@payment_difference)}</td>
             <td></td>
           </tr>
         </tbody>
       </table>
     </div>
     """
-  end
-
-  defp assign_difference(%{assigns: %{payslip: nil}} = socket), do: socket
-
-  defp assign_difference(socket) do
-    %{assigns: %{payslip: payslip, payables: payables}} = socket
-    payables_amount_sum = Enum.reduce(payables, Money.new(0), & Money.add(&2, &1.amount))
-
-    assign(socket, difference: Money.subtract(payslip.amount, payables_amount_sum))
   end
 
   defp close_modals(id), do: send_update(__MODULE__, closed_state(id))

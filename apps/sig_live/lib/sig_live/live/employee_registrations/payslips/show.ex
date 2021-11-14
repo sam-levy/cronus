@@ -2,6 +2,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
   use SigLive, :surface_live_component
 
   alias Sig.HR
+  alias Sig.Finance
 
   alias SigLive.Components.ConfirmationDialog
   alias SigLive.Components.DropdownBtn
@@ -72,7 +73,9 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
 
     with {:ok, item} <- HR.fetch_payslip_item(payslip, item_id),
          {:ok, _item} <- HR.delete_payslip_item(payslip, item) do
+      HR.broadcast_payslip(payslip)
       HR.broadcast_payslip_items(payslip)
+      Finance.broadcast_payables_for_payslip(payslip)
       send(self(), {:flash, :info, "Item removido"})
 
       {:noreply, assign(socket, closed_state())}
@@ -253,7 +256,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
 
           <tr :if={@outside_items != []} class="text-sm bg-gray-100 font-medium text-gray-500 tracking-wider">
             <td class="py-2 px-6 text-left" colspan="3">Total</td>
-            <td class="py-2 px-6 text-right">{format_amount(@net_total)}</td>
+            <td class="py-2 px-6 text-right">{format_amount(@payslip.amount)}</td>
             <td></td>
           </tr>
         </tbody>
@@ -272,7 +275,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
   end
 
   defp assign_totals(socket) do
-    %{assigns: %{payslip_items: payslip_items, outside_items: outside_items}} = socket
+    %{assigns: %{payslip_items: payslip_items}} = socket
 
     payslip_items_credit_subtotal = HR.sum_payslip_items_by(:credit, payslip_items)
     payslip_items_debit_subtotal = HR.sum_payslip_items_by(:debit, payslip_items)
@@ -280,17 +283,10 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
     payslip_items_total =
       Money.subtract(payslip_items_credit_subtotal, payslip_items_debit_subtotal)
 
-    outside_items_credit_subtotal = HR.sum_payslip_items_by(:credit, outside_items)
-    outside_items_debit_subtotal = HR.sum_payslip_items_by(:debit, outside_items)
-
-    outside_items_total =
-      Money.subtract(outside_items_credit_subtotal, outside_items_debit_subtotal)
-
     assign(socket,
       payslip_items_credit_subtotal: payslip_items_credit_subtotal,
       payslip_items_debit_subtotal: payslip_items_debit_subtotal,
       payslip_items_total: payslip_items_total,
-      net_total: Money.add(payslip_items_total, outside_items_total)
     )
   end
 

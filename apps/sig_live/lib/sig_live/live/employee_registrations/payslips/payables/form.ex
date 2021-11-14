@@ -56,20 +56,6 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.Form do
   end
 
   @impl true
-  def handle_event("form_change", %{"payable" => params}, socket) do
-    %{form_state: form_state, payable: payable} = socket.assigns
-
-    case form_state do
-      :new_mode ->
-        {:noreply, assign(socket, changeset: Finance.create_payable_for_payslip_change(params))}
-
-      :edit_mode ->
-        {:noreply,
-         assign(socket, changeset: Finance.update_payable_for_payslip_change(payable, params))}
-    end
-  end
-
-  @impl true
   def handle_event("handle_automatic_amount", _params, socket) do
     {:noreply, update(socket, :is_automatic_amount, &(!&1))}
   end
@@ -121,6 +107,20 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.Form do
     |> validate_params()
     |> persist()
     |> handle_return()
+  end
+
+  @impl true
+  def handle_event("form_change", %{"payable" => params}, socket) do
+    %{form_state: form_state, payable: payable} = socket.assigns
+
+    case form_state do
+      :new_mode ->
+        {:noreply, assign(socket, changeset: Finance.create_payable_for_payslip_change(params))}
+
+      :edit_mode ->
+        {:noreply,
+         assign(socket, changeset: Finance.update_payable_for_payslip_change(payable, params))}
+    end
   end
 
   @impl true
@@ -229,7 +229,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.Form do
   defp set_is_automatic_amount(payable), do: payable.payslip_payable.is_auto_adjustable_amount
 
   defp set_selected_method(nil), do: :bank_transfer
-  defp set_selected_method(payable), do: payable.method |> IO.inspect()
+  defp set_selected_method(payable), do: payable.method
 
   defp set_changeset(nil) do
     Finance.create_payable_for_payslip_change(%{method: :bank_transfer})

@@ -2,11 +2,13 @@ defmodule SigLive.EmployeeRegistrations.Payslips.OutsideItemForm do
   use SigLive, :surface_live_component
 
   alias Sig.HR
+  alias Sig.Finance
 
   alias Surface.Components.Form
 
   alias Surface.Components.Form.{
     RadioButton,
+    Checkbox,
     TextInput,
     ErrorTag,
     Field,
@@ -34,17 +36,22 @@ defmodule SigLive.EmployeeRegistrations.Payslips.OutsideItemForm do
   end
 
   @impl true
+  def handle_event("form_change", %{"item" => params}, socket) do
+    {:noreply, assign(socket, changeset: HR.create_payslip_outside_item_change(params))}
+  end
+
+  @impl true
   def render(assigns) do
     ~F"""
     <Modal title="Adicionar Item Fora do Holerite" close={@close_event}>
-      <Form for={@changeset} submit="save" opts={autocomplete: "off"}>
-        <Field name={:outside_item_description} class="form-field">
+      <Form for={@changeset} change="form_change" submit="save" opts={autocomplete: "off"}>
+        <Field name={:description} class="form-field">
           <Label class="form-label">Descrição</Label>
           <TextInput class="form-input"/>
           <ErrorTag class="form-error-tag"/>
         </Field>
 
-        <Field name={:outside_item_entry_type} class="form-field flex space-x-3">
+        <Field name={:entry_type} class="form-field flex space-x-3">
           <label class="form-side-label">
             <RadioButton class="mr-1" value="credit" checked /> Crédito
           </label>
@@ -60,6 +67,15 @@ defmodule SigLive.EmployeeRegistrations.Payslips.OutsideItemForm do
           <ErrorTag class="form-error-tag"/>
         </Field>
 
+        <Field :if={show?(@changeset)} name={:is_payment_advance} class="form-field">
+          <div class="flex items-center">
+            <Checkbox class="form-checkbox"/>
+            <Label class="form-side-label">É Adiantamento de Salário</Label>
+          </div>
+
+          <ErrorTag class="form-error-tag block"/>
+        </Field>
+
         <div :if={@message} class="form-error-tag">{@message}</div>
 
         <div class="flex justify-end">
@@ -69,6 +85,9 @@ defmodule SigLive.EmployeeRegistrations.Payslips.OutsideItemForm do
     </Modal>
     """
   end
+
+  defp show?(%{changes: %{entry_type: :debit}}), do: true
+  defp show?(_), do: false
 
   def states, do: @form_states
 
@@ -110,7 +129,10 @@ defmodule SigLive.EmployeeRegistrations.Payslips.OutsideItemForm do
   defp handle_return(%{return: {:ok, _item}, socket: socket}) do
     %{payslip: payslip, close_fun: close_fun} = socket.assigns
 
+    HR.broadcast_payslip(payslip)
     HR.broadcast_payslip_items(payslip)
+    Finance.broadcast_payables_for_payslip(payslip)
+
     send(self(), {:flash, :info, "Item adicionado"})
     close_fun.()
 

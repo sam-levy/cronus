@@ -92,10 +92,7 @@ defmodule SigLive.EmployeeRegistrations.Show do
     if connected?(socket) do
       HR.subscribe_to_registration_payslips(registration)
 
-      if selected_payslip do
-        HR.subscribe_to_payslip_items(selected_payslip)
-        Finance.subscribe_to_payables_for_payslip(selected_payslip)
-      end
+      if selected_payslip, do: subscribe_to_payslip_subscriptions(selected_payslip)
     end
 
     assign(
@@ -149,10 +146,16 @@ defmodule SigLive.EmployeeRegistrations.Show do
       {:noreply, assign(socket, payslips: payslips)}
     else
       payslip = List.first(payslips)
-      HR.subscribe_to_payslip_items(payslip)
+
+      subscribe_to_payslip_subscriptions(payslip)
 
       {:noreply, assign(socket, payslips: payslips, selected_payslip: payslip)}
     end
+  end
+
+  @impl true
+  def handle_info({:updated_payslip, payslip}, socket) do
+    {:noreply, assign(socket, selected_payslip: payslip)}
   end
 
   @impl true
@@ -169,11 +172,8 @@ defmodule SigLive.EmployeeRegistrations.Show do
   def handle_event("select_payslip", %{"payslip_id" => id}, socket) do
     payslip = HR.get_payslip(socket.assigns.registration, id)
 
-    HR.unsubscribe_from_payslip_items(socket.assigns.selected_payslip)
-    HR.subscribe_to_payslip_items(payslip)
-
-    Finance.unsubscribe_from_payables_for_payslip(socket.assigns.selected_payslip)
-    Finance.subscribe_to_payables_for_payslip(payslip)
+    unsubscribe_from_payslip_subscriptions(socket.assigns.selected_payslip)
+    subscribe_to_payslip_subscriptions(payslip)
 
     socket = assign(socket,
       selected_payslip: payslip,
@@ -227,6 +227,18 @@ defmodule SigLive.EmployeeRegistrations.Show do
       </div>
     </div>
     """
+  end
+
+  defp subscribe_to_payslip_subscriptions(payslip) do
+    HR.subscribe_to_payslip(payslip)
+    HR.subscribe_to_payslip_items(payslip)
+    Finance.subscribe_to_payables_for_payslip(payslip)
+  end
+
+  defp unsubscribe_from_payslip_subscriptions(payslip) do
+    HR.unsubscribe_from_payslip(payslip)
+    HR.unsubscribe_from_payslip_items(payslip)
+    Finance.unsubscribe_from_payables_for_payslip(payslip)
   end
 
   defp list_payslip_items(nil), do: []
