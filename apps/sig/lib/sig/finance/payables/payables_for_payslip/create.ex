@@ -1,6 +1,5 @@
 defmodule Sig.Finance.Payables.PayablesForPayslip.Create do
   import Ecto.Changeset, only: [add_error: 3, apply_action: 2]
-  import Ecto.Query
 
   alias Ecto.Multi
 
@@ -62,7 +61,9 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.Create do
   defp validate_amount(context) do
     %{payslip: payslip, changeset: changeset} = context
 
-    existing_non_adjustable_amount_sum = sum_non_adjustable_payables_amounts(payslip)
+    existing_non_adjustable_amount_sum =
+      PayablesForPayslip.sum_non_adjustable_payables_amounts(payslip)
+
     payslip = Payslips.get_by(org_id: payslip.org_id, id: payslip.id)
 
     new_non_adjustable_amount_sum =
@@ -79,17 +80,6 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.Create do
         |> apply_action(:insert)
 
       put_error(context, changeset)
-    end
-  end
-
-  def sum_non_adjustable_payables_amounts(payslip) do
-    payslip
-    |> PayablesForPayslip.query_by_payslip()
-    |> where([payslip_payable: payslip_payable], not payslip_payable.is_auto_adjustable_amount)
-    |> Repo.aggregate(:sum, :amount)
-    |> case do
-      %Money{} = sum -> sum
-      nil -> Money.new(0)
     end
   end
 

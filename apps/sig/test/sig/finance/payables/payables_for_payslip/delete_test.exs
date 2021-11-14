@@ -13,7 +13,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.DeleteTest do
       insert(:payslip_outside_item,
         org: org,
         payslip: payslip,
-        outside_item_entry_type: :credit,
+        entry_type: :credit,
         amount: 100_00
       )
 
@@ -41,7 +41,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.DeleteTest do
       insert(:payslip_outside_item,
         org: org,
         payslip: payslip,
-        outside_item_entry_type: :credit,
+        entry_type: :credit,
         amount: 500_00
       )
 
@@ -100,7 +100,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.DeleteTest do
       insert(:payslip_outside_item,
         org: org,
         payslip: payslip,
-        outside_item_entry_type: :credit,
+        entry_type: :credit,
         amount: 500_00
       )
 
@@ -159,7 +159,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.DeleteTest do
       insert(:payslip_outside_item,
         org: org,
         payslip: payslip,
-        outside_item_entry_type: :credit,
+        entry_type: :credit,
         amount: 100_00
       )
 
@@ -196,7 +196,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.DeleteTest do
       insert(:payslip_outside_item,
         org: org,
         payslip: payslip,
-        outside_item_entry_type: :credit,
+        entry_type: :credit,
         amount: 100_00
       )
 

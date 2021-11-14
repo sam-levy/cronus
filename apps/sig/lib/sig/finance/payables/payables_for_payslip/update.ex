@@ -1,6 +1,5 @@
 defmodule Sig.Finance.Payables.PayablesForPayslip.Update do
   import Ecto.Changeset, only: [add_error: 3, apply_action: 2]
-  import Ecto.Query
 
   alias Ecto.Multi
 
@@ -84,7 +83,9 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.Update do
   defp validate_amount(context) do
     %{payslip: payslip, payable: payable, changeset: changeset} = context
 
-    existing_non_adjustable_amount_sum = sum_non_adjustable_payables_amounts(payslip, payable.id)
+    existing_non_adjustable_amount_sum =
+      PayablesForPayslip.sum_non_adjustable_payables_amounts(payslip, payable)
+
     payslip = Payslips.get_by(org_id: payslip.org_id, id: payslip.id)
 
     new_non_adjustable_amount_sum =
@@ -101,21 +102,6 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.Update do
         |> apply_action(:update)
 
       put_error(context, changeset)
-    end
-  end
-
-  def sum_non_adjustable_payables_amounts(payslip, payable_id) do
-    payslip
-    |> PayablesForPayslip.query_by_payslip()
-    |> where(
-      [payslip_payable: payslip_payable],
-      not payslip_payable.is_auto_adjustable_amount and
-        payslip_payable.payable_id != ^payable_id
-    )
-    |> Repo.aggregate(:sum, :amount)
-    |> case do
-      %Money{} = sum -> sum
-      nil -> Money.new(0)
     end
   end
 
@@ -168,7 +154,8 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.Update do
   end
 
   defp handle_non_auto_adjustable_amount_subtract(
-         %{is_auto_adjustable_amount: false, changeset: %{changes: %{amount: changeset_amount}}} = context,
+         %{is_auto_adjustable_amount: false, changeset: %{changes: %{amount: changeset_amount}}} =
+           context,
          payable
        )
        when not is_nil(changeset_amount) do
@@ -191,7 +178,8 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.Update do
   defp handle_non_auto_adjustable_amount_subtract(_context, _payable), do: {:ok, nil}
 
   defp handle_non_auto_adjustable_amount(
-         %{is_auto_adjustable_amount: false, changeset: %{changes: %{amount: changeset_amount}}} = context,
+         %{is_auto_adjustable_amount: false, changeset: %{changes: %{amount: changeset_amount}}} =
+           context,
          payable
        )
        when not is_nil(changeset_amount) do

@@ -73,6 +73,33 @@ defmodule Sig.Finance.Payables.PayablesForPayslip do
 
   defp topic(%Payslip{} = payslip), do: "payslip_id:" <> payslip.id <> ":payables"
 
+  def sum_non_adjustable_payables_amounts(%Payslip{} = payslip) do
+    payslip
+    |> query_by_payslip()
+    |> where([payslip_payable: payslip_payable], not payslip_payable.is_auto_adjustable_amount)
+    |> handle_amount_sum()
+  end
+
+  def sum_non_adjustable_payables_amounts(%Payslip{} = payslip, %Payable{} = payable) do
+    payslip
+    |> query_by_payslip()
+    |> where(
+      [payslip_payable: payslip_payable],
+      not payslip_payable.is_auto_adjustable_amount and
+        payslip_payable.payable_id != ^payable.id
+    )
+    |> handle_amount_sum()
+  end
+
+  defp handle_amount_sum(queryable) do
+    queryable
+    |> Repo.aggregate(:sum, :amount)
+    |> case do
+      %Money{} = sum -> sum
+      nil -> Money.new(0)
+    end
+  end
+
   def query_by_payslip(%Payslip{} = payslip) do
     from(payable in Payable, as: :payable)
     |> join(:left, [payable: payable], payslip_payable in PayslipPayable,
