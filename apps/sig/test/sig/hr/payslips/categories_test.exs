@@ -47,4 +47,27 @@ defmodule Sig.HR.Payslips.CategoriesTest do
       assert Categories.get(org.id, UUID.generate()) == nil
     end
   end
+
+  describe "fetch/2" do
+    test "returns a category" do
+      org = insert(:org)
+      %{id: id} = insert(:payslip_category, org: org)
+
+      assert {:ok, %Category{id: ^id}} = Categories.fetch(org.id, id)
+    end
+
+    test "when category belongs to another org" do
+      org = insert(:org)
+      another_org = insert(:org)
+      %{id: id} = insert(:payslip_category, org: another_org)
+
+      assert Categories.fetch(org.id, id) == {:error, :not_found}
+    end
+
+    test "when category doesn't exist" do
+      org = insert(:org)
+
+      assert Categories.fetch(org.id, UUID.generate()) == {:error, :not_found}
+    end
+  end
 end

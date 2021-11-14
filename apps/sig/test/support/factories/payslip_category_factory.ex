@@ -7,8 +7,9 @@ defmodule Sig.Factories.PayslipCategoryFactory do
         %Category{
           org: insert(:org),
           code: random_string_number(),
-          entry_type: random_enum_value(:entry_type),
-          description: Faker.Lorem.sentence()
+          entry_type: :credit,
+          description: Faker.Lorem.sentence(),
+          is_payment_advance: false
         }
       end
     end

@@ -7,8 +7,9 @@ defmodule Sig.HR.Payslips.Categories.CategoryTest do
     test "org_id not_null_violation" do
       category = %Category{
         code: random_string_number(),
+        description: Faker.Lorem.sentence(),
         entry_type: random_enum_value(:entry_type),
-        description: Faker.Lorem.sentence()
+        is_payment_advance: false
       }
 
       assert_raise Postgrex.Error,
@@ -20,8 +21,9 @@ defmodule Sig.HR.Payslips.Categories.CategoryTest do
       category = %Category{
         org_id: UUID.generate(),
         code: random_string_number(),
+        description: Faker.Lorem.sentence(),
         entry_type: random_enum_value(:entry_type),
-        description: Faker.Lorem.sentence()
+        is_payment_advance: false
       }
 
       assert_raise Ecto.ConstraintError,
@@ -41,13 +43,43 @@ defmodule Sig.HR.Payslips.Categories.CategoryTest do
       category = %Category{
         org_id: org.id,
         code: "payslip_category_code",
+        description: Faker.Lorem.sentence(),
         entry_type: random_enum_value(:entry_type),
-        description: Faker.Lorem.sentence()
+        is_payment_advance: false
       }
 
       assert_raise Ecto.ConstraintError,
                    ~r/payslip_categories_code_unique \(unique_constraint\)/,
                    fn -> Repo.insert(category) end
+    end
+
+    test "payslip_categories_is_payment_advance_entry_type_debit constraint" do
+      org = insert(:org)
+
+      category = %Category{
+        org_id: org.id,
+        code: random_string_number(),
+        description: Faker.Lorem.sentence(),
+        entry_type: :credit,
+        is_payment_advance: true
+      }
+
+      assert_raise Ecto.ConstraintError,
+                   ~r/payslip_categories_is_payment_advance_entry_type_debit \(check_constraint\)/,
+                   fn -> Repo.insert(category) end
+    end
+
+    test "success" do
+      org = insert(:org)
+
+      category = %Category{
+        org_id: org.id,
+        code: random_string_number(),
+        description: Faker.Lorem.sentence(),
+        entry_type: random_enum_value(:entry_type),
+      }
+
+      assert Repo.insert!(category)
     end
   end
 end

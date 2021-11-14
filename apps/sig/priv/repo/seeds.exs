@@ -250,7 +250,8 @@ in_advance_payments_category =
     org_id: main_org.id,
     code: "12",
     description: "ADIANTAMENTO ANTERIOR",
-    entry_type: :debit
+    entry_type: :debit,
+    is_payment_advance: true
   })
 
 transportation_voucher_discount_category =

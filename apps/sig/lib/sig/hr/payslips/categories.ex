@@ -16,4 +16,11 @@ defmodule Sig.HR.Payslips.Categories do
     |> where(id: ^id)
     |> Repo.one()
   end
+
+  def fetch(org_id, id) when is_binary(org_id) and is_binary(id) do
+    case get(org_id, id) do
+      %Category{} = category -> {:ok, category}
+      nil -> {:error, :not_found}
+    end
+  end
 end
