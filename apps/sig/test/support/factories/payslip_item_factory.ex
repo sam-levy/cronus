@@ -8,7 +8,7 @@ defmodule Sig.Factories.PayslipItemFactory do
 
         category =
           Keyword.get(attrs, :category) ||
-            insert(:payslip_category, org: org, entry_type: :credit) # TODO randomize entry_type
+            insert(:payslip_category, org: org, entry_type: :credit)
 
         amount = Keyword.get(attrs, :amount) || Enum.random(100_00..300_00)
         payslip = Keyword.get(attrs, :payslip) || insert(:payslip, org: org, amount: amount)
