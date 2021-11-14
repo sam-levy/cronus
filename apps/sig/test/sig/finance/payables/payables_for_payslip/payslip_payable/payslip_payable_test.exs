@@ -101,7 +101,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.PayslipPayables.PayslipPayable
       insert(:payslip_outside_item,
         org: org,
         payslip: payslip_1,
-        outside_item_entry_type: :credit,
+        entry_type: :credit,
         amount: 100_00
       )
 
@@ -113,7 +113,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.PayslipPayables.PayslipPayable
       insert(:payslip_outside_item,
         org: org,
         payslip: payslip_2,
-        outside_item_entry_type: :credit,
+        entry_type: :credit,
         amount: 200_00
       )
 
@@ -142,7 +142,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.PayslipPayables.PayslipPayable
       insert(:payslip_outside_item,
         org: org,
         payslip: payslip,
-        outside_item_entry_type: :credit,
+        entry_type: :credit,
         amount: 100_00
       )
 
@@ -179,7 +179,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.PayslipPayables.PayslipPayable
       insert(:payslip_outside_item,
         org: org,
         payslip: payslip,
-        outside_item_entry_type: :credit,
+        entry_type: :credit,
         amount: 100_00
       )
 
@@ -200,41 +200,161 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.PayslipPayables.PayslipPayable
   end
 
   describe "validate_payables_amount_sum_for_payslip_procedure" do
-    test "payables sum can't exceed the payslip amount" do
+    test "payables sum can't exceed the payslip amount plus payments in advance items amount sum" do
       org = insert(:org)
       payslip = insert(:payslip, org: org)
 
-      insert(:payslip_outside_item,
+      salary_category =
+        insert(:payslip_category, org: org, code: "1", entry_type: :credit, description: "SALÁRIO")
+
+      insert(:payslip_item,
         org: org,
         payslip: payslip,
-        outside_item_entry_type: :credit,
-        amount: 200_00
+        category: salary_category,
+        amount: 1_000_00
+      )
+
+      salary_advance_category =
+        insert(:payslip_category,
+          org: org,
+          code: "12",
+          entry_type: :debit,
+          description: "ADIANTAMENTO ANTERIOR"
+        )
+
+      insert(:payslip_item,
+        org: org,
+        payslip: payslip,
+        category: salary_advance_category,
+        amount: 400_00,
+        is_payment_advance: true
       )
 
       # Update payslip amount
-      Repo.update!(change(payslip, amount: 200_00))
+      Repo.update!(change(payslip, amount: 600_00))
 
-      payable_1 = insert(:payable_cash, target: :payslip, org: org, amount: 100_00)
+      salary_advance_payable = insert(:payable_bank_transfer, target: :payslip, org: org, amount: 400_00)
 
       insert(:payslip_payable,
         org: org,
         payslip: payslip,
-        payable: payable_1,
+        payable: salary_advance_payable,
         is_auto_adjustable_amount: false
       )
 
-      payable_2 = insert(:payable_cash, target: :payslip, org: org, amount: 101_00)
+      salary_payable = insert(:payable_bank_transfer, target: :payslip, org: org, amount: 601_00)
 
       payslip_payable = %PayslipPayable{
         org_id: org.id,
         payslip_id: payslip.id,
-        payable_id: payable_2.id,
+        payable_id: salary_payable.id,
         is_auto_adjustable_amount: false
       }
 
       assert_raise Postgrex.Error,
-                   ~r/\(integrity_constraint_violation\) payables amount sum cannot exceed the payslip amount/,
+                   ~r/\(integrity_constraint_violation\) payables amount sum cannot exceed the payslip amount plus payments in advance items/,
                    fn -> Repo.insert(payslip_payable) end
+    end
+
+    test "when debit payslip_item is not a payment in advance" do
+      org = insert(:org)
+      payslip = insert(:payslip, org: org)
+
+      salary_category =
+        insert(:payslip_category, org: org, code: "1", entry_type: :credit, description: "SALÁRIO")
+
+      insert(:payslip_item,
+        org: org,
+        payslip: payslip,
+        category: salary_category,
+        amount: 1_000_00
+      )
+
+      transport_voucher_category =
+        insert(:payslip_category,
+          org: org,
+          code: "109",
+          entry_type: :debit,
+          description: "DESC. VALE TRANSPORTE"
+        )
+
+      insert(:payslip_item,
+        org: org,
+        payslip: payslip,
+        category: transport_voucher_category,
+        amount: 10_00,
+        is_payment_advance: false
+      )
+
+      # Update payslip amount
+      Repo.update!(change(payslip, amount: 990_00))
+
+      salary_payable = insert(:payable_bank_transfer, target: :payslip, org: org, amount: 1_000_00)
+
+      payslip_payable = %PayslipPayable{
+        org_id: org.id,
+        payslip_id: payslip.id,
+        payable_id: salary_payable.id,
+        is_auto_adjustable_amount: false
+      }
+
+      assert_raise Postgrex.Error,
+                   ~r/\(integrity_constraint_violation\) payables amount sum cannot exceed the payslip amount plus payments in advance items/,
+                   fn -> Repo.insert(payslip_payable) end
+    end
+
+    test "success" do
+      org = insert(:org)
+      payslip = insert(:payslip, org: org)
+
+      salary_category =
+        insert(:payslip_category, org: org, code: "1", entry_type: :credit, description: "SALÁRIO")
+
+      insert(:payslip_item,
+        org: org,
+        payslip: payslip,
+        category: salary_category,
+        amount: 1_000_00
+      )
+
+      salary_advance_category =
+        insert(:payslip_category,
+          org: org,
+          code: "12",
+          entry_type: :debit,
+          description: "ADIANTAMENTO ANTERIOR"
+        )
+
+      insert(:payslip_item,
+        org: org,
+        payslip: payslip,
+        category: salary_advance_category,
+        amount: 400_00,
+        is_payment_advance: true
+      )
+
+      # Update payslip amount
+      Repo.update!(change(payslip, amount: 600_00))
+
+      salary_advance_payable = insert(:payable_bank_transfer, target: :payslip, org: org, amount: 400_00)
+
+      insert(:payslip_payable,
+        org: org,
+        payslip: payslip,
+        payable: salary_advance_payable,
+        is_auto_adjustable_amount: false
+      )
+
+      salary_payable = insert(:payable_bank_transfer, target: :payslip, org: org, amount: 600_00)
+
+      payslip_payable = %PayslipPayable{
+        org_id: org.id,
+        payslip_id: payslip.id,
+        payable_id: salary_payable.id,
+        is_auto_adjustable_amount: false
+      }
+
+      assert Repo.insert!(payslip_payable)
     end
   end
 end

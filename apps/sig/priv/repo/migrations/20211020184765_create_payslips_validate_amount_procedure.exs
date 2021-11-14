@@ -13,25 +13,19 @@ defmodule Sig.Repo.Migrations.CreatePayslipsValidateAmountProcedure do
         items_debit_amount_sum integer;
       BEGIN
         SELECT SUM (amount)
-        FROM payslip_items AS i
-        LEFT JOIN
-          payslip_categories AS c
-          ON i.category_id = c.id
+        FROM payslip_items
         WHERE
-          i.payslip_id = NEW.id AND
-          i.org_id = NEW.org_id AND
-          (i.outside_item_entry_type = 'credit' OR c.entry_type = 'credit')
+          payslip_id = NEW.id AND
+          org_id = NEW.org_id AND
+          entry_type = 'credit'
         INTO items_credit_amount_sum;
 
         SELECT SUM (amount)
-        FROM payslip_items AS i
-        LEFT JOIN
-          payslip_categories AS c
-          ON i.category_id = c.id
+        FROM payslip_items
         WHERE
-          i.payslip_id = NEW.id AND
-          i.org_id = NEW.org_id AND
-          (i.outside_item_entry_type = 'debit' OR c.entry_type = 'debit')
+          payslip_id = NEW.id AND
+          org_id = NEW.org_id AND
+          entry_type = 'debit'
         INTO items_debit_amount_sum;
 
         IF
