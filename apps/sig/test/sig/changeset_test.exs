@@ -684,4 +684,62 @@ defmodule Sig.ChangesetTest do
       assert errors_on(changeset) == %{end_date: ["is already filled"]}
     end
   end
+
+  describe "validate_is_payment_advance/1" do
+    test "when data entry type is debit" do
+      data = %{entry_type: :debit}
+      types = %{entry_type: Sig.EntryType, is_payment_advance: :boolean}
+      params = %{is_payment_advance: true}
+
+      changeset =
+        {data, types}
+        |> Ecto.Changeset.cast(params, Map.keys(types))
+        |> Sig.Changeset.validate_is_payment_advance()
+
+      assert changeset.valid?
+    end
+
+    test "when params entry type is debit" do
+      data = %{}
+      types = %{entry_type: Sig.EntryType, is_payment_advance: :boolean}
+      params = %{entry_type: :debit, is_payment_advance: true}
+
+      changeset =
+        {data, types}
+        |> Ecto.Changeset.cast(params, Map.keys(types))
+        |> Sig.Changeset.validate_is_payment_advance()
+
+      assert changeset.valid?
+    end
+
+    test "when data entry type is credit" do
+      data = %{entry_type: :credit}
+      types = %{entry_type: Sig.EntryType, is_payment_advance: :boolean}
+      params = %{is_payment_advance: true}
+
+      changeset =
+        {data, types}
+        |> Ecto.Changeset.cast(params, Map.keys(types))
+        |> Sig.Changeset.validate_is_payment_advance()
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{is_payment_advance: ["payments in advance must be entry type debit"]}
+    end
+
+    test "when params entry type is credit" do
+      data = %{entry_type: :credit}
+      types = %{entry_type: Sig.EntryType, is_payment_advance: :boolean}
+      params = %{entry_type: :credit, is_payment_advance: true}
+
+      changeset =
+        {data, types}
+        |> Ecto.Changeset.cast(params, Map.keys(types))
+        |> Sig.Changeset.validate_is_payment_advance()
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{is_payment_advance: ["payments in advance must be entry type debit"]}
+    end
+  end
 end

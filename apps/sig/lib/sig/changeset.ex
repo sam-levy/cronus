@@ -135,6 +135,17 @@ defmodule Sig.Changeset do
 
   def validate_is_active(changeset, _), do: changeset
 
+  def validate_is_payment_advance(%{valid?: true} = changeset) do
+    with {:ok, true} <- fetch_change(changeset, :is_payment_advance),
+         {_, :credit} <- fetch_field(changeset, :entry_type) do
+      add_error(changeset, :is_payment_advance, "payments in advance must be entry type debit")
+    else
+      _ -> changeset
+    end
+  end
+
+  def validate_is_payment_advance(changeset), do: changeset
+
   defp compare_numbers(num, num), do: :eq
   defp compare_numbers(first, second) when first < second, do: :lt
   defp compare_numbers(_first, _second), do: :gt
