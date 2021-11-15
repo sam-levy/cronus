@@ -28,7 +28,8 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
       |> assign(assigns)
       |> assign(
         target_date: Date.utc_today() |> Date.end_of_month(),
-        recurring_payslip_items: items,
+        recurring_payslip_items: Enum.filter(items, &(&1.type in [:payslip_item, :payslip_item_model])),
+        recurring_outside_items: Enum.filter(items, &(&1.type == :outside_item))
       )
       |> assign_totals()
 
@@ -156,7 +157,7 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
                   </span>
 
                   <MonthToggle
-                    :if={@recurring_payslip_items != []}
+                    :if={@recurring_payslip_items != [] or @recurring_outside_items != []}
                     target={@target_date}
                     floor={Date.end_of_month(@registration.admission_date)}
                     previous="previous_month"
@@ -217,22 +218,56 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
               </td>
             </tr>
           {/for}
-        </tbody>
 
-        <tfoot :if={@recurring_payslip_items != []}>
-          <tr class="border-b italic bg-gray-100 text-sm text-gray-500 tracking-wider">
+          <tr :if={@recurring_payslip_items != []} class="border-b italic bg-gray-100 text-sm text-gray-500 tracking-wider">
             <td class="py-2 px-6 text-left" colspan="2">Subtotais</td>
-            <td class="py-2 px-6 text-right">{format_amount(@credit_subtotal)}</td>
-            <td class="py-2 px-6 text-right">{format_amount(@debit_subtotal)}</td>
+            <td class="py-2 px-6 text-right">{format_amount(@payslip_items_credit_subtotal)}</td>
+            <td class="py-2 px-6 text-right">{format_amount(@payslip_items_debit_subtotal)}</td>
             <td></td>
           </tr>
 
-          <tr class="text-sm bg-gray-100 font-medium text-gray-500 tracking-wider">
-            <td class="py-2 px-6 text-left" colspan="3">Líquido</td>
-            <td class="py-2 px-6 text-right">{format_amount(@total)}</td>
+          <tr :if={@recurring_payslip_items != []} class="text-sm bg-gray-100 font-medium text-gray-500 tracking-wider">
+            <td class="py-2 px-6 text-left" colspan="3">Líquido Holerite</td>
+            <td class="py-2 px-6 text-right">{format_amount(@payslip_total)}</td>
             <td></td>
           </tr>
-        </tfoot>
+
+          {#for item <- @recurring_outside_items}
+            <tr class="border-b hover:bg-gray-50">
+              <td></td>
+
+              <td class="py-3 px-6 text-left">
+                {item.description}
+              </td>
+
+              <td class="py-3 px-6 text-right">
+                {if item.entry_type == :credit, do: item.amount}
+              </td>
+
+              <td class="py-3 px-6 text-right">
+                {if item.entry_type == :debit, do: item.amount}
+              </td>
+
+              <td class="pr-5 text-right">
+                <DropdownOpts>
+                  <a
+                    :on-click="open_payslip_item_delete_confirmation_dialog"
+                    phx-value-item_id={item.id}
+                    class="dropdown-item"
+                  >
+                    Remover
+                  </a>
+                </DropdownOpts>
+              </td>
+            </tr>
+          {/for}
+
+          <tr :if={@recurring_outside_items != []} class="text-sm bg-gray-100 font-medium text-gray-500 tracking-wider">
+            <td class="py-2 px-6 text-left" colspan="3">Total</td>
+            <td class="py-2 px-6 text-right">{format_amount(@net_total)}</td>
+            <td></td>
+          </tr>
+        </tbody>
       </table>
     </div>
     """
@@ -267,14 +302,20 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
     {:noreply, socket}
   end
 
-  defp assign_totals(%{assigns: %{recurring_payslip_items: items}} = socket) do
-    credit_subtotal = sum_by(:credit, items)
-    debit_subtotal = sum_by(:debit, items)
+  defp assign_totals(socket) do
+    %{assigns: %{recurring_payslip_items: recurring_payslip_items, recurring_outside_items: recurring_outside_items}} = socket
+
+    payslip_items_credit_subtotal = sum_by(:credit, recurring_payslip_items)
+    payslip_items_debit_subtotal = sum_by(:debit, recurring_payslip_items)
+
+    credit_total = Money.add(sum_by(:credit, recurring_outside_items), payslip_items_credit_subtotal)
+    debit_total = Money.add(sum_by(:debit, recurring_outside_items), payslip_items_debit_subtotal)
 
     assign(socket,
-      credit_subtotal: credit_subtotal,
-      debit_subtotal: debit_subtotal,
-      total: Money.subtract(credit_subtotal, debit_subtotal)
+      payslip_items_credit_subtotal: payslip_items_credit_subtotal,
+      payslip_items_debit_subtotal: payslip_items_debit_subtotal,
+      payslip_total: Money.subtract(payslip_items_credit_subtotal, payslip_items_debit_subtotal),
+      net_total: Money.subtract(credit_total, debit_total)
     )
   end
 
