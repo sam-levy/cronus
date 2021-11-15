@@ -86,9 +86,6 @@ defmodule SigLive.EmployeeRegistrations.Payslips.OutsideItemForm do
     """
   end
 
-  defp show?(%{changes: %{entry_type: :debit}}), do: true
-  defp show?(_), do: false
-
   def states, do: @form_states
 
   defp validate_params(context) do
@@ -138,4 +135,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.OutsideItemForm do
 
     {:noreply, socket}
   end
+
+  defp show?(%{changes: %{entry_type: :debit}}), do: true
+  defp show?(_), do: false
 end

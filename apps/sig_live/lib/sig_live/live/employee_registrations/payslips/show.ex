@@ -217,9 +217,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
 
           {#for item <- @outside_items}
             <tr class="border-b hover:bg-gray-50">
-              <td class="py-3 px-6 text-left">
-                {item.code}
-              </td>
+              <td></td>
 
               <td class="py-3 px-6 text-left">
                 {item.description}
