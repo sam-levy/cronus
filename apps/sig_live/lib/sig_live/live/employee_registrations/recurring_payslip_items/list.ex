@@ -20,6 +20,7 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
   data delete_confirmation_dialog_state, :atom, default: :closed, values!: ConfirmationDialog.states()
 
   data item_id, :string, default: nil
+  data message, :string, default: nil
 
   @impl true
   def update(%{recurring_payslip_items: items} = assigns, socket) do
@@ -94,10 +95,10 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
 
         {:noreply, assign(socket, closed_state())}
 
-      :error ->
+      {:error, message} ->
         send(self(), {:flash, :info, "Falha ao remover o item"})
 
-        {:noreply, socket}
+      {:noreply, assign(socket, message: message)}
     end
   end
 
@@ -112,6 +113,7 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
     <div>
       <ConfirmationDialog
         :if={@delete_confirmation_dialog_state != :closed}
+        error_message={@message}
         close_event="close_modals"
         action_event="delete_recurring_payslip_item"
         dialog_title="Confirmar Remoção"
@@ -289,6 +291,7 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
   defp closed_state do
     [
       item_id: nil,
+      message: nil,
       payslip_item_form_state: :closed,
       payslip_item_model_form_state: :closed,
       outside_item_form_state: :closed,
@@ -321,11 +324,11 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
   defp assign_totals(socket) do
     %{assigns: %{recurring_payslip_items: recurring_payslip_items, recurring_outside_items: recurring_outside_items}} = socket
 
-    payslip_items_credit_subtotal = sum_by(:credit, recurring_payslip_items)
-    payslip_items_debit_subtotal = sum_by(:debit, recurring_payslip_items)
+    payslip_items_credit_subtotal = Sig.sum_by(:credit, recurring_payslip_items)
+    payslip_items_debit_subtotal = Sig.sum_by(:debit, recurring_payslip_items)
 
-    credit_total = Money.add(sum_by(:credit, recurring_outside_items), payslip_items_credit_subtotal)
-    debit_total = Money.add(sum_by(:debit, recurring_outside_items), payslip_items_debit_subtotal)
+    credit_total = Money.add(Sig.sum_by(:credit, recurring_outside_items), payslip_items_credit_subtotal)
+    debit_total = Money.add(Sig.sum_by(:debit, recurring_outside_items), payslip_items_debit_subtotal)
 
     assign(socket,
       payslip_items_credit_subtotal: payslip_items_credit_subtotal,
@@ -333,12 +336,5 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
       payslip_total: Money.subtract(payslip_items_credit_subtotal, payslip_items_debit_subtotal),
       net_total: Money.subtract(credit_total, debit_total)
     )
-  end
-
-  def sum_by(entry_type, items) do
-    Enum.reduce(items, Money.new(0), fn
-      %{entry_type: ^entry_type, amount: amount}, acc -> Money.add(amount, acc)
-      _, acc -> acc
-    end)
   end
 end

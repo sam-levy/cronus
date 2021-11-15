@@ -115,11 +115,17 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.OutsideItemForm do
   end
 
   defp handle_return(%{validation: {:error, changeset}, socket: socket}) do
-    {:noreply, assign(socket, changeset: changeset)}
+    {:noreply, assign(socket, message: nil, changeset: changeset)}
   end
 
-  defp handle_return(%{return: {:error, changeset}} = context) do
-    {:noreply, assign(context.socket, changeset: changeset)}
+  defp handle_return(%{return: {:error, message}} = context) when is_binary(message) do
+    {_, changeset} = context.validation
+
+    {:noreply, assign(context.socket, message: message, changeset: changeset)}
+  end
+
+  defp handle_return(%{return: {:error, changeset}, socket: socket}) when is_struct(changeset) do
+    {:noreply, assign(socket, message: nil, changeset: changeset)}
   end
 
   defp handle_return(%{return: {:ok, _item}, socket: socket}) do

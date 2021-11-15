@@ -23,6 +23,7 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.PayslipItemForm do
   prop registration, :struct, required: true
 
   data changeset, :struct, default: HR.create_recurring_payslip_item_change(:payslip_item)
+  data message, :string, default: nil
 
   @impl true
   def update(assigns, socket) do
@@ -63,6 +64,8 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.PayslipItemForm do
           <ErrorTag class="form-error-tag"/>
         </Field>
 
+        <div :if={@message} class="form-error-tag">{@message}</div>
+
         <div class="flex justify-end">
           <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Salvando..."}/>
         </div>
@@ -99,11 +102,17 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.PayslipItemForm do
   end
 
   defp handle_return(%{validation: {:error, changeset}, socket: socket}) do
-    {:noreply, assign(socket, changeset: changeset)}
+    {:noreply, assign(socket, message: nil, changeset: changeset)}
   end
 
-  defp handle_return(%{return: {:error, changeset}} = context) do
-    {:noreply, assign(context.socket, changeset: changeset)}
+  defp handle_return(%{return: {:error, message}} = context) when is_binary(message) do
+    {_, changeset} = context.validation
+
+    {:noreply, assign(context.socket, message: message, changeset: changeset)}
+  end
+
+  defp handle_return(%{return: {:error, changeset}, socket: socket}) when is_struct(changeset) do
+    {:noreply, assign(socket, message: nil, changeset: changeset)}
   end
 
   defp handle_return(%{return: {:ok, _item}, socket: socket}) do
