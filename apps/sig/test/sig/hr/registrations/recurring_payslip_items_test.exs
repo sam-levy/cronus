@@ -82,7 +82,8 @@ defmodule Sig.HR.Registrations.RecurringPayslipItemsTest do
       attrs = %{
         item_amount: Enum.random(100_00..5_000_00),
         outside_item_description: Faker.Lorem.sentence(),
-        outside_item_entry_type: random_enum_value(:entry_type)
+        outside_item_entry_type: random_enum_value(:entry_type),
+        outside_item_is_payment_advance: false
       }
 
       assert {:ok, %RecurringPayslipItem{id: id}} =
@@ -95,7 +96,8 @@ defmodule Sig.HR.Registrations.RecurringPayslipItemsTest do
                type: :outside_item,
                item_amount: attrs[:item_amount],
                outside_item_description: attrs[:outside_item_description],
-               outside_item_entry_type: attrs[:outside_item_entry_type]
+               outside_item_entry_type: attrs[:outside_item_entry_type],
+               outside_item_is_payment_advance: attrs[:outside_item_is_payment_advance]
              )
     end
 
