@@ -135,16 +135,33 @@ defmodule Sig.Changeset do
 
   def validate_is_active(changeset, _), do: changeset
 
-  def validate_is_payment_advance(%{valid?: true} = changeset) do
-    with {:ok, true} <- fetch_change(changeset, :is_payment_advance),
-         {_, :credit} <- fetch_field(changeset, :entry_type) do
-      add_error(changeset, :is_payment_advance, "payments in advance must be entry type debit")
-    else
-      _ -> changeset
+  def validate_values_if(
+       changeset,
+        conditional_field,
+        conditional_field_value,
+        fields_to_validate
+      )
+      when is_list(fields_to_validate) do
+    case fetch_change(changeset, conditional_field) do
+      {:ok, value} when value == conditional_field_value ->
+        Enum.reduce(fields_to_validate, changeset, fn {field, value}, acc ->
+          case fetch_field(acc, field) do
+            {_, ^value} ->
+              acc
+
+            _ ->
+              add_error(
+                acc,
+                field,
+                "must be #{value} when #{conditional_field} is #{conditional_field_value}"
+              )
+          end
+        end)
+
+      _ ->
+        changeset
     end
   end
-
-  def validate_is_payment_advance(changeset), do: changeset
 
   defp compare_numbers(num, num), do: :eq
   defp compare_numbers(first, second) when first < second, do: :lt

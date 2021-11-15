@@ -20,6 +20,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.RecurringPayslipItem do
     field :outside_item_description, :string
     field :outside_item_entry_type, Sig.EntryType
     field :item_amount, Money.Ecto.Amount.Type
+    field :outside_item_is_payment_advance, :boolean
 
     belongs_to :payslip_category, Category
     belongs_to :payslip_recurring_item_model, RecurringItemModel
@@ -28,6 +29,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.RecurringPayslipItem do
     field :description, :string, virtual: true
     field :entry_type, Sig.EntryType, virtual: true
     field :amount, Money.Ecto.Amount.Type, virtual: true
+    field :is_payment_advance, :boolean, virtual: true
 
     timestamps()
   end
@@ -64,7 +66,8 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.RecurringPayslipItem do
                                 [
                                   :item_amount,
                                   :outside_item_description,
-                                  :outside_item_entry_type
+                                  :outside_item_entry_type,
+                                  :outside_item_is_payment_advance
                                 ]
 
   def create_outside_item_changeset(attrs) do
@@ -74,6 +77,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.RecurringPayslipItem do
     |> put_change(:type, :outside_item)
     |> validate_length(:outside_item_description, max: 255)
     |> validate_money(:item_amount, [:gt, :eq], 0)
+    |> validate_values_if(:outside_item_is_payment_advance, true, outside_item_entry_type: :debit)
     |> unique_constraint([:outside_item_description, :registration_id, :org_id],
       name: :employee_registration_recurring_payslip_items_description
     )

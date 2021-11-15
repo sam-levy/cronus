@@ -251,30 +251,27 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistration do
   end
 
   defp query_by_registration(registration) do
-    RecurringPayslipItem
+    from(item in RecurringPayslipItem, as: :item)
     |> where(org_id: ^registration.org_id)
     |> where(registration_id: ^registration.id)
   end
 
   defp preload_payslip_category(query) do
     query
-    |> join(:left, [item], recurring_item_model in assoc(item, :payslip_category),
-      as: :payslip_category
-    )
-    |> preload([item, payslip_category: payslip_category], payslip_category: payslip_category)
+    |> join(:left, [item: item], _ in assoc(item, :payslip_category), as: :payslip_category)
+    |> preload([payslip_category: payslip_category], payslip_category: payslip_category)
   end
 
   defp preload_payslip_recurring_item_model(query) do
     query
-    |> join(:left, [item], recurring_item_model in assoc(item, :payslip_recurring_item_model),
+    |> join(:left, [item: item], _ in assoc(item, :payslip_recurring_item_model),
       as: :recurring_item_model
     )
-    |> join(:left, [_, recurring_item_model: model], category in assoc(model, :category),
+    |> join(:left, [recurring_item_model: model], _ in assoc(model, :category),
       as: :recurring_item_model_category
     )
     |> preload(
       [
-        _,
         recurring_item_model: recurring_item_model,
         recurring_item_model_category: recurring_item_model_category
       ],

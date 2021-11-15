@@ -54,7 +54,7 @@ defmodule Sig.HR.Payslips.Items.Item do
     |> put_change(:type, :outside_item)
     |> validate_length(:description, max: 255)
     |> validate_money(:amount, [:gt, :eq], 0)
-    |> validate_is_payment_advance()
+    |> validate_values_if(:is_payment_advance, true, entry_type: :debit)
   end
 
   def update_amount_changeset(%__MODULE__{} = target, attrs) do

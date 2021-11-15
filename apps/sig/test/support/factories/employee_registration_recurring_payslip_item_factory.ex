@@ -50,7 +50,8 @@ defmodule Sig.Factories.EmployeeRegistraionRecurringPayslipItemFactory do
           type: :outside_item,
           item_amount: Enum.random(100_00..5_000_00),
           outside_item_description: Faker.Lorem.sentence(),
-          outside_item_entry_type: random_enum_value(:entry_type)
+          outside_item_entry_type: random_enum_value(:entry_type),
+          outside_item_is_payment_advance: false
         }
       end
     end

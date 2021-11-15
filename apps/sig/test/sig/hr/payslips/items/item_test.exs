@@ -672,7 +672,7 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
                |> Repo.insert()
 
       assert errors_on(changeset) == %{
-               is_payment_advance: ["payments in advance must be entry type debit"]
+               entry_type: ["must be debit when is_payment_advance is true"]
              }
     end
   end
