@@ -63,11 +63,11 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.RecurringPayslipItem do
   end
 
   @create_outside_item_required_fields @create_base_required_fields ++
-                                [
-                                  :item_amount,
-                                  :outside_item_description,
-                                  :outside_item_entry_type
-                                ]
+                                         [
+                                           :item_amount,
+                                           :outside_item_description,
+                                           :outside_item_entry_type
+                                         ]
 
   def create_outside_item_changeset(attrs) do
     %__MODULE__{}

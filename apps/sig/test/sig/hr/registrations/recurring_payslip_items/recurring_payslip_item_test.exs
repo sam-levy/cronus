@@ -925,7 +925,9 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.RecurringPayslipItemTest do
       refute changeset.valid?
 
       assert errors_on(changeset) == %{
-        outside_item_is_payment_advance: ["must be false when outside_item_entry_type is credit"]
+               outside_item_is_payment_advance: [
+                 "must be false when outside_item_entry_type is credit"
+               ]
              }
     end
 

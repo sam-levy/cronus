@@ -76,7 +76,7 @@ defmodule Sig.HR.Payslips.Categories.CategoryTest do
         org_id: org.id,
         code: random_string_number(),
         description: Faker.Lorem.sentence(),
-        entry_type: random_enum_value(:entry_type),
+        entry_type: random_enum_value(:entry_type)
       }
 
       assert Repo.insert!(category)

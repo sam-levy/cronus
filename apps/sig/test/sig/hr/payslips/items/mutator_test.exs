@@ -390,8 +390,8 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
                amount: ["can't be blank"],
                category_id: ["can't be blank"],
                code: ["can't be blank"],
-                description: ["can't be blank"],
-                entry_type: ["can't be blank"]
+               description: ["can't be blank"],
+               entry_type: ["can't be blank"]
              }
     end
   end

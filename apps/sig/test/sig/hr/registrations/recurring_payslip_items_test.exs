@@ -255,7 +255,8 @@ defmodule Sig.HR.Registrations.RecurringPayslipItemsTest do
 
       category = insert(:payslip_category, org: org, entry_type: :credit)
 
-      %{id: id} = item =
+      %{id: id} =
+        item =
         insert({:employee_registration_recurring_payslip_item, :payslip_item},
           org: org,
           registration: registration,
@@ -282,7 +283,8 @@ defmodule Sig.HR.Registrations.RecurringPayslipItemsTest do
 
       category = insert(:payslip_category, org: org, entry_type: :debit)
 
-      %{id: id} = item =
+      %{id: id} =
+        item =
         insert({:employee_registration_recurring_payslip_item, :payslip_item},
           org: org,
           registration: registration,
@@ -309,7 +311,8 @@ defmodule Sig.HR.Registrations.RecurringPayslipItemsTest do
 
       category = insert(:payslip_category, org: org, entry_type: :debit)
 
-      %{id: id} = item =
+      %{id: id} =
+        item =
         insert({:employee_registration_recurring_payslip_item, :payslip_item},
           org: org,
           registration: registration,

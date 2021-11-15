@@ -136,7 +136,7 @@ defmodule Sig.Changeset do
   def validate_is_active(changeset, _), do: changeset
 
   def validate_values_if(
-       changeset,
+        changeset,
         conditional_field,
         conditional_field_value,
         fields_to_validate

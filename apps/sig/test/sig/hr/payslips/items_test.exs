@@ -147,7 +147,13 @@ defmodule Sig.HR.Payslips.ItemsTest do
       payslip = insert(:payslip, org: org)
 
       salary_category =
-        insert(:payslip_category, org: org, code: "1", entry_type: :credit, description: "SALÁRIO", amount: 1_000_00)
+        insert(:payslip_category,
+          org: org,
+          code: "1",
+          entry_type: :credit,
+          description: "SALÁRIO",
+          amount: 1_000_00
+        )
 
       insert(:payslip_item, org: org, payslip: payslip, category: salary_category)
 
@@ -173,7 +179,7 @@ defmodule Sig.HR.Payslips.ItemsTest do
         description: "Adiantamento",
         entry_type: :debit,
         amount: 200_00,
-        is_payment_advance: true,
+        is_payment_advance: true
       )
 
       health_insurance_category =
@@ -187,7 +193,10 @@ defmodule Sig.HR.Payslips.ItemsTest do
 
       insert(:payslip_item, org: org, payslip: payslip, category: health_insurance_category)
 
-      assert Items.sum_payments_in_advance_items_by_payslip(payslip) ==  %Money{amount: 600_00, currency: :BRL}
+      assert Items.sum_payments_in_advance_items_by_payslip(payslip) == %Money{
+               amount: 600_00,
+               currency: :BRL
+             }
     end
 
     test "when payslip has no payments in advance" do
@@ -195,7 +204,13 @@ defmodule Sig.HR.Payslips.ItemsTest do
       payslip = insert(:payslip, org: org)
 
       salary_category =
-        insert(:payslip_category, org: org, code: "1", entry_type: :credit, description: "SALÁRIO", amount: 1_000_00)
+        insert(:payslip_category,
+          org: org,
+          code: "1",
+          entry_type: :credit,
+          description: "SALÁRIO",
+          amount: 1_000_00
+        )
 
       insert(:payslip_item, org: org, payslip: payslip, category: salary_category)
 
@@ -210,7 +225,10 @@ defmodule Sig.HR.Payslips.ItemsTest do
 
       insert(:payslip_item, org: org, payslip: payslip, category: health_insurance_category)
 
-      assert Items.sum_payments_in_advance_items_by_payslip(payslip) ==  %Money{amount: 0, currency: :BRL}
+      assert Items.sum_payments_in_advance_items_by_payslip(payslip) == %Money{
+               amount: 0,
+               currency: :BRL
+             }
     end
   end
 

@@ -37,9 +37,14 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.UpdateAutoAdjustableAmountPaya
 
   defp get_auto_adjustable_amount_payable(context) do
     case Enum.find(context.payables, & &1.payslip_payable.is_auto_adjustable_amount) do
-      %Payable{is_fulfilled: false} = payable -> %{context | auto_adjustable_amount_payable: payable}
-      %Payable{is_fulfilled: true} -> halt(context)
-      nil -> halt(context)
+      %Payable{is_fulfilled: false} = payable ->
+        %{context | auto_adjustable_amount_payable: payable}
+
+      %Payable{is_fulfilled: true} ->
+        halt(context)
+
+      nil ->
+        halt(context)
     end
   end
 

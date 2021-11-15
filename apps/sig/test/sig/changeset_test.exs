@@ -724,7 +724,9 @@ defmodule Sig.ChangesetTest do
 
       refute changeset.valid?
 
-      assert errors_on(changeset) == %{entry_type: ["must be debit when is_payment_advance is true"]}
+      assert errors_on(changeset) == %{
+               entry_type: ["must be debit when is_payment_advance is true"]
+             }
     end
 
     test "when params entry type is credit" do
@@ -739,7 +741,9 @@ defmodule Sig.ChangesetTest do
 
       refute changeset.valid?
 
-      assert errors_on(changeset) == %{entry_type: ["must be debit when is_payment_advance is true"]}
+      assert errors_on(changeset) == %{
+               entry_type: ["must be debit when is_payment_advance is true"]
+             }
     end
 
     test "one invalid field when more than one field" do
@@ -750,11 +754,16 @@ defmodule Sig.ChangesetTest do
       changeset =
         {data, types}
         |> Ecto.Changeset.cast(params, Map.keys(types))
-        |> Sig.Changeset.validate_values_if(:is_payment_advance, true, entry_type: :debit, other_field: "value")
+        |> Sig.Changeset.validate_values_if(:is_payment_advance, true,
+          entry_type: :debit,
+          other_field: "value"
+        )
 
       refute changeset.valid?
 
-      assert errors_on(changeset) == %{entry_type: ["must be debit when is_payment_advance is true"]}
+      assert errors_on(changeset) == %{
+               entry_type: ["must be debit when is_payment_advance is true"]
+             }
     end
 
     test "more than one invalid field" do
@@ -765,14 +774,17 @@ defmodule Sig.ChangesetTest do
       changeset =
         {data, types}
         |> Ecto.Changeset.cast(params, Map.keys(types))
-        |> Sig.Changeset.validate_values_if(:is_payment_advance, true, entry_type: :debit, other_field: "valid")
+        |> Sig.Changeset.validate_values_if(:is_payment_advance, true,
+          entry_type: :debit,
+          other_field: "valid"
+        )
 
       refute changeset.valid?
 
       assert errors_on(changeset) == %{
-        entry_type: ["must be debit when is_payment_advance is true"],
-        other_field: ["must be valid when is_payment_advance is true"]
-      }
+               entry_type: ["must be debit when is_payment_advance is true"],
+               other_field: ["must be valid when is_payment_advance is true"]
+             }
     end
   end
 end

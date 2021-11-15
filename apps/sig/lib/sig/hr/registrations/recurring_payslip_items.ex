@@ -89,7 +89,8 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems do
         created_item_id
       )
       when is_binary(created_item_id) do
-        Enum.find(items, &(&1.id == created_item_id))
+    Enum.find(items, &(&1.id == created_item_id))
+
     case Enum.find(items, &(&1.id == created_item_id)) do
       %RecurringPayslipItem{entry_type: :credit} -> {:ok, nil}
       _ -> do_validate_positive_amount_sum(items)

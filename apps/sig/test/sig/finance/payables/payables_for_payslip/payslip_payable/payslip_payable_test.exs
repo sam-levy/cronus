@@ -233,7 +233,8 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.PayslipPayables.PayslipPayable
       # Update payslip amount
       Repo.update!(change(payslip, amount: 600_00))
 
-      salary_advance_payable = insert(:payable_bank_transfer, target: :payslip, org: org, amount: 400_00)
+      salary_advance_payable =
+        insert(:payable_bank_transfer, target: :payslip, org: org, amount: 400_00)
 
       insert(:payslip_payable,
         org: org,
@@ -289,7 +290,8 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.PayslipPayables.PayslipPayable
       # Update payslip amount
       Repo.update!(change(payslip, amount: 990_00))
 
-      salary_payable = insert(:payable_bank_transfer, target: :payslip, org: org, amount: 1_000_00)
+      salary_payable =
+        insert(:payable_bank_transfer, target: :payslip, org: org, amount: 1_000_00)
 
       payslip_payable = %PayslipPayable{
         org_id: org.id,
@@ -336,7 +338,8 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.PayslipPayables.PayslipPayable
       # Update payslip amount
       Repo.update!(change(payslip, amount: 600_00))
 
-      salary_advance_payable = insert(:payable_bank_transfer, target: :payslip, org: org, amount: 400_00)
+      salary_advance_payable =
+        insert(:payable_bank_transfer, target: :payslip, org: org, amount: 400_00)
 
       insert(:payslip_payable,
         org: org,

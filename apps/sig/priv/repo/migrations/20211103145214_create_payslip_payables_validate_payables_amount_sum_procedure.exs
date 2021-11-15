@@ -60,6 +60,8 @@ defmodule Sig.Repo.Migrations.CreatePayslipPayablesValidatePayablesAmountSumProc
   end
 
   def down do
-    execute("DROP TRIGGER payslip_payables_validate_payables_amount_sum_procedure ON payslip_payables;")
+    execute(
+      "DROP TRIGGER payslip_payables_validate_payables_amount_sum_procedure ON payslip_payables;"
+    )
   end
 end
