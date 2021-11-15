@@ -32,7 +32,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItemsTest do
     test "creates a recurring payslip_item" do
       org = insert(:org)
       registration = insert(:employee_registration, org: org)
-      category = insert(:payslip_category, org: org)
+      category = insert(:payslip_category, org: org, entry_type: :credit)
 
       attrs = %{
         payslip_category_id: category.id,
@@ -55,9 +55,10 @@ defmodule Sig.HR.Registrations.RecurringPayslipItemsTest do
     test "creates a recurring payslip_item_model" do
       org = insert(:org)
       registration = insert(:employee_registration, org: org)
+      category = insert(:payslip_category, org: org, entry_type: :credit)
 
       payslip_recurring_item_model =
-        insert({:payslip_recurring_item_model, :fixed_amount}, org: org)
+        insert({:payslip_recurring_item_model, :fixed_amount}, org: org, category: category)
 
       attrs = %{
         payslip_recurring_item_model_id: payslip_recurring_item_model.id
@@ -82,7 +83,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItemsTest do
       attrs = %{
         item_amount: Enum.random(100_00..5_000_00),
         outside_item_description: Faker.Lorem.sentence(),
-        outside_item_entry_type: random_enum_value(:entry_type),
+        outside_item_entry_type: :credit,
         outside_item_is_payment_advance: false
       }
 
@@ -115,6 +116,120 @@ defmodule Sig.HR.Registrations.RecurringPayslipItemsTest do
                payslip_category_id: ["can't be blank"]
              }
     end
+
+    test "when the first payslip_item is from a debit category" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+      category = insert(:payslip_category, org: org, entry_type: :debit)
+
+      attrs = %{
+        payslip_category_id: category.id,
+        item_amount: Enum.random(100_00..5_000_00)
+      }
+
+      assert RecurringPayslipItems.create(registration, attrs, :payslip_item) ==
+               {:error, "Recurring payslip items amount sum can't be negative"}
+
+      refute Repo.get_by(RecurringPayslipItem,
+               org_id: org.id,
+               registration_id: registration.id,
+               type: :payslip_item,
+               payslip_category_id: attrs[:payslip_category_id],
+               item_amount: attrs[:item_amount]
+             )
+    end
+
+    test "when the new payslip_item brings the amount sum to negative" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+
+      insert({:employee_registration_recurring_payslip_item, :outside_item},
+        org: org,
+        registration: registration,
+        outside_item_entry_type: :credit,
+        item_amount: 50_00
+      )
+
+      category = insert(:payslip_category, org: org, entry_type: :debit)
+
+      attrs = %{
+        payslip_category_id: category.id,
+        item_amount: 100_00
+      }
+
+      assert RecurringPayslipItems.create(registration, attrs, :payslip_item) ==
+               {:error, "Recurring payslip items amount sum can't be negative"}
+
+      refute Repo.get_by(RecurringPayslipItem,
+               org_id: org.id,
+               registration_id: registration.id,
+               type: :payslip_item,
+               payslip_category_id: attrs[:payslip_category_id],
+               item_amount: attrs[:item_amount]
+             )
+    end
+
+    test "when the new payslip_item brings the amount sum to positive" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+
+      insert({:employee_registration_recurring_payslip_item, :outside_item},
+        org: org,
+        registration: registration,
+        outside_item_entry_type: :debit,
+        item_amount: 50_00
+      )
+
+      category = insert(:payslip_category, org: org, entry_type: :credit)
+
+      attrs = %{
+        payslip_category_id: category.id,
+        item_amount: 100_00
+      }
+
+      assert {:ok, %RecurringPayslipItem{id: id}} =
+               RecurringPayslipItems.create(registration, attrs, :payslip_item)
+
+      assert Repo.get_by(RecurringPayslipItem,
+               id: id,
+               org_id: org.id,
+               registration_id: registration.id,
+               type: :payslip_item,
+               payslip_category_id: attrs[:payslip_category_id],
+               item_amount: attrs[:item_amount]
+             )
+    end
+
+    test "when the new payslip_item makes the amount sum less negative" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+
+      insert({:employee_registration_recurring_payslip_item, :outside_item},
+        org: org,
+        registration: registration,
+        outside_item_entry_type: :debit,
+        item_amount: 100_00
+      )
+
+      category = insert(:payslip_category, org: org, entry_type: :credit)
+
+      attrs = %{
+        payslip_category_id: category.id,
+        item_amount: 50_00
+      }
+
+      assert {:ok, %RecurringPayslipItem{id: id}} =
+               RecurringPayslipItems.create(registration, attrs, :payslip_item)
+
+      assert Repo.get_by(RecurringPayslipItem,
+               id: id,
+               org_id: org.id,
+               registration_id: registration.id,
+               type: :payslip_item,
+               payslip_category_id: attrs[:payslip_category_id],
+               item_amount: attrs[:item_amount]
+             )
+    end
   end
 
   describe "delete/2" do
@@ -124,11 +239,88 @@ defmodule Sig.HR.Registrations.RecurringPayslipItemsTest do
       assert {:ok, %RecurringPayslipItem{id: ^id}} =
                RecurringPayslipItems.delete(item.registration, item.id)
 
-      refute Repo.get_by(RecurringPayslipItem,
-               id: id,
-               org_id: item.org_id,
-               registration_id: item.registration_id
-             )
+      refute Repo.get_by(RecurringPayslipItem, id: id, org_id: item.org_id)
+    end
+
+    test "when the deletion brings the amount sum to negative" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+
+      insert({:employee_registration_recurring_payslip_item, :outside_item},
+        org: org,
+        registration: registration,
+        outside_item_entry_type: :debit,
+        item_amount: 50_00
+      )
+
+      category = insert(:payslip_category, org: org, entry_type: :credit)
+
+      %{id: id} = item =
+        insert({:employee_registration_recurring_payslip_item, :payslip_item},
+          org: org,
+          registration: registration,
+          category: category,
+          item_amount: 100_00
+        )
+
+      assert RecurringPayslipItems.delete(item.registration, item.id) ==
+               {:error, "Recurring payslip items amount sum can't be negative"}
+
+      assert Repo.get_by(RecurringPayslipItem, id: id, org_id: org.id)
+    end
+
+    test "when the deletion makes the amount sum less negative" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+
+      insert({:employee_registration_recurring_payslip_item, :outside_item},
+        org: org,
+        registration: registration,
+        outside_item_entry_type: :debit,
+        item_amount: 100_00
+      )
+
+      category = insert(:payslip_category, org: org, entry_type: :debit)
+
+      %{id: id} = item =
+        insert({:employee_registration_recurring_payslip_item, :payslip_item},
+          org: org,
+          registration: registration,
+          category: category,
+          item_amount: 50_00
+        )
+
+      assert {:ok, %RecurringPayslipItem{id: ^id}} =
+               RecurringPayslipItems.delete(item.registration, item.id)
+
+      refute Repo.get_by(RecurringPayslipItem, id: id, org_id: org.id)
+    end
+
+    test "when the deletion brings the amount sum to positive" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+
+      insert({:employee_registration_recurring_payslip_item, :outside_item},
+        org: org,
+        registration: registration,
+        outside_item_entry_type: :credit,
+        item_amount: 50_00
+      )
+
+      category = insert(:payslip_category, org: org, entry_type: :debit)
+
+      %{id: id} = item =
+        insert({:employee_registration_recurring_payslip_item, :payslip_item},
+          org: org,
+          registration: registration,
+          category: category,
+          item_amount: 100_00
+        )
+
+      assert {:ok, %RecurringPayslipItem{id: ^id}} =
+               RecurringPayslipItems.delete(item.registration, item.id)
+
+      refute Repo.get_by(RecurringPayslipItem, id: id, org_id: org.id)
     end
 
     test "when item doesn't belong to registration" do
@@ -143,19 +335,15 @@ defmodule Sig.HR.Registrations.RecurringPayslipItemsTest do
 
       other_registration = insert(:employee_registration, org: org)
 
-      assert RecurringPayslipItems.delete(other_registration, item.id) == :error
+      assert RecurringPayslipItems.delete(other_registration, item.id) == {:error, :not_found}
 
-      assert Repo.get_by(RecurringPayslipItem,
-               id: item.id,
-               org_id: org.id,
-               registration_id: registration.id
-             )
+      assert Repo.get_by(RecurringPayslipItem, id: item.id, org_id: org.id)
     end
 
     test "when item doesn't exist" do
       registration = insert(:employee_registration)
 
-      assert RecurringPayslipItems.delete(registration, UUID.generate()) == :error
+      assert RecurringPayslipItems.delete(registration, UUID.generate()) == {:error, :not_found}
     end
   end
 
