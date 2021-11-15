@@ -26,11 +26,8 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
     socket =
       socket
       |> assign(assigns)
-      |> assign(
-        target_date: Date.utc_today() |> Date.end_of_month(),
-        recurring_payslip_items: Enum.filter(items, &(&1.type in [:payslip_item, :payslip_item_model])),
-        recurring_outside_items: Enum.filter(items, &(&1.type == :outside_item))
-      )
+      |> assign(target_date: Date.utc_today() |> Date.end_of_month())
+      |> assign_items(items)
       |> assign_totals()
 
     {:ok, socket}
@@ -228,8 +225,14 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
 
           <tr :if={@recurring_payslip_items != []} class="text-sm bg-gray-100 font-medium text-gray-500 tracking-wider">
             <td class="py-2 px-6 text-left" colspan="3">Líquido Holerite</td>
-            <td class="py-2 px-6 text-right">{format_amount(@payslip_total)}</td>
+            <td class={"py-2", "px-6", "text-right", "text-red-500": Money.negative?(@payslip_total)}>{format_amount(@payslip_total)}</td>
             <td></td>
+          </tr>
+
+          <tr :if={Money.negative?(@payslip_total)} class="text-sm bg-gray-100 font-medium text-red-500 tracking-wider">
+            <td class="py-2 px-6 text-center" colspan="5">
+              O valor líquido do holerite não pode ser negativo. Favor ajustar antes de gerar um holerite.
+            </td>
           </tr>
 
           {#for item <- @recurring_outside_items}
@@ -264,8 +267,14 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
 
           <tr :if={@recurring_outside_items != []} class="text-sm bg-gray-100 font-medium text-gray-500 tracking-wider">
             <td class="py-2 px-6 text-left" colspan="3">Total</td>
-            <td class="py-2 px-6 text-right">{format_amount(@net_total)}</td>
+            <td class={"py-2", "px-6", "text-right", "text-red-500": Money.negative?(@net_total)}>{format_amount(@net_total)}</td>
             <td></td>
+          </tr>
+
+          <tr :if={Money.negative?(@net_total)} class="text-sm bg-gray-100 font-medium text-red-500 tracking-wider">
+            <td class="py-2 px-6 text-center" colspan="5">
+              O valor total não pode ser negativo. Favor ajustar antes de gerar um holerite.
+            </td>
           </tr>
         </tbody>
       </table>
@@ -290,16 +299,23 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
   defp update_items(socket, date) do
     %{registration: registration} = socket.assigns
 
+    items = HR.list_recurring_payslip_items_by_registration(registration, start_date: date)
+
     socket =
       socket
-      |> assign(
-        target_date: date,
-        recurring_payslip_items:
-          HR.list_recurring_payslip_items_by_registration(registration, start_date: date)
-      )
+      |> assign(target_date: date)
+      |> assign_items(items)
       |> assign_totals()
 
     {:noreply, socket}
+  end
+
+  defp assign_items(socket, items) do
+    assign(
+      socket,
+      recurring_payslip_items: Enum.filter(items, &(&1.type in [:payslip_item, :payslip_item_model])),
+      recurring_outside_items: Enum.filter(items, &(&1.type == :outside_item))
+    )
   end
 
   defp assign_totals(socket) do
