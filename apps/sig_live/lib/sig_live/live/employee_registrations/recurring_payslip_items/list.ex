@@ -152,7 +152,7 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
               <div class="flex justify-between items-center py-3 px-6">
                 <div class="flex items-center">
                   <span class="text-gray-500 font-medium tracking-wider mr-4">
-                    Previsão de Holerite
+                    Holerite Modelo
                   </span>
 
                   <MonthToggle
@@ -175,7 +175,7 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
 
           <tr
             :if={@recurring_payslip_items != []}
-            class="bg-gray-50 uppercase text-xs font-medium text-gray-500 tracking-wider"
+            class="bg-gray-100 uppercase text-xs font-medium text-gray-500 tracking-wider"
           >
             <th class="py-3 px-6 text-left">Código</th>
             <th class="py-3 px-6 text-left">Descrição</th>
@@ -220,14 +220,14 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
         </tbody>
 
         <tfoot :if={@recurring_payslip_items != []}>
-          <tr class="border-b italic bg-gray-50 text-sm text-gray-500 tracking-wider">
+          <tr class="border-b italic bg-gray-100 text-sm text-gray-500 tracking-wider">
             <td class="py-2 px-6 text-left" colspan="2">Subtotais</td>
             <td class="py-2 px-6 text-right">{format_amount(@credit_subtotal)}</td>
             <td class="py-2 px-6 text-right">{format_amount(@debit_subtotal)}</td>
             <td></td>
           </tr>
 
-          <tr class="text-sm bg-gray-50 font-medium text-gray-500 tracking-wider">
+          <tr class="text-sm bg-gray-100 font-medium text-gray-500 tracking-wider">
             <td class="py-2 px-6 text-left" colspan="3">Líquido</td>
             <td class="py-2 px-6 text-right">{format_amount(@total)}</td>
             <td></td>

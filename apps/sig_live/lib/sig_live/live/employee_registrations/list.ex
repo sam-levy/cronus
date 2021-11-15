@@ -54,7 +54,7 @@ defmodule SigLive.EmployeeRegistrations.List do
 
           <tr
             :if={@employee_registrations != []}
-            class="bg-gray-50 uppercase text-xs font-medium text-gray-500 tracking-wider"
+            class="bg-gray-100 uppercase text-xs font-medium text-gray-500 tracking-wider"
           >
             <th class="py-3 px-6 text-left">Empresa</th>
             <th class="py-3 px-3 text-left">Início</th>

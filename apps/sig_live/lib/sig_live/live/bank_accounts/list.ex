@@ -92,7 +92,7 @@ defmodule SigLive.BankAccounts.List do
 
           <tr
             :if={@bank_accounts != [] || @entity_bank_accounts != []}
-            class="bg-gray-50 uppercase text-xs font-medium text-gray-500 tracking-wider"
+            class="bg-gray-100 uppercase text-xs font-medium text-gray-500 tracking-wider"
           >
             <th class="py-3 px-6 text-left">Banco</th>
             <th></th>

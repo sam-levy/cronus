@@ -61,7 +61,7 @@ defmodule SigLive.EmployeeRegistrations.Warnings.List do
 
           <tr
             :if={@warnings != []}
-            class="bg-gray-50 uppercase text-xs font-medium text-gray-500 tracking-wider"
+            class="bg-gray-100 uppercase text-xs font-medium text-gray-500 tracking-wider"
           >
             <th class="py-3 px-6 text-left">Motivo</th>
             <th class="py-3 px-6 text-left">Data</th>
