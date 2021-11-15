@@ -6,6 +6,7 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.OutsideItemForm do
   alias Surface.Components.Form
 
   alias Surface.Components.Form.{
+    Checkbox,
     RadioButton,
     TextInput,
     ErrorTag,
@@ -23,6 +24,7 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.OutsideItemForm do
   prop registration, :struct, required: true
 
   data changeset, :struct, default: HR.create_recurring_payslip_item_change(:outside_item)
+  data message, :string, default: nil
 
   @impl true
   def handle_event("save", %{"recurring_payslip_item" => params}, socket) do
@@ -33,10 +35,17 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.OutsideItemForm do
   end
 
   @impl true
+  def handle_event("form_change", %{"recurring_payslip_item" => params}, socket) do
+    changeset = HR.create_recurring_payslip_item_change(params, :outside_item)
+
+    {:noreply, assign(socket, changeset: changeset)}
+  end
+
+  @impl true
   def render(assigns) do
     ~F"""
     <Modal title="Adicionar Item de Pagamento Recorrente" close={@close_event}>
-      <Form for={@changeset} submit="save" opts={autocomplete: "off"}>
+      <Form for={@changeset} change="form_change" submit="save" opts={autocomplete: "off"}>
         <Field name={:outside_item_description} class="form-field">
           <Label class="form-label">Descrição</Label>
           <TextInput class="form-input"/>
@@ -58,6 +67,17 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.OutsideItemForm do
           <TextInput value={format_amount(@changeset)} class="form-input"/>
           <ErrorTag class="form-error-tag"/>
         </Field>
+
+        <Field :if={show?(@changeset)} name={:outside_item_is_payment_advance} class="form-field">
+          <div class="flex items-center">
+            <Checkbox class="form-checkbox"/>
+            <Label class="form-side-label">É Adiantamento de Salário</Label>
+          </div>
+
+          <ErrorTag class="form-error-tag block"/>
+        </Field>
+
+        <div :if={@message} class="form-error-tag">{@message}</div>
 
         <div class="flex justify-end">
           <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Salvando..."}/>
@@ -111,4 +131,7 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.OutsideItemForm do
 
     {:noreply, socket}
   end
+
+  defp show?(%{changes: %{outside_item_entry_type: :debit}}), do: true
+  defp show?(_), do: false
 end
