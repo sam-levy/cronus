@@ -275,8 +275,8 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
   defp assign_totals(socket) do
     %{assigns: %{payslip_items: payslip_items}} = socket
 
-    payslip_items_credit_subtotal = HR.sum_payslip_items_by(:credit, payslip_items)
-    payslip_items_debit_subtotal = HR.sum_payslip_items_by(:debit, payslip_items)
+    payslip_items_credit_subtotal = Sig.sum_by(:credit, payslip_items)
+    payslip_items_debit_subtotal = Sig.sum_by(:debit, payslip_items)
 
     payslip_items_total =
       Money.subtract(payslip_items_credit_subtotal, payslip_items_debit_subtotal)

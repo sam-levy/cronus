@@ -157,6 +157,5 @@ defmodule Sig.HR do
   defdelegate subscribe_to_payslip_items(payslip), to: Items
   defdelegate unsubscribe_from_payslip_items(payslip), to: Items
   defdelegate broadcast_payslip_items(payslip), to: Items
-  defdelegate sum_payslip_items_by(entry_type, items), to: Items, as: :sum_by
   defdelegate sum_payments_in_advance_items_by_payslip(payslip), to: Items
 end

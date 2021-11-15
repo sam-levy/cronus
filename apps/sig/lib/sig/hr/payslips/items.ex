@@ -59,15 +59,6 @@ defmodule Sig.HR.Payslips.Items do
     end
   end
 
-  def sum_by(entry_type, []) when entry_type in [:credit, :debit], do: Money.new(0)
-
-  def sum_by(entry_type, [%Item{} | _] = items) when entry_type in [:credit, :debit] do
-    Enum.reduce(items, Money.new(0), fn
-      %{entry_type: ^entry_type, amount: amount}, acc -> Money.add(amount, acc)
-      _item, acc -> acc
-    end)
-  end
-
   def subscribe_to_payslip_items(%Payslip{} = payslip) do
     Phoenix.PubSub.subscribe(Sig.PubSub, topic(payslip))
   end

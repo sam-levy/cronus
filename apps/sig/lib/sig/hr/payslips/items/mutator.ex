@@ -191,7 +191,7 @@ defmodule Sig.HR.Payslips.Items.Mutator do
   end
 
   defp calculate_amount(items) do
-    Money.subtract(Items.sum_by(:credit, items), Items.sum_by(:debit, items))
+    Money.subtract(Sig.sum_by(:credit, items), Sig.sum_by(:debit, items))
   end
 
   defp update_auto_adjustable_amount_payable(_repo, %{update_payslip_amount: payslip}) do
