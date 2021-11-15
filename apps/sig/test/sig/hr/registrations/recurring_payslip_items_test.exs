@@ -102,6 +102,41 @@ defmodule Sig.HR.Registrations.RecurringPayslipItemsTest do
              )
     end
 
+    test "when there is an existing recurring item with the same description" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+
+      category =
+        insert(:payslip_category, org: org, entry_type: :credit, description: "DESCRIPTION")
+
+      insert({:employee_registration_recurring_payslip_item, :payslip_item},
+        org: org,
+        registration: registration,
+        category: category,
+        item_amount: 100_00
+      )
+
+      attrs = %{
+        item_amount: 50_00,
+        outside_item_description: "DESCRIPTION",
+        outside_item_entry_type: :credit,
+        outside_item_is_payment_advance: false
+      }
+
+      assert RecurringPayslipItems.create(registration, attrs, :outside_item) ==
+               {:error, "has already been taken"}
+
+      refute Repo.get_by(RecurringPayslipItem,
+               org_id: org.id,
+               registration_id: registration.id,
+               type: :outside_item,
+               item_amount: attrs[:item_amount],
+               outside_item_description: attrs[:outside_item_description],
+               outside_item_entry_type: attrs[:outside_item_entry_type],
+               outside_item_is_payment_advance: attrs[:outside_item_is_payment_advance]
+             )
+    end
+
     test "return changeset errors" do
       registration = insert(:employee_registration)
 

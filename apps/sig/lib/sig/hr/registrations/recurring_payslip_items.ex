@@ -33,10 +33,12 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems do
 
     Multi.new()
     |> Multi.insert(:item, changeset)
-    |> Multi.run(:validate_positive_amount_sum, fn _, %{item: item} ->
-      items = list_by_registration(registration)
-
+    |> Multi.run(:items, fn _, _ -> {:ok, list_by_registration(registration)} end)
+    |> Multi.run(:validate_positive_amount_sum, fn _, %{item: item, items: items} ->
       validate_positive_amount_sum(:create, items, item.id)
+    end)
+    |> Multi.run(:validate_unique_description, fn _, %{items: items} ->
+      validate_unique_description(items)
     end)
     |> Repo.transaction()
     |> handle_return()
@@ -60,6 +62,17 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems do
     end)
     |> Repo.transaction()
     |> handle_return()
+  end
+
+  defp validate_unique_description(items) do
+    items_count = Enum.count(items)
+    uniques_count = items |> Enum.uniq_by(& &1.description) |> Enum.count()
+
+    if items_count == uniques_count do
+      {:ok, nil}
+    else
+      {:error, "has already been taken"}
+    end
   end
 
   # TODO: Add tests
