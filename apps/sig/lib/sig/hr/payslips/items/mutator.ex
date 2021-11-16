@@ -173,25 +173,9 @@ defmodule Sig.HR.Payslips.Items.Mutator do
   end
 
   defp update_payslip_amount(_repo, %{ensure_payslip_is_open: payslip}) do
-    payslip
-    |> Items.list_by_payslip()
-    |> calculate_amount()
-    |> case do
-      %Money{amount: amount} when amount < 0 ->
-        {:error, "payslip amount can't be negative"}
+    items = Items.list_by_payslip(payslip)
 
-      %Money{amount: amount} when amount == payslip.amount.amount ->
-        {:ok, payslip}
-
-      %Money{amount: amount} ->
-        payslip
-        |> Payslip.update_amount_changeset(%{amount: amount})
-        |> Repo.update()
-    end
-  end
-
-  defp calculate_amount(items) do
-    Money.subtract(Sig.sum_by(:credit, items), Sig.sum_by(:debit, items))
+    Payslips.update_payslip_amount(payslip, items)
   end
 
   defp update_auto_adjustable_amount_payable(_repo, %{update_payslip_amount: payslip}) do

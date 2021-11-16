@@ -1,6 +1,7 @@
 defmodule Sig.HR.Payslips do
   import Ecto.Query
 
+  alias Sig.HR.Payslips.CreateFromRecurringPayslipItems
   alias Sig.HR.Registrations.Registration
   alias Sig.HR.Payslips.Create
   alias Sig.HR.Payslips.Payslip
@@ -8,6 +9,10 @@ defmodule Sig.HR.Payslips do
   alias Sig.Repo
 
   defdelegate create(registration, attrs), to: Create, as: :call
+
+  defdelegate create_from_recurring_payslip_items(registration, attrs),
+    to: CreateFromRecurringPayslipItems,
+    as: :call
 
   def create_change(%{} = attrs \\ %{}) do
     Payslip.create_changeset(attrs)
@@ -29,6 +34,28 @@ defmodule Sig.HR.Payslips do
   end
 
   def get_by(attrs), do: Repo.get_by(Payslip, attrs)
+
+  def update_payslip_amount(%Payslip{} = payslip, items) when is_list(items) do
+    items
+    |> Enum.filter(& &1.payslip_id == payslip.id)
+    |> calculate_amount()
+    |> case do
+      %Money{amount: amount} when amount < 0 ->
+        {:error, "payslip amount can't be negative"}
+
+      %Money{amount: amount} when amount == payslip.amount.amount ->
+        {:ok, payslip}
+
+      %Money{amount: amount} ->
+        payslip
+        |> Payslip.update_amount_changeset(%{amount: amount})
+        |> Repo.update()
+    end
+  end
+
+  defp calculate_amount(items) do
+    Money.subtract(Sig.sum_by(:credit, items), Sig.sum_by(:debit, items))
+  end
 
   def subscribe_to_registration_payslips(%Registration{} = registration) do
     Phoenix.PubSub.subscribe(Sig.PubSub, registration_payslips_topic(registration))

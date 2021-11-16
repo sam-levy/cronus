@@ -67,6 +67,177 @@ defmodule Sig.HR.PayslipsTest do
     end
   end
 
+  describe "update_payslip_amount/2" do
+    test "updates the amount of the payslip based on the payslip items" do
+      org = insert(:org)
+      payslip = insert(:payslip, org: org)
+
+      salary_category =
+        insert(:payslip_category,
+          org: org,
+          code: "1",
+          entry_type: :credit,
+          description: "SALÁRIO"
+        )
+
+      salary_item =
+        insert(:payslip_item,
+          org: org,
+          payslip: payslip,
+          category: salary_category,
+          amount: Money.new(1_000_00)
+        )
+
+      salary_advance_category =
+        insert(:payslip_category,
+          org: org,
+          code: "12",
+          entry_type: :debit,
+          description: "ADIANTAMENTO ANTERIOR"
+        )
+
+      payment_advance_item =
+        insert(:payslip_item,
+          org: org,
+          payslip: payslip,
+          category: salary_advance_category,
+          amount: Money.new(400_00),
+          is_payment_advance: true
+        )
+
+      health_insurance_category =
+        insert(:payslip_category,
+          org: org,
+          code: "115",
+          entry_type: :debit,
+          description: "ASSISTÊNCIA MÉDICA"
+        )
+
+      health_insurance_item =
+        insert(:payslip_item,
+          org: org,
+          payslip: payslip,
+          category: health_insurance_category,
+          amount: Money.new(300_00)
+        )
+
+      salary_supplement_item =
+        insert(:payslip_outside_item,
+          org: org,
+          payslip: payslip,
+          description: "Complemento Salário",
+          entry_type: :credit,
+          amount: Money.new(200_00)
+        )
+
+      # Item from another payslip to be ignored
+      to_ignore =
+        insert(:payslip_outside_item,
+          org: org,
+          description: "Complemento Salário",
+          entry_type: :credit,
+          amount: Money.new(150_00)
+        )
+
+      items = [
+        salary_item,
+        payment_advance_item,
+        health_insurance_item,
+        salary_supplement_item,
+        to_ignore
+      ]
+
+      assert {:ok, %Payslip{amount: %Money{amount: 500_00}}} =
+               Payslips.update_payslip_amount(payslip, items)
+    end
+
+    test "when items brings the payslip amount to negative" do
+      org = insert(:org)
+      payslip = insert(:payslip, org: org)
+
+      salary_category =
+        insert(:payslip_category,
+          org: org,
+          code: "1",
+          entry_type: :credit,
+          description: "SALÁRIO"
+        )
+
+      salary_item =
+        insert(:payslip_item,
+          org: org,
+          payslip: payslip,
+          category: salary_category,
+          amount: Money.new(1_000_00)
+        )
+
+      salary_advance_category =
+        insert(:payslip_category,
+          org: org,
+          code: "12",
+          entry_type: :debit,
+          description: "ADIANTAMENTO ANTERIOR"
+        )
+
+      payment_advance_item =
+        insert(:payslip_item,
+          org: org,
+          payslip: payslip,
+          category: salary_advance_category,
+          amount: Money.new(1_100_00),
+          is_payment_advance: true
+        )
+
+      items = [salary_item, payment_advance_item]
+
+      assert Payslips.update_payslip_amount(payslip, items) ==
+               {:error, "payslip amount can't be negative"}
+    end
+
+    test "when items brings the payslip amount to zero" do
+      org = insert(:org)
+      payslip = insert(:payslip, org: org)
+
+      salary_category =
+        insert(:payslip_category,
+          org: org,
+          code: "1",
+          entry_type: :credit,
+          description: "SALÁRIO"
+        )
+
+      salary_item =
+        insert(:payslip_item,
+          org: org,
+          payslip: payslip,
+          category: salary_category,
+          amount: Money.new(1_000_00)
+        )
+
+      salary_advance_category =
+        insert(:payslip_category,
+          org: org,
+          code: "12",
+          entry_type: :debit,
+          description: "ADIANTAMENTO ANTERIOR"
+        )
+
+      payment_advance_item =
+        insert(:payslip_item,
+          org: org,
+          payslip: payslip,
+          category: salary_advance_category,
+          amount: Money.new(1_000_00),
+          is_payment_advance: true
+        )
+
+      items = [salary_item, payment_advance_item]
+
+      assert {:ok, %Payslip{amount: %Money{amount: 0_00}}} =
+               Payslips.update_payslip_amount(payslip, items)
+    end
+  end
+
   describe "get_by/2" do
     test "returns a payslip by attrs" do
       org = insert(:org)
