@@ -39,7 +39,6 @@ defmodule SigLive.EmployeeRegistrations.Payslips do
         />
 
         <Payables.List
-          :if={@selected_payslip_items != []}
           id="payables_list"
           payslip={@selected_payslip}
           payables={@selected_payslip_payables}
