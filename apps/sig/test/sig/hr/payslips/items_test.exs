@@ -151,11 +151,15 @@ defmodule Sig.HR.Payslips.ItemsTest do
           org: org,
           code: "1",
           entry_type: :credit,
-          description: "SALÁRIO",
-          amount: 1_000_00
+          description: "SALÁRIO"
         )
 
-      insert(:payslip_item, org: org, payslip: payslip, category: salary_category)
+      insert(:payslip_item,
+        org: org,
+        payslip: payslip,
+        category: salary_category,
+        amount: 1_000_00
+      )
 
       salary_advance_category =
         insert(:payslip_category,
@@ -187,11 +191,15 @@ defmodule Sig.HR.Payslips.ItemsTest do
           org: org,
           code: "115",
           entry_type: :debit,
-          description: "ASSISTÊNCIA MÉDICA",
-          amount: 300_00
+          description: "ASSISTÊNCIA MÉDICA"
         )
 
-      insert(:payslip_item, org: org, payslip: payslip, category: health_insurance_category)
+      insert(:payslip_item,
+        org: org,
+        payslip: payslip,
+        category: health_insurance_category,
+        amount: 300_00
+      )
 
       assert Items.sum_payments_in_advance_items_by_payslip(payslip) == %Money{
                amount: 600_00,
@@ -208,22 +216,30 @@ defmodule Sig.HR.Payslips.ItemsTest do
           org: org,
           code: "1",
           entry_type: :credit,
-          description: "SALÁRIO",
-          amount: 1_000_00
+          description: "SALÁRIO"
         )
 
-      insert(:payslip_item, org: org, payslip: payslip, category: salary_category)
+      insert(:payslip_item,
+        org: org,
+        payslip: payslip,
+        category: salary_category,
+        amount: 1_000_00
+      )
 
       health_insurance_category =
         insert(:payslip_category,
           org: org,
           code: "115",
           entry_type: :debit,
-          description: "ASSISTÊNCIA MÉDICA",
-          amount: 300_00
+          description: "ASSISTÊNCIA MÉDICA"
         )
 
-      insert(:payslip_item, org: org, payslip: payslip, category: health_insurance_category)
+      insert(:payslip_item,
+        org: org,
+        payslip: payslip,
+        category: health_insurance_category,
+        amount: 300_00
+      )
 
       assert Items.sum_payments_in_advance_items_by_payslip(payslip) == %Money{
                amount: 0,

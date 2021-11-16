@@ -92,6 +92,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
         org: org,
         registration: registration,
         benefit_type: :health_insurance,
+        benefit_amount_date: ~D[2021-02-01],
         benefit_amount: 300_00
       )
 
