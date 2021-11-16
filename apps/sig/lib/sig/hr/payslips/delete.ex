@@ -32,7 +32,7 @@ defmodule Sig.HR.Payslips.Delete do
     case Payslips.get_by(id: id, org_id: org_id) do
       %{is_closed: false, amount: %Money{amount: 0}} = payslip -> {:ok, payslip}
       %{is_closed: true} -> {:error, @closed_payslip_message}
-      %{amount: %Money{amount: amount}} when amount > 0  -> {:error, @payslip_with_items_message}
+      %{amount: %Money{amount: amount}} when amount > 0 -> {:error, @payslip_with_items_message}
     end
   end
 
