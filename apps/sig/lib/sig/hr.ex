@@ -127,6 +127,10 @@ defmodule Sig.HR do
     to: RecurringPayslipItems,
     as: :create_change
 
+  defdelegate create_payslip_from_recurring_payslip_items(registration, attrs),
+    to: Payslips,
+    as: :create_from_recurring_payslip_items
+
   defdelegate create_payslip(registration, attrs), to: Payslips, as: :create
   defdelegate list_payslips_by_registration(registration), to: Payslips, as: :list_by_registration
   defdelegate get_payslip(registration, id), to: Payslips, as: :get

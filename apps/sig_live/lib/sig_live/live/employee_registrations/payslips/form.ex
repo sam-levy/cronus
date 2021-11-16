@@ -16,7 +16,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Form do
 
   alias Sig.HR.Payslips.PayslipGroupType
 
-  alias SigLive.Components.Modal
+  alias SigLive.Components.{Modal, Switch}
 
   @form_states [:new_mode, :edit_mode, :closed]
 
@@ -25,6 +25,8 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Form do
   prop form_state, :atom, required: true, values!: @form_states
   prop registration, :struct, required: true
   prop payslip_id, :string, default: nil
+
+  data is_from_model, :boolean, default: true
 
   @impl true
   def update(assigns, socket) do
@@ -59,8 +61,18 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Form do
   end
 
   @impl true
+  def handle_event("toggle_is_from_model", _params, socket) do
+    {:noreply, update(socket, :is_from_model, &(!&1))}
+  end
+
+  @impl true
   def handle_event("save", %{"payslip" => params}, socket) do
-    %{params: params, form_state: socket.assigns.form_state, socket: socket}
+    %{
+      params: params,
+      form_state: socket.assigns.form_state,
+      is_from_model: socket.assigns.is_from_model,
+      socket: socket
+    }
     |> validate_params()
     |> persist()
     |> handle_return()
@@ -103,6 +115,13 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Form do
           <ErrorTag class="form-error-tag"/>
         </Field>
 
+        <div class="flex justify-start items-center">
+          <Switch is_active={@is_from_model} toggle_is_active="toggle_is_from_model"/>
+          <label class="form-side-label ml-2":on-click="toggle_is_from_model">
+            Criar a partir do modelo
+          </label>
+        </div>
+
         <div class="flex justify-end">
           <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Adicionando..."}/>
         </div>
@@ -137,7 +156,20 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Form do
 
   defp persist(%{validation: {:error, _}} = context), do: context
 
-  defp persist(%{validation: {:ok, changeset}, form_state: :new_mode} = context) do
+  defp persist(
+         %{validation: {:ok, changeset}, form_state: :new_mode, is_from_model: true} = context
+       ) do
+    %{registration: registration} = context.socket.assigns
+
+    case HR.create_payslip_from_recurring_payslip_items(registration, changeset.changes) do
+      {:ok, payslip} -> Map.put(context, :return, {:ok, payslip})
+      {:error, error} -> Map.put(context, :return, {:error, error})
+    end
+  end
+
+  defp persist(
+         %{validation: {:ok, changeset}, form_state: :new_mode, is_from_model: false} = context
+       ) do
     %{registration: registration} = context.socket.assigns
 
     case HR.create_payslip(registration, changeset.changes) do
@@ -154,7 +186,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Form do
     {:noreply, assign(socket, changeset: changeset)}
   end
 
-  defp handle_return(%{return: {:ok, _registration}, socket: socket}) do
+  defp handle_return(%{return: {:ok, _payslip}, socket: socket}) do
     %{registration: registration, form_state: form_state, close_fun: close_fun} = socket.assigns
 
     HR.broadcast_registration_payslips(registration)
@@ -192,7 +224,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Form do
     current = Date.utc_today() |> Date.beginning_of_month()
 
     Sig.Date.list_by_month(current, :prior, 1) ++
-    [current] ++
-    Sig.Date.list_by_month(current, :next, 3)
+      [current] ++
+      Sig.Date.list_by_month(current, :next, 3)
   end
 end
