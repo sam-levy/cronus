@@ -149,7 +149,10 @@ defmodule SigLive.EmployeeRegistrations.Show do
 
       subscribe_to_payslip_subscriptions(payslip)
 
-      {:noreply, assign(socket, payslips: payslips, selected_payslip: payslip)}
+      {:noreply,
+       socket
+       |> assign(payslips: payslips)
+       |> assign_selected_payslip(payslip)}
     end
   end
 
@@ -175,13 +178,7 @@ defmodule SigLive.EmployeeRegistrations.Show do
     unsubscribe_from_payslip_subscriptions(socket.assigns.selected_payslip)
     subscribe_to_payslip_subscriptions(payslip)
 
-    socket = assign(socket,
-      selected_payslip: payslip,
-      selected_payslip_items: list_payslip_items(payslip),
-      selected_payslip_payables: list_payslip_payables(payslip)
-    )
-
-    {:noreply, socket}
+    {:noreply, assign_selected_payslip(socket, payslip)}
   end
 
   @impl true
@@ -239,6 +236,14 @@ defmodule SigLive.EmployeeRegistrations.Show do
     HR.unsubscribe_from_payslip(payslip)
     HR.unsubscribe_from_payslip_items(payslip)
     Finance.unsubscribe_from_payables_for_payslip(payslip)
+  end
+
+  defp assign_selected_payslip(socket, payslip) do
+    assign(socket,
+      selected_payslip: payslip,
+      selected_payslip_items: list_payslip_items(payslip),
+      selected_payslip_payables: list_payslip_payables(payslip)
+    )
   end
 
   defp list_payslip_items(nil), do: []

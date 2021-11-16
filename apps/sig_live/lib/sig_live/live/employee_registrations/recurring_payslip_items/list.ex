@@ -27,7 +27,7 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
     socket =
       socket
       |> assign(assigns)
-      |> assign(target_date: Date.utc_today() |> Date.end_of_month())
+      |> assign(target_date: Date.utc_today() |> Date.beginning_of_month())
       |> assign_items(items)
       |> assign_totals()
 
@@ -42,11 +42,7 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
   @impl true
   def handle_event("previous_month", _, socket) do
     %{target_date: date} = socket.assigns
-
-    target_date =
-      date
-      |> Date.beginning_of_month()
-      |> Date.add(-1)
+    target_date = date |> Date.add(-1) |> Date.beginning_of_month()
 
     update_items(socket, target_date)
   end
@@ -54,12 +50,7 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
   @impl true
   def handle_event("next_month", _, socket) do
     %{target_date: date} = socket.assigns
-
-    target_date =
-      date
-      |> Date.end_of_month()
-      |> Date.add(1)
-      |> Date.end_of_month()
+    target_date = date |> Date.end_of_month() |> Date.add(1)
 
     update_items(socket, target_date)
   end
