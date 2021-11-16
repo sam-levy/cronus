@@ -37,7 +37,7 @@ defmodule Sig.HR.Payslips do
 
   def update_payslip_amount(%Payslip{} = payslip, items) when is_list(items) do
     items
-    |> Enum.filter(& &1.payslip_id == payslip.id)
+    |> Enum.filter(&(&1.payslip_id == payslip.id))
     |> calculate_amount()
     |> case do
       %Money{amount: amount} when amount < 0 ->
