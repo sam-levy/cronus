@@ -4,6 +4,7 @@ defmodule Sig.HR.Payslips do
   alias Sig.HR.Payslips.CreateFromRecurringPayslipItems
   alias Sig.HR.Registrations.Registration
   alias Sig.HR.Payslips.Create
+  alias Sig.HR.Payslips.Delete
   alias Sig.HR.Payslips.Payslip
   alias Sig.Organizations
   alias Sig.Repo
@@ -13,6 +14,8 @@ defmodule Sig.HR.Payslips do
   defdelegate create_from_recurring_payslip_items(registration, attrs),
     to: CreateFromRecurringPayslipItems,
     as: :call
+
+  defdelegate delete(payslip), to: Delete, as: :call
 
   def create_change(%{} = attrs \\ %{}) do
     Payslip.create_changeset(attrs)
@@ -69,6 +72,14 @@ defmodule Sig.HR.Payslips do
     )
   end
 
+  def broadcast_deleted_registration_payslip(%Registration{} = registration, %Payslip{} = payslip) do
+    Phoenix.PubSub.broadcast(
+      Sig.PubSub,
+      registration_payslips_topic(registration),
+      {:deleted_payslip, payslip}
+    )
+  end
+
   def subscribe_to_payslip(%Payslip{} = payslip) do
     Phoenix.PubSub.subscribe(Sig.PubSub, payslip_topic(payslip))
   end
@@ -77,7 +88,7 @@ defmodule Sig.HR.Payslips do
     Phoenix.PubSub.unsubscribe(Sig.PubSub, payslip_topic(payslip))
   end
 
-  def broadcast_payslip(%Payslip{} = payslip) do
+  def broadcast_payslip_update(%Payslip{} = payslip) do
     Phoenix.PubSub.broadcast(
       Sig.PubSub,
       payslip_topic(payslip),

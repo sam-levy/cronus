@@ -301,6 +301,25 @@ defmodule Sig.HR.PayslipsTest do
     end
   end
 
+  describe "broadcast_deleted_registration_payslip/1" do
+    test "broadcasts a deleted payslip from a registration" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+
+      payslip = insert(:payslip, org: org, registration: registration)
+
+      topic = "registration_id:" <> registration.id <> ":payslips"
+
+      @endpoint.subscribe(topic)
+
+      assert Payslips.broadcast_deleted_registration_payslip(registration, payslip) == :ok
+
+      assert_receive {:deleted_payslip, ^payslip}
+
+      @endpoint.unsubscribe(topic)
+    end
+  end
+
   describe "subscribe_to_payslip/1" do
     test "subscribes to a payslip topic" do
       payslip = insert(:payslip)
@@ -319,7 +338,7 @@ defmodule Sig.HR.PayslipsTest do
     end
   end
 
-  describe "broadcast_payslip/1" do
+  describe "broadcast_payslip_update/1" do
     test "broadcasts a payslip" do
       payslip = insert(:payslip)
 
@@ -327,7 +346,7 @@ defmodule Sig.HR.PayslipsTest do
 
       @endpoint.subscribe(topic)
 
-      assert Payslips.broadcast_payslip(payslip) == :ok
+      assert Payslips.broadcast_payslip_update(payslip) == :ok
 
       assert_receive {:updated_payslip, received_payslip}
 
