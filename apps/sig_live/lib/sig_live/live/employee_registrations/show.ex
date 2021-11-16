@@ -162,6 +162,22 @@ defmodule SigLive.EmployeeRegistrations.Show do
   end
 
   @impl true
+  def handle_info({:deleted_payslip, payslip}, socket) do
+    payslips = Enum.reject(socket.assigns.payslips, & &1.id == payslip.id)
+
+    if socket.assigns.selected_payslip.id == payslip.id do
+      payslip = List.first(payslips)
+
+      {:noreply,
+        socket
+        |> assign(payslips: payslips)
+        |> assign_selected_payslip(payslip)}
+    else
+      {:noreply, assign(socket, payslips: payslips)}
+    end
+  end
+
+  @impl true
   def handle_info({:updated_payslip_items, items}, socket) do
     {:noreply, assign(socket, selected_payslip_items: items)}
   end

@@ -18,7 +18,8 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
   data payslip_item_form_state, :atom, default: :closed, values!: PayslipItemForm.states()
   data outside_item_form_state, :atom, default: :closed, values!: OutsideItemForm.states()
   data update_item_amount_form_state, :atom, default: :closed, values!: UpdateItemAmountForm.states()
-  data delete_confirmation_dialog_state, :atom, default: :closed, values!: ConfirmationDialog.states()
+  data delete_item_confirmation_dialog_state, :atom, default: :closed, values!: ConfirmationDialog.states()
+  data delete_payslip_confirmation_dialog_state, :atom, default: :closed, values!: ConfirmationDialog.states()
 
   data item_id, :string, default: nil
   data message, :string, default: nil
@@ -54,12 +55,17 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
 
   @impl true
   def handle_event("open_delete_confirmation_dialog", %{"item_id" => id}, socket) do
-    {:noreply, assign(socket, delete_confirmation_dialog_state: :open, item_id: id)}
+    {:noreply, assign(socket, delete_item_confirmation_dialog_state: :open, item_id: id)}
   end
 
   @impl true
   def handle_event("open_update_item_amount_form", %{"item_id" => id}, socket) do
     {:noreply, assign(socket, update_item_amount_form_state: :open, item_id: id)}
+  end
+
+  @impl true
+  def handle_event("open_delete_payslip_confirmation_dialog", _, socket) do
+    {:noreply, assign(socket, delete_payslip_confirmation_dialog_state: :open)}
   end
 
   @impl true
@@ -73,7 +79,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
 
     with {:ok, item} <- HR.fetch_payslip_item(payslip, item_id),
          {:ok, _item} <- HR.delete_payslip_item(payslip, item) do
-      HR.broadcast_payslip(payslip)
+      HR.broadcast_payslip_update(payslip)
       HR.broadcast_payslip_items(payslip)
       Finance.broadcast_payables_for_payslip(payslip)
       send(self(), {:flash, :info, "Item removido"})
@@ -81,6 +87,22 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
       {:noreply, assign(socket, closed_state())}
     else
       {:error, message} -> {:noreply, assign(socket, message: message)}
+    end
+  end
+
+  @impl true
+  def handle_event("delete_payslip", _, socket) do
+    %{registration: registration, payslip: payslip} = socket.assigns
+
+    case HR.delete_payslip(payslip) do
+      {:ok, payslip} ->
+        HR.broadcast_deleted_registration_payslip(registration, payslip)
+        send(self(), {:flash, :info, "Holerite removido"})
+
+        {:noreply, assign(socket, closed_state())}
+
+      {:error, message} ->
+        {:noreply, assign(socket, message: message)}
     end
   end
 
@@ -96,11 +118,21 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
     ~F"""
     <div>
       <ConfirmationDialog
-        :if={@delete_confirmation_dialog_state != :closed}
+        :if={@delete_item_confirmation_dialog_state != :closed}
         close_event="close_modals"
         action_event="delete_payslip_item"
-        dialog_title="Confirmar Remoção"
+        dialog_title="Confirmar Remoção do Item do Holerite"
         confirmation_msg="Deseja realmente remover o item?"
+        action_btn_msg="Remover"
+        error_message={@message}
+      />
+
+      <ConfirmationDialog
+        :if={@delete_payslip_confirmation_dialog_state != :closed}
+        close_event="close_modals"
+        action_event="delete_payslip"
+        dialog_title="Confirmar Remoção do Holerite"
+        confirmation_msg="Deseja realmente remover o Holerite?"
         action_btn_msg="Remover"
         error_message={@message}
       />
@@ -145,6 +177,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
                 <DropdownBtn>
                   <a :on-click="open_new_payslip_item_form" class="dropdown-item">Item do holerite</a>
                   <a :on-click="open_new_outside_item_form" class="dropdown-item">Item fora do holerite</a>
+                  <a :if={@items == []} :on-click="open_delete_payslip_confirmation_dialog" class="dropdown-item">Remover Holerite</a>
                 </DropdownBtn>
               </div>
             </th>
@@ -299,7 +332,8 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
       payslip_item_form_state: :closed,
       outside_item_form_state: :closed,
       update_item_amount_form_state: :closed,
-      delete_confirmation_dialog_state: :closed
+      delete_item_confirmation_dialog_state: :closed,
+      delete_payslip_confirmation_dialog_state: :closed
     ]
   end
 end
