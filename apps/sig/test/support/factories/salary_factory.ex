@@ -6,13 +6,16 @@ defmodule Sig.Factories.SalaryFactory do
       def factory(:employee_salary, attrs) do
         org = Keyword.get(attrs, :org) || insert(:org)
 
+        admission_date = 100 |> Faker.Date.backward() |> Date.beginning_of_month()
+
         registration =
-          Keyword.get(attrs, :registration) || insert(:employee_registration, org: org)
+          Keyword.get(attrs, :registration) ||
+            insert(:employee_registration, org: org, admission_date: admission_date)
 
         %Salary{
           org: org,
           registration: registration,
-          start_date: Faker.Date.backward(100),
+          start_date: admission_date,
           amount: Enum.random(1_200_00..4_000_00)
         }
       end

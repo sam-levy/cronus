@@ -16,7 +16,8 @@ defmodule Sig.Factories.PayslipFactory do
             insert(:payslip_group, org: org, type: type, date: Date.beginning_of_month(start_date))
 
         registration =
-          Keyword.get(attrs, :registration) || insert(:employee_registration, org: org)
+          Keyword.get(attrs, :registration) ||
+            insert(:employee_registration, org: org, admimission_date: start_date)
 
         %Payslip{
           org: org,
