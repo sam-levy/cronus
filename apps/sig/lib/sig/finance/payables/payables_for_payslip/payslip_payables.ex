@@ -9,6 +9,14 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.PayslipPayables do
   alias Sig.Repo
 
   # TODO: Add test
+  def list_by_payslip(%Payslip{} = payslip) do
+    PayslipPayable
+    |> where(org_id: ^payslip.org_id)
+    |> where(payslip_id: ^payslip.id)
+    |> Repo.all()
+  end
+
+  # TODO: Add test
   def create(%Payslip{} = payslip, %Payable{} = payable, opts \\ []) do
     Multi.new()
     |> Multi.insert(:payslip_payable, %PayslipPayable{

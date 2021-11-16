@@ -65,6 +65,7 @@ defmodule Sig.Finance do
   defdelegate create_payable_for_payslip_change(attrs \\ %{}), to: Payables
   defdelegate update_payable_for_payslip_change(payable, attrs \\ %{}), to: Payables
   defdelegate list_payables_by_payslip(payslip), to: Payables, as: :list_by_payslip
+  defdelegate list_payslip_payables_by_payslip(payslip), to: Payables
   defdelegate get_payable_by_payslip(payslip, id), to: Payables, as: :get_by_payslip
   defdelegate fetch_payable_by_payslip(payslip, id), to: Payables, as: :fetch_by_payslip
   defdelegate subscribe_to_payables_for_payslip(payslip), to: Payables

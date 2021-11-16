@@ -26,6 +26,8 @@ defmodule Sig.Finance.Payables.PayablesForPayslip do
     to: UpdateAutoAdjustableAmountPayable,
     as: :call
 
+  defdelegate list_payslip_payables_by_payslip(payslip), to: PayslipPayables, as: :list_by_payslip
+
   def create_change(%{} = attrs \\ %{}) do
     Payable.create_changeset(attrs)
   end

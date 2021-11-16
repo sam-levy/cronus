@@ -38,6 +38,8 @@ defmodule Sig.Finance.Payables do
   defdelegate unsubscribe_from_payables_for_payslip(payslip), to: PayablesForPayslip
   defdelegate broadcast_payables_for_payslip(payslip), to: PayablesForPayslip
 
+  defdelegate list_payslip_payables_by_payslip(payslip), to: PayablesForPayslip
+
   def get_by(attrs), do: Repo.get_by(Payable, attrs)
 
   def set_changeset_method(%Ecto.Changeset{data: %Payable{}} = changeset, method)
