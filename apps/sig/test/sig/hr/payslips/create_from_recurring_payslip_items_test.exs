@@ -180,7 +180,7 @@ defmodule Sig.HR.Payslips.CreateFromRecurringPayslipItemsTest do
 
       assert payslip =
                Repo.get_by(Payslip,
-                 #  amount: 732_00,
+                 amount: 732_00,
                  id: id,
                  org_id: org.id,
                  registration_id: registration.id,
@@ -197,6 +197,38 @@ defmodule Sig.HR.Payslips.CreateFromRecurringPayslipItemsTest do
                %Item{code: "12", amount: %Money{amount: 400_00}},
                %Item{code: nil, amount: %Money{amount: 200_00}}
              ] = Items.list_by_payslip(payslip)
+    end
+
+    test "when recurring payslip items amount sum is negative" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org, admission_date: ~D[2021-02-01])
+
+      insert(:employee_salary,
+        org: org,
+        registration: registration,
+        amount: 1_000_00,
+        start_date: ~D[2021-02-01]
+      )
+
+      # outside_item
+
+      insert({:employee_registration_recurring_payslip_item, :outside_item},
+        org: org,
+        registration: registration,
+        item_amount: 1_100_00,
+        outside_item_entry_type: :debit
+      )
+
+      attrs = %{
+        type: :regular,
+        start_date: ~D[2021-02-01],
+        end_date: ~D[2021-02-28]
+      }
+
+      assert CreateFromRecurringPayslipItems.call(registration, attrs) ==
+               {:error, "payslip amount can't be negative"}
+
+      refute Repo.get_by(Payslip, org_id: org.id, registration_id: registration.id)
     end
   end
 end
