@@ -32,7 +32,8 @@ defmodule SigLive.EmployeeRegistrations.Show do
         payslips: [],
         selected_payslip: nil,
         selected_payslip_items: [],
-        selected_payslip_payables: []
+        selected_payslip_payables: [],
+        recurring_payslip_items: []
       )
 
     {:ok, socket,
