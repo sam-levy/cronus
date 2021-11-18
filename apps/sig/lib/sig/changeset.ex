@@ -163,6 +163,19 @@ defmodule Sig.Changeset do
     end
   end
 
+  # TODO: Add test
+  def errors_to_string(changeset) do
+    Ecto.Changeset.traverse_errors(changeset, fn {msg, opts} ->
+      Enum.reduce(opts, msg, fn {key, value}, acc ->
+        String.replace(acc, "%{#{key}}", to_string(value))
+      end)
+    end)
+    |> Enum.reduce("", fn {k, v}, acc ->
+      joined_errors = Enum.join(v, "; ")
+      "#{acc}#{k}: #{joined_errors}\n"
+    end)
+  end
+
   defp compare_numbers(num, num), do: :eq
   defp compare_numbers(first, second) when first < second, do: :lt
   defp compare_numbers(_first, _second), do: :gt

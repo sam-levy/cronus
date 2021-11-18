@@ -86,7 +86,11 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
 
       {:noreply, assign(socket, closed_state())}
     else
-      {:error, message} -> {:noreply, assign(socket, message: message)}
+      {:error, message} when is_binary(message) ->
+        {:noreply, assign(socket, message: message)}
+
+      {:error, changeset} when is_struct(changeset) ->
+        {:noreply, assign(socket, message: Sig.Changeset.errors_to_string(changeset))}
     end
   end
 
