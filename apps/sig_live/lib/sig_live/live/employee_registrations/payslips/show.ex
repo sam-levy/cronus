@@ -7,6 +7,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
   alias SigLive.Components.ConfirmationDialog
   alias SigLive.Components.DropdownBtn
   alias SigLive.Components.DropdownOpts
+  alias SigLive.Components.ToggleIcon
   alias SigLive.EmployeeRegistrations.Payslips.OutsideItemForm
   alias SigLive.EmployeeRegistrations.Payslips.PayslipItemForm
   alias SigLive.EmployeeRegistrations.Payslips.UpdateItemAmountForm
@@ -71,6 +72,27 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
   @impl true
   def handle_event("close_modals", _, socket) do
     {:noreply, assign(socket, closed_state())}
+  end
+
+  @impl true
+  def handle_event("toggle_close_payslip", _, socket) do
+    %{payslip: payslip} = socket.assigns
+
+    case HR.toggle_payslip_is_closed(payslip) do
+      {:ok, payslip} ->
+        HR.broadcast_payslip_update(payslip)
+
+        message = if payslip.is_closed, do: "Holerite bloqueado", else: "Holerite desbloqueado"
+
+        send(self(), {:flash, :info, message})
+
+        {:noreply, socket}
+
+      {:error, _changeset} ->
+        send(self(), {:flash, :error, "Falha ao bloquear o holerite"})
+
+        {:noreply, socket}
+    end
   end
 
   @impl true
@@ -178,11 +200,21 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
                   </span>
                 </span>
 
-                <DropdownBtn>
-                  <a :on-click="open_new_payslip_item_form" class="dropdown-item">Item do holerite</a>
-                  <a :on-click="open_new_outside_item_form" class="dropdown-item">Item fora do holerite</a>
-                  <a :if={@items == []} :on-click="open_delete_payslip_confirmation_dialog" class="dropdown-item">Remover Holerite</a>
-                </DropdownBtn>
+                <div class="flex items-center">
+                  <ToggleIcon
+                    is_active={!@payslip.is_closed}
+                    toggle="toggle_close_payslip"
+                    class="mr-3"
+                    active_icon="lock_open"
+                    inactive_icon="lock_closed"
+                  />
+
+                  <DropdownBtn disabled={@payslip.is_closed}>
+                    <a :on-click="open_new_payslip_item_form" class="dropdown-item">Item do holerite</a>
+                    <a :on-click="open_new_outside_item_form" class="dropdown-item">Item fora do holerite</a>
+                    <a :if={@items == []} :on-click="open_delete_payslip_confirmation_dialog" class="dropdown-item">Remover Holerite</a>
+                  </DropdownBtn>
+                </div>
               </div>
             </th>
           </tr>
@@ -219,7 +251,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
               </td>
 
               <td class="pr-5 text-right">
-                <DropdownOpts>
+                <DropdownOpts :if={!@payslip.is_closed}>
                   <a
                     :on-click="open_update_item_amount_form"
                     phx-value-item_id={item.id}
