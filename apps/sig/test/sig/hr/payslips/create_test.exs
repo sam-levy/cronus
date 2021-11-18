@@ -61,6 +61,22 @@ defmodule Sig.HR.Payslips.CreateTest do
              )
     end
 
+    test "when start date is before registration admission date" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org, admission_date: ~D[2021-03-01])
+
+      attrs = %{
+        type: :regular,
+        start_date: ~D[2021-02-01],
+        end_date: ~D[2021-02-28]
+      }
+
+      assert Create.call(registration, attrs) ==
+               {:error, "payslip start date can't be before registration admission date"}
+
+      refute Repo.get_by(Payslip, org_id: org.id, registration_id: registration.id)
+    end
+
     test "returns changeset errors" do
       registration = insert(:employee_registration)
 
