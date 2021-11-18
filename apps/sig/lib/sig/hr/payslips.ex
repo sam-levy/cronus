@@ -1,7 +1,7 @@
 defmodule Sig.HR.Payslips do
   import Ecto.Query
 
-  alias Sig.HR.Payslips.CreateFromRecurringPayslipItems
+  alias Sig.HR.Payslips.CreateFromModel
   alias Sig.HR.Registrations.Registration
   alias Sig.HR.Payslips.Create
   alias Sig.HR.Payslips.Delete
@@ -11,8 +11,8 @@ defmodule Sig.HR.Payslips do
 
   defdelegate create(registration, attrs), to: Create, as: :call
 
-  defdelegate create_from_recurring_payslip_items(registration, attrs),
-    to: CreateFromRecurringPayslipItems,
+  defdelegate create_from_model(registration, attrs, opts \\ []),
+    to: CreateFromModel,
     as: :call
 
   defdelegate delete(payslip), to: Delete, as: :call

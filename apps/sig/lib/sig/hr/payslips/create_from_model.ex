@@ -1,8 +1,9 @@
-defmodule Sig.HR.Payslips.CreateFromRecurringPayslipItems do
+defmodule Sig.HR.Payslips.CreateFromModel do
   import Ecto.Changeset, only: [apply_action: 2]
 
   alias Ecto.Multi
 
+  alias Sig.Finance
   alias Sig.HR.Payslips
   alias Sig.HR.Payslips.Items.Item
   alias Sig.HR.Registrations.Registration
@@ -10,7 +11,7 @@ defmodule Sig.HR.Payslips.CreateFromRecurringPayslipItems do
   alias Sig.HR.Registrations.RecurringPayslipItems.RecurringPayslipItem
   alias Sig.Repo
 
-  def call(%Registration{} = registration, %{} = attrs) do
+  def call(%Registration{} = registration, %{} = attrs, opts \\ []) do
     Multi.new()
     |> Multi.run(:payslip, fn _, _ -> Payslips.create(registration, attrs) end)
     |> Multi.run(:payslip_items_params, fn _, %{payslip: payslip} ->
@@ -23,6 +24,7 @@ defmodule Sig.HR.Payslips.CreateFromRecurringPayslipItems do
         Payslips.update_payslip_amount(payslip, items)
       end
     )
+    |> Multi.run(:payables, &create_payables(&1, &2, registration, opts))
     |> Repo.transaction()
     |> case do
       {:error, _operation, reason, _changes} -> {:error, reason}
@@ -95,5 +97,18 @@ defmodule Sig.HR.Payslips.CreateFromRecurringPayslipItems do
     attrs
     |> Map.put(:inserted_at, DateTime.utc_now())
     |> Map.put(:updated_at, DateTime.utc_now())
+  end
+
+  defp create_payables(_repo, %{payslip: payslip, payslip_items: {_, items}}, registration, opts) do
+    case Keyword.get(opts, :payables_attrs) do
+      %{type: :standard, due_dates: due_dates} ->
+        Finance.create_standard_payable_for_payslip(registration, payslip, items, due_dates)
+
+      nil ->
+        {:ok, nil}
+
+      _ ->
+        {:error, "invalid payables attrs"}
+    end
   end
 end
