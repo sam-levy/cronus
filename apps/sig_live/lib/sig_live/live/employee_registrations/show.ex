@@ -42,7 +42,7 @@ defmodule SigLive.EmployeeRegistrations.Show do
        warnings: [],
        suspensions: [],
        leave_periods: [],
-       recurring_payslip_items: []
+       recurring_payslip_items: nil
      ]}
   end
 
@@ -165,15 +165,28 @@ defmodule SigLive.EmployeeRegistrations.Show do
   def handle_info({:deleted_payslip, payslip}, socket) do
     payslips = Enum.reject(socket.assigns.payslips, & &1.id == payslip.id)
 
-    if socket.assigns.selected_payslip.id == payslip.id do
+    with true <- socket.assigns.selected_payslip.id == payslip.id,
+         [_ | _] <- payslips do
       payslip = List.first(payslips)
+
+      unsubscribe_from_payslip_subscriptions(socket.assigns.selected_payslip)
+      subscribe_to_payslip_subscriptions(payslip)
 
       {:noreply,
         socket
         |> assign(payslips: payslips)
         |> assign_selected_payslip(payslip)}
     else
-      {:noreply, assign(socket, payslips: payslips)}
+      false ->
+        {:noreply, assign(socket, payslips: payslips)}
+
+      [] ->
+        unsubscribe_from_payslip_subscriptions(socket.assigns.selected_payslip)
+
+        {:noreply,
+          socket
+          |> assign(payslips: payslips)
+          |> clear_selected_payslip()}
     end
   end
 
@@ -259,6 +272,14 @@ defmodule SigLive.EmployeeRegistrations.Show do
       selected_payslip: payslip,
       selected_payslip_items: list_payslip_items(payslip),
       selected_payslip_payables: list_payslip_payables(payslip)
+    )
+  end
+
+  defp clear_selected_payslip(socket) do
+    assign(socket,
+      selected_payslip: nil,
+      selected_payslip_items: [],
+      selected_payslip_payables: []
     )
   end
 
