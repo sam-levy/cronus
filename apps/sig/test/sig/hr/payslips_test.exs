@@ -356,15 +356,15 @@ defmodule Sig.HR.PayslipsTest do
     end
   end
 
-  describe "broadcast_payslip_update/1" do
+  describe "broadcast_updated_registration_payslip/2" do
     test "broadcasts a payslip" do
       payslip = insert(:payslip)
 
-      topic = "payslip_id:" <> payslip.id
+      topic = "registration_id:" <> payslip.registration_id <> ":payslips"
 
       @endpoint.subscribe(topic)
 
-      assert Payslips.broadcast_payslip_update(payslip) == :ok
+      assert Payslips.broadcast_updated_registration_payslip(payslip) == :ok
 
       assert_receive {:updated_payslip, received_payslip}
 

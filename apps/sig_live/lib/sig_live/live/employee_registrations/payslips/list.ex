@@ -2,6 +2,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.List do
   use SigLive, :surface_live_component
 
   alias SigLive.EmployeeRegistrations.Payslips.Form
+  alias SigLive.Components.Icon
 
   prop registration, :struct, required: true
   prop payslips, :list, required: true
@@ -57,8 +58,12 @@ defmodule SigLive.EmployeeRegistrations.Payslips.List do
                 {format_month(payslip.start_date)}
               </div>
 
-              <div :if={payslip.type != :regular} class={classes_for_type(payslip.type)}>
-                {format_type(payslip.type)}
+              <div class="flex">
+                <div :if={payslip.type != :regular} class={classes_for_type(payslip.type)}>
+                  {format_type(payslip.type)}
+                </div>
+
+                <Icon name="lock_open" :if={!payslip.is_closed} class="h-4 w-4"/>
               </div>
             </div>
           {/for}

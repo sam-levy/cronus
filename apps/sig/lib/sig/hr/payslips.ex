@@ -86,6 +86,24 @@ defmodule Sig.HR.Payslips do
     )
   end
 
+  def broadcast_updated_registration_payslip(%Payslip{} = payslip, opts \\ []) do
+    if Keyword.get(opts, :refetch, false) do
+      [org_id: payslip.org_id, id: payslip.id]
+      |> get_by()
+      |> do_broadcast_updated_registration_payslip()
+    else
+      do_broadcast_updated_registration_payslip(payslip)
+    end
+  end
+
+  defp do_broadcast_updated_registration_payslip(%Payslip{} = payslip) do
+    Phoenix.PubSub.broadcast(
+      Sig.PubSub,
+      registration_payslips_topic(payslip),
+      {:updated_payslip, payslip}
+    )
+  end
+
   def subscribe_to_payslip(%Payslip{} = payslip) do
     Phoenix.PubSub.subscribe(Sig.PubSub, payslip_topic(payslip))
   end
@@ -94,16 +112,12 @@ defmodule Sig.HR.Payslips do
     Phoenix.PubSub.unsubscribe(Sig.PubSub, payslip_topic(payslip))
   end
 
-  def broadcast_payslip_update(%Payslip{} = payslip) do
-    Phoenix.PubSub.broadcast(
-      Sig.PubSub,
-      payslip_topic(payslip),
-      {:updated_payslip, Repo.get_by(Payslip, org_id: payslip.org_id, id: payslip.id)}
-    )
-  end
-
   defp registration_payslips_topic(%Registration{} = registration) do
     "registration_id:" <> registration.id <> ":payslips"
+  end
+
+  defp registration_payslips_topic(%Payslip{} = payslip) do
+    "registration_id:" <> payslip.registration_id <> ":payslips"
   end
 
   defp payslip_topic(%Payslip{} = payslip), do: "payslip_id:" <> payslip.id

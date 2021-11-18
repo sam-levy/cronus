@@ -158,8 +158,19 @@ defmodule SigLive.EmployeeRegistrations.Show do
   end
 
   @impl true
-  def handle_info({:updated_payslip, payslip}, socket) do
-    {:noreply, assign(socket, selected_payslip: payslip)}
+  def handle_info({:updated_payslip, %{id: id} = updated_payslip}, socket) do
+    %{payslips: payslips, selected_payslip: selected_payslip} = socket.assigns
+
+    payslips = Enum.map(payslips, fn
+      %{id: ^id} -> updated_payslip
+      payslip -> payslip
+    end)
+
+    if selected_payslip != nil and selected_payslip.id == updated_payslip.id do
+      {:noreply, assign(socket, payslips: payslips, selected_payslip: updated_payslip)}
+    else
+      {:noreply, assign(socket, payslips: payslips)}
+    end
   end
 
   @impl true
@@ -257,13 +268,11 @@ defmodule SigLive.EmployeeRegistrations.Show do
   end
 
   defp subscribe_to_payslip_subscriptions(payslip) do
-    HR.subscribe_to_payslip(payslip)
     HR.subscribe_to_payslip_items(payslip)
     Finance.subscribe_to_payables_for_payslip(payslip)
   end
 
   defp unsubscribe_from_payslip_subscriptions(payslip) do
-    HR.unsubscribe_from_payslip(payslip)
     HR.unsubscribe_from_payslip_items(payslip)
     Finance.unsubscribe_from_payables_for_payslip(payslip)
   end

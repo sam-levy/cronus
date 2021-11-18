@@ -80,7 +80,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
 
     case HR.toggle_payslip_is_closed(payslip) do
       {:ok, payslip} ->
-        HR.broadcast_payslip_update(payslip)
+        HR.broadcast_updated_registration_payslip(payslip)
 
         message = if payslip.is_closed, do: "Holerite bloqueado", else: "Holerite desbloqueado"
 
@@ -101,7 +101,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
 
     with {:ok, item} <- HR.fetch_payslip_item(payslip, item_id),
          {:ok, _item} <- HR.delete_payslip_item(payslip, item) do
-      HR.broadcast_payslip_update(payslip)
+      HR.broadcast_updated_registration_payslip(payslip, refetch: true)
       HR.broadcast_payslip_items(payslip)
       Finance.broadcast_payables_for_payslip(payslip)
       send(self(), {:flash, :info, "Item removido"})
@@ -301,7 +301,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
               </td>
 
               <td class="pr-5 text-right">
-                <DropdownOpts>
+                <DropdownOpts :if={!@payslip.is_closed}>
                   <a
                     :on-click="open_update_item_amount_form"
                     phx-value-item_id={item.id}
