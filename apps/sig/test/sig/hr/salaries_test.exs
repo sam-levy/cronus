@@ -83,7 +83,19 @@ defmodule Sig.HR.Registrations.SalariesTest do
       org = insert(:org)
       registration = insert(:employee_registration, org: org)
 
-      _right_salaries = insert_list(2, :employee_salary, org: org, registration: registration)
+      # Right salaries
+      insert(:employee_salary,
+        org: org,
+        registration: registration,
+        start_date: registration.admission_date
+      )
+
+      insert(:employee_salary,
+        org: org,
+        registration: registration,
+        start_date: Date.add(registration.admission_date, 180)
+      )
+
       _wrong_salaries = insert_list(2, :employee_salary)
 
       topic = "registration_id:" <> registration.id <> ":salaries"

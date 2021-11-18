@@ -7,7 +7,7 @@ defmodule Sig.Factories.PayslipGroupFactory do
       def factory(:payslip_group, attrs) do
         %Group{
           org: insert(:org),
-          date: Faker.Date.backward(1000) |> Date.beginning_of_month(),
+          date: 1..5_000 |> Enum.random() |> Faker.Date.backward() |> Date.beginning_of_month(),
           type: random_enum_value(:payslip_group_type)
         }
       end

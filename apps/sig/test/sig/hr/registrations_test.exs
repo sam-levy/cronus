@@ -147,7 +147,18 @@ defmodule Sig.HR.RegistrationsTest do
           admission_date: ~D[2012-01-01]
         )
 
-      insert_list(2, :employee_salary, org: org, registration: registration_1)
+      insert(:employee_salary,
+        org: org,
+        registration: registration_1,
+        start_date: registration_1.admission_date
+      )
+
+      insert(:employee_salary,
+        org: org,
+        registration: registration_1,
+        start_date: Date.add(registration_1.admission_date, 180)
+      )
+
       insert(:employee_salary, org: org, registration: registration_2)
 
       assert [
