@@ -67,6 +67,24 @@ defmodule Sig.HR.PayslipsTest do
     end
   end
 
+  describe "toggle_is_closed/2" do
+    test "toggles is_closed when false" do
+      %{id: id} = payslip = insert(:payslip, is_closed: false)
+
+      assert {:ok, %Payslip{id: ^id, is_closed: true}} = Payslips.toggle_is_closed(payslip)
+
+      assert Repo.get_by(Payslip, org_id: payslip.org_id, id: id, is_closed: true)
+    end
+
+    test "toggles is_closed when true" do
+      %{id: id} = payslip = insert(:payslip, is_closed: true)
+
+      assert {:ok, %Payslip{id: ^id, is_closed: false}} = Payslips.toggle_is_closed(payslip)
+
+      assert Repo.get_by(Payslip, org_id: payslip.org_id, id: id, is_closed: false)
+    end
+  end
+
   describe "update_payslip_amount/2" do
     test "updates the amount of the payslip based on the payslip items" do
       org = insert(:org)

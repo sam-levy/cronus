@@ -38,6 +38,12 @@ defmodule Sig.HR.Payslips do
 
   def get_by(attrs), do: Repo.get_by(Payslip, attrs)
 
+  def toggle_is_closed(%Payslip{} = payslip) do
+    payslip
+    |> Payslip.update_is_closed_changeset(%{is_closed: !payslip.is_closed})
+    |> Repo.update()
+  end
+
   def update_payslip_amount(%Payslip{} = payslip, items) when is_list(items) do
     items
     |> Enum.filter(&(&1.payslip_id == payslip.id))

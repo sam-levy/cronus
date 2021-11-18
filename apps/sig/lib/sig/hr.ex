@@ -142,6 +142,7 @@ defmodule Sig.HR do
   defdelegate subscribe_to_payslip(payslip), to: Payslips
   defdelegate unsubscribe_from_payslip(payslip), to: Payslips
   defdelegate broadcast_payslip_update(payslip), to: Payslips
+  defdelegate toggle_payslip_is_closed(payslip), to: Payslips, as: :toggle_is_closed
 
   defdelegate list_items_by_payslip(payslip), to: Items, as: :list_by_payslip
   defdelegate get_payslip_item(payslip, id), to: Items, as: :get

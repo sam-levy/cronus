@@ -43,6 +43,12 @@ defmodule Sig.HR.Payslips.Payslip do
     |> validate_money(:amount, [:eq, :gt], 0)
   end
 
+  def update_is_closed_changeset(%__MODULE__{} = target, attrs) do
+    target
+    |> cast(attrs, [:is_closed])
+    |> validate_required([:is_closed])
+  end
+
   def assign_group(
         %Ecto.Changeset{valid?: true, data: %__MODULE__{}, changes: %{org_id: org_id, type: type}} =
           changeset,

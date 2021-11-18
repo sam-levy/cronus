@@ -675,6 +675,38 @@ defmodule Sig.HR.Payslips.PayslipTest do
     end
   end
 
+  describe "update_is_closed_changeset/2" do
+    test "valid attrs" do
+      payslip = insert(:payslip, is_closed: false)
+      attrs = %{is_closed: true}
+
+      assert changeset = Payslip.update_is_closed_changeset(payslip, attrs)
+
+      assert changeset.valid?
+      assert changeset.changes == %{is_closed: true}
+    end
+
+    test "ignores non permitted attrs" do
+      payslip = insert(:payslip, is_closed: false)
+
+      attrs = %{
+        org_id: UUID.generate(),
+        type: random_enum_value(:payslip_group_type),
+        start_date: Date.utc_today() |> Date.beginning_of_month(),
+        end_date: Date.utc_today() |> Date.end_of_month(),
+        group_id: UUID.generate(),
+        is_closed: true,
+        registration_id: UUID.generate(),
+        amount: 0
+      }
+
+      assert changeset = Payslip.update_is_closed_changeset(payslip, attrs)
+
+      assert changeset.valid?
+      assert changeset.changes == %{is_closed: true}
+    end
+  end
+
   describe "update_amount_changeset/2" do
     test "valid attrs" do
       payslip = insert(:payslip, amount: 1_000_00)
