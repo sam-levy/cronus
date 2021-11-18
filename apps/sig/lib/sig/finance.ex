@@ -60,6 +60,10 @@ defmodule Sig.Finance do
     as: :set_changeset_method
 
   defdelegate create_payable_for_payslip(payslip, attrs, opts \\ []), to: Payables
+
+  defdelegate create_standard_payable_for_payslip(registration, payslip, items, due_dates),
+    to: Payables
+
   defdelegate update_payable_for_payslip(payslip, payable, attrs), to: Payables
   defdelegate delete_payable_for_payslip(payslip, payable), to: Payables
   defdelegate create_payable_for_payslip_change(attrs \\ %{}), to: Payables

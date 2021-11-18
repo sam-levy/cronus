@@ -6,6 +6,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip do
   alias Sig.Finance.Banks
   alias Sig.Finance.Payables.Payable
   alias Sig.Finance.Payables.PayablesForPayslip.Create
+  alias Sig.Finance.Payables.PayablesForPayslip.CreateStandardPayables
   alias Sig.Finance.Payables.PayablesForPayslip.Delete
   alias Sig.Finance.Payables.PayablesForPayslip.Update
   alias Sig.Finance.Payables.PayablesForPayslip.AutoAdjustableAmountHandler
@@ -17,6 +18,11 @@ defmodule Sig.Finance.Payables.PayablesForPayslip do
   alias Sig.Repo
 
   defdelegate create(payslip, attrs, opts \\ []), to: Create, as: :call
+
+  defdelegate create_standard_payables(registration, payslip, items, due_dates),
+    to: CreateStandardPayables,
+    as: :call
+
   defdelegate delete(payslip, payable), to: Delete, as: :call
   defdelegate update(payslip, payable, attrs), to: Update, as: :call
   defdelegate set_as_auto_adjustable_amount(payslip, payable), to: AutoAdjustableAmountHandler
