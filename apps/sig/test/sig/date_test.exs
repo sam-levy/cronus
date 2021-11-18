@@ -50,4 +50,20 @@ defmodule Sig.DateTest do
       assert Sig.Date.next_month_start() == Date.utc_today() |> Date.end_of_month() |> Date.add(1)
     end
   end
+
+  describe "nth_workday/2" do
+    test "returns the nth workday of a month" do
+      assert Sig.Date.nth_workday(~D[2021-10-01], 5) == ~D[2021-10-07]
+      assert Sig.Date.nth_workday(~D[2021-10-15], 5) == ~D[2021-10-07]
+      assert Sig.Date.nth_workday(~D[2021-11-01], 15) == ~D[2021-11-19]
+      assert Sig.Date.nth_workday(~D[2022-02-01], 5) == ~D[2022-02-07]
+    end
+  end
+
+  describe "prior_month_day_adjusted_for_workday/2" do
+    test "returns the nth workday of a month" do
+      assert Sig.Date.prior_month_day_adjusted_for_workday(~D[2021-10-01], 20) == ~D[2021-09-20]
+      assert Sig.Date.prior_month_day_adjusted_for_workday(~D[2021-12-01], 20) == ~D[2021-11-22]
+    end
+  end
 end

@@ -62,4 +62,28 @@ defmodule Sig.Date do
   end
 
   def next_month_start, do: Date.utc_today() |> Date.end_of_month() |> Date.add(1)
+
+  def nth_workday(date, days) do
+    start_date = date |> Date.beginning_of_month() |> adjust_for_workday()
+
+    Enum.reduce(1..days-1, start_date , fn
+      _, acc -> acc |> Date.add(1) |> adjust_for_workday()
+    end)
+  end
+
+  def prior_month_day_adjusted_for_workday(date, days) do
+    date = build_date(:prior, date, 1)
+
+    date
+    |> Date.add(days - 1)
+    |> adjust_for_workday()
+  end
+
+  defp adjust_for_workday(date) do
+    case Date.day_of_week(date) do
+      6 -> Date.add(date, 2)
+      7 -> Date.add(date, 1)
+      _ -> date
+    end
+  end
 end
