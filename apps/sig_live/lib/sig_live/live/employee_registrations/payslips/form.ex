@@ -29,7 +29,6 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Form do
   data message, :string, default: nil
   data is_from_model, :boolean, default: true
   data payments_type, :atom, default: :standard, values: [:standard, :none]
-  data due_dates, :map, default: %{payment_advance_date: ~D[2021-01-20], salary_date: ~D[2021-02-05]}
 
   @impl true
   def update(assigns, socket) do
@@ -44,10 +43,11 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Form do
       |> assign(
         payslip: payslip,
         changeset: set_changeset(payslip),
-        dates: build_dates(),
+        dates_for_select: build_dates_for_select(registration.admission_date),
         selected_date: selected_date
       )
       |> assign_changeset_dates(selected_date)
+      |> assign_due_dates(selected_date)
 
     {:ok, socket}
   end
@@ -61,7 +61,11 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Form do
   def handle_event("select_date", %{"value" => date}, socket) do
     date = Date.from_iso8601!(date)
 
-    {:noreply, socket |> assign_changeset_dates(date) |> assign(:selected_date, date)}
+    {:noreply,
+     socket
+     |> assign_changeset_dates(date)
+     |> assign(:selected_date, date)
+     |> assign_due_dates(date)}
   end
 
   @impl true
@@ -88,7 +92,8 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Form do
 
     case Date.from_iso8601(date) do
       {:ok, date} ->
-        {:noreply, assign(socket, message: nil, due_dates: Map.put(socket.assigns.due_dates, field, date))}
+        {:noreply,
+         assign(socket, message: nil, due_dates: Map.put(socket.assigns.due_dates, field, date))}
 
       {:error, _} ->
         {:noreply, assign(socket, message: "data inválida")}
@@ -119,7 +124,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Form do
           <label for="month" class="form-label">Mês</label>
 
           <select name="month" class="form-input" :on-click="select_date">
-            {#for date <- @dates}
+            {#for date <- @dates_for_select}
               <option value={date} selected={date == @selected_date}>
                 {format_month(date)}
               </option>
@@ -289,6 +294,15 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Form do
   defp props_for(_field, :new_mode), do: @input_enabled
   defp props_for(_field, _form_state), do: @input_disabled
 
+  defp build_dates_for_select(floor_date) do
+    current = Date.utc_today() |> Date.beginning_of_month()
+
+    Sig.Date.list_by_month(current, :prior, 1) ++
+      [current] ++
+      Sig.Date.list_by_month(current, :next, 3)
+      |> Enum.reject(fn date -> Date.compare(date, floor_date) == :lt end)
+  end
+
   defp assign_changeset_dates(socket, date) do
     start_date = Date.beginning_of_month(date)
     end_date = Date.end_of_month(date)
@@ -301,12 +315,14 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Form do
     assign(socket, :changeset, changeset)
   end
 
-  defp build_dates do
-    current = Date.utc_today() |> Date.beginning_of_month()
+  defp assign_due_dates(socket, date) do
+    payment_advance_date = Sig.Date.prior_month_day_adjusted_for_workday(date, 20)
+    salary_date = Sig.Date.nth_workday(date, 5)
 
-    Sig.Date.list_by_month(current, :prior, 1) ++
-      [current] ++
-      Sig.Date.list_by_month(current, :next, 3)
+    assign(socket, :due_dates, %{
+      payment_advance_date: payment_advance_date,
+      salary_date: salary_date
+    })
   end
 
   defp build_payslip_opts(%{is_from_model: false} = context) do
@@ -318,7 +334,9 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Form do
   end
 
   defp build_payslip_opts(%{payments_type: :standard} = context) do
-    payslip_opts = [payables_attrs: %{type: :standard, due_dates: context.socket.assigns.due_dates}]
+    payslip_opts = [
+      payables_attrs: %{type: :standard, due_dates: context.socket.assigns.due_dates}
+    ]
 
     Map.put(context, :payslip_opts, payslip_opts)
   end
