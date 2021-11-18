@@ -26,11 +26,15 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Form do
   prop registration, :struct, required: true
   prop payslip_id, :string, default: nil
 
+  data message, :string, default: nil
   data is_from_model, :boolean, default: true
+  data payments_type, :atom, default: :standard, values: [:standard, :none]
+  data due_dates, :map, default: %{payment_advance_date: ~D[2021-01-20], salary_date: ~D[2021-02-05]}
 
   @impl true
   def update(assigns, socket) do
     %{registration: registration, payslip_id: payslip_id} = assigns
+
     payslip = get_payslip(registration, payslip_id)
     selected_date = Sig.Date.next_month_start()
 
@@ -62,7 +66,33 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Form do
 
   @impl true
   def handle_event("toggle_is_from_model", _params, socket) do
-    {:noreply, update(socket, :is_from_model, &(!&1))}
+    if socket.assigns.is_from_model do
+      {:noreply, assign(socket, is_from_model: false, payments_type: :none)}
+    else
+      {:noreply, assign(socket, is_from_model: true, payments_type: :default)}
+    end
+  end
+
+  @impl true
+  def handle_event("handle_payments_type", _params, socket) do
+    if socket.assigns.payments_type == :none do
+      {:noreply, assign(socket, payments_type: :standard)}
+    else
+      {:noreply, assign(socket, payments_type: :none)}
+    end
+  end
+
+  @impl true
+  def handle_event("assign_due_date", %{"field" => field, "value" => date}, socket) do
+    field = String.to_existing_atom(field)
+
+    case Date.from_iso8601(date) do
+      {:ok, date} ->
+        {:noreply, assign(socket, message: nil, due_dates: Map.put(socket.assigns.due_dates, field, date))}
+
+      {:error, _} ->
+        {:noreply, assign(socket, message: "data inválida")}
+    end
   end
 
   @impl true
@@ -71,9 +101,11 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Form do
       params: params,
       form_state: socket.assigns.form_state,
       is_from_model: socket.assigns.is_from_model,
+      payments_type: socket.assigns.payments_type,
       socket: socket
     }
     |> validate_params()
+    |> build_payslip_opts()
     |> persist()
     |> handle_return()
   end
@@ -95,7 +127,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Form do
           </select>
         </div>
 
-        <div  class="flex form-field space-x-3">
+        <div class="flex form-field space-x-3">
           <Field  name={:start_date} class="flex-1">
             <Label class="form-label">Início do Período</Label>
             <DateInput {...props_for(:start_date, @form_state)}/>
@@ -111,16 +143,59 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Form do
 
         <Field name={:type} class="form-field">
           <Label class="form-label">Tipo</Label>
-          <Select options={enum_for_select(PayslipGroupType)} selected={:regular} {...props_for(:type, @form_state)}/>
+          <Select
+            options={enum_for_select(PayslipGroupType)}
+            selected={:regular}
+            {...props_for(:type, @form_state)}
+          />
           <ErrorTag class="form-error-tag"/>
         </Field>
 
         <div class="flex justify-start items-center">
           <Switch is_active={@is_from_model} toggle_is_active="toggle_is_from_model"/>
+
           <label class="form-side-label ml-2":on-click="toggle_is_from_model">
             Criar a partir do modelo
           </label>
         </div>
+
+        <div :if={@is_from_model} class="flex justify-start items-center mt-3">
+          <Switch is_active={@payments_type != :none} toggle_is_active="handle_payments_type"/>
+
+          <label class="form-side-label ml-2":on-click="handle_payments_type">
+            Criar pagamentos
+          </label>
+        </div>
+
+        <div :if={@payments_type != :none} class="flex form-field space-x-3">
+          <div class="flex-1">
+            <label for="payment_advance_date" class="form-label">Adiantamento</label>
+
+            <input
+              id="payment_advance_date"
+              type="date"
+              class="form-input"
+              :on-blur="assign_due_date"
+              phx-value-field="payment_advance_date"
+              value={@due_dates.payment_advance_date}
+            >
+          </div>
+
+          <div class="flex-1">
+            <label for="salary_date" class="form-label">Salário</label>
+
+            <input
+              id="salary_date"
+              type="date"
+              class="form-input"
+              :on-blur="assign_due_date"
+              phx-value-field="salary_date"
+              value={@due_dates.salary_date}
+            >
+          </div>
+        </div>
+
+        <div :if={@message} class="form-error-tag mb-3">{@message}</div>
 
         <div class="flex justify-end">
           <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Adicionando..."}/>
@@ -159,9 +234,9 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Form do
   defp persist(
          %{validation: {:ok, changeset}, form_state: :new_mode, is_from_model: true} = context
        ) do
-    %{registration: registration} = context.socket.assigns
+    %{payslip_opts: payslip_opts, socket: %{assigns: %{registration: registration}}} = context
 
-    case HR.create_payslip_from_recurring_payslip_items(registration, changeset.changes) do
+    case HR.create_payslip_from_model(registration, changeset.changes, payslip_opts) do
       {:ok, payslip} -> Map.put(context, :return, {:ok, payslip})
       {:error, error} -> Map.put(context, :return, {:error, error})
     end
@@ -179,11 +254,17 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Form do
   end
 
   defp handle_return(%{validation: {:error, changeset}, socket: socket}) do
-    {:noreply, assign(socket, changeset: changeset)}
+    {:noreply, assign(socket, message: nil, changeset: changeset)}
   end
 
-  defp handle_return(%{return: {:error, changeset}, socket: socket}) do
-    {:noreply, assign(socket, changeset: changeset)}
+  defp handle_return(%{return: {:error, message}} = context) when is_binary(message) do
+    {_, changeset} = context.validation
+
+    {:noreply, assign(context.socket, message: message, changeset: changeset)}
+  end
+
+  defp handle_return(%{return: {:error, changeset}} = context) when is_struct(changeset) do
+    {:noreply, assign(context.socket, message: nil, changeset: changeset)}
   end
 
   defp handle_return(%{return: {:ok, _payslip}, socket: socket}) do
@@ -226,5 +307,19 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Form do
     Sig.Date.list_by_month(current, :prior, 1) ++
       [current] ++
       Sig.Date.list_by_month(current, :next, 3)
+  end
+
+  defp build_payslip_opts(%{is_from_model: false} = context) do
+    Map.put(context, :payslip_opts, [])
+  end
+
+  defp build_payslip_opts(%{payments_type: :none} = context) do
+    Map.put(context, :payslip_opts, [])
+  end
+
+  defp build_payslip_opts(%{payments_type: :standard} = context) do
+    payslip_opts = [payables_attrs: %{type: :standard, due_dates: context.socket.assigns.due_dates}]
+
+    Map.put(context, :payslip_opts, payslip_opts)
   end
 end
