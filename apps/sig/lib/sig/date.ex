@@ -66,7 +66,7 @@ defmodule Sig.Date do
   def nth_workday(date, days) do
     start_date = date |> Date.beginning_of_month() |> adjust_for_workday()
 
-    Enum.reduce(1..days-1, start_date , fn
+    Enum.reduce(1..(days - 1), start_date, fn
       _, acc -> acc |> Date.add(1) |> adjust_for_workday()
     end)
   end
