@@ -35,19 +35,21 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Form do
     %{registration: registration, payslip_id: payslip_id} = assigns
 
     payslip = get_payslip(registration, payslip_id)
-    selected_date = Sig.Date.next_month_start()
+    selected_date = set_selected_date(payslip)
+    changeset = set_changeset(payslip)
 
     socket =
       socket
       |> assign(assigns)
       |> assign(
         payslip: payslip,
-        changeset: set_changeset(payslip),
-        dates_for_select: build_dates_for_select(registration.admission_date),
-        selected_date: selected_date
+        changeset: changeset,
+        dates_for_select: build_dates_for_select(selected_date, registration.admission_date),
+        selected_date: selected_date,
+        selected_type: set_selected_type(changeset)
       )
       |> assign_changeset_dates(selected_date)
-      |> assign_due_dates(selected_date)
+      |> assign_payables_due_dates(selected_date)
 
     {:ok, socket}
   end
@@ -65,7 +67,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Form do
      socket
      |> assign_changeset_dates(date)
      |> assign(:selected_date, date)
-     |> assign_due_dates(date)}
+     |> assign_payables_due_dates(date)}
   end
 
   @impl true
@@ -150,13 +152,13 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Form do
           <Label class="form-label">Tipo</Label>
           <Select
             options={enum_for_select(PayslipGroupType)}
-            selected={:regular}
+            selected={@selected_type}
             {...props_for(:type, @form_state)}
           />
           <ErrorTag class="form-error-tag"/>
         </Field>
 
-        <div class="flex justify-start items-center">
+        <div :if={@form_state == :new_mode} class="flex justify-start items-center">
           <Switch is_active={@is_from_model} toggle_is_active="toggle_is_from_model"/>
 
           <label class="form-side-label ml-2":on-click="toggle_is_from_model">
@@ -164,7 +166,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Form do
           </label>
         </div>
 
-        <div :if={@is_from_model} class="flex justify-start items-center mt-3">
+        <div :if={@form_state == :new_mode and @is_from_model} class="flex justify-start items-center mt-3">
           <Switch is_active={@payments_type != :none} toggle_is_active="handle_payments_type"/>
 
           <label class="form-side-label ml-2":on-click="handle_payments_type">
@@ -172,7 +174,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Form do
           </label>
         </div>
 
-        <div :if={@payments_type != :none} class="flex form-field space-x-3">
+        <div :if={@form_state == :new_mode and @payments_type != :none} class="flex form-field space-x-3">
           <div class="flex-1">
             <label for="payment_advance_date" class="form-label">Adiantamento</label>
 
@@ -202,7 +204,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Form do
 
         <div :if={@message} class="form-error-tag mb-3">{@message}</div>
 
-        <div class="flex justify-end">
+        <div :if={@form_state != :show_mode} class="flex justify-end">
           <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Adicionando..."}/>
         </div>
       </Form>
@@ -213,13 +215,50 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Form do
   def states, do: @form_states
 
   defp get_payslip(_registration, nil), do: nil
+  defp get_payslip(registration, payslip_id), do: HR.get_payslip(registration, payslip_id)
 
-  defp get_payslip(registration, payslip_id) do
-    HR.get_payslip(registration, payslip_id)
-  end
+  defp set_selected_date(nil), do: Sig.Date.next_month_start()
+  defp set_selected_date(payslip), do: payslip.start_date
 
   defp set_changeset(nil), do: HR.create_payslip_change()
-  # defp set_changeset(payslip), do: HR.update_payslip_change(payslip)
+  defp set_changeset(payslip), do: HR.update_payslip_change(payslip)
+
+  defp set_selected_type(%{data: %{type: nil}}), do: :regular
+  defp set_selected_type(%{data: %{type: type}}), do: type
+
+  defp assign_changeset_dates(
+         %{assigns: %{changeset: %{data: %{start_date: nil}}}} = socket,
+         date
+       ) do
+    start_date = Date.beginning_of_month(date)
+    end_date = Date.end_of_month(date)
+
+    changeset =
+      socket.assigns.changeset
+      |> Ecto.Changeset.put_change(:start_date, start_date)
+      |> Ecto.Changeset.put_change(:end_date, end_date)
+
+    assign(socket, :changeset, changeset)
+  end
+
+  defp assign_changeset_dates(socket, _date), do: socket
+
+  defp assign_payables_due_dates(socket, date) do
+    payment_advance_date = Sig.Date.prior_month_day_adjusted_for_workday(date, 20)
+    salary_date = Sig.Date.nth_workday(date, 5)
+
+    assign(socket, :due_dates, %{
+      payment_advance_date: payment_advance_date,
+      salary_date: salary_date
+    })
+  end
+
+  defp build_dates_for_select(selected_date, floor_date) do
+    (Sig.Date.list_by_month(selected_date, :prior, 1) ++
+       [selected_date] ++
+       Sig.Date.list_by_month(selected_date, :next, 3))
+    |> Enum.reject(fn date -> Date.compare(date, floor_date) == :lt end)
+  end
 
   defp validate_params(%{form_state: :new_mode} = context) do
     changeset =
@@ -234,6 +273,16 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Form do
     end
   end
 
+  defp validate_params(%{form_state: :edit_mode} = context) do
+    %{payslip: payslip} = context.socket.assigns
+    changeset = HR.update_payslip_change(payslip, context.params)
+
+    case apply_action(changeset, :update) do
+      {:error, changeset} -> Map.put(context, :validation, {:error, changeset})
+      {:ok, _schema} -> Map.put(context, :validation, {:ok, changeset})
+    end
+  end
+
   defp persist(%{validation: {:error, _}} = context), do: context
 
   defp persist(
@@ -241,10 +290,11 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Form do
        ) do
     %{payslip_opts: payslip_opts, socket: %{assigns: %{registration: registration}}} = context
 
-    case HR.create_payslip_from_model(registration, changeset.changes, payslip_opts) do
-      {:ok, payslip} -> Map.put(context, :return, {:ok, payslip})
-      {:error, error} -> Map.put(context, :return, {:error, error})
-    end
+    Map.put(
+      context,
+      :return,
+      HR.create_payslip_from_model(registration, changeset.changes, payslip_opts)
+    )
   end
 
   defp persist(
@@ -252,10 +302,13 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Form do
        ) do
     %{registration: registration} = context.socket.assigns
 
-    case HR.create_payslip(registration, changeset.changes) do
-      {:ok, payslip} -> Map.put(context, :return, {:ok, payslip})
-      {:error, error} -> Map.put(context, :return, {:error, error})
-    end
+    Map.put(context, :return, HR.create_payslip(registration, changeset.changes))
+  end
+
+  defp persist(%{validation: {:ok, changeset}, form_state: :edit_mode} = context) do
+    %{payslip: payslip} = context.socket.assigns
+
+    Map.put(context, :return, HR.update_payslip(payslip, changeset.changes))
   end
 
   defp handle_return(%{validation: {:error, changeset}, socket: socket}) do
@@ -272,14 +325,22 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Form do
     {:noreply, assign(context.socket, message: nil, changeset: changeset)}
   end
 
-  defp handle_return(%{return: {:ok, _payslip}, socket: socket}) do
+  defp handle_return(%{return: {:ok, payslip}, socket: socket}) do
     %{registration: registration, form_state: form_state, close_fun: close_fun} = socket.assigns
 
-    HR.broadcast_registration_payslips(registration)
+    handle_broadcast(form_state, registration, payslip)
     handle_flash(form_state)
     close_fun.()
 
     {:noreply, socket}
+  end
+
+  defp handle_broadcast(:new_mode, registration, _payslip) do
+    HR.broadcast_registration_payslips(registration)
+  end
+
+  defp handle_broadcast(:edit_mode, _registration, payslip) do
+    HR.broadcast_updated_registration_payslip(payslip)
   end
 
   defp handle_flash(:new_mode), do: send(self(), {:flash, :info, "Holerite criado"})
@@ -291,39 +352,12 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Form do
   @input_enabled [opts: [disabled: false], class: ["form-input"]]
   @input_disabled [opts: [disabled: true], class: ["form-input-disabled"]]
 
+  defp props_for(:start_date, :edit_mode), do: @input_enabled
+  defp props_for(:end_date, :edit_mode), do: @input_enabled
+  defp props_for(:type, :edit_mode), do: @input_enabled
+
   defp props_for(_field, :new_mode), do: @input_enabled
   defp props_for(_field, _form_state), do: @input_disabled
-
-  defp build_dates_for_select(floor_date) do
-    current = Date.utc_today() |> Date.beginning_of_month()
-
-    Sig.Date.list_by_month(current, :prior, 1) ++
-      [current] ++
-      Sig.Date.list_by_month(current, :next, 3)
-      |> Enum.reject(fn date -> Date.compare(date, floor_date) == :lt end)
-  end
-
-  defp assign_changeset_dates(socket, date) do
-    start_date = Date.beginning_of_month(date)
-    end_date = Date.end_of_month(date)
-
-    changeset =
-      socket.assigns.changeset
-      |> Ecto.Changeset.put_change(:start_date, start_date)
-      |> Ecto.Changeset.put_change(:end_date, end_date)
-
-    assign(socket, :changeset, changeset)
-  end
-
-  defp assign_due_dates(socket, date) do
-    payment_advance_date = Sig.Date.prior_month_day_adjusted_for_workday(date, 20)
-    salary_date = Sig.Date.nth_workday(date, 5)
-
-    assign(socket, :due_dates, %{
-      payment_advance_date: payment_advance_date,
-      salary_date: salary_date
-    })
-  end
 
   defp build_payslip_opts(%{is_from_model: false} = context) do
     Map.put(context, :payslip_opts, [])

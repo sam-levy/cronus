@@ -31,7 +31,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.List do
         id="payslip_form"
         close_event="close_form"
         close_fun={fn -> close_form(@id) end}
-        form_state={@form_state}
+        {=@form_state}
         {=@registration}
         {=@payslip_id}
       />
@@ -63,7 +63,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.List do
                   {format_type(payslip.type)}
                 </div>
 
-                <Icon name="lock_open" :if={!payslip.is_closed} size="4"/>
+                <Icon name="lock_open" :if={!payslip.is_closed} size="4" class="ml-2"/>
               </div>
             </div>
           {/for}
@@ -79,9 +79,12 @@ defmodule SigLive.EmployeeRegistrations.Payslips.List do
   defp closed_state(id), do: closed_state() ++ [id: id]
 
   defp classes_for_type(:vacation), do: ~w(text-blue-400) ++ type_base_classes()
+  defp classes_for_type(:first_13), do: ~w(text-indigo-400) ++ type_base_classes()
+  defp classes_for_type(:second_13), do: ~w(text-indigo-400) ++ type_base_classes()
+  defp classes_for_type(:extra), do: ~w(text-purple-400) ++ type_base_classes()
   defp classes_for_type(_type), do: ~w(text-gray-400) ++ type_base_classes()
 
-  defp type_base_classes, do: ~w(text-xs rounded)
+  defp type_base_classes, do: ~w(text-xs)
 
   defp classes_for_card(id, id), do: ~w(border-blue-500) ++ base_card_classes()
   defp classes_for_card(_id, _selected_id), do: ~w(border-white) ++ base_card_classes()
