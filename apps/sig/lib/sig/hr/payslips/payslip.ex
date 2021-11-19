@@ -36,6 +36,15 @@ defmodule Sig.HR.Payslips.Payslip do
     |> validate_dates(:end_date, :gt, :start_date)
   end
 
+  @update_fields [:type, :start_date, :end_date]
+
+  def update_changeset(%__MODULE__{} = target, attrs) do
+    target
+    |> cast(attrs, @update_fields)
+    |> validate_required(@update_fields)
+    |> validate_dates(:end_date, :gt, :start_date)
+  end
+
   def update_amount_changeset(%__MODULE__{} = target, attrs) do
     target
     |> cast(attrs, [:amount])

@@ -12,6 +12,13 @@ defmodule Sig.HR.PayslipsTest do
     end
   end
 
+  describe "update_change/1" do
+    test "returns a changeset" do
+      assert %Ecto.Changeset{data: %Payslip{}} = Payslips.update_change(%Payslip{}, %{})
+      assert %Ecto.Changeset{data: %Payslip{}} = Payslips.update_change(%Payslip{})
+    end
+  end
+
   describe "list_by_registration/1" do
     test "lists payslips by registration ordered by decending start date" do
       registration = insert(:employee_registration)

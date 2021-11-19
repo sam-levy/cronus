@@ -675,6 +675,81 @@ defmodule Sig.HR.Payslips.PayslipTest do
     end
   end
 
+  describe "update_changeset/2" do
+    test "valid attrs" do
+      payslip = insert(:payslip,
+        type: :regular,
+        start_date: ~D[2021-01-01],
+        end_date: ~D[2021-01-31]
+      )
+
+      attrs = %{
+        type: :vacation,
+        start_date: ~D[2021-03-01],
+        end_date: ~D[2021-03-31]
+      }
+
+      assert changeset = Payslip.update_changeset(payslip, attrs)
+
+      assert changeset.valid?
+
+      assert changeset.changes == %{
+        type: attrs[:type],
+        start_date: attrs[:start_date],
+        end_date: attrs[:end_date]
+      }
+    end
+
+    test "ignores non permitted attrs" do
+      payslip = insert(:payslip,
+        type: :regular,
+        start_date: ~D[2021-01-01],
+        end_date: ~D[2021-01-31]
+      )
+
+      attrs = %{
+        org_id: UUID.generate(),
+        group_id: UUID.generate(),
+        is_closed: true,
+        registration_id: UUID.generate(),
+        amount: 0,
+        type: :vacation,
+        start_date: ~D[2021-03-01],
+        end_date: ~D[2021-03-31]
+      }
+
+      assert changeset = Payslip.update_changeset(payslip, attrs)
+
+      assert changeset.valid?
+
+      assert changeset.changes == %{
+        type: attrs[:type],
+        start_date: attrs[:start_date],
+        end_date: attrs[:end_date]
+      }
+    end
+
+    test "end_date before start_date" do
+      payslip = insert(:payslip,
+        type: :regular,
+        start_date: ~D[2021-01-01],
+        end_date: ~D[2021-01-31]
+      )
+
+      attrs = %{
+        type: :vacation,
+        start_date: ~D[2021-03-31],
+        end_date: ~D[2021-03-01]
+      }
+
+      assert changeset = Payslip.update_changeset(payslip, attrs)
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{end_date: ["must be after start_date"]}
+    end
+  end
+
   describe "update_is_closed_changeset/2" do
     test "valid attrs" do
       payslip = insert(:payslip, is_closed: false)

@@ -3,13 +3,14 @@ defmodule Sig.HR.Payslips do
 
   alias Sig.HR.Payslips.CreateFromModel
   alias Sig.HR.Registrations.Registration
-  alias Sig.HR.Payslips.Create
+  alias Sig.HR.Payslips.Mutator
   alias Sig.HR.Payslips.Delete
   alias Sig.HR.Payslips.Payslip
   alias Sig.Organizations
   alias Sig.Repo
 
-  defdelegate create(registration, attrs), to: Create, as: :call
+  defdelegate create(registration, attrs), to: Mutator, as: :create
+  defdelegate update(payslip, attrs), to: Mutator, as: :update
 
   defdelegate create_from_model(registration, attrs, opts \\ []),
     to: CreateFromModel,
@@ -19,6 +20,10 @@ defmodule Sig.HR.Payslips do
 
   def create_change(%{} = attrs \\ %{}) do
     Payslip.create_changeset(attrs)
+  end
+
+  def update_change(%Payslip{} = payslip, %{} = attrs \\ %{}) do
+    Payslip.update_changeset(payslip, attrs)
   end
 
   def list_by_registration(%Registration{} = registration) do
