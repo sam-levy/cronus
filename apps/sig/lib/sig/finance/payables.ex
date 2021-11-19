@@ -41,6 +41,8 @@ defmodule Sig.Finance.Payables do
   defdelegate subscribe_to_payables_for_payslip(payslip), to: PayablesForPayslip
   defdelegate unsubscribe_from_payables_for_payslip(payslip), to: PayablesForPayslip
   defdelegate broadcast_payables_for_payslip(payslip), to: PayablesForPayslip
+  defdelegate authorize_payable_for_payslip(payslip, payable, user), to: PayablesForPayslip, as: :authorize
+  defdelegate unauthorize_payable_for_payslip(payable), to: PayablesForPayslip, as: :unauthorize
 
   defdelegate list_payslip_payables_by_payslip(payslip), to: PayablesForPayslip
 
@@ -49,17 +51,5 @@ defmodule Sig.Finance.Payables do
   def set_changeset_method(%Ecto.Changeset{data: %Payable{}} = changeset, method)
       when is_atom(method) do
     put_change(changeset, :method, method)
-  end
-
-  def authorize(%Payable{} = payable, %{} = attrs) do
-    payable
-    |> Payable.authorize_changeset(attrs)
-    |> Repo.update()
-  end
-
-  def unauthorize(%Payable{} = payable) do
-    payable
-    |> Payable.unauthorize_changeset()
-    |> Repo.update()
   end
 end

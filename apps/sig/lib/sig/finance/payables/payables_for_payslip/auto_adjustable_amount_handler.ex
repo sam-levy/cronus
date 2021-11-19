@@ -11,6 +11,10 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.AutoAdjustableAmountHandler do
     {:error, "can't modify a fulfilled payable"}
   end
 
+  def set_as_auto_adjustable_amount(_payslip, %Payable{authorized_by_id: id}) when is_binary(id) do
+    {:error, "can't modify an authorized payable"}
+  end
+
   def set_as_auto_adjustable_amount(%Payslip{} = payslip, %Payable{} = payable) do
     Multi.new()
     |> Multi.run(:set_payslip_payable_as_auto_adjustable_amount, fn _, _ ->
