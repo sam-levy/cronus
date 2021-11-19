@@ -216,7 +216,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.DeleteTest do
       user = insert(:user, org: org)
 
       # Authorize payable
-      Repo.update!(change(payable,authorized_by_id: user.id))
+      Repo.update!(change(payable, authorized_by_id: user.id))
 
       assert Delete.call(payslip, payable) == {:error, "can't delete an authorized payable"}
 

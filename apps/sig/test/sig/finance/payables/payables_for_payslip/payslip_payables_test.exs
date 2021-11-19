@@ -236,7 +236,8 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.PayslipPayablesTest do
         is_auto_adjustable_amount: true
       )
 
-      assert {:ok, %PayslipPayable{}} =  PayslipPayables.unset_as_auto_adjustable_amount(payslip, payable)
+      assert {:ok, %PayslipPayable{}} =
+               PayslipPayables.unset_as_auto_adjustable_amount(payslip, payable)
 
       assert Repo.get_by!(PayslipPayable,
                org_id: org.id,
@@ -269,7 +270,8 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.PayslipPayablesTest do
         is_auto_adjustable_amount: false
       )
 
-      assert {:ok, %PayslipPayable{}} =  PayslipPayables.unset_as_auto_adjustable_amount(payslip, payable)
+      assert {:ok, %PayslipPayable{}} =
+               PayslipPayables.unset_as_auto_adjustable_amount(payslip, payable)
 
       assert Repo.get_by!(PayslipPayable,
                org_id: org.id,

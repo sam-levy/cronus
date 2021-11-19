@@ -250,7 +250,8 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.UpdateTest do
         billet_barcode: random_string_number()
       }
 
-      assert Update.call(payslip, payable, attrs) == {:error, "can't modify an authorized payable"}
+      assert Update.call(payslip, payable, attrs) ==
+               {:error, "can't modify an authorized payable"}
     end
 
     test "when payable is authortized after is loaded" do
@@ -296,7 +297,8 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.UpdateTest do
         billet_barcode: random_string_number()
       }
 
-      assert Update.call(payslip, payable, attrs) == {:error, "can't modify an authorized payable"}
+      assert Update.call(payslip, payable, attrs) ==
+               {:error, "can't modify an authorized payable"}
     end
 
     test "when payable is initially fulfilled" do

@@ -41,7 +41,11 @@ defmodule Sig.Finance.Payables do
   defdelegate subscribe_to_payables_for_payslip(payslip), to: PayablesForPayslip
   defdelegate unsubscribe_from_payables_for_payslip(payslip), to: PayablesForPayslip
   defdelegate broadcast_payables_for_payslip(payslip), to: PayablesForPayslip
-  defdelegate authorize_payable_for_payslip(payslip, payable, user), to: PayablesForPayslip, as: :authorize
+
+  defdelegate authorize_payable_for_payslip(payslip, payable, user),
+    to: PayablesForPayslip,
+    as: :authorize
+
   defdelegate unauthorize_payable_for_payslip(payable), to: PayablesForPayslip, as: :unauthorize
 
   defdelegate list_payslip_payables_by_payslip(payslip), to: PayablesForPayslip
