@@ -63,7 +63,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.List do
                   {format_type(payslip.type)}
                 </div>
 
-                <Icon name="lock_open" :if={!payslip.is_closed} class="h-4 w-4"/>
+                <Icon name="lock_open" :if={!payslip.is_closed} size="4"/>
               </div>
             </div>
           {/for}

@@ -15,6 +15,12 @@ defmodule SigLive.Components.Icon.Content do
     """
   end
 
+  def render(%{name: "check"} = assigns) do
+    ~F"""
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+    """
+  end
+
   def render(assigns) do
     ~F"""
     <div></div>
@@ -28,17 +34,20 @@ defmodule SigLive.Components.Icon do
   alias SigLive.Components.Icon.Content
 
   prop class, :css_class, default: []
+  prop size, :string, default: "6"
   prop name, :string
 
   def render(assigns) do
     ~F"""
-    <svg xmlns="http://www.w3.org/2000/svg" class={handle_class(@class)} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <svg xmlns="http://www.w3.org/2000/svg" class={handle_class(@class, @size)} fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <Content name={@name}/>
     </svg>
     """
   end
 
-  @base_class ~w(text-gray-400 h-6 w-6)
+  @base_class ~w(text-gray-400)
 
-  defp handle_class(class), do: @base_class ++ class
+  defp handle_class(class, size), do: @base_class ++ class ++ handle_size(size)
+
+  defp handle_size(size), do: ["h-#{size} w-#{size}"]
 end
