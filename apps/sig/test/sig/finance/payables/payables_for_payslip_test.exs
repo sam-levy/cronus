@@ -1,6 +1,7 @@
 defmodule Sig.Finance.Payables.PayablesForPayslipTest do
   use Sig.DataCase
 
+  alias Sig.Accounts.User
   alias Sig.Finance.Payables.Payable
   alias Sig.Finance.Payables.PayablesForPayslip
   alias Sig.Finance.Payables.PayablesForPayslip.PayslipPayables.PayslipPayable
@@ -123,6 +124,21 @@ defmodule Sig.Finance.Payables.PayablesForPayslipTest do
       insert(:payslip_payable, org: org, payslip: payslip, payable: payable)
 
       assert %Payable{id: ^id} = PayablesForPayslip.get_by_payslip(payslip, id)
+    end
+
+    test "preloads authorized_by" do
+      org = insert(:org)
+      payslip = insert(:payslip, org: org, amount: 0)
+      %{id: user_id} = user = insert(:user, org: org)
+
+      %{id: payable_id} =
+        payable =
+        insert(:payable_cash, org: org, target: :payslip, amount: 0, authorized_by: user)
+
+      insert(:payslip_payable, org: org, payslip: payslip, payable: payable)
+
+      assert %Payable{id: ^payable_id, authorized_by: %User{id: ^user_id}} =
+               PayablesForPayslip.get_by_payslip(payslip, payable_id)
     end
 
     test "when payable belongs to another payslip" do
