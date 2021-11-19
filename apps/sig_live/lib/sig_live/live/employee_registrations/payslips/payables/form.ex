@@ -210,6 +210,15 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.Form do
           </Field>
         </div>
 
+        <div
+          class="form-field"
+          :if={@form_state == :show_mode and @changeset.data.authorized_by != nil}
+        >
+          <label class="form-label">Autorizado Por</label>
+
+          <input type="text" disabled class="form-input-disabled" value={@changeset.data.authorized_by.email}>
+        </div>
+
         <div :if={@message} class="form-error-tag">{@message}</div>
 
         <div :if={@form_state != :show_mode} class="flex justify-end">
