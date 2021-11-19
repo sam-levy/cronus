@@ -161,10 +161,13 @@ defmodule SigLive.EmployeeRegistrations.Show do
   def handle_info({:updated_payslip, %{id: id} = updated_payslip}, socket) do
     %{payslips: payslips, selected_payslip: selected_payslip} = socket.assigns
 
-    payslips = Enum.map(payslips, fn
-      %{id: ^id} -> updated_payslip
-      payslip -> payslip
-    end)
+    payslips =
+      payslips
+      |> Enum.map(fn
+        %{id: ^id} -> updated_payslip
+        payslip -> payslip
+      end)
+      |> Enum.sort_by(&(&1.start_date), {:desc, Date})
 
     if selected_payslip != nil and selected_payslip.id == updated_payslip.id do
       {:noreply, assign(socket, payslips: payslips, selected_payslip: updated_payslip)}
