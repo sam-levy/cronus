@@ -3,11 +3,12 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.List do
 
   alias Sig.Finance
 
-  alias SigLive.Components.ConfirmationDialog
   alias SigLive.Components.ButtonPlus
+  alias SigLive.Components.ConfirmationDialog
   alias SigLive.Components.DropdownOpts
   alias SigLive.EmployeeRegistrations.Payslips.Payables.Form
 
+  prop current_user, :struct, required: true
   prop registration, :struct, required: true
   prop payslip, :struct, required: true
   prop entity, :struct, required: true
@@ -17,7 +18,6 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.List do
   data delete_confirmation_dialog_state, :atom, default: :closed, values!: ConfirmationDialog.states()
   data form_state, :atom, default: :closed, values!: Form.states()
   data payable_id, :string, default: nil
-
   data message, :string, default: nil
 
   @impl true
@@ -50,7 +50,10 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.List do
 
       {:noreply, socket}
     else
-      {:error, message} -> send(self(), {:flash, :error, message})
+      {:error, message} ->
+        send(self(), {:flash, :error, message})
+
+        {:noreply, assign(socket, closed_state())}
     end
   end
 
@@ -59,12 +62,15 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.List do
     %{payslip: payslip} = socket.assigns
 
     with {:ok, payable} <- Finance.fetch_payable_by_payslip(payslip, id),
-         :ok <- Finance.unset_payable_for_payslip_as_auto_adjustable(payslip, payable) do
+         {:ok, _payable} <- Finance.unset_payable_for_payslip_as_auto_adjustable(payslip, payable) do
       Finance.broadcast_payables_for_payslip(payslip)
 
       {:noreply, socket}
     else
-      {:error, message} -> send(self(), {:flash, :error, message})
+      {:error, message} ->
+        send(self(), {:flash, :error, message})
+
+        {:noreply, assign(socket, closed_state())}
     end
   end
 
@@ -84,7 +90,49 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.List do
 
       {:noreply, assign(socket, closed_state())}
     else
-      {:error, message} -> {:noreply, assign(socket, message: message)}
+      {:error, changeset} when is_struct(changeset) ->
+        message = Sig.Changeset.errors_to_string(changeset)
+
+        {:noreply, assign(socket, message: message)}
+
+      {:error, message} when is_binary(message) ->
+        {:noreply, assign(socket, message: message)}
+    end
+  end
+
+  @impl true
+  def handle_event("authorize_payable", %{"payable_id" => id}, socket) do
+    %{payslip: payslip, current_user: current_user} = socket.assigns
+
+    with {:ok, payable} <- Finance.fetch_payable_by_payslip(payslip, id),
+         {:ok, _payable} <- Finance.authorize_payable_for_payslip(payslip, payable, current_user) do
+      Finance.broadcast_payables_for_payslip(payslip)
+      send(self(), {:flash, :info, "Pagamento autorizado"})
+
+      {:noreply, assign(socket, closed_state())}
+    else
+      {:error, changeset} ->
+        send(self(), {:flash, :error, Sig.Changeset.errors_to_string(changeset)})
+
+        {:noreply, assign(socket, closed_state())}
+    end
+  end
+
+  @impl true
+  def handle_event("unauthorize_payable", %{"payable_id" => id}, socket) do
+    %{payslip: payslip} = socket.assigns
+
+    with {:ok, payable} <- Finance.fetch_payable_by_payslip(payslip, id),
+         {:ok, _payable} <- Finance.unauthorize_payable_for_payslip(payable) do
+      Finance.broadcast_payables_for_payslip(payslip)
+      send(self(), {:flash, :info, "Pagamento desautorizado"})
+
+      {:noreply, assign(socket, closed_state())}
+    else
+      {:error, changeset} ->
+        send(self(), {:flash, :error, Sig.Changeset.errors_to_string(changeset)})
+
+        {:noreply, assign(socket, closed_state())}
     end
   end
 
@@ -141,7 +189,6 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.List do
           >
             <th class="py-3 px-6 text-left">Vencimento</th>
             <th class="py-3 px-6 text-left">Descrição</th>
-            <th class="py-3 px-6 text-left"></th>
             <th class="py-3 px-6 text-right">Valor</th>
             <th class="py-3 px-6 text-right"></th>
           </tr>
@@ -161,31 +208,52 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.List do
               </td>
 
               <td class="py-3 px-6 text-left">
-                {payable.description}
+                <div class="flex items-center">
+                  {payable.description}
+
+                  <span :if={payable.authorized_by_id} class="label-green ml-3">autorizado</span>
+                </div>
               </td>
 
-              <td class="py-3 px-6 text-right">
-                {#if !payable.is_fulfilled and payable.payslip_payable.is_auto_adjustable_amount}
-                  <span class="label-green">valor automático</span>
-                {/if}
-              </td>
+              <td class="py-3 px-6">
+                <div class="flex justify-end items-center">
+                  <span
+                    :if={!payable.is_fulfilled and payable.payslip_payable.is_auto_adjustable_amount}
+                    class="label-gray mr-3"
+                  >
+                    automático
+                  </span>
 
-              <td class="py-3 px-6 text-right">
-                {format_amount(payable.amount)}
+                  {format_amount(payable.amount)}
+                </div>
               </td>
 
               <td class="pr-5 text-right">
                 <DropdownOpts>
                   <a
-                    :on-click="open_edit_payable_form"
+                    :if={!payable.authorized_by_id}
+                    :on-click="authorize_payable"
                     phx-value-payable_id={payable.id}
                     class="dropdown-item"
                   >
-                    Editar
+                    Autorizar pagamento
                   </a>
 
                   <a
-                    :if={!payable.is_fulfilled and !payable.payslip_payable.is_auto_adjustable_amount}
+                    :if={payable.authorized_by_id}
+                    :on-click="unauthorize_payable"
+                    phx-value-payable_id={payable.id}
+                    class="dropdown-item"
+                  >
+                    Desautorizar pagamento
+                  </a>
+
+                  <a
+                    :if={
+                      !payable.is_fulfilled and
+                      !payable.authorized_by_id and
+                      !payable.payslip_payable.is_auto_adjustable_amount
+                    }
                     :on-click="set_as_auto_adjustable_amount"
                     phx-value-payable_id={payable.id}
                     class="dropdown-item"
@@ -203,6 +271,16 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.List do
                   </a>
 
                   <a
+                    :if={!payable.is_fulfilled and !payable.authorized_by_id}
+                    :on-click="open_edit_payable_form"
+                    phx-value-payable_id={payable.id}
+                    class="dropdown-item"
+                  >
+                    Editar
+                  </a>
+
+                  <a
+                    :if={!payable.is_fulfilled and !payable.authorized_by_id}
                     :on-click="open_delete_confirmation_dialog"
                     phx-value-payable_id={payable.id}
                     class="dropdown-item"
@@ -218,7 +296,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.List do
             :if={@payment_difference != Money.new(0)}
             class="text-sm bg-gray-100 font-medium text-gray-500 tracking-wider"
           >
-            <td class="py-2 px-6 text-left" colspan="3">Diferença</td>
+            <td class="py-2 px-6 text-left" colspan="2">Diferença</td>
             <td class="py-2 px-6 text-right">{format_amount(@payment_difference)}</td>
             <td></td>
           </tr>

@@ -5,6 +5,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips do
   alias SigLive.EmployeeRegistrations.Payslips.Show
   alias SigLive.EmployeeRegistrations.Payslips.Payables
 
+  prop current_user, :struct, required: true
   prop registration, :struct, required: true
   prop entity, :struct, required: true
   prop payslips, :list, required: true
@@ -43,6 +44,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips do
           payslip={@selected_payslip}
           payables={@selected_payslip_payables}
           {=@payment_difference}
+          {=@current_user}
           {=@registration}
           {=@entity}
         />
