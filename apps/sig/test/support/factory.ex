@@ -48,6 +48,8 @@ defmodule Sig.Factory do
 
   def random_string_number, do: 100..1_000_000 |> Enum.random() |> to_string()
 
+  def random_past_date, do: 1..10_000 |> Enum.random() |> Faker.Date.backward()
+
   defp sequence(fun) when is_function(fun, 1) do
     fun.(System.unique_integer([:positive, :monotonic]))
   end

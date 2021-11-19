@@ -6,7 +6,7 @@ defmodule Sig.Factories.SalaryFactory do
       def factory(:employee_salary, attrs) do
         org = Keyword.get(attrs, :org) || insert(:org)
 
-        admission_date = 100 |> Faker.Date.backward() |> Date.beginning_of_month()
+        admission_date = random_past_date() |> Date.beginning_of_month()
 
         registration =
           Keyword.get(attrs, :registration) ||

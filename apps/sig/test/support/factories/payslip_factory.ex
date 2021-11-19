@@ -8,8 +8,7 @@ defmodule Sig.Factories.PayslipFactory do
         type = Keyword.get(attrs, :type) || random_enum_value(:payslip_group_type)
 
         start_date =
-          Keyword.get(attrs, :start_date) ||
-            Faker.Date.backward(5000) |> Date.beginning_of_month()
+          Keyword.get(attrs, :start_date) || random_past_date() |> Date.beginning_of_month()
 
         group =
           Keyword.get(attrs, :group) ||
