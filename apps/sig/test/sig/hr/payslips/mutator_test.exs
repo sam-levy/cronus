@@ -201,7 +201,7 @@ defmodule Sig.HR.Payslips.MutatorTest do
           registration: registration,
           type: type,
           start_date: start_date,
-          end_date: end_date,
+          end_date: end_date
         )
 
       # Close payslip

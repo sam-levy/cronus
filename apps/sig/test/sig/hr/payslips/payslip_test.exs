@@ -677,11 +677,12 @@ defmodule Sig.HR.Payslips.PayslipTest do
 
   describe "update_changeset/2" do
     test "valid attrs" do
-      payslip = insert(:payslip,
-        type: :regular,
-        start_date: ~D[2021-01-01],
-        end_date: ~D[2021-01-31]
-      )
+      payslip =
+        insert(:payslip,
+          type: :regular,
+          start_date: ~D[2021-01-01],
+          end_date: ~D[2021-01-31]
+        )
 
       attrs = %{
         type: :vacation,
@@ -694,18 +695,19 @@ defmodule Sig.HR.Payslips.PayslipTest do
       assert changeset.valid?
 
       assert changeset.changes == %{
-        type: attrs[:type],
-        start_date: attrs[:start_date],
-        end_date: attrs[:end_date]
-      }
+               type: attrs[:type],
+               start_date: attrs[:start_date],
+               end_date: attrs[:end_date]
+             }
     end
 
     test "ignores non permitted attrs" do
-      payslip = insert(:payslip,
-        type: :regular,
-        start_date: ~D[2021-01-01],
-        end_date: ~D[2021-01-31]
-      )
+      payslip =
+        insert(:payslip,
+          type: :regular,
+          start_date: ~D[2021-01-01],
+          end_date: ~D[2021-01-31]
+        )
 
       attrs = %{
         org_id: UUID.generate(),
@@ -723,18 +725,19 @@ defmodule Sig.HR.Payslips.PayslipTest do
       assert changeset.valid?
 
       assert changeset.changes == %{
-        type: attrs[:type],
-        start_date: attrs[:start_date],
-        end_date: attrs[:end_date]
-      }
+               type: attrs[:type],
+               start_date: attrs[:start_date],
+               end_date: attrs[:end_date]
+             }
     end
 
     test "end_date before start_date" do
-      payslip = insert(:payslip,
-        type: :regular,
-        start_date: ~D[2021-01-01],
-        end_date: ~D[2021-01-31]
-      )
+      payslip =
+        insert(:payslip,
+          type: :regular,
+          start_date: ~D[2021-01-01],
+          end_date: ~D[2021-01-31]
+        )
 
       attrs = %{
         type: :vacation,
