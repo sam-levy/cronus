@@ -8,6 +8,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
   alias SigLive.Components.DropdownBtn
   alias SigLive.Components.DropdownOpts
   alias SigLive.Components.ToggleIcon
+  alias SigLive.EmployeeRegistrations.Payslips.Form, as: PayslipForm
   alias SigLive.EmployeeRegistrations.Payslips.OutsideItemForm
   alias SigLive.EmployeeRegistrations.Payslips.PayslipItemForm
   alias SigLive.EmployeeRegistrations.Payslips.UpdateItemAmountForm
@@ -16,6 +17,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
   prop payslip, :struct, default: nil
   prop items, :list, default: []
 
+  data payslip_form_state, :atom, default: :closed, values!: PayslipForm.states()
   data payslip_item_form_state, :atom, default: :closed, values!: PayslipItemForm.states()
   data outside_item_form_state, :atom, default: :closed, values!: OutsideItemForm.states()
   data update_item_amount_form_state, :atom, default: :closed, values!: UpdateItemAmountForm.states()
@@ -42,6 +44,11 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
   @impl true
   def update(assigns, socket) do
     {:ok, assign(socket, assigns)}
+  end
+
+  @impl true
+  def handle_event("open_edit_payslip_form", _, socket) do
+    {:noreply, assign(socket, payslip_form_state: :edit_mode)}
   end
 
   @impl true
@@ -163,6 +170,16 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
         error_message={@message}
       />
 
+      <PayslipForm
+        :if={@payslip_form_state != :closed}
+        id="payslip_form"
+        close_event="close_modals"
+        close_fun={fn -> close_modals(@id) end}
+        form_state={@payslip_form_state}
+        payslip_id={@payslip.id}
+        {=@registration}
+      />
+
       <PayslipItemForm
         :if={@payslip_item_form_state != :closed}
         id="payslip_item_form"
@@ -212,6 +229,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
                   <DropdownBtn disabled={@payslip.is_closed}>
                     <a :on-click="open_new_payslip_item_form" class="dropdown-item">Item do holerite</a>
                     <a :on-click="open_new_outside_item_form" class="dropdown-item">Item fora do holerite</a>
+                    <a :on-click="open_edit_payslip_form" class="dropdown-item">Editar Holerite</a>
                     <a :if={@items == []} :on-click="open_delete_payslip_confirmation_dialog" class="dropdown-item">Remover Holerite</a>
                   </DropdownBtn>
                 </div>
@@ -365,6 +383,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
     [
       item_id: nil,
       message: nil,
+      payslip_form_state: :closed,
       payslip_item_form_state: :closed,
       outside_item_form_state: :closed,
       update_item_amount_form_state: :closed,
