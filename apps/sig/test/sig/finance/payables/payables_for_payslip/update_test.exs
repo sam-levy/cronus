@@ -208,6 +208,97 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.UpdateTest do
              )
     end
 
+    test "when payable is initially authorized" do
+      org = insert(:org)
+      payslip = insert(:payslip, org: org)
+
+      insert(:payslip_outside_item,
+        org: org,
+        payslip: payslip,
+        entry_type: :credit,
+        amount: 100_00
+      )
+
+      # Update payslip amount
+      Repo.update!(change(payslip, amount: 100_00))
+
+      user = insert(:user, org: org)
+
+      payable =
+        insert(:payable_cash,
+          org: org,
+          target: :payslip,
+          amount: Money.new(100_00),
+          is_fulfilled: false,
+          authorized_by_id: user.id
+        )
+
+      insert(:payslip_payable,
+        org: org,
+        payslip: payslip,
+        payable: payable,
+        is_auto_adjustable_amount: false
+      )
+
+      attrs = %{
+        due_date: ~D[2021-01-15],
+        reference_date: ~D[2021-01-01],
+        amount: 50_00,
+        description: "Updated description",
+        note: "Updated note",
+        method: :billet,
+        billet_barcode: random_string_number()
+      }
+
+      assert Update.call(payslip, payable, attrs) == {:error, "can't modify an authorized payable"}
+    end
+
+    test "when payable is authortized after is loaded" do
+      org = insert(:org)
+      payslip = insert(:payslip, org: org)
+
+      insert(:payslip_outside_item,
+        org: org,
+        payslip: payslip,
+        entry_type: :credit,
+        amount: 100_00
+      )
+
+      # Update payslip amount
+      Repo.update!(change(payslip, amount: 100_00))
+
+      payable =
+        insert(:payable_cash,
+          org: org,
+          target: :payslip,
+          amount: Money.new(100_00)
+        )
+
+      insert(:payslip_payable,
+        org: org,
+        payslip: payslip,
+        payable: payable,
+        is_auto_adjustable_amount: false
+      )
+
+      user = insert(:user, org: org)
+
+      # Authortize payable
+      Repo.update!(change(payable, authorized_by_id: user.id))
+
+      attrs = %{
+        due_date: ~D[2021-01-15],
+        reference_date: ~D[2021-01-01],
+        amount: 50_00,
+        description: "Updated description",
+        note: "Updated note",
+        method: :billet,
+        billet_barcode: random_string_number()
+      }
+
+      assert Update.call(payslip, payable, attrs) == {:error, "can't modify an authorized payable"}
+    end
+
     test "when payable is initially fulfilled" do
       org = insert(:org)
       payslip = insert(:payslip, org: org)

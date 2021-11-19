@@ -11,14 +11,19 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.Delete do
   alias Sig.Repo
 
   @fulfilled_payable_message "can't delete a fulfilled payable"
+  @authorized_payable_message "can't delete an authorized payable"
 
   def call(%Payslip{}, %Payable{is_fulfilled: true}) do
     {:error, @fulfilled_payable_message}
   end
 
+  def call(%Payslip{}, %Payable{authorized_by_id: id}) when is_binary(id) do
+    {:error, @authorized_payable_message}
+  end
+
   def call(%Payslip{} = payslip, %Payable{target: :payslip} = payable) do
     Multi.new()
-    |> Multi.run(:payable, fn _, _ -> ensure_payable_is_not_fulfilled(payable) end)
+    |> Multi.run(:payable, fn _, _ -> ensure_valid_payable_to_delete(payable) end)
     |> Multi.delete_all(
       :payslip_payable,
       PayslipPayable
@@ -40,10 +45,11 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.Delete do
     |> handle_return()
   end
 
-  defp ensure_payable_is_not_fulfilled(%Payable{org_id: org_id, id: id}) do
+  defp ensure_valid_payable_to_delete(%Payable{org_id: org_id, id: id}) do
     case Payables.get_by(id: id, org_id: org_id) do
-      %{is_fulfilled: false} = payable -> {:ok, payable}
-      _payable -> {:error, @fulfilled_payable_message}
+      %Payable{is_fulfilled: true} -> {:error, @fulfilled_payable_message}
+      %Payable{authorized_by_id: id} when is_binary(id) -> {:error, @authorized_payable_message}
+      %Payable{} = payable -> {:ok, payable}
     end
   end
 

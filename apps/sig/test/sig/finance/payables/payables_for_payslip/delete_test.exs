@@ -151,6 +151,84 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.DeleteTest do
              )
     end
 
+    test "when payable initially authorized" do
+      org = insert(:org)
+      user = insert(:user, org: org)
+      payslip = insert(:payslip, org: org)
+
+      insert(:payslip_outside_item,
+        org: org,
+        payslip: payslip,
+        entry_type: :credit,
+        amount: 100_00
+      )
+
+      # Update payslip amount
+      Repo.update!(change(payslip, amount: 100_00))
+
+      %{id: id} =
+        payable =
+        insert(:payable_cash,
+          org: org,
+          target: :payslip,
+          amount: 100_00,
+          is_fulfilled: false,
+          authorized_by_id: user.id
+        )
+
+      insert(:payslip_payable, org: org, payslip: payslip, payable: payable)
+
+      assert Delete.call(payslip, payable) == {:error, "can't delete an authorized payable"}
+
+      assert Repo.get_by(Payable, org_id: org.id, id: id)
+
+      assert Repo.get_by(PayslipPayable,
+               org_id: payslip.org_id,
+               payslip_id: payslip.id,
+               payable_id: payable.id
+             )
+    end
+
+    test "when payable is authorized after is loaded" do
+      org = insert(:org)
+      payslip = insert(:payslip, org: org)
+
+      insert(:payslip_outside_item,
+        org: org,
+        payslip: payslip,
+        entry_type: :credit,
+        amount: 100_00
+      )
+
+      # Update payslip amount
+      Repo.update!(change(payslip, amount: 100_00))
+
+      %{id: id} =
+        payable =
+        insert(:payable_cash,
+          org: org,
+          target: :payslip,
+          amount: 100_00
+        )
+
+      insert(:payslip_payable, org: org, payslip: payslip, payable: payable)
+
+      user = insert(:user, org: org)
+
+      # Authorize payable
+      Repo.update!(change(payable,authorized_by_id: user.id))
+
+      assert Delete.call(payslip, payable) == {:error, "can't delete an authorized payable"}
+
+      assert Repo.get_by(Payable, org_id: org.id, id: id)
+
+      assert Repo.get_by(PayslipPayable,
+               org_id: payslip.org_id,
+               payslip_id: payslip.id,
+               payable_id: payable.id
+             )
+    end
+
     test "when payable initially fulfilled" do
       org = insert(:org)
       user = insert(:user, org: org)

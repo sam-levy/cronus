@@ -8,6 +8,9 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.PayslipPayables do
   alias Sig.HR.Payslips.Payslip
   alias Sig.Repo
 
+  @fulfilled_payable_message "can't modify a fulfilled payable"
+  @authorized_payable_message "can't modify an authorized payable"
+
   # TODO: Add test
   def list_by_payslip(%Payslip{} = payslip) do
     PayslipPayable
@@ -42,7 +45,12 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.PayslipPayables do
   end
 
   def set_as_auto_adjustable_amount(_payslip, %Payable{is_fulfilled: true}) do
-    {:error, "can't modify a fulfilled payable"}
+    {:error, @fulfilled_payable_message}
+  end
+
+  def set_as_auto_adjustable_amount(_payslip, %Payable{authorized_by_id: id})
+      when is_binary(id) do
+    {:error, @authorized_payable_message}
   end
 
   def set_as_auto_adjustable_amount(
@@ -62,11 +70,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.PayslipPayables do
     |> Multi.update_all(
       :set_payslip_payable_as_auto_adjustable_amount,
       PayslipPayable
-      |> where(
-        org_id: ^org_id,
-        payslip_id: ^payslip_id,
-        payable_id: ^payable.id
-      )
+      |> where(org_id: ^org_id, payslip_id: ^payslip_id, payable_id: ^payable.id)
       |> select([payslip_payable], payslip_payable),
       set: [is_auto_adjustable_amount: true]
     )
@@ -84,21 +88,20 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.PayslipPayables do
   end
 
   def unset_as_auto_adjustable_amount(_payslip, %Payable{is_fulfilled: true}) do
-    {:error, "can't modify a fulfilled payable"}
+    {:error, @fulfilled_payable_message}
   end
 
   def unset_as_auto_adjustable_amount(%Payslip{} = payslip, %Payable{} = payable) do
-    Repo.update_all(
-      where(
-        PayslipPayable,
-        org_id: ^payslip.org_id,
-        payslip_id: ^payslip.id,
-        payable_id: ^payable.id
-      ),
-      set: [is_auto_adjustable_amount: false]
+    PayslipPayable
+    |> where(
+      org_id: ^payslip.org_id,
+      payslip_id: ^payslip.id,
+      payable_id: ^payable.id
     )
+    |> select([payslip_payable], payslip_payable)
+    |> Repo.update_all(set: [is_auto_adjustable_amount: false])
     |> case do
-      {1, _} -> :ok
+      {1, [payslip_payable]} -> {:ok, payslip_payable}
       {0, _} -> {:error, :not_found}
     end
   end

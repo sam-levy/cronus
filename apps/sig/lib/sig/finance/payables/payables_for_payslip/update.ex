@@ -13,6 +13,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.Update do
   alias Sig.Repo
 
   @fulfilled_payable_message "can't modify a fulfilled payable"
+  @authorized_payable_message "can't modify an authorized payable"
 
   defmodule Context do
     defstruct status: :ok,
@@ -26,6 +27,10 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.Update do
 
   def call(%Payslip{}, %Payable{is_fulfilled: true}, %{}) do
     {:error, @fulfilled_payable_message}
+  end
+
+  def call(%Payslip{}, %Payable{authorized_by_id: id}, %{}) when is_binary(id) do
+    {:error, @authorized_payable_message}
   end
 
   def call(%Payslip{} = payslip, %Payable{} = payable, %{} = attrs) do
@@ -131,7 +136,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.Update do
 
   defp update_multi(context) do
     Multi.new()
-    |> Multi.run(:payable, fn _, _ -> ensure_payable_is_not_fulfilled(context.payable) end)
+    |> Multi.run(:payable, fn _, _ -> ensure_valid_payable_to_update(context.payable) end)
     |> Multi.run(:handle_non_auto_adjustable_amount_subtract, fn _, %{payable: payable} ->
       handle_non_auto_adjustable_amount_subtract(context, payable)
     end)
@@ -146,10 +151,11 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.Update do
     end
   end
 
-  defp ensure_payable_is_not_fulfilled(%Payable{org_id: org_id, id: id}) do
+  defp ensure_valid_payable_to_update(%Payable{org_id: org_id, id: id}) do
     case Payables.get_by(id: id, org_id: org_id) do
-      %{is_fulfilled: false} = payable -> {:ok, payable}
-      _payable -> {:error, @fulfilled_payable_message}
+      %Payable{is_fulfilled: true} -> {:error, @fulfilled_payable_message}
+      %Payable{authorized_by_id: id} when is_binary(id) -> {:error, @authorized_payable_message}
+      %Payable{} = payable -> {:ok, payable}
     end
   end
 
