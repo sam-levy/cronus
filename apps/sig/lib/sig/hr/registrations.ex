@@ -47,6 +47,8 @@ defmodule Sig.HR.Registrations do
     |> Repo.one()
   end
 
+  def get_by(attrs), do: Repo.get_by(Registration, attrs)
+
   def subscribe_to_individual_registrations(%Individual{} = individual) do
     Phoenix.PubSub.subscribe(Sig.PubSub, topic(individual))
   end
