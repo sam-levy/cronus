@@ -487,11 +487,7 @@
 <part>id</part>
 </key>
 </table>
-<table x="1970" y="1027" name="payslips">
-<row name="group_id" null="1" autoincrement="0">
-<datatype>INTEGER</datatype>
-<default>NULL</default><relation table="payslip_groups" row="id" />
-</row>
+<table x="1968" y="1027" name="payslips">
 <row name="id" null="1" autoincrement="1">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
@@ -501,6 +497,10 @@
 <row name="registration_id" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
 <default>NULL</default><relation table="employee_registrations" row="id" />
+</row>
+<row name="group_id" null="1" autoincrement="0">
+<datatype>INTEGER</datatype>
+<default>NULL</default><relation table="payslip_groups" row="id" />
 </row>
 <row name="type" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
@@ -521,7 +521,7 @@
 <part>id</part>
 </key>
 </table>
-<table x="2270" y="1004" name="payslip_items">
+<table x="2265" y="981" name="payslip_items">
 <row name="id" null="1" autoincrement="1">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
@@ -532,35 +532,32 @@
 <datatype>INTEGER</datatype>
 <default>NULL</default><relation table="payslips" row="id" />
 </row>
-<row name="type" null="1" autoincrement="0">
-<datatype>INTEGER</datatype>
-<default>NULL</default><comment>Enum [payslip_item, outside_item]</comment>
-</row>
 <row name="category_id" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
 <default>NULL</default><relation table="payslip_categories" row="id" />
 </row>
+<row name="type" null="1" autoincrement="0">
+<datatype>INTEGER</datatype>
+<default>NULL</default><comment>Enum [payslip_item, outside_item]</comment>
+</row>
+<row name="code" null="1" autoincrement="0">
+<datatype>VARCHAR</datatype>
+<default>NULL</default></row>
+<row name="description" null="1" autoincrement="0">
+<datatype>VARCHAR</datatype>
+<default>NULL</default></row>
 <row name="reference" null="1" autoincrement="0">
 <datatype>VARCHAR</datatype>
 <default>NULL</default><comment>Ven da categoria mas é editável</comment>
 </row>
-<row name="outside_item_description" null="1" autoincrement="0">
-<datatype>VARCHAR</datatype>
-<default>NULL</default></row>
-<row name="outside_item_entry_type" null="1" autoincrement="0">
+<row name="entry_type" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
+<default>NULL</default></row>
+<row name="is_payment_advance" null="1" autoincrement="0">
+<datatype>BOOLEAN</datatype>
 <default>NULL</default></row>
 <row name="amount" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
-<default>NULL</default></row>
-<row name="_code" null="1" autoincrement="0">
-<datatype>VARCHAR</datatype>
-<default>NULL</default></row>
-<row name="_description" null="1" autoincrement="0">
-<datatype>VARCHAR</datatype>
-<default>NULL</default></row>
-<row name="_entry_type" null="1" autoincrement="0">
-<datatype>VARCHAR</datatype>
 <default>NULL</default></row>
 <key type="PRIMARY" name="">
 <part>id</part>
@@ -660,6 +657,9 @@
 <row name="entry_type" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
+<row name="is_payment_advance" null="1" autoincrement="0">
+<datatype>BOOLEAN</datatype>
+<default>NULL</default></row>
 <key type="PRIMARY" name="">
 <part>id</part>
 </key>
@@ -755,7 +755,7 @@
 <part>id</part>
 </key>
 </table>
-<table x="2268" y="857" name="payslip_groups">
+<table x="1739" y="1120" name="payslip_groups">
 <row name="id" null="1" autoincrement="1">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
@@ -978,9 +978,8 @@
 <default>NULL</default></row>
 <row name="date" null="1" autoincrement="0">
 <datatype>DATE</datatype>
-<default>NULL</default><comment>The date field represents the month</comment>
-</row>
-<row name="paid_in_id" null="1" autoincrement="0">
+<default>NULL</default></row>
+<row name="payslip_id" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
 <default>NULL</default><relation table="payslips" row="id" />
 </row>
@@ -1051,7 +1050,7 @@
 <part>id</part>
 </key>
 </table>
-<table x="1932" y="381" name="employee_registration_recurring_payslip_items">
+<table x="1932" y="356" name="employee_registration_recurring_payslip_items">
 <row name="id" null="1" autoincrement="1">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
@@ -1079,6 +1078,9 @@
 <row name="outside_item_entry_type" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
+<row name="outside_item_is_payment_advance" null="1" autoincrement="0">
+<datatype>BOOLEAN</datatype>
+<default>NULL</default></row>
 <row name="item_amount" null="1" autoincrement="0">
 <datatype>VARCHAR</datatype>
 <default>NULL</default></row>
@@ -1093,6 +1095,9 @@
 <default>NULL</default></row>
 <row name="_amount" null="1" autoincrement="0">
 <datatype>VARCHAR</datatype>
+<default>NULL</default></row>
+<row name="_is_payment_advance" null="1" autoincrement="0">
+<datatype>BOOLEAN</datatype>
 <default>NULL</default></row>
 <key type="PRIMARY" name="">
 <part>id</part>
