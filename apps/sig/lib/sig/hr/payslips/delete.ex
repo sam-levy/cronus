@@ -5,11 +5,11 @@ defmodule Sig.HR.Payslips.Delete do
   alias Sig.HR.Payslips
   alias Sig.HR.Payslips.Items
   alias Sig.HR.Payslips.Payslip
+  alias Sig.HR.Registrations.Overtimes
   alias Sig.Repo
 
   @closed_payslip_message "can't delete a closed payslip"
   @payslip_with_items_message "can't delete a payslip with items"
-  @payslip_with_payables_message "can't delete a payslip with payables"
 
   def call(%Payslip{is_closed: true}) do
     {:error, @closed_payslip_message}
@@ -20,6 +20,7 @@ defmodule Sig.HR.Payslips.Delete do
     |> Multi.run(:ensure_can_be_deleted, fn _, _ -> ensure_can_be_deleted(payslip) end)
     |> Multi.run(:ensure_has_no_items, fn _, _ -> ensure_has_no_items(payslip) end)
     |> Multi.run(:ensure_has_no_payables, fn _, _ -> ensure_has_no_payables(payslip) end)
+    |> Multi.run(:ensure_has_no_overtimes, fn _, _ -> ensure_has_no_overtimes(payslip) end)
     |> Multi.delete(:delete, fn %{ensure_can_be_deleted: payable} -> payable end)
     |> Repo.transaction()
     |> case do
@@ -46,7 +47,14 @@ defmodule Sig.HR.Payslips.Delete do
   defp ensure_has_no_payables(payslip) do
     case Finance.list_payslip_payables_by_payslip(payslip) do
       [] -> {:ok, nil}
-      _ -> {:error, @payslip_with_payables_message}
+      _ -> {:error, "can't delete a payslip with payables"}
+    end
+  end
+
+  defp ensure_has_no_overtimes(payslip) do
+    case Overtimes.list_by_payslip(payslip) do
+      [] -> {:ok, nil}
+      _ -> {:error,  "can't delete a payslip with overtimes"}
     end
   end
 end

@@ -41,6 +41,33 @@ defmodule Sig.HR.PayslipsTest do
              ] = Payslips.list_by_registration(registration)
     end
 
+    test "apply limit" do
+      registration = insert(:employee_registration)
+
+      insert(:payslip,
+        org: registration.org,
+        registration: registration,
+        start_date: ~D[2021-03-01]
+      )
+
+      insert(:payslip,
+        org: registration.org,
+        registration: registration,
+        start_date: ~D[2021-02-01]
+      )
+
+      insert(:payslip,
+        org: registration.org,
+        registration: registration,
+        start_date: ~D[2021-01-01]
+      )
+
+      assert [
+               %Payslip{start_date: ~D[2021-03-01]},
+               %Payslip{start_date: ~D[2021-02-01]}
+             ] = Payslips.list_by_registration(registration, limit: 2)
+    end
+
     test "registration has no payslips" do
       registration = insert(:employee_registration)
 

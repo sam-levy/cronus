@@ -74,5 +74,18 @@ defmodule Sig.HR.Payslips.DeleteTest do
 
       assert Repo.get_by(Payslip, id: payslip.id, org_id: payslip.org_id)
     end
+
+    test "when payslip has overtimes" do
+      org = insert(:org)
+      date = ~D[2021-01-01]
+      registration = insert(:employee_registration, org: org, admission_date: date)
+      payslip = insert(:payslip, org: org, registration: registration, start_date: date)
+
+      insert(:employee_overtime, org: org, registration: registration, payslip: payslip, date: date)
+
+      assert Delete.call(payslip) == {:error, "can't delete a payslip with overtimes"}
+
+      assert Repo.get_by(Payslip, id: payslip.id, org_id: payslip.org_id)
+    end
   end
 end

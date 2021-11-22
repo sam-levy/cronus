@@ -26,11 +26,19 @@ defmodule Sig.HR.Payslips do
     Payslip.update_changeset(payslip, attrs)
   end
 
-  def list_by_registration(%Registration{} = registration) do
+  def list_by_registration(%Registration{} = registration, opts \\ []) do
     registration
     |> query_by_registration()
     |> order_by(desc: :start_date)
+    |> apply_limit(opts)
     |> Repo.all()
+  end
+
+  defp apply_limit(queryable, opts) do
+    case Keyword.get(opts, :limit, nil) do
+      nil -> queryable
+      limit -> limit(queryable, ^limit)
+    end
   end
 
   def get(%Registration{} = registration, id) when is_binary(id) do
