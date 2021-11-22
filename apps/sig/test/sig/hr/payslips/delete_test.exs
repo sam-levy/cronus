@@ -81,7 +81,12 @@ defmodule Sig.HR.Payslips.DeleteTest do
       registration = insert(:employee_registration, org: org, admission_date: date)
       payslip = insert(:payslip, org: org, registration: registration, start_date: date)
 
-      insert(:employee_overtime, org: org, registration: registration, payslip: payslip, date: date)
+      insert(:employee_overtime,
+        org: org,
+        registration: registration,
+        payslip: payslip,
+        date: date
+      )
 
       assert Delete.call(payslip) == {:error, "can't delete a payslip with overtimes"}
 

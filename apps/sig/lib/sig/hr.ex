@@ -106,12 +106,20 @@ defmodule Sig.HR do
 
   defdelegate create_overtime_change(attrs \\ %{}), to: Overtimes, as: :create_change
   defdelegate update_overtime_change(overtime, attrs \\ %{}), to: Overtimes, as: :update_change
-  defdelegate assign_overtime_payslip_change(overtime, attrs \\ %{}), to: Overtimes, as: :assign_payslip_change
+
+  defdelegate assign_overtime_payslip_change(overtime, attrs \\ %{}),
+    to: Overtimes,
+    as: :assign_payslip_change
+
   defdelegate create_overtime(registration, attrs), to: Overtimes, as: :create
   defdelegate update_overtime(overtime, attrs), to: Overtimes, as: :update
   defdelegate assign_overtime_payslip(overtime, attrs), to: Overtimes, as: :assign_payslip
   defdelegate drop_overtime_payslip(overtime), to: Overtimes, as: :drop_payslip
-  defdelegate list_overtimes_by_registration(registration), to: Overtimes, as: :list_by_registration
+
+  defdelegate list_overtimes_by_registration(registration),
+    to: Overtimes,
+    as: :list_by_registration
+
   defdelegate get_overtime(registration, id), to: Overtimes, as: :get
   defdelegate fetch_overtime(registration, id), to: Overtimes, as: :fetch
   defdelegate delete_overtime(overtime), to: Overtimes, as: :delete
@@ -148,7 +156,11 @@ defmodule Sig.HR do
 
   defdelegate create_payslip(registration, attrs), to: Payslips, as: :create
   defdelegate update_payslip(payslip, attrs), to: Payslips, as: :update
-  defdelegate list_payslips_by_registration(registration, opts \\ []), to: Payslips, as: :list_by_registration
+
+  defdelegate list_payslips_by_registration(registration, opts \\ []),
+    to: Payslips,
+    as: :list_by_registration
+
   defdelegate get_payslip(registration, id), to: Payslips, as: :get
   defdelegate delete_payslip(payslip), to: Payslips, as: :delete
   defdelegate create_payslip_change(attrs \\ %{}), to: Payslips, as: :create_change

@@ -54,7 +54,7 @@ defmodule Sig.HR.Payslips.Delete do
   defp ensure_has_no_overtimes(payslip) do
     case Overtimes.list_by_payslip(payslip) do
       [] -> {:ok, nil}
-      _ -> {:error,  "can't delete a payslip with overtimes"}
+      _ -> {:error, "can't delete a payslip with overtimes"}
     end
   end
 end
