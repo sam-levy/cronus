@@ -1,0 +1,54 @@
+defmodule Sig.HR.Registrations.Overtimes.Overtime do
+  use Sig.Schema
+
+  alias Sig.HR.Payslips.Payslip
+  alias Sig.HR.Registrations.Registration
+  alias Sig.Organizations.Org
+
+  schema "employee_overtimes" do
+    belongs_to :org, Org, primary_key: true
+
+    field :date, :date
+    field :hours_amount, :string, default: "00:00"
+
+    belongs_to :registration, Registration
+    belongs_to :payslip, Payslip
+
+    timestamps()
+  end
+
+  @create_required_fields [:org_id, :date, :hours_amount, :registration_id]
+
+  def create_changeset(attrs) do
+    %__MODULE__{}
+    |> cast(attrs, @create_required_fields ++ [:payslip_id])
+    |> validate_required(@create_required_fields)
+    |> validate_hours(:hours_amount)
+    |> validate_beginning_of_month(:date)
+  end
+
+  def update_changeset(%__MODULE__{} = target, attrs) do
+    target
+    |> cast(attrs, [:date, :hours_amount])
+    |> validate_required([:date, :hours_amount])
+    |> validate_hours(:hours_amount)
+    |> validate_beginning_of_month(:date)
+  end
+
+  def assign_payslip_changeset(%__MODULE__{} = target, attrs) do
+    target
+    |> cast(attrs, [:payslip_id])
+    |> validate_required([:payslip_id])
+    |> assoc_constraint(:payslip)
+  end
+
+  def drop_payslip_changeset(%__MODULE__{} = target) do
+    target
+    |> cast(%{}, [])
+    |> put_change(:payslip_id, nil)
+  end
+
+  defp validate_hours(changeset, field) do
+    validate_format(changeset, field, ~r/^[0-9]+:[0-5][0-9]$/)
+  end
+end
