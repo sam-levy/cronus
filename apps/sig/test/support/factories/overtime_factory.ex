@@ -14,7 +14,7 @@ defmodule Sig.Factories.OvertimeFactory do
         %Overtime{
           org: org,
           date: date,
-          hours_amount: "00:00",
+          hours_amount: Sig.Hour.new(),
           registration: registration
         }
       end

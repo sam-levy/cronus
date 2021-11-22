@@ -9,7 +9,7 @@ defmodule Sig.HR.Registrations.Overtimes.Overtime do
     belongs_to :org, Org, primary_key: true
 
     field :date, :date
-    field :hours_amount, :string, default: "00:00"
+    field :hours_amount, :string, default: Sig.Hour.new()
 
     belongs_to :registration, Registration
     belongs_to :payslip, Payslip
