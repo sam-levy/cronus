@@ -16,7 +16,7 @@ defmodule Sig.Hour do
     stringify({first_hours + second_hours + hours, minuts})
   end
 
-  def sum(hours) when is_list(hours), do: Enum.reduce(hours, "00:00", &add/2)
+  def sum(hours) when is_list(hours), do: Enum.reduce(hours, new(), &add/2)
 
   @invalid_format_message "invalid format"
 
