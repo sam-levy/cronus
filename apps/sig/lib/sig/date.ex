@@ -61,7 +61,8 @@ defmodule Sig.Date do
     end
   end
 
-  def next_month_start, do: Date.utc_today() |> Date.end_of_month() |> Date.add(1)
+  def next_month_start, do: build_date(:next, Date.utc_today(), 1)
+  def last_month_start, do: build_date(:prior, Date.utc_today(), 1)
 
   def nth_workday(date, days) do
     start_date = date |> Date.beginning_of_month() |> adjust_for_workday()

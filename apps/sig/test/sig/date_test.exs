@@ -51,6 +51,16 @@ defmodule Sig.DateTest do
     end
   end
 
+  describe "last_month_start/3" do
+    test "returns the first day of the last month" do
+      assert Sig.Date.last_month_start() ==
+               Date.utc_today()
+               |> Date.beginning_of_month()
+               |> Date.add(-1)
+               |> Date.beginning_of_month()
+    end
+  end
+
   describe "nth_workday/2" do
     test "returns the nth workday of a month" do
       assert Sig.Date.nth_workday(~D[2021-10-01], 5) == ~D[2021-10-07]
