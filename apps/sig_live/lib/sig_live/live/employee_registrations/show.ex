@@ -12,6 +12,7 @@ defmodule SigLive.EmployeeRegistrations.Show do
     Salaries,
     Benefits,
     Warnings,
+    Overtimes,
     Suspensions,
     LeavePeriods,
     RecurringPayslipItems,
@@ -41,6 +42,7 @@ defmodule SigLive.EmployeeRegistrations.Show do
        salaries: [],
        benefits: [],
        warnings: [],
+       overtimes: [],
        suspensions: [],
        leave_periods: [],
        recurring_payslip_items: nil
@@ -68,6 +70,7 @@ defmodule SigLive.EmployeeRegistrations.Show do
       HR.subscribe_to_registration_salaries(registration)
       HR.subscribe_to_registration_benefits(registration)
       HR.subscribe_to_registration_warnings(registration)
+      HR.subscribe_to_registration_overtimes(registration)
       HR.subscribe_to_registration_suspensions(registration)
       HR.subscribe_to_registration_leave_periods(registration)
       HR.subscribe_to_registration_recurring_payslip_items(registration)
@@ -78,6 +81,7 @@ defmodule SigLive.EmployeeRegistrations.Show do
       salaries: HR.list_salaries_by_registration(registration),
       benefits: HR.list_benefits_by_registration(registration),
       warnings: HR.list_warnings_by_registration(registration),
+      overtimes: HR.list_overtimes_by_registration(registration),
       suspensions: HR.list_suspensions_by_registration(registration),
       leave_periods: HR.list_leave_periods_by_registration(registration),
       recurring_payslip_items: HR.list_recurring_payslip_items_by_registration(registration),
@@ -124,6 +128,11 @@ defmodule SigLive.EmployeeRegistrations.Show do
   @impl true
   def handle_info({:updated_registration_warnings, warnings}, socket) do
     {:noreply, assign(socket, warnings: warnings)}
+  end
+
+  @impl true
+  def handle_info({:updated_registration_overtimes, overtimes}, socket) do
+    {:noreply, assign(socket, overtimes: overtimes)}
   end
 
   @impl true
@@ -250,6 +259,7 @@ defmodule SigLive.EmployeeRegistrations.Show do
         <Salaries.List id="benefit_list" {=@registration} {=@salaries}/>
         <Benefits.List id="salary_list" {=@registration} {=@benefits}/>
         <Warnings.List id="warning_list" {=@registration} {=@warnings}/>
+        <Overtimes.List id="warning_list" {=@registration} {=@overtimes}/>
         <Suspensions.List id="suspension_list" {=@registration} {=@suspensions}/>
         <LeavePeriods.List id="leave_period_list" {=@registration} {=@leave_periods}/>
       </div>
