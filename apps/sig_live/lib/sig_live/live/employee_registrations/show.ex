@@ -32,6 +32,7 @@ defmodule SigLive.EmployeeRegistrations.Show do
         assigns_built_for: [],
         payslips: [],
         selected_payslip: nil,
+        overtimes: [],
         selected_payslip_items: [],
         selected_payslip_payables: [],
         recurring_payslip_items: []
@@ -42,7 +43,6 @@ defmodule SigLive.EmployeeRegistrations.Show do
        salaries: [],
        benefits: [],
        warnings: [],
-       overtimes: [],
        suspensions: [],
        leave_periods: [],
        recurring_payslip_items: nil

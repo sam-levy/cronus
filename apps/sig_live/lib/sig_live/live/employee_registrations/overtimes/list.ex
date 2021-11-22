@@ -19,6 +19,21 @@ defmodule SigLive.EmployeeRegistrations.Overtimes.List do
   data message, :string, default: nil
 
   @impl true
+  def update(%{overtimes: overtimes} = assigns, socket) do
+    socket =
+      socket
+      |> assign(assigns)
+      |> assign(hours_sum: handle_hours_sum(overtimes))
+
+    {:ok, socket}
+  end
+
+  @impl true
+  def update(assigns, socket) do
+    {:ok, assign(socket, assigns)}
+  end
+
+  @impl true
   def handle_event("open_new_overtime_form", _, socket) do
     {:noreply, assign(socket, form_state: :new_mode)}
   end
@@ -200,6 +215,12 @@ defmodule SigLive.EmployeeRegistrations.Overtimes.List do
               </td>
             </tr>
           {/for}
+
+          <tr :if={@overtimes != []} class="text-sm bg-gray-100 font-medium text-gray-500 tracking-wider">
+            <td class="py-2 px-6 text-left">Horas extras em aberto</td>
+            <td class="py-2 px-6 text-left">{@hours_sum}</td>
+            <td colspan="2"></td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -218,5 +239,12 @@ defmodule SigLive.EmployeeRegistrations.Overtimes.List do
       assign_payslip_form_state: :closed,
       delete_confirmation_dialog_state: :closed
     ]
+  end
+
+  defp handle_hours_sum(overtimes) do
+    Enum.reduce(overtimes, Sig.Hour.new(), fn
+      %{payslip_id: nil, hours_amount: amount}, acc -> Sig.Hour.add(acc, amount)
+      _overtime, acc -> acc
+    end)
   end
 end
