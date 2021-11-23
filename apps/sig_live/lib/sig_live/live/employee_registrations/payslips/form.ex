@@ -75,7 +75,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Form do
     if socket.assigns.is_from_model do
       {:noreply, assign(socket, is_from_model: false, payments_type: :none)}
     else
-      {:noreply, assign(socket, is_from_model: true, payments_type: :default)}
+      {:noreply, assign(socket, is_from_model: true, payments_type: :standard)}
     end
   end
 
