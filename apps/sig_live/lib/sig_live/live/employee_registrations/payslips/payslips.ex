@@ -2,8 +2,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips do
   use SigLive, :surface_live_component
 
   alias SigLive.EmployeeRegistrations.Payslips.List
-  alias SigLive.EmployeeRegistrations.Payslips.Show
-  alias SigLive.EmployeeRegistrations.Payslips.Payables
+  alias SigLive.Payslips.ShowWithPayables
 
   prop current_user, :struct, required: true
   prop registration, :struct, required: true
@@ -17,35 +16,17 @@ defmodule SigLive.EmployeeRegistrations.Payslips do
   prop payment_difference, :struct, default: Money.new(0)
 
   @impl true
-  def update(
-        %{selected_payslip: _, selected_payslip_items: _, selected_payslip_payables: _} = assigns,
-        socket
-      ) do
-    {:ok,
-     socket
-     |> assign(assigns)
-     |> assign_payment_difference()}
-  end
-
-  @impl true
   def render(assigns) do
     ~F"""
     <div class="flex mt-7 divide-x divide-gray-400 divide-opacity-50">
       <div class="w-3/4 pr-5">
-        <Show
-          id="payslip_show"
+        <ShowWithPayables
+          id="payslip_show_with_payables"
           payslip={@selected_payslip}
-          items={@selected_payslip_items}
+          payslip_items={@selected_payslip_items}
+          payslip_payables={@selected_payslip_payables}
           {=@registration}
-        />
-
-        <Payables.List
-          id="payables_list"
-          payslip={@selected_payslip}
-          payables={@selected_payslip_payables}
-          {=@payment_difference}
           {=@current_user}
-          {=@registration}
           {=@entity}
         />
       </div>
@@ -61,29 +42,5 @@ defmodule SigLive.EmployeeRegistrations.Payslips do
       </div>
     </div>
     """
-  end
-
-  defp assign_payment_difference(%{assigns: %{selected_payslip: nil}} = socket), do: socket
-
-  defp assign_payment_difference(socket) do
-    %{
-      assigns: %{
-        selected_payslip: payslip,
-        selected_payslip_items: items,
-        selected_payslip_payables: payables
-      }
-    } = socket
-
-    payables_amount_sum = Enum.reduce(payables, Money.new(0), &Money.add(&2, &1.amount))
-
-    payment_in_advance_items_sum =
-      Enum.reduce(items, Money.new(0), fn
-        %{is_payment_advance: true, amount: amount}, acc -> Money.add(amount, acc)
-        _, acc -> acc
-      end)
-
-    total_to_pay = Money.add(payslip.amount, payment_in_advance_items_sum)
-
-    assign(socket, payment_difference: Money.subtract(total_to_pay, payables_amount_sum))
   end
 end

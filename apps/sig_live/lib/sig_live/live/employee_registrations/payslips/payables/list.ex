@@ -12,7 +12,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.List do
   prop registration, :struct, required: true
   prop payslip, :struct, required: true
   prop entity, :struct, required: true
-  prop payables, :list, default: []
+  prop payslip_payables, :list, default: []
   prop payment_difference, :struct, default: Money.new(0)
 
   data delete_confirmation_dialog_state, :atom, default: :closed, values!: ConfirmationDialog.states()
@@ -184,7 +184,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.List do
           </tr>
 
           <tr
-            :if={@payables != []}
+            :if={@payslip_payables != []}
             class="bg-gray-100 uppercase text-xs font-medium text-gray-500 tracking-wider"
           >
             <th class="py-3 px-6 text-left">Vencimento</th>
@@ -195,7 +195,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.List do
         </thead>
 
         <tbody class="text-gray-600 text-sm font-light">
-          {#for payable <- @payables}
+          {#for payable <- @payslip_payables}
             <tr class="border-b hover:bg-gray-50">
               <td class="py-3 px-6 text-left">
                 <a
