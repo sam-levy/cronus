@@ -3,6 +3,7 @@ defmodule Sig.HR.Payslips.DeleteTest do
 
   alias Sig.HR.Payslips.Delete
   alias Sig.HR.Payslips.Payslip
+  alias Sig.HR.Payslips.Groups.Group
 
   describe "call/1" do
     test "deletes a payslip" do
@@ -91,6 +92,39 @@ defmodule Sig.HR.Payslips.DeleteTest do
       assert Delete.call(payslip) == {:error, "can't delete a payslip with overtimes"}
 
       assert Repo.get_by(Payslip, id: payslip.id, org_id: payslip.org_id)
+    end
+
+    test "deletes a payslip group when there are no other payslip" do
+      date = ~D[2021-01-01]
+      type = :regular
+
+      org = insert(:org)
+      group = insert(:payslip_group, org: org, date: date, type: type)
+
+      %{id: id} = payslip = insert(:payslip, org: org, group: group, start_date: date, type: type)
+
+      assert {:ok, %Payslip{id: ^id}} = Delete.call(payslip)
+
+      refute Repo.get_by(Payslip, id: id, org_id: org.id)
+      refute Repo.get_by(Group, id: group.id, org_id: org.id)
+    end
+
+    test "doesn't delete a payslip group when there are other payslips" do
+      date = ~D[2021-01-01]
+      type = :regular
+
+      org = insert(:org)
+      %{id: group_id} = group = insert(:payslip_group, org: org, date: date, type: type)
+      insert(:payslip, org: org, group: group, start_date: date, type: type)
+
+      %{id: payslip_id} =
+        payslip = insert(:payslip, org: org, group: group, start_date: date, type: type)
+
+      assert {:ok, %Payslip{id: ^payslip_id}} = Delete.call(payslip)
+
+      refute Repo.get_by(Payslip, id: payslip_id, org_id: org.id)
+
+      assert %Group{id: ^group_id} = Repo.get_by(Group, id: group_id, org_id: org.id)
     end
   end
 end
