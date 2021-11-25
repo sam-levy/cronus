@@ -24,7 +24,7 @@ defmodule SigLive.Components.DropdownBtn do
           <path fill-rule="evenodd" clip-rule="evenodd" d="M6 5a1 1 0 011 1v3h3a1 1 0 110 2H7v3a1 1 0 11-2 0v-3H2a1 1 0 110-2h3V6a1 1 0 011-1z"/>
         </svg>
 
-        <span :if={@text} class="ml-2">{@text}</span>
+        <span :if={@text} class="select-none ml-2">{@text}</span>
       </button>
       <div
         :if={!@disabled}

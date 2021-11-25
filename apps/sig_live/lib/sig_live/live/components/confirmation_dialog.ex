@@ -22,7 +22,7 @@ defmodule SigLive.Components.ConfirmationDialog do
 
       <div :if={@error_message} class="mt-2 form-error-tag">{@error_message}</div>
 
-      <div class="mt-6 flex justify-end">
+      <div class="mt-6 flex justify-end select-none">
         <a :on-click={@close_event} class="mr-5 btn-gray">{@cancel_btn_msg}</a>
         <a :on-click={@action_event} class="btn-red">{@action_btn_msg}</a>
       </div>
