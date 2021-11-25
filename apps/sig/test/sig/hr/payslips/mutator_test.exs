@@ -285,7 +285,10 @@ defmodule Sig.HR.Payslips.MutatorTest do
 
       org = insert(:org)
       registration = insert(:employee_registration, org: org, admission_date: start_date)
-      %{id: group_id} = group = insert(:payslip_group, org: org, type: :regular, date: start_date, type: type)
+
+      %{id: group_id} =
+        group = insert(:payslip_group, org: org, type: :regular, date: start_date, type: type)
+
       insert(:payslip, org: org, group: group, start_date: start_date, type: type)
 
       %{id: payslip_id} =

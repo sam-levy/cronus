@@ -76,7 +76,8 @@ defmodule Sig.HR.Payslips.Delete do
     {:ok, payslip}
   end
 
-  defp broadcast_deleted_group(%{delete_group: group, ensure_can_be_deleted: payslip}) when is_struct(group) do
+  defp broadcast_deleted_group(%{delete_group: group, ensure_can_be_deleted: payslip})
+       when is_struct(group) do
     Groups.broadcast_deleted_group(payslip.org, group)
   end
 

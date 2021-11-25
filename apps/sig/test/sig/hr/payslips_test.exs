@@ -86,7 +86,7 @@ defmodule Sig.HR.PayslipsTest do
         org: group.org,
         group: group,
         type: group.type,
-        start_date: group.date,
+        start_date: group.date
       )
 
       insert(:payslip,
@@ -110,13 +110,13 @@ defmodule Sig.HR.PayslipsTest do
       )
 
       assert [
-        %Payslip{
-          registration: %Registration{
-            registered_at: %Company{},
-            individual: %Individual{},
-          },
-        }
-      ] = Payslips.list_by(group, preload_registration: true)
+               %Payslip{
+                 registration: %Registration{
+                   registered_at: %Company{},
+                   individual: %Individual{}
+                 }
+               }
+             ] = Payslips.list_by(group, preload_registration: true)
     end
 
     test "group has no payslips" do
