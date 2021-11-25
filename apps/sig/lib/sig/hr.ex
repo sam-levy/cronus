@@ -2,6 +2,7 @@ defmodule Sig.HR do
   alias Sig.HR.BenefitModels
   alias Sig.HR.Payslips
   alias Sig.HR.Payslips.Categories
+  alias Sig.HR.Payslips.Groups
   alias Sig.HR.Payslips.Items
   alias Sig.HR.Payslips.RecurringItemModels
   alias Sig.HR.Registrations
@@ -25,11 +26,7 @@ defmodule Sig.HR do
 
   defdelegate create_registration(org, individual, attrs), to: Registrations, as: :create
   defdelegate update_registration(individual, attrs), to: Registrations, as: :update
-
-  defdelegate list_registrations_by_individual(individual),
-    to: Registrations,
-    as: :list_by_individual
-
+  defdelegate list_registrations_by(schema), to: Registrations, as: :list_by
   defdelegate get_registration(individual, id), to: Registrations, as: :get
   defdelegate subscribe_to_individual_registrations(individual), to: Registrations
   defdelegate broadcast_individual_registrations(indiviual), to: Registrations
@@ -150,6 +147,12 @@ defmodule Sig.HR do
     to: RecurringPayslipItems,
     as: :create_change
 
+  defdelegate list_groups_by(schema), to: Groups, as: :list_by
+  defdelegate get_group(org, id), to: Groups, as: :get
+  defdelegate subscribe_to_groups(schema), to: Groups
+  defdelegate broadcast_deleted_group(schema, group), to: Groups
+  defdelegate broadcast_new_group(schema, group), to: Groups
+
   defdelegate create_payslip_from_model(registration, attrs, opts \\ []),
     to: Payslips,
     as: :create_from_model
@@ -157,10 +160,7 @@ defmodule Sig.HR do
   defdelegate create_payslip(registration, attrs), to: Payslips, as: :create
   defdelegate update_payslip(payslip, attrs), to: Payslips, as: :update
 
-  defdelegate list_payslips_by_registration(registration, opts \\ []),
-    to: Payslips,
-    as: :list_by_registration
-
+  defdelegate list_payslips_by(schema, opts \\ []), to: Payslips, as: :list_by
   defdelegate get_payslip(registration, id), to: Payslips, as: :get
   defdelegate delete_payslip(payslip), to: Payslips, as: :delete
   defdelegate create_payslip_change(attrs \\ %{}), to: Payslips, as: :create_change
