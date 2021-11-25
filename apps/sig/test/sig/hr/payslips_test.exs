@@ -1,8 +1,11 @@
 defmodule Sig.HR.PayslipsTest do
   use Sig.DataCase
 
+  alias Sig.Entities.Companies.Company
+  alias Sig.Entities.Individuals.Individual
   alias Sig.HR.Payslips
   alias Sig.HR.Payslips.Payslip
+  alias Sig.HR.Registrations.Registration
 
   @endpoint SigLive.Endpoint
 
@@ -19,7 +22,7 @@ defmodule Sig.HR.PayslipsTest do
     end
   end
 
-  describe "list_by_registration/1" do
+  describe "list_by/1 for registration" do
     test "lists payslips by registration ordered by decending start date" do
       registration = insert(:employee_registration)
 
@@ -38,7 +41,7 @@ defmodule Sig.HR.PayslipsTest do
       assert [
                %Payslip{start_date: ~D[2021-02-01]},
                %Payslip{start_date: ~D[2021-01-01]}
-             ] = Payslips.list_by_registration(registration)
+             ] = Payslips.list_by(registration)
     end
 
     test "apply limit" do
@@ -65,13 +68,61 @@ defmodule Sig.HR.PayslipsTest do
       assert [
                %Payslip{start_date: ~D[2021-03-01]},
                %Payslip{start_date: ~D[2021-02-01]}
-             ] = Payslips.list_by_registration(registration, limit: 2)
+             ] = Payslips.list_by(registration, limit: 2)
     end
 
     test "registration has no payslips" do
       registration = insert(:employee_registration)
 
-      assert Payslips.list_by_registration(registration) == []
+      assert Payslips.list_by(registration) == []
+    end
+  end
+
+  describe "list_by/1 for group" do
+    test "lists payslips by group" do
+      group = insert(:payslip_group)
+
+      insert(:payslip,
+        org: group.org,
+        group: group,
+        type: group.type,
+        start_date: group.date,
+      )
+
+      insert(:payslip,
+        org: group.org,
+        group: group,
+        type: group.type,
+        start_date: group.date
+      )
+
+      assert [%Payslip{}, %Payslip{}] = Payslips.list_by(group)
+    end
+
+    test "prloads" do
+      group = insert(:payslip_group)
+
+      insert(:payslip,
+        org: group.org,
+        group: group,
+        type: group.type,
+        start_date: group.date
+      )
+
+      assert [
+        %Payslip{
+          registration: %Registration{
+            registered_at: %Company{},
+            individual: %Individual{},
+          },
+        }
+      ] = Payslips.list_by(group, preload_registration: true)
+    end
+
+    test "group has no payslips" do
+      group = insert(:payslip_group)
+
+      assert Payslips.list_by(group) == []
     end
   end
 

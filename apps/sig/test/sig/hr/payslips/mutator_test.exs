@@ -139,6 +139,9 @@ defmodule Sig.HR.Payslips.MutatorTest do
                )
 
       assert updated_payslip.group_id == new_group.id
+
+      # Ensure the original group has been deleted
+      refute Repo.get_by(Group, id: group.id, org_id: org.id)
     end
 
     test "when payslip is closed before is loaded" do
@@ -273,6 +276,60 @@ defmodule Sig.HR.Payslips.MutatorTest do
                type: attrs[:type],
                date: Date.beginning_of_month(attrs[:start_date])
              )
+    end
+
+    test "doesn't delete a payslip group when there are other payslips" do
+      start_date = ~D[2021-01-01]
+      end_date = ~D[2021-01-31]
+      type = :regular
+
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org, admission_date: start_date)
+      %{id: group_id} = group = insert(:payslip_group, org: org, type: :regular, date: start_date, type: type)
+      insert(:payslip, org: org, group: group, start_date: start_date, type: type)
+
+      %{id: payslip_id} =
+        payslip =
+        insert(:payslip,
+          org: org,
+          group: group,
+          registration: registration,
+          type: type,
+          start_date: start_date,
+          end_date: end_date
+        )
+
+      attrs = %{
+        start_date: ~D[2021-03-01],
+        end_date: ~D[2021-03-31],
+        type: :vacation
+      }
+
+      assert {:ok, %Payslip{id: ^payslip_id}} = Mutator.update(payslip, attrs)
+
+      assert updated_payslip =
+               Repo.get_by(Payslip,
+                 org_id: org.id,
+                 id: payslip.id,
+                 registration_id: registration.id,
+                 start_date: attrs[:start_date],
+                 end_date: attrs[:end_date],
+                 type: attrs[:type]
+               )
+
+      refute updated_payslip.group_id == group.id
+
+      assert new_group =
+               Repo.get_by(Group,
+                 org_id: org.id,
+                 type: attrs[:type],
+                 date: Date.beginning_of_month(attrs[:start_date])
+               )
+
+      assert updated_payslip.group_id == new_group.id
+
+      # Ensure the original group has not been deleted
+      assert %Group{id: ^group_id} = Repo.get_by(Group, id: group_id, org_id: org.id)
     end
 
     test "empty attrs" do

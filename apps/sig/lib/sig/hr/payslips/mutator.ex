@@ -50,9 +50,9 @@ defmodule Sig.HR.Payslips.Mutator do
     Multi.new()
     |> Multi.run(:ensure_valid_start_date, fn _, _ -> ensure_valid_start_date(changeset) end)
     |> Multi.run(:group, fn _, _ -> provide_group(org, changeset) end)
-    |> Multi.insert(:payslip, fn %{group: group} -> assign_group(changeset, group) end)
+    |> Multi.insert(:payslip, fn %{group: {_, group}} -> assign_group(changeset, group) end)
     |> Repo.transaction()
-    |> handle_return()
+    |> handle_return(org)
   end
 
   defp handle_create(changeset, _org), do: {:error, changeset}
@@ -62,9 +62,10 @@ defmodule Sig.HR.Payslips.Mutator do
     |> Multi.run(:ensure_valid_start_date, fn _, _ -> ensure_valid_start_date(changeset) end)
     |> Multi.run(:ensure_payslip_is_open, fn _, _ -> ensure_payslip_is_open(changeset) end)
     |> Multi.run(:group, fn _, _ -> provide_group(org, changeset) end)
-    |> Multi.update(:payslip, fn %{group: group} -> assign_group(changeset, group) end)
+    |> Multi.update(:payslip, fn %{group: {_, group}} -> assign_group(changeset, group) end)
+    |> Multi.run(:delete_group, fn _, _ -> maybe_delete_group(changeset) end)
     |> Repo.transaction()
-    |> handle_return()
+    |> handle_return(org)
   end
 
   defp handle_update(changeset, _org), do: {:error, changeset}
@@ -102,6 +103,20 @@ defmodule Sig.HR.Payslips.Mutator do
 
   defp assign_group(changeset, group), do: put_change(changeset, :group_id, group.id)
 
+  defp maybe_delete_group(changeset) do
+    with group_id when not is_nil(group_id) <- get_value(:group_id, changeset),
+         org_id <- get_value(:org_id, changeset),
+         {:ok, group} <- Groups.fetch_by(org_id: org_id, id: group_id),
+         [] <- Payslips.list_by(group),
+         {:ok, group} <- Groups.delete(group) do
+      {:ok, group}
+    else
+      {:error, _} = error -> error
+      [_ | _] -> {:ok, nil}
+      nil -> {:ok, nil}
+    end
+  end
+
   defp get_value(field, changeset) do
     case changeset do
       %{changes: %{^field => value}} -> value
@@ -109,6 +124,24 @@ defmodule Sig.HR.Payslips.Mutator do
     end
   end
 
-  defp handle_return({:error, _operation, reason, _changes}), do: {:error, reason}
-  defp handle_return({:ok, %{payslip: payslip}}), do: {:ok, payslip}
+  defp handle_return({:error, _operation, reason, _changes}, _org), do: {:error, reason}
+
+  defp handle_return({:ok, %{payslip: payslip} = changes}, org) do
+    broadcast_new_group(changes, org)
+    broadcast_deleted_group(changes, org)
+
+    {:ok, payslip}
+  end
+
+  defp broadcast_new_group(%{group: {:new, group}}, org) do
+    Groups.broadcast_new_group(org, group)
+  end
+
+  defp broadcast_new_group(_changes, _org), do: nil
+
+  defp broadcast_deleted_group(%{delete_group: group}, org) when is_struct(group) do
+    Groups.broadcast_deleted_group(org, group)
+  end
+
+  defp broadcast_deleted_group(_changes, _org), do: nil
 end

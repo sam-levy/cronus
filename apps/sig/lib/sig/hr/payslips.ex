@@ -1,12 +1,14 @@
 defmodule Sig.HR.Payslips do
+  use Sig.Preloader, payslip: [:org]
+
   import Ecto.Query
 
-  alias Sig.HR.Payslips.CreateFromModel
   alias Sig.HR.Registrations.Registration
+  alias Sig.HR.Payslips.CreateFromModel
+  alias Sig.HR.Payslips.Groups.Group
   alias Sig.HR.Payslips.Mutator
   alias Sig.HR.Payslips.Delete
   alias Sig.HR.Payslips.Payslip
-  alias Sig.Organizations
   alias Sig.Repo
 
   defdelegate create(registration, attrs), to: Mutator, as: :create
@@ -26,30 +28,37 @@ defmodule Sig.HR.Payslips do
     Payslip.update_changeset(payslip, attrs)
   end
 
-  def list_by_registration(%Registration{} = registration, opts \\ []) do
+  def list_by(schema, opts \\ [])
+
+  def list_by(%Registration{} = registration, opts) do
     registration
-    |> query_by_registration()
+    |> query_by()
     |> order_by(desc: :start_date)
     |> apply_limit(opts)
     |> Repo.all()
   end
 
-  defp apply_limit(queryable, opts) do
-    case Keyword.get(opts, :limit, nil) do
-      nil -> queryable
-      limit -> limit(queryable, ^limit)
-    end
+  def list_by(%Group{} = group, opts) do
+    group
+    |> query_by()
+    |> preload_registration(opts)
+    |> Repo.all()
   end
 
   def get(%Registration{} = registration, id) when is_binary(id) do
     registration
-    |> query_by_registration()
+    |> query_by()
     |> where(id: ^id)
-    |> Organizations.preload_org()
+    |> shallow_preload(:org)
     |> Repo.one()
   end
 
-  def get_by(attrs), do: Repo.get_by(Payslip, attrs)
+  def get_by(attrs, opts \\ []) do
+    init_query()
+    |> where(^attrs)
+    |> shallow_preload(opts)
+    |> Repo.one()
+  end
 
   def toggle_is_closed(%Payslip{} = payslip) do
     payslip
@@ -87,7 +96,7 @@ defmodule Sig.HR.Payslips do
     Phoenix.PubSub.broadcast(
       Sig.PubSub,
       registration_payslips_topic(registration),
-      {:updated_registration_payslips, list_by_registration(registration)}
+      {:updated_registration_payslips, list_by(registration)}
     )
   end
 
@@ -135,9 +144,40 @@ defmodule Sig.HR.Payslips do
 
   defp payslip_topic(%Payslip{} = payslip), do: "payslip_id:" <> payslip.id
 
-  defp query_by_registration(registration) do
-    Payslip
+  defp query_by(%Registration{} = registration) do
+    init_query()
     |> where(org_id: ^registration.org_id)
     |> where(registration_id: ^registration.id)
+  end
+
+  defp query_by(%Group{} = group) do
+    init_query()
+    |> where(org_id: ^group.org_id)
+    |> where(group_id: ^group.id)
+  end
+
+  defp init_query, do: from(p in Payslip, as: :payslip)
+
+  defp apply_limit(queryable, opts) do
+    case Keyword.get(opts, :limit, nil) do
+      nil -> queryable
+      limit -> limit(queryable, ^limit)
+    end
+  end
+
+  defp preload_registration(queryable, opts) do
+    if Keyword.get(opts, :preload_registration, false) do
+      queryable
+      |> join(:left, [payslip: p], payslip in assoc(p, :registration), as: :registration)
+      |> join(:left, [registration: r], registered_at in assoc(r, :registered_at),
+        as: :registered_at
+      )
+      |> join(:left, [registration: r], individual in assoc(r, :individual), as: :individual)
+      |> preload([registration: r, registered_at: registered_at, individual: individual],
+        registration: {r, registered_at: registered_at, individual: individual}
+      )
+    else
+      queryable
+    end
   end
 end
