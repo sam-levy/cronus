@@ -226,10 +226,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Form do
   defp set_selected_type(%{data: %{type: nil}}), do: :regular
   defp set_selected_type(%{data: %{type: type}}), do: type
 
-  defp assign_changeset_dates(
-         %{assigns: %{changeset: %{data: %{start_date: nil}}}} = socket,
-         date
-       ) do
+  defp assign_changeset_dates(socket, date) do
     start_date = Date.beginning_of_month(date)
     end_date = Date.end_of_month(date)
 
@@ -240,8 +237,6 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Form do
 
     assign(socket, :changeset, changeset)
   end
-
-  defp assign_changeset_dates(socket, _date), do: socket
 
   defp assign_payables_due_dates(socket, date) do
     payment_advance_date = Sig.Date.prior_month_day_adjusted_for_workday(date, 20)
