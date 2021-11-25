@@ -91,7 +91,7 @@ defmodule SigLive.EmployeeRegistrations.Show do
 
   defp build_assigns_for(socket, :payslips) do
     %{registration: registration, assigns_built_for: assigns_built_for} = socket.assigns
-    payslips = HR.list_payslips_by_registration(registration)
+    payslips = HR.list_payslips_by(registration)
     selected_payslip = List.first(payslips)
 
     if connected?(socket) do

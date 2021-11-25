@@ -36,7 +36,7 @@ defmodule SigLive.EmployeeRegistrations.Overtimes.AssignPayslipForm do
       |> assign(
         overtime: overtime,
         changeset: HR.assign_overtime_payslip_change(overtime),
-        payslips: HR.list_payslips_by_registration(registration, limit: 3)
+        payslips: HR.list_payslips_by(registration, limit: 3)
       )
 
     {:ok, socket}
