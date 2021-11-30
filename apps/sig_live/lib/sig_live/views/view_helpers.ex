@@ -72,7 +72,7 @@ defmodule SigLive.ViewHelpers do
     end
   end
 
-  def format_date(date, format \\ "%d/%m/%Y")
+  def format_date(date, format \\ "%d/%m/%y")
   def format_date(nil, _format), do: ""
   def format_date(date, format), do: Calendar.strftime(date, format)
 
