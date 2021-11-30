@@ -45,6 +45,18 @@ defmodule Sig.DateTest do
     end
   end
 
+  describe "full_month?/2" do
+    test "when is full month" do
+      assert Sig.Date.full_month?(~D[2020-01-01], ~D[2020-01-31])
+      assert Sig.Date.full_month?(~D[2020-02-01], ~D[2020-02-29])
+    end
+
+    test "when is not full month" do
+      refute Sig.Date.full_month?(~D[2020-01-02], ~D[2020-01-31])
+      refute Sig.Date.full_month?(~D[2020-02-01], ~D[2020-02-28])
+    end
+  end
+
   describe "next_month_start/3" do
     test "returns the first day of the next month" do
       assert Sig.Date.next_month_start() == Date.utc_today() |> Date.end_of_month() |> Date.add(1)

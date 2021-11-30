@@ -61,6 +61,11 @@ defmodule Sig.Date do
     end
   end
 
+  def full_month?(start_date, end_date) do
+    start_date == Date.beginning_of_month(start_date) and
+      end_date == Date.end_of_month(end_date)
+  end
+
   def next_month_start, do: build_date(:next, Date.utc_today(), 1)
   def last_month_start, do: build_date(:prior, Date.utc_today(), 1)
 
