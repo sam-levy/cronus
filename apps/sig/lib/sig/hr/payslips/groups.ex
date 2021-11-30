@@ -19,6 +19,13 @@ defmodule Sig.HR.Payslips.Groups do
     |> Repo.one()
   end
 
+  def fetch(%Org{} = org, id) when is_binary(id) do
+    case get(org, id) do
+      %Group{} = group -> {:ok, group}
+      nil -> {:error, :not_found}
+    end
+  end
+
   def fetch_by(attrs) when is_list(attrs) do
     case Repo.get_by(Group, attrs) do
       %Group{} = group -> {:ok, group}
