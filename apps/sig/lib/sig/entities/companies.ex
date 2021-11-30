@@ -29,10 +29,18 @@ defmodule Sig.Entities.Companies do
     |> Repo.one()
   end
 
-  def list(%Org{} = org) do
+  def list(%Org{} = org, opts \\ []) do
     Company
     |> where(org_id: ^org.id)
+    |> filter(opts)
     |> order_by(:trade_name)
     |> Repo.all()
+  end
+
+  defp filter(queryable, opts) do
+    case Keyword.get(opts, :filter, []) do
+      [] -> queryable
+      filters -> where(queryable, ^filters)
+    end
   end
 end

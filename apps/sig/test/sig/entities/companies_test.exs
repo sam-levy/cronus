@@ -43,6 +43,21 @@ defmodule Sig.Entities.CompaniesTest do
              ] = Companies.list(org)
     end
 
+    test "lists companies from an org with filters" do
+      org = insert(:org)
+
+      insert(:company, org: org, trade_name: "Dunder Mifflin")
+      insert(:virtual_company, org: org, trade_name: "OCP")
+      insert(:virtual_company, org: org, trade_name: "Acme")
+
+      _to_ignore = insert(:virtual_company)
+
+      assert [
+               %Company{trade_name: "Acme"},
+               %Company{trade_name: "OCP"}
+             ] = Companies.list(org, filter: [is_virtual: true])
+    end
+
     test "when org has no company" do
       org = insert(:org)
 
