@@ -1,9 +1,10 @@
 defmodule Sig.HR.Payslips do
-  use Sig.Preloader, payslip: [:org]
+  use Sig.Preloader, payslip: [:org, :registration]
 
   import Ecto.Query
 
   alias Sig.HR.Registrations.Registration
+  alias Sig.HR.Payslips.Broadcaster
   alias Sig.HR.Payslips.CreateFromModel
   alias Sig.HR.Payslips.Groups.Group
   alias Sig.HR.Payslips.Mutator
@@ -19,6 +20,12 @@ defmodule Sig.HR.Payslips do
     as: :call
 
   defdelegate delete(payslip), to: Delete, as: :call
+
+  defdelegate subscribe_to_payslips(schema), to: Broadcaster
+  defdelegate broadcast_new_payslip(payslip, opts \\ []), to: Broadcaster
+  defdelegate broadcast_updated_payslip(updated_payslip, old_payslip, opts \\ []), to: Broadcaster
+  defdelegate broadcast_deleted_payslip(payslip), to: Broadcaster
+  defdelegate unsubscribe_from_payslip(payslip), to: Broadcaster
 
   def create_change(%{} = attrs \\ %{}) do
     Payslip.create_changeset(attrs)
@@ -45,7 +52,9 @@ defmodule Sig.HR.Payslips do
     |> Repo.all()
   end
 
-  def get(%Registration{} = registration, id) when is_binary(id) do
+  def get(schema, id, opts \\ [])
+
+  def get(%Registration{} = registration, id, _opts) when is_binary(id) do
     registration
     |> query_by()
     |> where(id: ^id)
@@ -53,10 +62,19 @@ defmodule Sig.HR.Payslips do
     |> Repo.one()
   end
 
+  def get(%Group{} = group, id, opts) when is_binary(id) do
+    group
+    |> query_by()
+    |> preload_registration(opts)
+    |> where(id: ^id)
+    |> Repo.one()
+  end
+
   def get_by(attrs, opts \\ []) do
     init_query()
     |> where(^attrs)
     |> shallow_preload(opts)
+    |> preload_registration(opts)
     |> Repo.one()
   end
 
@@ -88,62 +106,6 @@ defmodule Sig.HR.Payslips do
     Money.subtract(Sig.sum_by(:credit, items), Sig.sum_by(:debit, items))
   end
 
-  def subscribe_to_registration_payslips(%Registration{} = registration) do
-    Phoenix.PubSub.subscribe(Sig.PubSub, registration_payslips_topic(registration))
-  end
-
-  def broadcast_registration_payslips(%Registration{} = registration) do
-    Phoenix.PubSub.broadcast(
-      Sig.PubSub,
-      registration_payslips_topic(registration),
-      {:updated_registration_payslips, list_by(registration)}
-    )
-  end
-
-  def broadcast_deleted_registration_payslip(%Registration{} = registration, %Payslip{} = payslip) do
-    Phoenix.PubSub.broadcast(
-      Sig.PubSub,
-      registration_payslips_topic(registration),
-      {:deleted_payslip, payslip}
-    )
-  end
-
-  def broadcast_updated_registration_payslip(%Payslip{} = payslip, opts \\ []) do
-    if Keyword.get(opts, :refetch, false) do
-      [org_id: payslip.org_id, id: payslip.id]
-      |> get_by()
-      |> do_broadcast_updated_registration_payslip()
-    else
-      do_broadcast_updated_registration_payslip(payslip)
-    end
-  end
-
-  defp do_broadcast_updated_registration_payslip(%Payslip{} = payslip) do
-    Phoenix.PubSub.broadcast(
-      Sig.PubSub,
-      registration_payslips_topic(payslip),
-      {:updated_payslip, payslip}
-    )
-  end
-
-  def subscribe_to_payslip(%Payslip{} = payslip) do
-    Phoenix.PubSub.subscribe(Sig.PubSub, payslip_topic(payslip))
-  end
-
-  def unsubscribe_from_payslip(%Payslip{} = payslip) do
-    Phoenix.PubSub.unsubscribe(Sig.PubSub, payslip_topic(payslip))
-  end
-
-  defp registration_payslips_topic(%Registration{} = registration) do
-    "registration_id:" <> registration.id <> ":payslips"
-  end
-
-  defp registration_payslips_topic(%Payslip{} = payslip) do
-    "registration_id:" <> payslip.registration_id <> ":payslips"
-  end
-
-  defp payslip_topic(%Payslip{} = payslip), do: "payslip_id:" <> payslip.id
-
   defp query_by(%Registration{} = registration) do
     init_query()
     |> where(org_id: ^registration.org_id)
@@ -169,13 +131,14 @@ defmodule Sig.HR.Payslips do
     if Keyword.get(opts, :preload_registration, false) do
       queryable
       |> join(:left, [payslip: p], payslip in assoc(p, :registration), as: :registration)
-      |> join(:left, [registration: r], registered_at in assoc(r, :registered_at),
-        as: :registered_at
-      )
       |> join(:left, [registration: r], individual in assoc(r, :individual), as: :individual)
-      |> preload([registration: r, registered_at: registered_at, individual: individual],
-        registration: {r, registered_at: registered_at, individual: individual}
+      |> join(:left, [registration: r], ra in assoc(r, :registered_at), as: :registered_at)
+      |> join(:left, [individual: i], entity in assoc(i, :entity), as: :entity)
+      |> preload([registration: r, registered_at: ra, individual: i, entity: e],
+        registration: {r, registered_at: ra, individual: {i, entity: e}}
       )
+      |> order_by([registered_at: ra], ra.trade_name)
+      |> order_by([individual: i], i.name)
     else
       queryable
     end
