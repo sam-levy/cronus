@@ -180,7 +180,8 @@ defmodule Sig.HR.Payslips.BroadcasterTest do
           start_date: start_date
         )
 
-      updated_payslip = Repo.update!(change(old_payslip, type: :vacation, group_id: vacation_group.id))
+      updated_payslip =
+        Repo.update!(change(old_payslip, type: :vacation, group_id: vacation_group.id))
 
       regular_group_topic = "group_id:" <> regular_group.id <> ":payslips"
       vacation_group_topic = "group_id:" <> vacation_group.id <> ":payslips"
@@ -207,13 +208,14 @@ defmodule Sig.HR.Payslips.BroadcasterTest do
       group = insert(:payslip_group, org: org, type: type, date: start_date)
       registration = insert(:employee_registration, org: org)
 
-      payslip = insert(:payslip,
-        org: org,
-        group: group,
-        registration: registration,
-        type: type,
-        start_date: start_date
-      )
+      payslip =
+        insert(:payslip,
+          org: org,
+          group: group,
+          registration: registration,
+          type: type,
+          start_date: start_date
+        )
 
       registration_topic = "registration_id:" <> registration.id <> ":payslips"
       group_topic = "group_id:" <> group.id <> ":payslips"

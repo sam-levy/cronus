@@ -1,8 +1,9 @@
 defmodule SigLive.PayslipsState do
-  @callback handle_filter_payslips(socket :: Socket.t()) ::  Socket.t()
-  @callback handle_apply_payslip_filters(socket :: Socket.t()) ::  Socket.t()
+  @callback handle_filter_payslips(socket :: Socket.t()) :: Socket.t()
+  @callback handle_apply_payslip_filters(socket :: Socket.t()) :: Socket.t()
   @callback sort_payslips(payslips :: List.t()) :: List.t()
-  @callback handle_updated_payslip(payslip :: struct(), socket :: Socket.t()) :: {:atom, Socket.t()}
+  @callback handle_updated_payslip(payslip :: struct(), socket :: Socket.t()) ::
+              {:atom, Socket.t()}
   @callback handle_empty_payslips(socket :: Socket.t()) :: Socket.t()
 
   defmacro __using__(_) do
@@ -29,14 +30,14 @@ defmodule SigLive.PayslipsState do
 
         if selected_payslip != nil and selected_payslip.id == updated_payslip.id do
           {:noreply,
-            socket
-            |> assign(payslips: payslips, selected_payslip: updated_payslip)
-            |> handle_apply_payslip_filters()}
+           socket
+           |> assign(payslips: payslips, selected_payslip: updated_payslip)
+           |> handle_apply_payslip_filters()}
         else
           {:noreply,
-            socket
-            |> assign(payslips: payslips)
-            |> handle_apply_payslip_filters()}
+           socket
+           |> assign(payslips: payslips)
+           |> handle_apply_payslip_filters()}
         end
       end
 
@@ -61,9 +62,9 @@ defmodule SigLive.PayslipsState do
 
         if selected_payslip do
           {:noreply,
-            socket
-            |> assign(payslips: payslips)
-            |> handle_apply_payslip_filters()}
+           socket
+           |> assign(payslips: payslips)
+           |> handle_apply_payslip_filters()}
         else
           subscribe_to_payslip_subscriptions(new_payslip)
 
@@ -71,7 +72,7 @@ defmodule SigLive.PayslipsState do
            socket
            |> assign(payslips: payslips)
            |> assign_selected_payslip(new_payslip)}
-           |> handle_apply_payslip_filters()
+          |> handle_apply_payslip_filters()
         end
       end
 
@@ -101,9 +102,9 @@ defmodule SigLive.PayslipsState do
         else
           false ->
             {:noreply,
-              socket
-              |> assign(payslips: payslips)
-              |> handle_apply_payslip_filters()}
+             socket
+             |> assign(payslips: payslips)
+             |> handle_apply_payslip_filters()}
 
           [] ->
             unsubscribe_from_payslip_subscriptions(selected_payslip)
