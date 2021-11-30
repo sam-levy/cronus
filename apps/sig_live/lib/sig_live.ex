@@ -119,6 +119,8 @@ defmodule SigLive do
       # Use all HTML functionality (forms, tags, etc)
       use Phoenix.HTML
 
+      import Ecto, only: [assoc_loaded?: 1]
+
       # Import LiveView and .heex helpers (live_render, live_patch, <.form>, etc)
       import Phoenix.LiveView.Helpers
 
@@ -130,6 +132,7 @@ defmodule SigLive do
 
       import SigLive.ErrorHelpers
       import SigLive.Gettext
+
       alias SigLive.Router.Helpers, as: Routes
     end
   end
