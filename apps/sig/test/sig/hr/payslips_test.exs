@@ -5,7 +5,6 @@ defmodule Sig.HR.PayslipsTest do
   alias Sig.Entities.Entity
   alias Sig.Entities.Individuals.Individual
   alias Sig.HR.Payslips
-  alias Sig.HR.Payslips.Groups.Group
   alias Sig.HR.Payslips.Payslip
   alias Sig.HR.Registrations.Registration
   alias Sig.Organizations.Org
@@ -245,10 +244,10 @@ defmodule Sig.HR.PayslipsTest do
       assert %Payslip{
                id: ^id,
                org: %Org{},
-               group: %Group{}
+               registration: %Registration{}
              } =
                %Payslip{id: ^id} =
-               Payslips.get_by([id: id, org_id: org.id], preload: [:group, :org])
+               Payslips.get_by([id: id, org_id: org.id], preload: [:registration, :org])
     end
 
     test "when field does't exist" do

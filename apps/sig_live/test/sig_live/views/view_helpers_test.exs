@@ -111,7 +111,7 @@ defmodule SigLive.ViewHelpersTest do
 
   describe "format_date/2" do
     test "stringfy a date" do
-      assert ViewHelpers.format_date(~D[2010-01-01]) == "01/01/2010"
+      assert ViewHelpers.format_date(~D[2010-01-01]) == "01/01/10"
       assert ViewHelpers.format_date(~D[2010-01-01], "%A, %b %d") == "Friday, Jan 01"
       assert ViewHelpers.format_date(nil) == ""
     end
