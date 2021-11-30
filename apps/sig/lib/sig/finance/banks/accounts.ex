@@ -42,6 +42,16 @@ defmodule Sig.Finance.Banks.Accounts do
     |> handle_return()
   end
 
+  # TODO: Add tests
+  def fetch_entity_primary(org_id, entity_id) when is_binary(org_id) and is_binary(entity_id) do
+    Account
+    |> where(org_id: ^org_id)
+    |> where(entity_id: ^entity_id)
+    |> where(is_primary: true)
+    |> Repo.one()
+    |> handle_return()
+  end
+
   def fetch_in_org_with_entity(%Org{} = org, id) when is_binary(id) do
     Account
     |> where(org_id: ^org.id)
@@ -52,7 +62,7 @@ defmodule Sig.Finance.Banks.Accounts do
     |> handle_return()
   end
 
-  def fetch(%Entity{} = entity, id) do
+  def fetch(%Entity{} = entity, id) when is_binary(id) do
     entity
     |> query_by_entity()
     |> where(id: ^id)

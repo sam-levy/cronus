@@ -111,7 +111,7 @@ defmodule SigLive.ViewHelpersTest do
 
   describe "format_date/2" do
     test "stringfy a date" do
-      assert ViewHelpers.format_date(~D[2010-01-01]) == "01/01/2010"
+      assert ViewHelpers.format_date(~D[2010-01-01]) == "01/01/10"
       assert ViewHelpers.format_date(~D[2010-01-01], "%A, %b %d") == "Friday, Jan 01"
       assert ViewHelpers.format_date(nil) == ""
     end
@@ -172,6 +172,22 @@ defmodule SigLive.ViewHelpersTest do
 
       assert ViewHelpers.format_amount(%Money{amount: 1_500_00}) == "1.500,00"
       assert ViewHelpers.format_amount(nil) == ""
+    end
+  end
+
+  describe "payslip_categories_for_select/1" do
+    test "returns a maps of categories formated for select" do
+     category_1 = insert(:payslip_category, code: "1", description: "SALÁRIO", entry_type: :credit)
+     category_2 = insert(:payslip_category, code: "109", description: "DESC. VALE TRANSPORTE", entry_type: :debit)
+
+      assert ViewHelpers.payslip_categories_for_select([category_1, category_2]) == %{
+        "1 - SALÁRIO - Crédito" => category_1.id,
+        "109 - DESC. VALE TRANSPORTE - Débito" => category_2.id
+      }
+    end
+
+    test "empty list" do
+      assert ViewHelpers.payslip_categories_for_select([]) == %{}
     end
   end
 end

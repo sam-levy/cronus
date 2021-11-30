@@ -1,9 +1,13 @@
 defmodule Sig.HR do
   alias Sig.HR.BenefitModels
+  alias Sig.HR.Payslips
   alias Sig.HR.Payslips.Categories
+  alias Sig.HR.Payslips.Groups
+  alias Sig.HR.Payslips.Items
   alias Sig.HR.Payslips.RecurringItemModels
   alias Sig.HR.Registrations
   alias Sig.HR.Registrations.Salaries
+  alias Sig.HR.Registrations.Overtimes
   alias Sig.HR.Registrations.Benefits
   alias Sig.HR.Registrations.Warnings
   alias Sig.HR.Registrations.Suspensions
@@ -22,11 +26,7 @@ defmodule Sig.HR do
 
   defdelegate create_registration(org, individual, attrs), to: Registrations, as: :create
   defdelegate update_registration(individual, attrs), to: Registrations, as: :update
-
-  defdelegate list_registrations_by_individual(individual),
-    to: Registrations,
-    as: :list_by_individual
-
+  defdelegate list_registrations_by(schema), to: Registrations, as: :list_by
   defdelegate get_registration(individual, id), to: Registrations, as: :get
   defdelegate subscribe_to_individual_registrations(individual), to: Registrations
   defdelegate broadcast_individual_registrations(indiviual), to: Registrations
@@ -48,8 +48,15 @@ defmodule Sig.HR do
   defdelegate subscribe_to_registration_benefits(registration), to: Benefits
   defdelegate broadcast_registration_benefits(registration), to: Benefits
   defdelegate create_benefit_change(attrs \\ %{}), to: Benefits, as: :create_change
-  defdelegate create_benefit_from_model_change(attrs \\ %{}), to: Benefits, as: :create_from_model_change
-  defdelegate update_benefit_amount_change(benefit, attrs), to: Benefits, as: :update_benefit_amount_change
+
+  defdelegate create_benefit_from_model_change(attrs \\ %{}),
+    to: Benefits,
+    as: :create_from_model_change
+
+  defdelegate update_benefit_amount_change(benefit, attrs),
+    to: Benefits,
+    as: :update_benefit_amount_change
+
   defdelegate finalize_benefit_change(benefit, attrs \\ %{}), to: Benefits, as: :finalize_change
 
   defdelegate list_warnings_by_registration(registration), to: Warnings, as: :list_by_registration
@@ -92,7 +99,29 @@ defmodule Sig.HR do
     to: LeavePeriods,
     as: :update_change
 
-  defdelegate list_payslip_categories(org), to: Categories, as: :list
+  defdelegate list_payslip_categories(org_id), to: Categories, as: :list
+
+  defdelegate create_overtime_change(attrs \\ %{}), to: Overtimes, as: :create_change
+  defdelegate update_overtime_change(overtime, attrs \\ %{}), to: Overtimes, as: :update_change
+
+  defdelegate assign_overtime_payslip_change(overtime, attrs \\ %{}),
+    to: Overtimes,
+    as: :assign_payslip_change
+
+  defdelegate create_overtime(registration, attrs), to: Overtimes, as: :create
+  defdelegate update_overtime(overtime, attrs), to: Overtimes, as: :update
+  defdelegate assign_overtime_payslip(overtime, attrs), to: Overtimes, as: :assign_payslip
+  defdelegate drop_overtime_payslip(overtime), to: Overtimes, as: :drop_payslip
+
+  defdelegate list_overtimes_by_registration(registration),
+    to: Overtimes,
+    as: :list_by_registration
+
+  defdelegate get_overtime(registration, id), to: Overtimes, as: :get
+  defdelegate fetch_overtime(registration, id), to: Overtimes, as: :fetch
+  defdelegate delete_overtime(overtime), to: Overtimes, as: :delete
+  defdelegate subscribe_to_registration_overtimes(registration), to: Overtimes
+  defdelegate broadcast_registration_overtimes(registration), to: Overtimes
 
   defdelegate list_payslip_recurring_item_models(org), to: RecurringItemModels, as: :list
 
@@ -117,4 +146,53 @@ defmodule Sig.HR do
   defdelegate create_recurring_payslip_item_change(attrs \\ %{}, type),
     to: RecurringPayslipItems,
     as: :create_change
+
+  defdelegate list_groups_by(schema), to: Groups, as: :list_by
+  defdelegate get_group(org, id), to: Groups, as: :get
+  defdelegate fetch_group(org, id), to: Groups, as: :fetch
+  defdelegate subscribe_to_groups(schema), to: Groups
+  defdelegate broadcast_deleted_group(schema, group), to: Groups
+  defdelegate broadcast_new_group(schema, group), to: Groups
+
+  defdelegate create_payslip_from_model(registration, attrs, opts \\ []),
+    to: Payslips,
+    as: :create_from_model
+
+  defdelegate create_payslip(registration, attrs), to: Payslips, as: :create
+  defdelegate update_payslip(payslip, attrs), to: Payslips, as: :update
+
+  defdelegate list_payslips_by(schema, opts \\ []), to: Payslips, as: :list_by
+  defdelegate get_payslip(registration, id, opts \\ []), to: Payslips, as: :get
+  defdelegate delete_payslip(payslip), to: Payslips, as: :delete
+  defdelegate create_payslip_change(attrs \\ %{}), to: Payslips, as: :create_change
+  defdelegate update_payslip_change(payslip, attrs \\ %{}), to: Payslips, as: :update_change
+  defdelegate toggle_payslip_is_closed(payslip), to: Payslips, as: :toggle_is_closed
+
+  defdelegate subscribe_to_payslips(schema), to: Payslips
+  defdelegate broadcast_new_payslip(payslip, opts \\ []), to: Payslips
+  defdelegate broadcast_updated_payslip(updated_payslip, old_payslip, opts \\ []), to: Payslips
+  defdelegate broadcast_deleted_payslip(payslip), to: Payslips
+  defdelegate unsubscribe_from_payslip(payslip), to: Payslips
+
+  defdelegate list_items_by_payslip(payslip), to: Items, as: :list_by_payslip
+  defdelegate get_payslip_item(payslip, id), to: Items, as: :get
+  defdelegate fetch_payslip_item(payslip, id), to: Items, as: :fetch
+  defdelegate create_payslip_item(payslip, attrs), to: Items
+  defdelegate create_payslip_outside_item(payslip, attrs), to: Items, as: :create_outside_item
+  defdelegate update_payslip_item_amount(payslip, item, attrs), to: Items, as: :update_amount
+  defdelegate delete_payslip_item(payslip, item), to: Items, as: :delete_item
+  defdelegate create_payslip_item_change(attrs \\ %{}), to: Items, as: :create_change
+
+  defdelegate create_payslip_outside_item_change(attrs \\ %{}),
+    to: Items,
+    as: :create_outside_item_change
+
+  defdelegate update_payslip_item_amount_change(item, attrs \\ %{}),
+    to: Items,
+    as: :update_amount_change
+
+  defdelegate subscribe_to_payslip_items(payslip), to: Items
+  defdelegate unsubscribe_from_payslip_items(payslip), to: Items
+  defdelegate broadcast_payslip_items(payslip), to: Items
+  defdelegate sum_payments_in_advance_items_by_payslip(payslip), to: Items
 end

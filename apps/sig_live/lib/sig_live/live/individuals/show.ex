@@ -25,10 +25,10 @@ defmodule SigLive.Individuals.Show do
         individual: individual,
         bank_accounts: Finance.list_accounts_by_entity(individual.entity),
         entity_bank_accounts: Finance.list_entity_bank_accounts_by_entity(individual.entity),
-        employee_registrations: HR.list_registrations_by_individual(individual)
+        employee_registrations: HR.list_registrations_by(individual)
       )
 
-    {:ok, socket, temporary_assigns: [bank_accounts: [], entity_bank_accounts: [], employee_registrations: []]}
+    {:ok, socket, temporary_assigns: [employee_registrations: []]}
   end
 
   @impl true

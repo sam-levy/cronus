@@ -31,6 +31,7 @@ defmodule Sig.Repo.Migrations.CreateEmployeeRegistrationRecurringPayslipItemsTab
 
       add :outside_item_description, :citext
       add :outside_item_entry_type, :entry_type
+      add :outside_item_is_payment_advance, :boolean
 
       add :item_amount, :integer
 
@@ -55,6 +56,13 @@ defmodule Sig.Repo.Migrations.CreateEmployeeRegistrationRecurringPayslipItemsTab
 
     create constraint(
              :employee_registration_recurring_payslip_items,
+             :employee_registration_recurring_payslip_items_payment_advance,
+             check:
+               "CASE WHEN outside_item_is_payment_advance THEN outside_item_entry_type = 'debit' END"
+           )
+
+    create constraint(
+             :employee_registration_recurring_payslip_items,
              :employee_registration_recurring_payslip_items_conditional,
              check: """
                CASE
@@ -63,19 +71,22 @@ defmodule Sig.Repo.Migrations.CreateEmployeeRegistrationRecurringPayslipItemsTab
                    payslip_category_id IS NOT NULL AND
                    payslip_recurring_item_model_id IS NULL AND
                    outside_item_description IS NULL AND
-                   outside_item_entry_type IS NULL
+                   outside_item_entry_type IS NULL AND
+                   outside_item_is_payment_advance IS NULL
 
                  WHEN type = 'payslip_item_model' THEN
                    payslip_recurring_item_model_id IS NOT NULL AND
                    item_amount IS NULL AND
                    payslip_category_id IS NULL AND
                    outside_item_description IS NULL AND
-                   outside_item_entry_type IS NULL
+                   outside_item_entry_type IS NULL AND
+                   outside_item_is_payment_advance IS NULL
 
                  WHEN type = 'outside_item' THEN
                    item_amount IS NOT NULL AND
                    outside_item_description IS NOT NULL AND
                    outside_item_entry_type IS NOT NULL AND
+                   outside_item_is_payment_advance IS NOT NULL AND
                    payslip_recurring_item_model_id IS NULL AND
                    payslip_category_id IS NULL
                END

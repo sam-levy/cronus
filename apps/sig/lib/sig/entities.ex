@@ -17,7 +17,11 @@ defmodule Sig.Entities do
   defdelegate broadcast_individuals(org), to: Individuals
 
   defdelegate fetch_company(org, entity_id), to: Companies, as: :fetch
-  defdelegate list_companies(org), to: Companies, as: :list
+  defdelegate list_companies(org, opts \\ []), to: Companies, as: :list
+
+  defdelegate get_company_by_registration_with_entity(registration),
+    to: Companies,
+    as: :get_by_registration_with_entity
 
   def fetch_by_document(org, document) do
     case Documents.format_document(document) do

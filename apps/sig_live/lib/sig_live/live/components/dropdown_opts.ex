@@ -14,7 +14,6 @@ defmodule SigLive.Components.DropdownOpts do
         <button
           type="button"
           class="dropdown-opts-btn"
-          id="menu-button"
           aria-expanded="true"
           aria-haspopup="true"
           @click="isOpen = !isOpen"

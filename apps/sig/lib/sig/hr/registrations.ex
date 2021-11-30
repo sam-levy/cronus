@@ -1,4 +1,6 @@
 defmodule Sig.HR.Registrations do
+  use Sig.Preloader, registration: [:work_at, :registered_at, :salaries, :individual, :org]
+
   import Ecto.Query
 
   alias Sig.Entities.Individuals.Individual
@@ -26,12 +28,10 @@ defmodule Sig.HR.Registrations do
     |> Repo.update()
   end
 
-  def list_by_individual(%Individual{} = individual) do
+  def list_by(%Individual{} = individual) do
     individual
-    |> query_by_individual()
-    |> preload_work_at()
-    |> preload_registered_at()
-    |> preload_salaries()
+    |> query_by()
+    |> shallow_preload([:work_at, :registered_at, :salaries])
     |> order_by(:admission_date)
     |> Repo.all()
     |> handle_salary_amount()
@@ -39,12 +39,13 @@ defmodule Sig.HR.Registrations do
 
   def get(%Individual{} = individual, id) when is_binary(id) do
     individual
-    |> query_by_individual()
-    |> preload_org()
+    |> query_by()
     |> where(id: ^id)
-    |> preload_salaries()
+    |> shallow_preload([:org, :salaries])
     |> Repo.one()
   end
+
+  def get_by(attrs) when is_list(attrs), do: Repo.get_by(Registration, attrs)
 
   def subscribe_to_individual_registrations(%Individual{} = individual) do
     Phoenix.PubSub.subscribe(Sig.PubSub, topic(individual))
@@ -54,7 +55,7 @@ defmodule Sig.HR.Registrations do
     Phoenix.PubSub.broadcast(
       Sig.PubSub,
       topic(individual),
-      {:updated_individual_registrations, list_by_individual(individual)}
+      {:updated_individual_registrations, list_by(individual)}
     )
   end
 
@@ -62,36 +63,10 @@ defmodule Sig.HR.Registrations do
     "individual_id:" <> individual.entity_id <> ":registrations"
   end
 
-  defp query_by_individual(individual) do
-    Registration
+  defp query_by(%Individual{} = individual) do
+    from(r in Registration, as: :registration)
     |> where(org_id: ^individual.org_id)
     |> where(individual_id: ^individual.entity_id)
-  end
-
-  defp preload_work_at(queryable) do
-    queryable
-    |> join(:left, [registration], work_at in assoc(registration, :work_at), as: :work_at)
-    |> preload([_registration, work_at: work_at], work_at: work_at)
-  end
-
-  defp preload_registered_at(queryable) do
-    queryable
-    |> join(:left, [registration], registered_at in assoc(registration, :registered_at),
-      as: :registered_at
-    )
-    |> preload([_registration, registered_at: registered_at], registered_at: registered_at)
-  end
-
-  defp preload_salaries(queryable) do
-    queryable
-    |> join(:left, [registration], salaries in assoc(registration, :salaries), as: :salaries)
-    |> preload([_registration, salaries: salaries], salaries: salaries)
-  end
-
-  defp preload_org(queryable) do
-    queryable
-    |> join(:left, [registration], org in assoc(registration, :org), as: :org)
-    |> preload([_registration, org: org], org: org)
   end
 
   defp handle_salary_amount(registrations) when is_list(registrations) do

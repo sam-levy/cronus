@@ -5,9 +5,12 @@ defmodule Sig.Factories.LeavePeriodFactory do
       alias Sig.HR.Registrations.LeavePeriods.LeavePeriod.LeavePeriodType
 
       def factory(:employee_leave_period, attrs) do
-        org = Keyword.get(attrs, :org, insert(:org))
-        registration = Keyword.get(attrs, :registration, insert(:employee_registration, org: org))
-        start_date = Keyword.get(attrs, :start_date, Date.utc_today())
+        org = Keyword.get(attrs, :org) || insert(:org)
+
+        registration =
+          Keyword.get(attrs, :registration) || insert(:employee_registration, org: org)
+
+        start_date = Keyword.get(attrs, :start_date) || Date.utc_today()
 
         %LeavePeriod{
           org: org,

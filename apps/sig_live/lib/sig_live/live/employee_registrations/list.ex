@@ -54,7 +54,7 @@ defmodule SigLive.EmployeeRegistrations.List do
 
           <tr
             :if={@employee_registrations != []}
-            class="bg-gray-50 uppercase text-xs font-medium text-gray-500 tracking-wider"
+            class="bg-gray-100 uppercase text-xs font-medium text-gray-500 tracking-wider"
           >
             <th class="py-3 px-6 text-left">Empresa</th>
             <th class="py-3 px-3 text-left">Início</th>
@@ -69,7 +69,7 @@ defmodule SigLive.EmployeeRegistrations.List do
             <tr class="border-b border-gray-200 hover:bg-gray-50">
               <td class="py-3 pl-6 text-left">
                 <LiveRedirect
-                  to={Routes.sig_employee_registrations_show_path(@socket, :show, @org, @individual.entity_id, registration)}
+                  to={Routes.sig_employee_registrations_show_path(@socket, :registration_show, @org, @individual.entity_id, registration)}
                   class="hover:underline"
                 >
                   <span>{registration.registered_at.registration_name}</span>

@@ -101,7 +101,7 @@ defmodule Sig.HR.RegistrationsTest do
     end
   end
 
-  describe "list_by_individual/1" do
+  describe "list_by/1" do
     test "lists registrations by individual ordered by admission_date" do
       org = insert(:org)
       individual = insert(:individual, org: org)
@@ -126,7 +126,7 @@ defmodule Sig.HR.RegistrationsTest do
       assert [
                %Registration{id: ^registration_1_id},
                %Registration{id: ^registration_2_id}
-             ] = Registrations.list_by_individual(individual)
+             ] = Registrations.list_by(individual)
     end
 
     test "preloads" do
@@ -147,7 +147,18 @@ defmodule Sig.HR.RegistrationsTest do
           admission_date: ~D[2012-01-01]
         )
 
-      insert_list(2, :employee_salary, org: org, registration: registration_1)
+      insert(:employee_salary,
+        org: org,
+        registration: registration_1,
+        start_date: registration_1.admission_date
+      )
+
+      insert(:employee_salary,
+        org: org,
+        registration: registration_1,
+        start_date: Date.add(registration_1.admission_date, 180)
+      )
+
       insert(:employee_salary, org: org, registration: registration_2)
 
       assert [
@@ -161,7 +172,7 @@ defmodule Sig.HR.RegistrationsTest do
                  work_at: %Company{},
                  salaries: [%Salary{}]
                }
-             ] = Registrations.list_by_individual(individual)
+             ] = Registrations.list_by(individual)
     end
 
     test "fills salary_amount virtual field with the latest salary amount" do
@@ -213,13 +224,13 @@ defmodule Sig.HR.RegistrationsTest do
       assert [
                %Registration{salary_amount: %Money{amount: 1_700_00, currency: :BRL}},
                %Registration{salary_amount: %Money{amount: 1_800_00, currency: :BRL}}
-             ] = Registrations.list_by_individual(individual)
+             ] = Registrations.list_by(individual)
     end
 
     test "individual has no registration" do
       individual = insert(:individual)
 
-      assert Registrations.list_by_individual(individual) == []
+      assert Registrations.list_by(individual) == []
     end
   end
 
@@ -236,7 +247,18 @@ defmodule Sig.HR.RegistrationsTest do
       %{id: org_id} = org = insert(:org)
       individual = insert(:individual, org: org)
       registration = insert(:employee_registration, org: org, individual: individual)
-      insert_list(2, :employee_salary, org: org, registration: registration)
+
+      insert(:employee_salary,
+        org: org,
+        registration: registration,
+        start_date: registration.admission_date
+      )
+
+      insert(:employee_salary,
+        org: org,
+        registration: registration,
+        start_date: Date.add(registration.admission_date, 100)
+      )
 
       assert %Registration{salaries: [%Salary{}, %Salary{}], org: %Org{id: ^org_id}} =
                Registrations.get(individual, registration.id)

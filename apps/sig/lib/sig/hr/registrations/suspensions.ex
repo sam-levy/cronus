@@ -22,7 +22,7 @@ defmodule Sig.HR.Registrations.Suspensions do
     registration
     |> query_by_registration()
     |> order_by(:start_date)
-    |> Repo.all
+    |> Repo.all()
   end
 
   def create(%Registration{} = registration, %{} = attrs) do

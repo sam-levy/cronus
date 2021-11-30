@@ -17,12 +17,12 @@ defmodule SigLive.EmployeeRegistrations.Suspensions.List do
   end
 
   @impl true
-  def handle_event("open_edit_suspension_form", %{"suspension-id" => id}, socket) do
+  def handle_event("open_edit_suspension_form", %{"suspension_id" => id}, socket) do
     {:noreply, assign(socket, form_state: :edit_mode, suspension_id: id)}
   end
 
   @impl true
-  def handle_event("open_show_suspension_form", %{"suspension-id" => id}, socket) do
+  def handle_event("open_show_suspension_form", %{"suspension_id" => id}, socket) do
     {:noreply, assign(socket, form_state: :show_mode, suspension_id: id)}
   end
 
@@ -61,7 +61,7 @@ defmodule SigLive.EmployeeRegistrations.Suspensions.List do
 
           <tr
             :if={@suspensions != []}
-            class="bg-gray-50 uppercase text-xs font-medium text-gray-500 tracking-wider"
+            class="bg-gray-100 uppercase text-xs font-medium text-gray-500 tracking-wider"
           >
             <th class="py-3 px-6 text-left">Motivo</th>
             <th class="py-3 px-6 text-right">Início</th>

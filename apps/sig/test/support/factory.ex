@@ -14,11 +14,17 @@ defmodule Sig.Factory do
   use Sig.Factories.WarningFactory
   use Sig.Factories.SuspensionFactory
   use Sig.Factories.LeavePeriodFactory
+  use Sig.Factories.OvertimeFactory
+  use Sig.Factories.PayslipFactory
+  use Sig.Factories.PayslipItemFactory
   use Sig.Factories.PayslipCategoryFactory
+  use Sig.Factories.PayslipGroupFactory
   use Sig.Factories.PayslipRecurringItemModelFactory
   use Sig.Factories.EmployeeRegistraionRecurringPayslipItemFactory
   use Sig.Factories.BankAccountFactory
   use Sig.Factories.EntityBankAccountFactory
+  use Sig.Factories.PayableFactory
+  use Sig.Factories.PayslipPayableFactory
 
   def build(factory_name, attributes \\ []) do
     factory_name |> factory(attributes) |> struct(attributes)
@@ -42,6 +48,8 @@ defmodule Sig.Factory do
   def random_enum_value(enum), do: Enum.random(enum.__enums__())
 
   def random_string_number, do: 100..1_000_000 |> Enum.random() |> to_string()
+
+  def random_past_date, do: 1..500_000 |> Enum.random() |> Faker.Date.backward()
 
   defp sequence(fun) when is_function(fun, 1) do
     fun.(System.unique_integer([:positive, :monotonic]))

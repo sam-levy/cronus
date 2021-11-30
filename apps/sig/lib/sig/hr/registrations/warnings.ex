@@ -22,7 +22,7 @@ defmodule Sig.HR.Registrations.Warnings do
     registration
     |> query_by_registration()
     |> order_by(:date)
-    |> Repo.all
+    |> Repo.all()
   end
 
   def create(%Registration{} = registration, %{} = attrs) do

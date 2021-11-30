@@ -19,17 +19,17 @@ defmodule SigLive.EmployeeRegistrations.Benefits.List do
   end
 
   @impl true
-  def handle_event("open_show_benefit_form", %{"benefit-id" => id}, socket) do
+  def handle_event("open_show_benefit_form", %{"benefit_id" => id}, socket) do
     {:noreply, assign(socket, form_state: :show_mode, benefit_id: id)}
   end
 
   @impl true
-  def handle_event("open_edit_benefit_amount_form", %{"benefit-id" => id}, socket) do
+  def handle_event("open_edit_benefit_amount_form", %{"benefit_id" => id}, socket) do
     {:noreply, assign(socket, form_state: :edit_amount_mode, benefit_id: id)}
   end
 
   @impl true
-  def handle_event("open_finalize_benefit_form", %{"benefit-id" => id}, socket) do
+  def handle_event("open_finalize_benefit_form", %{"benefit_id" => id}, socket) do
     {:noreply, assign(socket, form_state: :finalize_mode, benefit_id: id)}
   end
 
@@ -39,7 +39,7 @@ defmodule SigLive.EmployeeRegistrations.Benefits.List do
   end
 
   @impl true
-  def handle_event("open_show_benefit_from_model_form", %{"benefit-id" => id}, socket) do
+  def handle_event("open_show_benefit_from_model_form", %{"benefit_id" => id}, socket) do
     {:noreply, assign(socket, benefit_from_model_form_state: :show_mode, benefit_id: id)}
   end
 
@@ -91,7 +91,7 @@ defmodule SigLive.EmployeeRegistrations.Benefits.List do
 
           <tr
             :if={@benefits != []}
-            class="bg-gray-50 uppercase text-xs font-medium text-gray-500 tracking-wider"
+            class="bg-gray-100 uppercase text-xs font-medium text-gray-500 tracking-wider"
           >
             <th class="py-3 px-6 text-left">Tipo</th>
             <th class="py-3 px-6 text-left">Descrição</th>

@@ -59,6 +59,31 @@ defmodule Sig.Changeset do
 
   def validate_dates(changeset, _, _, _), do: changeset
 
+  # TODO: Add test
+  def validate_date(changeset, date_field, criteria, date, opts \\ [])
+
+  def validate_date(%{valid?: true} = changeset, date_field, criteria, date, opts) do
+    criteria = List.wrap(criteria)
+
+    with {_, changeset_date} when not is_nil(changeset_date) <-
+           fetch_field(changeset, date_field),
+         comparison <- Date.compare(changeset_date, date),
+         true <- Enum.member?(criteria, comparison) do
+      changeset
+    else
+      false ->
+        criteria_string = join_criteria(criteria, @date_comparison_dict)
+        message = Keyword.get(opts, :target, Date.to_iso8601(date))
+
+        add_error(changeset, date_field, "must be #{criteria_string} #{message}")
+
+      _ ->
+        changeset
+    end
+  end
+
+  def validate_date(changeset, _, _, _, _), do: changeset
+
   @number_comparison_dict %{lt: "less than", eq: "equal to", gt: "greater than"}
 
   def validate_money(%{valid?: true} = changeset, field, criteria, value) do
@@ -92,7 +117,11 @@ defmodule Sig.Changeset do
     fields_to_drop
     |> List.wrap()
     |> Enum.reduce(changeset, fn field_to_drop, acc ->
-      put_change(acc, field_to_drop, nil)
+      if Map.has_key?(changeset.changes, field_to_drop) do
+        put_change(acc, field_to_drop, nil)
+      else
+        acc
+      end
     end)
   end
 
@@ -130,6 +159,58 @@ defmodule Sig.Changeset do
   end
 
   def validate_is_active(changeset, _), do: changeset
+
+  def validate_values_if(
+        changeset,
+        conditional_field,
+        conditional_field_value,
+        fields_to_validate
+      )
+      when is_list(fields_to_validate) do
+    case fetch_change(changeset, conditional_field) do
+      {:ok, value} when value == conditional_field_value ->
+        Enum.reduce(fields_to_validate, changeset, fn {field, value}, acc ->
+          case fetch_field(acc, field) do
+            {_, ^value} ->
+              acc
+
+            _ ->
+              add_error(
+                acc,
+                field,
+                "must be #{value} when #{conditional_field} is #{conditional_field_value}"
+              )
+          end
+        end)
+
+      _ ->
+        changeset
+    end
+  end
+
+  # TODO: Add test
+  def validate_beginning_of_month(%{valid?: true} = changeset, field) do
+    case fetch_change(changeset, field) do
+      {:ok, %Date{day: 1}} -> changeset
+      {:ok, %Date{}} -> add_error(changeset, field, "must be first day of month")
+      _ -> changeset
+    end
+  end
+
+  def validate_beginning_of_month(changeset, _field), do: changeset
+
+  # TODO: Add test
+  def errors_to_string(changeset) do
+    Ecto.Changeset.traverse_errors(changeset, fn {msg, opts} ->
+      Enum.reduce(opts, msg, fn {key, value}, acc ->
+        String.replace(acc, "%{#{key}}", to_string(value))
+      end)
+    end)
+    |> Enum.reduce("", fn {k, v}, acc ->
+      joined_errors = Enum.join(v, "; ")
+      "#{acc}#{k}: #{joined_errors}\n"
+    end)
+  end
 
   defp compare_numbers(num, num), do: :eq
   defp compare_numbers(first, second) when first < second, do: :lt

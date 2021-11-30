@@ -9,6 +9,7 @@ defmodule Sig.HR.Payslips.Categories.Category do
     field :code, :string
     field :description, :string
     field :entry_type, Sig.EntryType
+    field :is_payment_advance, :boolean
 
     timestamps()
   end

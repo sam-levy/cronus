@@ -16,7 +16,7 @@ defmodule Sig.HR.Registrations.Salaries do
     registration
     |> query_by_registration()
     |> order_by(:start_date)
-    |> Repo.all
+    |> Repo.all()
   end
 
   def in_effect_on_date(%Registration{} = registration, date) do

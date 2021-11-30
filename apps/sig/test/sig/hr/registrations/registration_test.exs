@@ -208,15 +208,15 @@ defmodule Sig.HR.Registrations.RegistrationTest do
       assert changeset.valid?
 
       assert changeset.changes == %{
-        org_id: attrs[:org_id],
-        admission_date: attrs[:admission_date],
-        sector_id: attrs[:sector_id],
-        position_id: attrs[:position_id],
-        individual_id: attrs[:individual_id],
-        registered_at_id: attrs[:registered_at_id],
-        work_at_id: attrs[:work_at_id],
-        salary_amount: %Money{amount: attrs[:salary_amount], currency: :BRL}
-      }
+               org_id: attrs[:org_id],
+               admission_date: attrs[:admission_date],
+               sector_id: attrs[:sector_id],
+               position_id: attrs[:position_id],
+               individual_id: attrs[:individual_id],
+               registered_at_id: attrs[:registered_at_id],
+               work_at_id: attrs[:work_at_id],
+               salary_amount: %Money{amount: attrs[:salary_amount], currency: :BRL}
+             }
     end
 
     test "missing required attrs" do
@@ -287,15 +287,15 @@ defmodule Sig.HR.Registrations.RegistrationTest do
       assert changeset.valid?
 
       assert changeset.changes == %{
-        org_id: attrs[:org_id],
-        admission_date: attrs[:admission_date],
-        sector_id: attrs[:sector_id],
-        position_id: attrs[:position_id],
-        individual_id: attrs[:individual_id],
-        registered_at_id: attrs[:registered_at_id],
-        work_at_id: attrs[:work_at_id],
-        salary_amount: %Money{amount: attrs[:salary_amount], currency: :BRL}
-      }
+               org_id: attrs[:org_id],
+               admission_date: attrs[:admission_date],
+               sector_id: attrs[:sector_id],
+               position_id: attrs[:position_id],
+               individual_id: attrs[:individual_id],
+               registered_at_id: attrs[:registered_at_id],
+               work_at_id: attrs[:work_at_id],
+               salary_amount: %Money{amount: attrs[:salary_amount], currency: :BRL}
+             }
     end
 
     test "assign registered_at_id to work_at_id if not in attrs" do

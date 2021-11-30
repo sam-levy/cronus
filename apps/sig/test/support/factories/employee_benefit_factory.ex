@@ -4,17 +4,17 @@ defmodule Sig.Factories.EmployeeBenefitFactory do
       alias Sig.HR.Registrations.Benefits.Benefit
 
       def factory(:employee_benefit, attrs) do
-        org = Keyword.get(attrs, :org, insert(:org))
-        registration = Keyword.get(attrs, :registration, insert(:employee_registration, org: org))
-        benefit_amount = Keyword.get(attrs, :benefit_amount, Enum.random(100_00..500_00))
-        benefit_amount_date = Keyword.get(attrs, :benefit_amount_date, Faker.Date.backward(100))
+        org = Keyword.get(attrs, :org) || insert(:org)
+
+        registration =
+          Keyword.get(attrs, :registration) || insert(:employee_registration, org: org)
+
+        benefit_amount = Keyword.get(attrs, :benefit_amount) || Enum.random(100_00..500_00)
+        benefit_amount_date = Keyword.get(attrs, :benefit_amount_date) || Faker.Date.backward(100)
 
         benefit_historical_amounts =
-          Keyword.get(
-            attrs,
-            :historical_amounts,
+          Keyword.get(attrs, :historical_amounts) ||
             build(:historical_amount, amount: benefit_amount, date: benefit_amount_date)
-          )
 
         start_date = Keyword.get(attrs, :start_date, benefit_amount_date)
 
@@ -33,11 +33,13 @@ defmodule Sig.Factories.EmployeeBenefitFactory do
       end
 
       def factory(:employee_benefit_from_model, attrs) do
-        org = Keyword.get(attrs, :org, insert(:org))
-        registration = Keyword.get(attrs, :registration, insert(:employee_registration, org: org))
+        org = Keyword.get(attrs, :org) || insert(:org)
+
+        registration =
+          Keyword.get(attrs, :registration) || insert(:employee_registration, org: org)
 
         benefit_model =
-          Keyword.get(attrs, :employee_benefit_model, insert(:employee_benefit_model, org: org))
+          Keyword.get(attrs, :employee_benefit_model) || insert(:employee_benefit_model, org: org)
 
         %Benefit{
           org: org,

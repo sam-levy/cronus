@@ -149,6 +149,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistration do
         item
         | description: item.outside_item_description,
           entry_type: item.outside_item_entry_type,
+          is_payment_advance: item.outside_item_is_payment_advance,
           amount: item.item_amount
       }
     end)
@@ -156,12 +157,18 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistration do
 
   defp fill_virtual_fields({:payslip_item, items}, _salary_amount, _indexed_benefits) do
     Enum.map(items, fn item ->
-      %{description: description, entry_type: entry_type, code: code} = item.payslip_category
+      %{
+        description: description,
+        entry_type: entry_type,
+        is_payment_advance: is_payment_advance,
+        code: code
+      } = item.payslip_category
 
       %{
         item
         | description: description,
           entry_type: entry_type,
+          is_payment_advance: is_payment_advance,
           code: code,
           amount: item.item_amount
       }
@@ -170,13 +177,18 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistration do
 
   defp fill_virtual_fields({:payslip_item_model, items}, _salary_amount, _indexed_benefits) do
     Enum.map(items, fn item ->
-      %{description: description, entry_type: entry_type, code: code} =
-        item.payslip_recurring_item_model.category
+      %{
+        description: description,
+        entry_type: entry_type,
+        is_payment_advance: is_payment_advance,
+        code: code
+      } = item.payslip_recurring_item_model.category
 
       %{
         item
         | description: description,
           entry_type: entry_type,
+          is_payment_advance: is_payment_advance,
           code: code,
           amount: item.payslip_recurring_item_model.amount
       }
@@ -189,8 +201,12 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistration do
          _indexed_benefits
        ) do
     Enum.map(items, fn item ->
-      %{description: description, entry_type: entry_type, code: code} =
-        item.payslip_recurring_item_model.category
+      %{
+        description: description,
+        entry_type: entry_type,
+        is_payment_advance: is_payment_advance,
+        code: code
+      } = item.payslip_recurring_item_model.category
 
       percentage = item.payslip_recurring_item_model.percentage / 100
 
@@ -198,6 +214,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistration do
         item
         | description: description,
           entry_type: entry_type,
+          is_payment_advance: is_payment_advance,
           code: code,
           amount: Money.multiply(salary_amount, percentage)
       }
@@ -210,8 +227,12 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistration do
          indexed_benefits
        ) do
     Enum.map(items, fn item ->
-      %{description: description, entry_type: entry_type, code: code} =
-        item.payslip_recurring_item_model.category
+      %{
+        description: description,
+        entry_type: entry_type,
+        is_payment_advance: is_payment_advance,
+        code: code
+      } = item.payslip_recurring_item_model.category
 
       %{employee_benefit_type_percentage_target: benefit_type, percentage: percentage} =
         item.payslip_recurring_item_model
@@ -220,6 +241,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistration do
         item
         | description: description,
           entry_type: entry_type,
+          is_payment_advance: is_payment_advance,
           code: code,
           amount: handle_benefit_amount(indexed_benefits, benefit_type, percentage)
       }
@@ -251,30 +273,27 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistration do
   end
 
   defp query_by_registration(registration) do
-    RecurringPayslipItem
+    from(item in RecurringPayslipItem, as: :item)
     |> where(org_id: ^registration.org_id)
     |> where(registration_id: ^registration.id)
   end
 
   defp preload_payslip_category(query) do
     query
-    |> join(:left, [item], recurring_item_model in assoc(item, :payslip_category),
-      as: :payslip_category
-    )
-    |> preload([item, payslip_category: payslip_category], payslip_category: payslip_category)
+    |> join(:left, [item: item], _ in assoc(item, :payslip_category), as: :payslip_category)
+    |> preload([payslip_category: payslip_category], payslip_category: payslip_category)
   end
 
   defp preload_payslip_recurring_item_model(query) do
     query
-    |> join(:left, [item], recurring_item_model in assoc(item, :payslip_recurring_item_model),
+    |> join(:left, [item: item], _ in assoc(item, :payslip_recurring_item_model),
       as: :recurring_item_model
     )
-    |> join(:left, [_, recurring_item_model: model], category in assoc(model, :category),
+    |> join(:left, [recurring_item_model: model], _ in assoc(model, :category),
       as: :recurring_item_model_category
     )
     |> preload(
       [
-        _,
         recurring_item_model: recurring_item_model,
         recurring_item_model_category: recurring_item_model_category
       ],

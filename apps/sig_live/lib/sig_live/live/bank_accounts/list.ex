@@ -21,12 +21,12 @@ defmodule SigLive.BankAccounts.List do
   end
 
   @impl true
-  def handle_event("open_edit_account_form", %{"account-id" => id}, socket) do
+  def handle_event("open_edit_account_form", %{"account_id" => id}, socket) do
     {:noreply, assign(socket, account_form_state: :edit_mode, account_id: id)}
   end
 
   @impl true
-  def handle_event("open_show_account_form", %{"account-id" => id}, socket) do
+  def handle_event("open_show_account_form", %{"account_id" => id}, socket) do
     {:noreply, assign(socket, account_form_state: :show_mode, account_id: id)}
   end
 
@@ -36,12 +36,12 @@ defmodule SigLive.BankAccounts.List do
   end
 
   @impl true
-  def handle_event("open_edit_association_form", %{"account-id" => id}, socket) do
+  def handle_event("open_edit_association_form", %{"account_id" => id}, socket) do
     {:noreply, assign(socket, association_form_state: :edit_mode, account_id: id)}
   end
 
   @impl true
-  def handle_event("open_show_association_form", %{"account-id" => id}, socket) do
+  def handle_event("open_show_association_form", %{"account_id" => id}, socket) do
     {:noreply, assign(socket, association_form_state: :show_mode, account_id: id)}
   end
 
@@ -92,7 +92,7 @@ defmodule SigLive.BankAccounts.List do
 
           <tr
             :if={@bank_accounts != [] || @entity_bank_accounts != []}
-            class="bg-gray-50 uppercase text-xs font-medium text-gray-500 tracking-wider"
+            class="bg-gray-100 uppercase text-xs font-medium text-gray-500 tracking-wider"
           >
             <th class="py-3 px-6 text-left">Banco</th>
             <th></th>

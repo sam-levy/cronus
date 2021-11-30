@@ -23,6 +23,17 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.PayslipItemForm do
   prop registration, :struct, required: true
 
   data changeset, :struct, default: HR.create_recurring_payslip_item_change(:payslip_item)
+  data message, :string, default: nil
+
+  @impl true
+  def update(assigns, socket) do
+    socket =
+      socket
+      |> assign(assigns)
+      |> assign(:categories, HR.list_payslip_categories(assigns.registration.org_id))
+
+    {:ok, socket}
+  end
 
   @impl true
   def handle_event("save", %{"recurring_payslip_item" => params}, socket) do
@@ -41,7 +52,7 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.PayslipItemForm do
           <Label class="form-label">Categoria</Label>
           <Select
             prompt=""
-            options={payslip_categories_for_select(@registration.org)}
+            options={payslip_categories_for_select(@categories)}
             class="form-input"
           />
           <ErrorTag class="form-error-tag"/>
@@ -52,6 +63,8 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.PayslipItemForm do
           <TextInput value={format_amount(@changeset)} class="form-input"/>
           <ErrorTag class="form-error-tag"/>
         </Field>
+
+        <div :if={@message} class="form-error-tag">{@message}</div>
 
         <div class="flex justify-end">
           <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Salvando..."}/>
@@ -89,11 +102,17 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.PayslipItemForm do
   end
 
   defp handle_return(%{validation: {:error, changeset}, socket: socket}) do
-    {:noreply, assign(socket, changeset: changeset)}
+    {:noreply, assign(socket, message: nil, changeset: changeset)}
   end
 
-  defp handle_return(%{return: {:error, changeset}} = context) do
-    {:noreply, assign(context.socket, changeset: changeset)}
+  defp handle_return(%{return: {:error, message}} = context) when is_binary(message) do
+    {_, changeset} = context.validation
+
+    {:noreply, assign(context.socket, message: message, changeset: changeset)}
+  end
+
+  defp handle_return(%{return: {:error, changeset}, socket: socket}) when is_struct(changeset) do
+    {:noreply, assign(socket, message: nil, changeset: changeset)}
   end
 
   defp handle_return(%{return: {:ok, _item}, socket: socket}) do
@@ -104,15 +123,5 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.PayslipItemForm do
     close_fun.()
 
     {:noreply, socket}
-  end
-
-  defp payslip_categories_for_select(org) do
-    org
-    |> HR.list_payslip_categories()
-    |> Map.new(fn category ->
-      entry_type = if category.entry_type == :credit, do: "Crédito", else: "Débito"
-
-      {"#{category.code} - #{category.description} - #{entry_type}", category.id}
-    end)
   end
 end

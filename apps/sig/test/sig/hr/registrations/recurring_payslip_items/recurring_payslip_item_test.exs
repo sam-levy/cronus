@@ -12,6 +12,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.RecurringPayslipItemTest do
         type: :outside_item,
         outside_item_description: Faker.Lorem.sentence(),
         outside_item_entry_type: random_enum_value(:entry_type),
+        outside_item_is_payment_advance: false,
         item_amount: Enum.random(100_00..5_000_00)
       }
 
@@ -29,6 +30,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.RecurringPayslipItemTest do
         type: :outside_item,
         outside_item_description: Faker.Lorem.sentence(),
         outside_item_entry_type: random_enum_value(:entry_type),
+        outside_item_is_payment_advance: false,
         item_amount: Enum.random(100_00..5_000_00)
       }
 
@@ -45,6 +47,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.RecurringPayslipItemTest do
         type: :outside_item,
         outside_item_description: Faker.Lorem.sentence(),
         outside_item_entry_type: random_enum_value(:entry_type),
+        outside_item_is_payment_advance: false,
         item_amount: Enum.random(100_00..5_000_00)
       }
 
@@ -62,6 +65,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.RecurringPayslipItemTest do
         type: :outside_item,
         outside_item_description: Faker.Lorem.sentence(),
         outside_item_entry_type: random_enum_value(:entry_type),
+        outside_item_is_payment_advance: false,
         item_amount: Enum.random(100_00..5_000_00)
       }
 
@@ -86,6 +90,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.RecurringPayslipItemTest do
         type: :outside_item,
         outside_item_description: "description",
         outside_item_entry_type: random_enum_value(:entry_type),
+        outside_item_is_payment_advance: false,
         item_amount: Enum.random(100_00..5_000_00)
       }
 
@@ -104,6 +109,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.RecurringPayslipItemTest do
         type: :outside_item,
         outside_item_description: Faker.Lorem.sentence(),
         outside_item_entry_type: random_enum_value(:entry_type),
+        outside_item_is_payment_advance: false,
         item_amount: -1
       }
 
@@ -221,6 +227,25 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.RecurringPayslipItemTest do
                    ~r/employee_registration_recurring_payslip_items_conditional \(check_constraint\)/,
                    fn -> Repo.insert(recurring_payslip_item) end
     end
+
+    test "outside_item_is_payment_advance IS NULL" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+      category = insert(:payslip_category, org: org)
+
+      recurring_payslip_item = %RecurringPayslipItem{
+        org_id: org.id,
+        registration_id: registration.id,
+        type: :payslip_item,
+        item_amount: Enum.random(100_00..5_000_00),
+        payslip_category_id: category.id,
+        outside_item_is_payment_advance: false
+      }
+
+      assert_raise Ecto.ConstraintError,
+                   ~r/employee_registration_recurring_payslip_items_conditional \(check_constraint\)/,
+                   fn -> Repo.insert(recurring_payslip_item) end
+    end
   end
 
   describe "employee_registration_recurring_payslip_items table `payslip_item_model` type conditional constraints" do
@@ -327,6 +352,24 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.RecurringPayslipItemTest do
                    ~r/employee_registration_recurring_payslip_items_conditional \(check_constraint\)/,
                    fn -> Repo.insert(recurring_payslip_item) end
     end
+
+    test "outside_item_is_payment_advance IS NULL" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+      recurring_item_model = insert({:payslip_recurring_item_model, :fixed_amount}, org: org)
+
+      recurring_payslip_item = %RecurringPayslipItem{
+        org_id: org.id,
+        registration_id: registration.id,
+        type: :payslip_item_model,
+        payslip_recurring_item_model_id: recurring_item_model.id,
+        outside_item_is_payment_advance: false
+      }
+
+      assert_raise Ecto.ConstraintError,
+                   ~r/employee_registration_recurring_payslip_items_conditional \(check_constraint\)/,
+                   fn -> Repo.insert(recurring_payslip_item) end
+    end
   end
 
   describe "employee_registration_recurring_payslip_items table `outside_item` type conditional constraints" do
@@ -340,7 +383,8 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.RecurringPayslipItemTest do
         type: :outside_item,
         item_amount: Enum.random(100_00..5_000_00),
         outside_item_description: Faker.Lorem.sentence(),
-        outside_item_entry_type: random_enum_value(:entry_type)
+        outside_item_entry_type: random_enum_value(:entry_type),
+        outside_item_is_payment_advance: false
       }
 
       assert {:ok, _item} = Repo.insert(recurring_payslip_item)
@@ -376,6 +420,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.RecurringPayslipItemTest do
         item_amount: Enum.random(100_00..5_000_00),
         outside_item_description: Faker.Lorem.sentence(),
         outside_item_entry_type: random_enum_value(:entry_type),
+        outside_item_is_payment_advance: false,
         payslip_category_id: category.id
       }
 
@@ -396,6 +441,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.RecurringPayslipItemTest do
         item_amount: Enum.random(100_00..5_000_00),
         outside_item_description: Faker.Lorem.sentence(),
         outside_item_entry_type: random_enum_value(:entry_type),
+        outside_item_is_payment_advance: false,
         payslip_recurring_item_model_id: recurring_item_model.id
       }
 
@@ -413,7 +459,8 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.RecurringPayslipItemTest do
         registration_id: registration.id,
         type: :outside_item,
         item_amount: Enum.random(100_00..5_000_00),
-        outside_item_entry_type: random_enum_value(:entry_type)
+        outside_item_entry_type: random_enum_value(:entry_type),
+        outside_item_is_payment_advance: false
       }
 
       assert_raise Ecto.ConstraintError,
@@ -430,11 +477,49 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.RecurringPayslipItemTest do
         registration_id: registration.id,
         type: :outside_item,
         item_amount: Enum.random(100_00..5_000_00),
-        outside_item_description: Faker.Lorem.sentence()
+        outside_item_description: Faker.Lorem.sentence(),
+        outside_item_is_payment_advance: false
       }
 
       assert_raise Ecto.ConstraintError,
                    ~r/employee_registration_recurring_payslip_items_conditional \(check_constraint\)/,
+                   fn -> Repo.insert(recurring_payslip_item) end
+    end
+
+    test "outside_item_is_payment_advance IS NOT NULL" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+
+      recurring_payslip_item = %RecurringPayslipItem{
+        org_id: org.id,
+        registration_id: registration.id,
+        type: :outside_item,
+        item_amount: Enum.random(100_00..5_000_00),
+        outside_item_description: Faker.Lorem.sentence(),
+        outside_item_entry_type: random_enum_value(:entry_type)
+      }
+
+      assert_raise Ecto.ConstraintError,
+                   ~r/employee_registration_recurring_payslip_items_conditional \(check_constraint\)/,
+                   fn -> Repo.insert(recurring_payslip_item) end
+    end
+
+    test "employee_registration_recurring_payslip_items_payment_advance check_constraint" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+
+      recurring_payslip_item = %RecurringPayslipItem{
+        org_id: org.id,
+        registration_id: registration.id,
+        type: :outside_item,
+        item_amount: Enum.random(100_00..5_000_00),
+        outside_item_description: Faker.Lorem.sentence(),
+        outside_item_entry_type: :credit,
+        outside_item_is_payment_advance: true
+      }
+
+      assert_raise Ecto.ConstraintError,
+                   ~r/employee_registration_recurring_payslip_items_payment_advance \(check_constraint\)/,
                    fn -> Repo.insert(recurring_payslip_item) end
     end
   end
@@ -490,7 +575,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.RecurringPayslipItemTest do
                item_amount: ["is invalid"],
                org_id: ["is invalid"],
                payslip_category_id: ["is invalid"],
-               registration_id: ["is invalid"],
+               registration_id: ["is invalid"]
              }
     end
 
@@ -520,7 +605,8 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.RecurringPayslipItemTest do
         item_amount: Enum.random(100_00..5_000_00),
         payslip_recurring_item_model_id: UUID.generate(),
         outside_item_description: Faker.Lorem.sentence(),
-        outside_item_entry_type: random_enum_value(:entry_type)
+        outside_item_entry_type: random_enum_value(:entry_type),
+        outside_item_is_payment_advance: false
       }
 
       assert changeset = RecurringPayslipItem.create_payslip_item_changeset(attrs)
@@ -585,7 +671,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.RecurringPayslipItemTest do
       assert errors_on(changeset) == %{
                payslip_recurring_item_model_id: ["can't be blank"],
                org_id: ["can't be blank"],
-               registration_id: ["can't be blank"],
+               registration_id: ["can't be blank"]
              }
     end
 
@@ -622,7 +708,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.RecurringPayslipItemTest do
       assert errors_on(changeset) == %{
                org_id: ["is invalid"],
                payslip_recurring_item_model_id: ["is invalid"],
-               registration_id: ["is invalid"],
+               registration_id: ["is invalid"]
              }
     end
 
@@ -635,7 +721,8 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.RecurringPayslipItemTest do
         item_amount: Enum.random(100_00..5_000_00),
         payslip_recurring_item_model_id: UUID.generate(),
         outside_item_description: Faker.Lorem.sentence(),
-        outside_item_entry_type: random_enum_value(:entry_type)
+        outside_item_entry_type: random_enum_value(:entry_type),
+        outside_item_is_payment_advance: false
       }
 
       assert changeset = RecurringPayslipItem.create_payslip_item_model_changeset(attrs)
@@ -701,7 +788,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.RecurringPayslipItemTest do
                outside_item_description: ["can't be blank"],
                outside_item_entry_type: ["can't be blank"],
                org_id: ["can't be blank"],
-               registration_id: ["can't be blank"],
+               registration_id: ["can't be blank"]
              }
     end
 
@@ -711,7 +798,8 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.RecurringPayslipItemTest do
         registration_id: UUID.generate(),
         item_amount: Enum.random(100_00..5_000_00),
         outside_item_description: Faker.Lorem.sentence(),
-        outside_item_entry_type: random_enum_value(:entry_type)
+        outside_item_entry_type: random_enum_value(:entry_type),
+        outside_item_is_payment_advance: false
       }
 
       assert changeset = RecurringPayslipItem.create_outside_item_changeset(attrs)
@@ -724,7 +812,8 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.RecurringPayslipItemTest do
                registration_id: attrs[:registration_id],
                item_amount: %Money{amount: attrs[:item_amount], currency: :BRL},
                outside_item_description: attrs[:outside_item_description],
-               outside_item_entry_type: attrs[:outside_item_entry_type]
+               outside_item_entry_type: attrs[:outside_item_entry_type],
+               outside_item_is_payment_advance: attrs[:outside_item_is_payment_advance]
              }
     end
 
@@ -734,7 +823,8 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.RecurringPayslipItemTest do
         registration_id: :invalid,
         item_amount: :invalid,
         outside_item_description: :invalid,
-        outside_item_entry_type: :invalid
+        outside_item_entry_type: :invalid,
+        outside_item_is_payment_advance: :invalid
       }
 
       assert changeset = RecurringPayslipItem.create_outside_item_changeset(attrs)
@@ -746,7 +836,8 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.RecurringPayslipItemTest do
                org_id: ["is invalid"],
                outside_item_description: ["is invalid"],
                outside_item_entry_type: ["is invalid"],
-               registration_id: ["is invalid"],
+               outside_item_is_payment_advance: ["is invalid"],
+               registration_id: ["is invalid"]
              }
     end
 
@@ -756,7 +847,8 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.RecurringPayslipItemTest do
         registration_id: UUID.generate(),
         item_amount: -1,
         outside_item_description: Faker.Lorem.sentence(),
-        outside_item_entry_type: random_enum_value(:entry_type)
+        outside_item_entry_type: random_enum_value(:entry_type),
+        outside_item_is_payment_advance: false
       }
 
       assert changeset = RecurringPayslipItem.create_outside_item_changeset(attrs)
@@ -774,7 +866,8 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.RecurringPayslipItemTest do
         registration_id: UUID.generate(),
         item_amount: Enum.random(100_00..5_000_00),
         outside_item_description: String.duplicate("a", 256),
-        outside_item_entry_type: random_enum_value(:entry_type)
+        outside_item_entry_type: random_enum_value(:entry_type),
+        outside_item_is_payment_advance: false
       }
 
       assert changeset = RecurringPayslipItem.create_outside_item_changeset(attrs)
@@ -795,7 +888,8 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.RecurringPayslipItemTest do
         item_amount: Enum.random(100_00..5_000_00),
         payslip_recurring_item_model_id: UUID.generate(),
         outside_item_description: Faker.Lorem.sentence(),
-        outside_item_entry_type: random_enum_value(:entry_type)
+        outside_item_entry_type: random_enum_value(:entry_type),
+        outside_item_is_payment_advance: false
       }
 
       assert changeset = RecurringPayslipItem.create_outside_item_changeset(attrs)
@@ -808,7 +902,86 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.RecurringPayslipItemTest do
                registration_id: attrs[:registration_id],
                item_amount: %Money{amount: attrs[:item_amount], currency: :BRL},
                outside_item_description: attrs[:outside_item_description],
-               outside_item_entry_type: attrs[:outside_item_entry_type]
+               outside_item_entry_type: attrs[:outside_item_entry_type],
+               outside_item_is_payment_advance: attrs[:outside_item_is_payment_advance]
+             }
+    end
+
+    test "outside_item_entry_type credit when outside_item_is_payment_advance is true" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+
+      attrs = %{
+        org_id: org.id,
+        registration_id: registration.id,
+        item_amount: Enum.random(100_00..5_000_00),
+        outside_item_description: "description",
+        outside_item_entry_type: :credit,
+        outside_item_is_payment_advance: true
+      }
+
+      assert changeset = RecurringPayslipItem.create_outside_item_changeset(attrs)
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+               outside_item_is_payment_advance: [
+                 "must be false when outside_item_entry_type is credit"
+               ]
+             }
+    end
+
+    test "put missing outside_item_entry_type false when outside_item_entry_type is credit" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+
+      attrs = %{
+        org_id: org.id,
+        registration_id: registration.id,
+        item_amount: Enum.random(100_00..5_000_00),
+        outside_item_description: "description",
+        outside_item_entry_type: :credit
+      }
+
+      assert changeset = RecurringPayslipItem.create_outside_item_changeset(attrs)
+
+      assert changeset.valid?
+
+      assert changeset.changes == %{
+               type: :outside_item,
+               org_id: attrs[:org_id],
+               registration_id: attrs[:registration_id],
+               item_amount: %Money{amount: attrs[:item_amount], currency: :BRL},
+               outside_item_description: attrs[:outside_item_description],
+               outside_item_entry_type: attrs[:outside_item_entry_type],
+               outside_item_is_payment_advance: false
+             }
+    end
+
+    test "put missing outside_item_entry_type false when outside_item_entry_type is debit" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+
+      attrs = %{
+        org_id: org.id,
+        registration_id: registration.id,
+        item_amount: Enum.random(100_00..5_000_00),
+        outside_item_description: "description",
+        outside_item_entry_type: :debit
+      }
+
+      assert changeset = RecurringPayslipItem.create_outside_item_changeset(attrs)
+
+      assert changeset.valid?
+
+      assert changeset.changes == %{
+               type: :outside_item,
+               org_id: attrs[:org_id],
+               registration_id: attrs[:registration_id],
+               item_amount: %Money{amount: attrs[:item_amount], currency: :BRL},
+               outside_item_description: attrs[:outside_item_description],
+               outside_item_entry_type: attrs[:outside_item_entry_type],
+               outside_item_is_payment_advance: false
              }
     end
 
@@ -827,7 +1000,8 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.RecurringPayslipItemTest do
         registration_id: registration.id,
         item_amount: Enum.random(100_00..5_000_00),
         outside_item_description: "description",
-        outside_item_entry_type: random_enum_value(:entry_type)
+        outside_item_entry_type: random_enum_value(:entry_type),
+        outside_item_is_payment_advance: false
       }
 
       assert {:error, changeset} =
@@ -849,7 +1023,8 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.RecurringPayslipItemTest do
         registration_id: registration.id,
         item_amount: Enum.random(100_00..5_000_00),
         outside_item_description: Faker.Lorem.sentence(),
-        outside_item_entry_type: random_enum_value(:entry_type)
+        outside_item_entry_type: random_enum_value(:entry_type),
+        outside_item_is_payment_advance: false
       }
 
       assert {:ok, %RecurringPayslipItem{}} =

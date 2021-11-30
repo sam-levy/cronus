@@ -92,6 +92,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
         org: org,
         registration: registration,
         benefit_type: :health_insurance,
+        benefit_amount_date: ~D[2021-02-01],
         benefit_amount: 300_00
       )
 
@@ -186,7 +187,8 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
           registration: registration,
           item_amount: 200_00,
           outside_item_description: "OUTSIDE ITEM DESCRIPTION",
-          outside_item_entry_type: :credit
+          outside_item_entry_type: :debit,
+          outside_item_is_payment_advance: true
         )
 
       assert [
@@ -194,7 +196,8 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
                  id: ^id,
                  code: nil,
                  description: "OUTSIDE ITEM DESCRIPTION",
-                 entry_type: :credit,
+                 entry_type: :debit,
+                 is_payment_advance: true,
                  amount: %Money{amount: 200_00}
                }
              ] = ListByRegistration.call(registration)
@@ -208,8 +211,9 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
         insert(:payslip_category,
           org: org,
           code: "123",
-          entry_type: :credit,
-          description: "PAYSLIP ITEM DESCRIPTION"
+          description: "PAYSLIP ITEM DESCRIPTION",
+          entry_type: :debit,
+          is_payment_advance: true
         )
 
       %{id: id} =
@@ -225,7 +229,8 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
                  id: ^id,
                  code: "123",
                  description: "PAYSLIP ITEM DESCRIPTION",
-                 entry_type: :credit,
+                 entry_type: :debit,
+                 is_payment_advance: true,
                  amount: %Money{amount: 100_00}
                }
              ] = ListByRegistration.call(registration)
@@ -264,6 +269,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
                  code: "1000",
                  description: "QUEBRA DE CAIXA",
                  entry_type: :credit,
+                 is_payment_advance: false,
                  amount: %Money{amount: 60_70}
                }
              ] = ListByRegistration.call(registration)
@@ -279,6 +285,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
           org: org,
           code: "12",
           entry_type: :debit,
+          is_payment_advance: true,
           description: "ADIANTAMENTO ANTERIOR"
         )
 
@@ -304,6 +311,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
                  code: "12",
                  description: "ADIANTAMENTO ANTERIOR",
                  entry_type: :debit,
+                 is_payment_advance: true,
                  amount: %Money{amount: 400_00}
                }
              ] = ListByRegistration.call(registration)
@@ -364,6 +372,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
                  code: "1",
                  description: "SALÁRIO",
                  entry_type: :credit,
+                 is_payment_advance: false,
                  amount: %Money{amount: 0}
                }
              ] = ListByRegistration.call(registration, start_date: ~D[2019-12-31])
@@ -374,6 +383,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
                  code: "1",
                  description: "SALÁRIO",
                  entry_type: :credit,
+                 is_payment_advance: false,
                  amount: %Money{amount: 1_000_00}
                }
              ] = ListByRegistration.call(registration, start_date: ~D[2020-02-01])
@@ -384,6 +394,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
                  code: "1",
                  description: "SALÁRIO",
                  entry_type: :credit,
+                 is_payment_advance: false,
                  amount: %Money{amount: 1_200_00}
                }
              ] = ListByRegistration.call(registration, start_date: ~D[2020-07-01])
@@ -394,6 +405,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
                  code: "1",
                  description: "SALÁRIO",
                  entry_type: :credit,
+                 is_payment_advance: false,
                  amount: %Money{amount: 1_500_00}
                }
              ] = ListByRegistration.call(registration, start_date: ~D[2021-02-01])
@@ -416,6 +428,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
           org: org,
           code: "115",
           entry_type: :debit,
+          is_payment_advance: false,
           description: "ASSISTÊNCIA MÉDICA"
         )
 
@@ -442,6 +455,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
                  code: "115",
                  description: "ASSISTÊNCIA MÉDICA",
                  entry_type: :debit,
+                 is_payment_advance: false,
                  amount: %Money{amount: 150_00}
                }
              ] = ListByRegistration.call(registration)
@@ -485,6 +499,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
           org: org,
           code: "115",
           entry_type: :debit,
+          is_payment_advance: false,
           description: "ASSISTÊNCIA MÉDICA"
         )
 
@@ -511,6 +526,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
                  code: "115",
                  description: "ASSISTÊNCIA MÉDICA",
                  entry_type: :debit,
+                 is_payment_advance: false,
                  amount: %Money{amount: 0}
                }
              ] = ListByRegistration.call(registration, start_date: ~D[2019-12-31])
@@ -521,6 +537,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
                  code: "115",
                  description: "ASSISTÊNCIA MÉDICA",
                  entry_type: :debit,
+                 is_payment_advance: false,
                  amount: %Money{amount: 100_00}
                }
              ] = ListByRegistration.call(registration, start_date: ~D[2020-02-01])
@@ -531,6 +548,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
                  code: "115",
                  description: "ASSISTÊNCIA MÉDICA",
                  entry_type: :debit,
+                 is_payment_advance: false,
                  amount: %Money{amount: 150_00}
                }
              ] = ListByRegistration.call(registration, start_date: ~D[2020-04-01])
@@ -541,6 +559,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
                  code: "115",
                  description: "ASSISTÊNCIA MÉDICA",
                  entry_type: :debit,
+                 is_payment_advance: false,
                  amount: %Money{amount: 0}
                }
              ] = ListByRegistration.call(registration, start_date: ~D[2020-07-01])
@@ -551,6 +570,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
                  code: "115",
                  description: "ASSISTÊNCIA MÉDICA",
                  entry_type: :debit,
+                 is_payment_advance: false,
                  amount: %Money{amount: 200_00}
                }
              ] = ListByRegistration.call(registration, start_date: ~D[2021-01-01])
@@ -561,6 +581,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
                  code: "115",
                  description: "ASSISTÊNCIA MÉDICA",
                  entry_type: :debit,
+                 is_payment_advance: false,
                  amount: %Money{amount: 250_00}
                }
              ] = ListByRegistration.call(registration, start_date: ~D[2021-07-01])
@@ -598,6 +619,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
           org: org,
           code: "115",
           entry_type: :debit,
+          is_payment_advance: false,
           description: "ASSISTÊNCIA MÉDICA"
         )
 
@@ -624,6 +646,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
                  code: "115",
                  description: "ASSISTÊNCIA MÉDICA",
                  entry_type: :debit,
+                 is_payment_advance: false,
                  amount: %Money{amount: 0}
                }
              ] = ListByRegistration.call(registration, start_date: ~D[2020-01-01])
@@ -634,6 +657,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
                  code: "115",
                  description: "ASSISTÊNCIA MÉDICA",
                  entry_type: :debit,
+                 is_payment_advance: false,
                  amount: %Money{amount: 100_00}
                }
              ] = ListByRegistration.call(registration, start_date: ~D[2020-04-01])
@@ -644,6 +668,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
                  code: "115",
                  description: "ASSISTÊNCIA MÉDICA",
                  entry_type: :debit,
+                 is_payment_advance: false,
                  amount: %Money{amount: 200_00}
                }
              ] = ListByRegistration.call(registration, start_date: ~D[2020-06-01])
@@ -654,6 +679,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
                  code: "115",
                  description: "ASSISTÊNCIA MÉDICA",
                  entry_type: :debit,
+                 is_payment_advance: false,
                  amount: %Money{amount: 300_00}
                }
              ] = ListByRegistration.call(registration, start_date: ~D[2021-01-01])
@@ -664,6 +690,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
                  code: "115",
                  description: "ASSISTÊNCIA MÉDICA",
                  entry_type: :debit,
+                 is_payment_advance: false,
                  amount: %Money{amount: 300_00}
                }
              ] = ListByRegistration.call(registration)
@@ -702,6 +729,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
           org: org,
           code: "115",
           entry_type: :debit,
+          is_payment_advance: false,
           description: "ASSISTÊNCIA MÉDICA"
         )
 
@@ -722,15 +750,16 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistrationTest do
           payslip_recurring_item_model: payslip_recurring_item_model
         )
 
-        assert [
-          %RecurringPayslipItem{
-            id: ^id,
-            code: "115",
-            description: "ASSISTÊNCIA MÉDICA",
-            entry_type: :debit,
-            amount: %Money{amount: 600_00}
-          }
-        ] = ListByRegistration.call(registration)
+      assert [
+               %RecurringPayslipItem{
+                 id: ^id,
+                 code: "115",
+                 description: "ASSISTÊNCIA MÉDICA",
+                 entry_type: :debit,
+                 is_payment_advance: false,
+                 amount: %Money{amount: 600_00}
+               }
+             ] = ListByRegistration.call(registration)
     end
   end
 end

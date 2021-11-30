@@ -9,11 +9,11 @@
 }
 
 .form-label {
-	@apply block text-sm font-medium text-gray-600 mb-1.5
+	@apply block text-sm font-medium text-gray-600 mb-1.5 select-none
 }
 
 .form-side-label {
-	@apply block text-sm font-medium text-gray-600
+	@apply block text-sm font-medium text-gray-600 select-none
 }
 
 .form-label-complement {

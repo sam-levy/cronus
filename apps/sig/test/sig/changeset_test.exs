@@ -502,6 +502,25 @@ defmodule Sig.ChangesetTest do
       assert changeset.changes == %{is_joint_account_holder: true}
     end
 
+    test "when fields are not present in changeset changes" do
+      data = %{}
+
+      types = %{
+        is_joint_account_holder: :boolean
+      }
+
+      params = %{is_joint_account_holder: true}
+
+      changeset =
+        {data, types}
+        |> Ecto.Changeset.cast(params, Map.keys(types))
+        |> Sig.Changeset.drop_changes([:not_present, :another_not_present])
+
+      assert changeset.valid?
+
+      assert changeset.changes == %{is_joint_account_holder: true}
+    end
+
     test "accepts an atom as field" do
       data = %{}
       types = %{is_joint_account_holder: :boolean, relationship_with_holder: :string}
@@ -663,6 +682,109 @@ defmodule Sig.ChangesetTest do
       refute changeset.valid?
 
       assert errors_on(changeset) == %{end_date: ["is already filled"]}
+    end
+  end
+
+  describe "validate_values_if/1" do
+    test "when data entry type is debit" do
+      data = %{entry_type: :debit}
+      types = %{entry_type: Sig.EntryType, is_payment_advance: :boolean}
+      params = %{is_payment_advance: true}
+
+      changeset =
+        {data, types}
+        |> Ecto.Changeset.cast(params, Map.keys(types))
+        |> Sig.Changeset.validate_values_if(:is_payment_advance, true, entry_type: :debit)
+
+      assert changeset.valid?
+    end
+
+    test "when params entry type is debit" do
+      data = %{}
+      types = %{entry_type: Sig.EntryType, is_payment_advance: :boolean}
+      params = %{entry_type: :debit, is_payment_advance: true}
+
+      changeset =
+        {data, types}
+        |> Ecto.Changeset.cast(params, Map.keys(types))
+        |> Sig.Changeset.validate_values_if(:is_payment_advance, true, entry_type: :debit)
+
+      assert changeset.valid?
+    end
+
+    test "when data entry type is credit" do
+      data = %{entry_type: :credit}
+      types = %{entry_type: Sig.EntryType, is_payment_advance: :boolean}
+      params = %{is_payment_advance: true}
+
+      changeset =
+        {data, types}
+        |> Ecto.Changeset.cast(params, Map.keys(types))
+        |> Sig.Changeset.validate_values_if(:is_payment_advance, true, entry_type: :debit)
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+               entry_type: ["must be debit when is_payment_advance is true"]
+             }
+    end
+
+    test "when params entry type is credit" do
+      data = %{}
+      types = %{entry_type: Sig.EntryType, is_payment_advance: :boolean}
+      params = %{entry_type: :credit, is_payment_advance: true}
+
+      changeset =
+        {data, types}
+        |> Ecto.Changeset.cast(params, Map.keys(types))
+        |> Sig.Changeset.validate_values_if(:is_payment_advance, true, entry_type: :debit)
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+               entry_type: ["must be debit when is_payment_advance is true"]
+             }
+    end
+
+    test "one invalid field when more than one field" do
+      data = %{}
+      types = %{entry_type: Sig.EntryType, is_payment_advance: :boolean, other_field: :string}
+      params = %{is_payment_advance: true, entry_type: :credit, other_field: "value"}
+
+      changeset =
+        {data, types}
+        |> Ecto.Changeset.cast(params, Map.keys(types))
+        |> Sig.Changeset.validate_values_if(:is_payment_advance, true,
+          entry_type: :debit,
+          other_field: "value"
+        )
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+               entry_type: ["must be debit when is_payment_advance is true"]
+             }
+    end
+
+    test "more than one invalid field" do
+      data = %{}
+      types = %{entry_type: Sig.EntryType, is_payment_advance: :boolean, other_field: :string}
+      params = %{is_payment_advance: true, entry_type: :credit, other_field: "invalid"}
+
+      changeset =
+        {data, types}
+        |> Ecto.Changeset.cast(params, Map.keys(types))
+        |> Sig.Changeset.validate_values_if(:is_payment_advance, true,
+          entry_type: :debit,
+          other_field: "valid"
+        )
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+               entry_type: ["must be debit when is_payment_advance is true"],
+               other_field: ["must be valid when is_payment_advance is true"]
+             }
     end
   end
 end

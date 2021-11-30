@@ -20,6 +20,40 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
   data delete_confirmation_dialog_state, :atom, default: :closed, values!: ConfirmationDialog.states()
 
   data item_id, :string, default: nil
+  data message, :string, default: nil
+
+  @impl true
+  def update(%{recurring_payslip_items: items} = assigns, socket) do
+    socket =
+      socket
+      |> assign(assigns)
+      |> assign(target_date: Date.utc_today() |> Date.beginning_of_month())
+      |> assign_items(items)
+      |> assign_totals()
+
+    {:ok, socket}
+  end
+
+  @impl true
+  def update(assigns, socket) do
+    {:ok, assign(socket, assigns)}
+  end
+
+  @impl true
+  def handle_event("previous_month", _, socket) do
+    %{target_date: date} = socket.assigns
+    target_date = date |> Date.add(-1) |> Date.beginning_of_month()
+
+    update_items(socket, target_date)
+  end
+
+  @impl true
+  def handle_event("next_month", _, socket) do
+    %{target_date: date} = socket.assigns
+    target_date = date |> Date.end_of_month() |> Date.add(1)
+
+    update_items(socket, target_date)
+  end
 
   @impl true
   def update(%{recurring_payslip_items: items} = assigns, socket) do
@@ -78,12 +112,12 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
   end
 
   @impl true
-  def handle_event("open_payslip_item_delete_confirmation_dialog", %{"item-id" => id}, socket) do
+  def handle_event("open_payslip_item_delete_confirmation_dialog", %{"item_id" => id}, socket) do
     {:noreply, assign(socket, delete_confirmation_dialog_state: :open, item_id: id)}
   end
 
   @impl true
-  def handle_event("delete_recurrent_payslip_item", _, socket) do
+  def handle_event("delete_recurring_payslip_item", _, socket) do
     %{registration: registration, item_id: item_id} = socket.assigns
 
     case HR.delete_recurring_payslip_item(registration, item_id) do
@@ -93,10 +127,10 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
 
         {:noreply, assign(socket, closed_state())}
 
-      :error ->
+      {:error, message} ->
         send(self(), {:flash, :info, "Falha ao remover o item"})
 
-        {:noreply, socket}
+      {:noreply, assign(socket, message: message)}
     end
   end
 
@@ -111,8 +145,9 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
     <div>
       <ConfirmationDialog
         :if={@delete_confirmation_dialog_state != :closed}
+        error_message={@message}
         close_event="close_modals"
-        action_event="delete_recurrent_payslip_item"
+        action_event="delete_recurring_payslip_item"
         dialog_title="Confirmar Remoção"
         confirmation_msg="Deseja realmente remover o item?"
         action_btn_msg="Remover"
@@ -120,7 +155,7 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
 
       <PayslipItemForm
         :if={@payslip_item_form_state != :closed}
-        id="payslip_item_form"
+        id="recurring_payslip_item_form"
         close_event="close_modals"
         close_fun={fn -> close_modals(@id) end}
         {=@registration}
@@ -136,23 +171,24 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
 
       <OutsideItemForm
         :if={@outside_item_form_state != :closed}
-        id="outside_item_form"
+        id="recurring_payslip_outside_item_form"
         close_event="close_modals"
         close_fun={fn -> close_modals(@id) end}
         {=@registration}
       />
 
-      <table class="w-full bg-white shadow-lg my-7">
+      <table class="w-full bg-white shadow-lg">
         <thead class="top-0 z-20">
           <tr class="bg-white">
             <th colspan="6">
               <div class="flex justify-between items-center py-3 px-6">
                 <div class="flex items-center">
                   <span class="text-gray-500 font-medium tracking-wider mr-4">
-                    Previsão de Holerite
+                    Holerite Modelo
                   </span>
 
                   <MonthToggle
+                    :if={@recurring_payslip_items != [] or @recurring_outside_items != []}
                     target={@target_date}
                     floor={Date.end_of_month(@registration.admission_date)}
                     previous="previous_month"
@@ -161,9 +197,9 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
                 </div>
 
                 <DropdownBtn>
-                  <a :on-click="open_new_payslip_item_form" class="dropdown-item">Item do holerite</a>
                   <a :on-click="open_new_payslip_item_model_form" class="dropdown-item">Item a partir de modelo</a>
                   <a :on-click="open_new_outside_item_form" class="dropdown-item">Item fora do holerite</a>
+                  <a :on-click="open_new_payslip_item_form" class="dropdown-item">Item do holerite</a>
                 </DropdownBtn>
               </div>
             </th>
@@ -171,7 +207,7 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
 
           <tr
             :if={@recurring_payslip_items != []}
-            class="bg-gray-50 uppercase text-xs font-medium text-gray-500 tracking-wider"
+            class="bg-gray-100 uppercase text-xs font-medium text-gray-500 tracking-wider"
           >
             <th class="py-3 px-6 text-left">Código</th>
             <th class="py-3 px-6 text-left">Descrição</th>
@@ -183,7 +219,7 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
 
         <tbody class="text-gray-600 text-sm font-light">
           {#for item <- @recurring_payslip_items}
-            <tr class="border-b border-gray-200 hover:bg-gray-50">
+            <tr class="border-b hover:bg-gray-50">
               <td class="py-3 px-6 text-left">
                 {item.code}
               </td>
@@ -213,6 +249,67 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
               </td>
             </tr>
           {/for}
+
+          <tr :if={@recurring_payslip_items != []} class="border-b italic bg-gray-100 text-sm text-gray-500 tracking-wider">
+            <td class="py-2 px-6 text-left" colspan="2">Subtotais</td>
+            <td class="py-2 px-6 text-right">{format_amount(@payslip_items_credit_subtotal)}</td>
+            <td class="py-2 px-6 text-right">{format_amount(@payslip_items_debit_subtotal)}</td>
+            <td></td>
+          </tr>
+
+          <tr :if={@recurring_payslip_items != []} class="text-sm bg-gray-100 font-medium text-gray-500 tracking-wider">
+            <td class="py-2 px-6 text-left" colspan="3">Líquido Holerite</td>
+            <td class={"py-2", "px-6", "text-right", "text-red-500": Money.negative?(@payslip_total)}>{format_amount(@payslip_total)}</td>
+            <td></td>
+          </tr>
+
+          <tr :if={Money.negative?(@payslip_total)} class="text-sm bg-gray-100 font-medium text-red-500 tracking-wider">
+            <td class="py-2 px-6 text-center" colspan="5">
+              O valor líquido do holerite não pode ser negativo. Favor ajustar antes de gerar um holerite.
+            </td>
+          </tr>
+
+          {#for item <- @recurring_outside_items}
+            <tr class="border-b hover:bg-gray-50">
+              <td></td>
+
+              <td class="py-3 px-6 text-left">
+                {item.description}
+              </td>
+
+              <td class="py-3 px-6 text-right">
+                {if item.entry_type == :credit, do: item.amount}
+              </td>
+
+              <td class="py-3 px-6 text-right">
+                {if item.entry_type == :debit, do: item.amount}
+              </td>
+
+              <td class="pr-5 text-right">
+                <DropdownOpts>
+                  <a
+                    :on-click="open_payslip_item_delete_confirmation_dialog"
+                    phx-value-item_id={item.id}
+                    class="dropdown-item"
+                  >
+                    Remover
+                  </a>
+                </DropdownOpts>
+              </td>
+            </tr>
+          {/for}
+
+          <tr :if={@recurring_outside_items != []} class="text-sm bg-gray-100 font-medium text-gray-500 tracking-wider">
+            <td class="py-2 px-6 text-left" colspan="3">Total</td>
+            <td class={"py-2", "px-6", "text-right", "text-red-500": Money.negative?(@net_total)}>{format_amount(@net_total)}</td>
+            <td></td>
+          </tr>
+
+          <tr :if={Money.negative?(@net_total)} class="text-sm bg-gray-100 font-medium text-red-500 tracking-wider">
+            <td class="py-2 px-6 text-center" colspan="5">
+              O valor total não pode ser negativo. Favor ajustar antes de gerar um holerite.
+            </td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -226,6 +323,7 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
   defp closed_state do
     [
       item_id: nil,
+      message: nil,
       payslip_item_form_state: :closed,
       payslip_item_model_form_state: :closed,
       outside_item_form_state: :closed,
@@ -236,11 +334,39 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
   defp update_items(socket, date) do
     %{registration: registration} = socket.assigns
 
-    {:noreply,
-     assign(socket,
-       target_date: date,
-       recurring_payslip_items:
-         HR.list_recurring_payslip_items_by_registration(registration, start_date: date)
-     )}
+    items = HR.list_recurring_payslip_items_by_registration(registration, start_date: date)
+
+    socket =
+      socket
+      |> assign(target_date: date)
+      |> assign_items(items)
+      |> assign_totals()
+
+    {:noreply, socket}
+  end
+
+  defp assign_items(socket, items) do
+    assign(
+      socket,
+      recurring_payslip_items: Enum.filter(items, &(&1.type in [:payslip_item, :payslip_item_model])),
+      recurring_outside_items: Enum.filter(items, &(&1.type == :outside_item))
+    )
+  end
+
+  defp assign_totals(socket) do
+    %{assigns: %{recurring_payslip_items: recurring_payslip_items, recurring_outside_items: recurring_outside_items}} = socket
+
+    payslip_items_credit_subtotal = Sig.sum_by(:credit, recurring_payslip_items)
+    payslip_items_debit_subtotal = Sig.sum_by(:debit, recurring_payslip_items)
+
+    credit_total = Money.add(Sig.sum_by(:credit, recurring_outside_items), payslip_items_credit_subtotal)
+    debit_total = Money.add(Sig.sum_by(:debit, recurring_outside_items), payslip_items_debit_subtotal)
+
+    assign(socket,
+      payslip_items_credit_subtotal: payslip_items_credit_subtotal,
+      payslip_items_debit_subtotal: payslip_items_debit_subtotal,
+      payslip_total: Money.subtract(payslip_items_credit_subtotal, payslip_items_debit_subtotal),
+      net_total: Money.subtract(credit_total, debit_total)
+    )
   end
 end

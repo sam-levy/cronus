@@ -67,7 +67,7 @@ defmodule SigLive.Individuals.Index do
           </th>
         </tr>
 
-        <tr class="bg-gray-50 uppercase text-xs font-medium text-gray-500 tracking-wider">
+        <tr class="bg-gray-100 uppercase text-xs font-medium text-gray-500 tracking-wider">
           <th class="py-3 px-6 text-left">Nome</th>
           <th class="py-3 px-6 text-left">CPF</th>
         </tr>

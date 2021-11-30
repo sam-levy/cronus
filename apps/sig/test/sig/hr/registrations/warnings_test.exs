@@ -80,12 +80,12 @@ defmodule Sig.HR.Registrations.WarningsTest do
       assert {:ok, %Warning{id: id}} = Warnings.create(registration, attrs)
 
       assert Repo.get_by(Warning,
-        id: id,
-        org_id: registration.org_id,
-        registration_id: registration.id,
-        date: attrs[:date],
-        description: attrs[:description],
-      )
+               id: id,
+               org_id: registration.org_id,
+               registration_id: registration.id,
+               date: attrs[:date],
+               description: attrs[:description]
+             )
     end
 
     test "returns changeset errors" do
@@ -94,9 +94,9 @@ defmodule Sig.HR.Registrations.WarningsTest do
       assert {:error, changeset} = Warnings.create(registration, %{})
 
       assert errors_on(changeset) == %{
-        date: ["can't be blank"],
-        description: ["can't be blank"]
-      }
+               date: ["can't be blank"],
+               description: ["can't be blank"]
+             }
     end
   end
 

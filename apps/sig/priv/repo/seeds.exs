@@ -57,73 +57,108 @@ alias Sig.Entities.Companies.Company
 
 entity = Repo.insert!(%Entity{org_id: main_org.id, type: :company})
 
-Repo.insert!(%Company{
-  trade_name: "CiB Mogi",
-  is_virtual: false,
-  registration_name: "China in Box Mogi das Cruzes Ltda.",
-  cnpj: BrazilianDocuments.generate_cnpj(),
-  org_id: main_org.id,
-  entity_id: entity.id
-})
+mogi =
+  Repo.insert!(%Company{
+    trade_name: "CiB Mogi",
+    is_virtual: false,
+    registration_name: "China in Box Mogi das Cruzes Ltda.",
+    cnpj: BrazilianDocuments.generate_cnpj(),
+    org_id: main_org.id,
+    entity_id: entity.id
+  })
 
 entity = Repo.insert!(%Entity{org_id: main_org.id, type: :company})
 
-Repo.insert!(%Company{
-  trade_name: "CiB Suzano",
-  is_virtual: false,
-  registration_name: "China in Box Suzano Ltda.",
-  cnpj: BrazilianDocuments.generate_cnpj(),
-  org_id: main_org.id,
-  entity_id: entity.id
-})
+suzano =
+  Repo.insert!(%Company{
+    trade_name: "CiB Suzano",
+    is_virtual: false,
+    registration_name: "China in Box Suzano Ltda.",
+    cnpj: BrazilianDocuments.generate_cnpj(),
+    org_id: main_org.id,
+    entity_id: entity.id
+  })
 
 entity = Repo.insert!(%Entity{org_id: main_org.id, type: :company})
 
-Repo.insert!(%Company{
-  trade_name: "CiB Penha",
-  is_virtual: false,
-  registration_name: "China in Box Penha Ltda.",
-  cnpj: BrazilianDocuments.generate_cnpj(),
-  org_id: main_org.id,
-  entity_id: entity.id
-})
+penha =
+  Repo.insert!(%Company{
+    trade_name: "CiB Penha",
+    is_virtual: false,
+    registration_name: "China in Box Penha Ltda.",
+    cnpj: BrazilianDocuments.generate_cnpj(),
+    org_id: main_org.id,
+    entity_id: entity.id
+  })
 
 entity = Repo.insert!(%Entity{org_id: main_org.id, type: :company})
 
-Repo.insert!(%Company{
-  trade_name: "CiB São Miguel",
-  is_virtual: false,
-  registration_name: "China in Box São Miguel Ltda.",
-  cnpj: BrazilianDocuments.generate_cnpj(),
-  org_id: main_org.id,
-  entity_id: entity.id
-})
+smiguel =
+  Repo.insert!(%Company{
+    trade_name: "CiB São Miguel",
+    is_virtual: false,
+    registration_name: "China in Box São Miguel Ltda.",
+    cnpj: BrazilianDocuments.generate_cnpj(),
+    org_id: main_org.id,
+    entity_id: entity.id
+  })
 
 entity = Repo.insert!(%Entity{org_id: main_org.id, type: :company})
 
-Repo.insert!(%Company{
-  trade_name: "Escritório",
-  is_virtual: true,
-  org_id: main_org.id,
-  entity_id: entity.id
-})
+escritório =
+  Repo.insert!(%Company{
+    trade_name: "Escritório",
+    is_virtual: true,
+    org_id: main_org.id,
+    entity_id: entity.id
+  })
 
 entity = Repo.insert!(%Entity{org_id: main_org.id, type: :company})
 
-Repo.insert!(%Company{
-  trade_name: "Call Center",
-  is_virtual: true,
-  org_id: main_org.id,
-  entity_id: entity.id
-})
+call_center =
+  Repo.insert!(%Company{
+    trade_name: "Call Center",
+    is_virtual: true,
+    org_id: main_org.id,
+    entity_id: entity.id
+  })
 
 entity = Repo.insert!(%Entity{org_id: main_org.id, type: :company})
 
-Repo.insert!(%Company{
-  trade_name: "Central de Processamento",
-  is_virtual: true,
+central =
+  Repo.insert!(%Company{
+    trade_name: "Central de Processamento",
+    is_virtual: true,
+    org_id: main_org.id,
+    entity_id: entity.id
+  })
+
+# Bank Accounts
+alias Sig.Finance.Banks.Accounts.Account
+
+Repo.insert!(%Account{
   org_id: main_org.id,
-  entity_id: entity.id
+  entity_id: mogi.entity_id,
+  type: :checking_account,
+  routing_number: "237",
+  branch_number: "118",
+  number: "1468-0",
+  is_active: true,
+  is_primary: true,
+  is_joint_account: false
+})
+
+Repo.insert!(%Account{
+  org_id: main_org.id,
+  entity_id: mogi.entity_id,
+  entity_id: mogi.entity_id,
+  type: :checking_account,
+  routing_number: "104",
+  branch_number: "0642",
+  number: "41-3",
+  is_active: true,
+  is_primary: false,
+  is_joint_account: false
 })
 
 # Org Sectors
@@ -151,12 +186,13 @@ Repo.insert!(%Position{org_id: main_org.id, name: "Entregador Motorizado"})
 # Payslip Categories
 alias Sig.HR.Payslips.Categories.Category
 
-salary_category = Repo.insert!(%Category{
-  org_id: main_org.id,
-  code: "1",
-  description: "SALÁRIO",
-  entry_type: :credit
-})
+salary_category =
+  Repo.insert!(%Category{
+    org_id: main_org.id,
+    code: "1",
+    description: "SALÁRIO",
+    entry_type: :credit
+  })
 
 Repo.insert!(%Category{
   org_id: main_org.id,
@@ -186,19 +222,21 @@ Repo.insert!(%Category{
   entry_type: :credit
 })
 
-cashier_bonus_category = Repo.insert!(%Category{
-  org_id: main_org.id,
-  code: "1000",
-  description: "QUEBRA DE CAIXA",
-  entry_type: :credit
-})
+cashier_bonus_category =
+  Repo.insert!(%Category{
+    org_id: main_org.id,
+    code: "1000",
+    description: "QUEBRA DE CAIXA",
+    entry_type: :credit
+  })
 
-uniform_cleaning = Repo.insert!(%Category{
-  org_id: main_org.id,
-  code: "1038",
-  description: "LAVAR UNIFORME",
-  entry_type: :credit
-})
+uniform_cleaning =
+  Repo.insert!(%Category{
+    org_id: main_org.id,
+    code: "1038",
+    description: "LAVAR UNIFORME",
+    entry_type: :credit
+  })
 
 Repo.insert!(%Category{
   org_id: main_org.id,
@@ -207,26 +245,30 @@ Repo.insert!(%Category{
   entry_type: :debit
 })
 
-in_advance_payments_category = Repo.insert!(%Category{
-  org_id: main_org.id,
-  code: "12",
-  description: "ADIANTAMENTO ANTERIOR",
-  entry_type: :debit
-})
+in_advance_payments_category =
+  Repo.insert!(%Category{
+    org_id: main_org.id,
+    code: "12",
+    description: "ADIANTAMENTO ANTERIOR",
+    entry_type: :debit,
+    is_payment_advance: true
+  })
 
-transportation_voucher_discount_category = Repo.insert!(%Category{
-  org_id: main_org.id,
-  code: "109",
-  description: "DESC. VALE TRANSPORTE",
-  entry_type: :debit
-})
+transportation_voucher_discount_category =
+  Repo.insert!(%Category{
+    org_id: main_org.id,
+    code: "109",
+    description: "DESC. VALE TRANSPORTE",
+    entry_type: :debit
+  })
 
-health_insurance_category = Repo.insert!(%Category{
-  org_id: main_org.id,
-  code: "115",
-  description: "ASSISTÊNCIA MÉDICA",
-  entry_type: :debit
-})
+health_insurance_category =
+  Repo.insert!(%Category{
+    org_id: main_org.id,
+    code: "115",
+    description: "ASSISTÊNCIA MÉDICA",
+    entry_type: :debit
+  })
 
 # Payslip Recurring Item Moddels
 alias Sig.HR.Payslips.RecurringItemModels.RecurringItemModel

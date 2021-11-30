@@ -26,9 +26,12 @@ defmodule SigLive.Router do
   scope "/orgs/:org_id", SigLive do
     pipe_through [:browser, :org_authorization]
 
+    live "/payslip_groups", PayslipGroups.List, :payslip_groups
+    live "/payslip_groups/:id", PayslipGroups.Show, :payslip_groups
     live "/individuals", Individuals.Index
     live "/individuals/:id", Individuals.Show, :show
-    live "/individuals/:entity_id/registrations/:id", EmployeeRegistrations.Show, :show
+    live "/individuals/:entity_id/registrations/:id", EmployeeRegistrations.Show, :registration_show
+    live "/individuals/:entity_id/registrations/:id/payslips", EmployeeRegistrations.Show, :payslips
   end
 
   if Mix.env() in [:dev, :test] do

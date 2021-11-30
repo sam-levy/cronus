@@ -6,8 +6,8 @@ defmodule Sig.Factories.BankAccountFactory do
       alias Sig.Finance.Banks.Accounts.Account.BankAccountType
 
       def factory(:bank_account, attrs) do
-        org = Keyword.get(attrs, :org, insert(:org))
-        entity = Keyword.get(attrs, :entity, insert(:entity, org: org))
+        org = Keyword.get(attrs, :org) || insert(:org)
+        entity = Keyword.get(attrs, :entity) || insert(:entity, org: org)
 
         struct(
           %Account{

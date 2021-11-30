@@ -5,8 +5,8 @@ defmodule Sig.Factories.IndividualFactory do
       alias Sig.Entities.Individuals.Individual.Gender
 
       def factory(:individual, attrs) do
-        org = Keyword.get(attrs, :org, insert(:org))
-        entity = Keyword.get(attrs, :entity, insert(:entity, org: org, type: :individual))
+        org = Keyword.get(attrs, :org) || insert(:org)
+        entity = Keyword.get(attrs, :entity) || insert(:entity, org: org, type: :individual)
 
         %Individual{
           entity: entity,

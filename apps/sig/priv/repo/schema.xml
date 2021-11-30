@@ -317,81 +317,53 @@
 <part>id</part>
 </key>
 </table>
-<table x="1015" y="1867" name="bills">
-<row name="id" null="1" autoincrement="1">
-<datatype>INTEGER</datatype>
-<default>NULL</default></row>
-<row name="type" null="1" autoincrement="0">
-<datatype>VARCHAR</datatype>
-<default>NULL</default></row>
-<row name="credit_bank_account_id" null="1" autoincrement="0">
-<datatype>INTEGER</datatype>
-<default>NULL</default><relation table="bank_accounts" row="id" />
-</row>
-<row name="check_bank_account_id" null="1" autoincrement="0">
-<datatype>INTEGER</datatype>
-<default>NULL</default><relation table="bank_accounts" row="id" />
-</row>
-<row name="check_number" null="1" autoincrement="0">
-<datatype>INTEGER</datatype>
-<default>NULL</default></row>
-<row name="due_date" null="1" autoincrement="0">
-<datatype>DATE</datatype>
-<default>NULL</default></row>
-<row name="amount" null="1" autoincrement="0">
-<datatype>INTEGER</datatype>
-<default>NULL</default></row>
-<row name="billet_barcode" null="1" autoincrement="0">
-<datatype>INTEGER</datatype>
-<default>NULL</default></row>
-<row name="billet_routing_number" null="1" autoincrement="0">
-<datatype>INTEGER</datatype>
-<default>NULL</default></row>
-<row name="payable_id" null="1" autoincrement="0">
-<datatype>INTEGER</datatype>
-<default>NULL</default><relation table="payables" row="id" />
-</row>
-<key type="PRIMARY" name="">
-<part>id</part>
-</key>
-</table>
-<table x="1608" y="1659" name="bank_transactions">
+<table x="1610" y="1591" name="bank_transactions">
 <row name="id" null="1" autoincrement="1">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
 <row name="org_id" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
+<row name="account_id" null="1" autoincrement="0">
+<datatype>INTEGER</datatype>
+<default>NULL</default><relation table="bank_accounts" row="id" />
+</row>
+<row name="credit_account_id" null="1" autoincrement="0">
+<datatype>INTEGER</datatype>
+<default>NULL</default><relation table="bank_accounts" row="id" />
+</row>
+<row name="type" null="1" autoincrement="0">
+<datatype>INTEGER</datatype>
+<default>NULL</default><comment>Enum of [:transfer_between_managed_accounts, :transfer_to_registered_account, :batch_transfer, :payment]</comment>
+</row>
 <row name="date" null="1" autoincrement="0">
 <datatype>DATE</datatype>
 <default>NULL</default></row>
 <row name="amount" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
-<row name="credit_bank_account_id" null="1" autoincrement="0">
+<row name="entry_type" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
-<default>NULL</default><relation table="bank_accounts" row="id" />
-</row>
-<row name="debit_bank_account_id" null="1" autoincrement="0">
-<datatype>INTEGER</datatype>
-<default>NULL</default><relation table="bank_accounts" row="id" />
-</row>
+<default>NULL</default></row>
 <row name="financial_transaction_id" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
 <default>NULL</default><relation table="financial_transactions" row="id" />
 </row>
+<row name="is_fulfilled" null="1" autoincrement="0">
+<datatype>BOOLEAN</datatype>
+<default>NULL</default></row>
 <key type="PRIMARY" name="">
 <part>id</part>
 </key>
 </table>
 <table x="1317" y="1751" name="bank_accounts">
+<row name="id" null="1" autoincrement="1">
+<datatype>INTEGER</datatype>
+<default>NULL</default></row>
 <row name="entity_id" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
 <default>NULL</default><relation table="entities" row="id" />
 </row>
-<row name="id" null="1" autoincrement="1">
-<datatype>INTEGER</datatype>
-<default>NULL</default></row>
 <row name="org_id" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
@@ -399,13 +371,13 @@
 <datatype>VARCHAR</datatype>
 <default>NULL</default></row>
 <row name="routing_number" null="1" autoincrement="0">
-<datatype>INTEGER</datatype>
+<datatype>VARCHAR</datatype>
 <default>NULL</default></row>
 <row name="branch_number" null="1" autoincrement="0">
-<datatype>INTEGER</datatype>
+<datatype>VARCHAR</datatype>
 <default>NULL</default></row>
 <row name="number" null="1" autoincrement="0">
-<datatype>INTEGER</datatype>
+<datatype>VARCHAR</datatype>
 <default>NULL</default></row>
 <row name="other_info" null="1" autoincrement="0">
 <datatype>VARCHAR</datatype>
@@ -486,7 +458,7 @@
 <datatype>INTEGER</datatype>
 <default>NULL</default><relation table="org_sectors" row="id" />
 </row>
-<row name="post_id" null="1" autoincrement="0">
+<row name="position_id" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
 <default>NULL</default><relation table="org_positions" row="id" />
 </row>
@@ -515,11 +487,7 @@
 <part>id</part>
 </key>
 </table>
-<table x="1967" y="1035" name="payslips">
-<row name="paylisp_group_id" null="1" autoincrement="0">
-<datatype>INTEGER</datatype>
-<default>NULL</default><relation table="payslip_groups" row="id" />
-</row>
+<table x="1968" y="1027" name="payslips">
 <row name="id" null="1" autoincrement="1">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
@@ -530,17 +498,30 @@
 <datatype>INTEGER</datatype>
 <default>NULL</default><relation table="employee_registrations" row="id" />
 </row>
+<row name="group_id" null="1" autoincrement="0">
+<datatype>INTEGER</datatype>
+<default>NULL</default><relation table="payslip_groups" row="id" />
+</row>
+<row name="type" null="1" autoincrement="0">
+<datatype>INTEGER</datatype>
+<default>NULL</default></row>
+<row name="amount" null="1" autoincrement="0">
+<datatype>INTEGER</datatype>
+<default>NULL</default></row>
 <row name="start_date" null="1" autoincrement="0">
 <datatype>DATE</datatype>
 <default>NULL</default></row>
 <row name="end_date" null="1" autoincrement="0">
 <datatype>DATE</datatype>
 <default>NULL</default></row>
+<row name="is_closed" null="1" autoincrement="0">
+<datatype>BOOLEAN</datatype>
+<default>NULL</default></row>
 <key type="PRIMARY" name="">
 <part>id</part>
 </key>
 </table>
-<table x="2269" y="1012" name="payslip_items">
+<table x="2265" y="981" name="payslip_items">
 <row name="id" null="1" autoincrement="1">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
@@ -551,38 +532,47 @@
 <datatype>INTEGER</datatype>
 <default>NULL</default><relation table="payslips" row="id" />
 </row>
-<row name="in_payslip" null="1" autoincrement="0">
-<datatype>BOOLEAN</datatype>
-<default>NULL</default></row>
-<row name="category_code" null="1" autoincrement="0">
+<row name="category_id" null="1" autoincrement="0">
+<datatype>INTEGER</datatype>
+<default>NULL</default><relation table="payslip_categories" row="id" />
+</row>
+<row name="type" null="1" autoincrement="0">
+<datatype>INTEGER</datatype>
+<default>NULL</default><comment>Enum [payslip_item, outside_item]</comment>
+</row>
+<row name="code" null="1" autoincrement="0">
 <datatype>VARCHAR</datatype>
 <default>NULL</default></row>
 <row name="description" null="1" autoincrement="0">
 <datatype>VARCHAR</datatype>
 <default>NULL</default></row>
+<row name="reference" null="1" autoincrement="0">
+<datatype>VARCHAR</datatype>
+<default>NULL</default><comment>Ven da categoria mas é editável</comment>
+</row>
 <row name="entry_type" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
+<row name="is_payment_advance" null="1" autoincrement="0">
+<datatype>BOOLEAN</datatype>
+<default>NULL</default></row>
 <row name="amount" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
-<default>NULL</default></row>
-<row name="reference" null="1" autoincrement="0">
-<datatype>VARCHAR</datatype>
 <default>NULL</default></row>
 <key type="PRIMARY" name="">
 <part>id</part>
 </key>
 </table>
-<table x="1898" y="1985" name="financial_transactions">
+<table x="1851" y="1775" name="financial_transactions">
 <row name="id" null="1" autoincrement="1">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
 <row name="org_id" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
-<row name="payable_id" null="1" autoincrement="0">
+<row name="type" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
-<default>NULL</default><relation table="payables" row="id" />
+<default>NULL</default><comment>Enum for [:bank, :cashier]</comment>
 </row>
 <key type="PRIMARY" name="">
 <part>id</part>
@@ -609,7 +599,7 @@
 <part>id</part>
 </key>
 </table>
-<table x="1893" y="1660" name="cashier_transactions">
+<table x="1924" y="1484" name="cashier_transactions">
 <row name="cashier_shift_id" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
 <default>NULL</default><relation table="cashier_shifts" row="id" />
@@ -618,13 +608,13 @@
 <datatype>INTEGER</datatype>
 <default>NULL</default><relation table="users*" row="id" />
 </row>
-<row name="taken_at" null="1" autoincrement="0">
-<datatype>DATE</datatype>
-<default>NULL</default></row>
 <row name="deposit_id" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
 <default>NULL</default><relation table="bank_transactions" row="id" />
 </row>
+<row name="taken_at" null="1" autoincrement="0">
+<datatype>DATE</datatype>
+<default>NULL</default></row>
 <row name="id" null="1" autoincrement="1">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
@@ -648,7 +638,7 @@
 <part>id</part>
 </key>
 </table>
-<table x="2464" y="496" name="payslip_categories">
+<table x="2501" y="698" name="payslip_categories">
 <row name="id" null="1" autoincrement="1">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
@@ -661,14 +651,20 @@
 <row name="description" null="1" autoincrement="0">
 <datatype>VARCHAR</datatype>
 <default>NULL</default></row>
+<row name="reference (adicionar)" null="1" autoincrement="0">
+<datatype>VARCHAR</datatype>
+<default>NULL</default></row>
 <row name="entry_type" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
+<default>NULL</default></row>
+<row name="is_payment_advance" null="1" autoincrement="0">
+<datatype>BOOLEAN</datatype>
 <default>NULL</default></row>
 <key type="PRIMARY" name="">
 <part>id</part>
 </key>
 </table>
-<table x="1814" y="1333" name="cashier_shifts">
+<table x="1924" y="1308" name="cashier_shifts">
 <row name="company_id" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
 <default>NULL</default><relation table="companies" row="id" />
@@ -690,62 +686,37 @@
 <part>id</part>
 </key>
 </table>
-<table x="2269" y="1292" name="employee_payments">
+<table x="2266" y="2220" name="payslip_payables">
+<row name="org_id" null="1" autoincrement="0">
+<datatype>INTEGER</datatype>
+<default>NULL</default></row>
 <row name="payslip_id" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
 <default>NULL</default><relation table="payslips" row="id" />
 </row>
-<row name="cashier_company_id" null="1" autoincrement="0">
+<row name="payable_id" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
-<default>NULL</default><relation table="companies" row="id" />
+<default>NULL</default><relation table="payables" row="id" />
 </row>
-<row name="id" null="1" autoincrement="1">
-<datatype>INTEGER</datatype>
+<row name="is_auto_adjustable_amount" null="1" autoincrement="0">
+<datatype>BOOLEAN</datatype>
 <default>NULL</default></row>
+<key type="PRIMARY" name="">
+</key>
+</table>
+<table x="1310" y="2220" name="invoice_payables">
 <row name="org_id" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
-<row name="type" null="1" autoincrement="0">
+<row name="invoice_id" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
-<default>NULL</default></row>
-<row name="description" null="1" autoincrement="0">
-<datatype>VARCHAR</datatype>
-<default>NULL</default></row>
-<row name="due_date" null="1" autoincrement="0">
-<datatype>DATE</datatype>
-<default>NULL</default></row>
-<row name="amount" null="1" autoincrement="0">
-<datatype>INTEGER</datatype>
-<default>NULL</default></row>
+<default>NULL</default><relation table="invoices" row="id" />
+</row>
 <row name="payable_id" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
 <default>NULL</default><relation table="payables" row="id" />
 </row>
 <key type="PRIMARY" name="">
-<part>id</part>
-</key>
-</table>
-<table x="1031" y="1702" name="invoice_bills">
-<row name="invoice_id" null="1" autoincrement="0">
-<datatype>INTEGER</datatype>
-<default>NULL</default><relation table="invoices" row="id" />
-</row>
-<row name="bill_id" null="1" autoincrement="0">
-<datatype>INTEGER</datatype>
-<default>NULL</default><relation table="bills" row="id" />
-</row>
-<key type="PRIMARY" name="">
-</key>
-</table>
-<table x="2200" y="2074" name="payables">
-<row name="id" null="1" autoincrement="1">
-<datatype>INTEGER</datatype>
-<default>NULL</default></row>
-<row name="org_id" null="1" autoincrement="0">
-<datatype>INTEGER</datatype>
-<default>NULL</default></row>
-<key type="PRIMARY" name="">
-<part>id</part>
 </key>
 </table>
 <table x="1058" y="921" name="orgs*">
@@ -784,21 +755,18 @@
 <part>id</part>
 </key>
 </table>
-<table x="2269" y="820" name="payslip_groups">
-<row name="org_id" null="1" autoincrement="0">
+<table x="1739" y="1120" name="payslip_groups">
+<row name="id" null="1" autoincrement="1">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
-<row name="id" null="1" autoincrement="1">
+<row name="org_id" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
 <row name="type" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
-<row name="month" null="1" autoincrement="0">
-<datatype>INTEGER</datatype>
-<default>NULL</default></row>
-<row name="year" null="1" autoincrement="0">
-<datatype>INTEGER</datatype>
+<row name="date" null="1" autoincrement="0">
+<datatype>DATE</datatype>
 <default>NULL</default></row>
 <key type="PRIMARY" name="">
 <part>id</part>
@@ -1008,13 +976,10 @@
 <row name="hours_amount" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
-<row name="year" null="1" autoincrement="0">
-<datatype>INTEGER</datatype>
+<row name="date" null="1" autoincrement="0">
+<datatype>DATE</datatype>
 <default>NULL</default></row>
-<row name="month" null="1" autoincrement="0">
-<datatype>INTEGER</datatype>
-<default>NULL</default></row>
-<row name="paid_in_id" null="1" autoincrement="0">
+<row name="payslip_id" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
 <default>NULL</default><relation table="payslips" row="id" />
 </row>
@@ -1085,7 +1050,7 @@
 <part>id</part>
 </key>
 </table>
-<table x="1932" y="381" name="employee_registration_recurring_payslip_items">
+<table x="1932" y="356" name="employee_registration_recurring_payslip_items">
 <row name="id" null="1" autoincrement="1">
 <datatype>INTEGER</datatype>
 <default>NULL</default></row>
@@ -1107,11 +1072,14 @@
 <datatype>INTEGER</datatype>
 <default>NULL</default><relation table="payslip_categories" row="id" />
 </row>
-<row name="outside_description" null="1" autoincrement="0">
+<row name="outside_item_description" null="1" autoincrement="0">
 <datatype>VARCHAR</datatype>
 <default>NULL</default></row>
-<row name="outside_entry_type" null="1" autoincrement="0">
+<row name="outside_item_entry_type" null="1" autoincrement="0">
 <datatype>INTEGER</datatype>
+<default>NULL</default></row>
+<row name="outside_item_is_payment_advance" null="1" autoincrement="0">
+<datatype>BOOLEAN</datatype>
 <default>NULL</default></row>
 <row name="item_amount" null="1" autoincrement="0">
 <datatype>VARCHAR</datatype>
@@ -1128,8 +1096,77 @@
 <row name="_amount" null="1" autoincrement="0">
 <datatype>VARCHAR</datatype>
 <default>NULL</default></row>
+<row name="_is_payment_advance" null="1" autoincrement="0">
+<datatype>BOOLEAN</datatype>
+<default>NULL</default></row>
 <key type="PRIMARY" name="">
 <part>id</part>
+</key>
+</table>
+<table x="1816" y="2036" name="payables">
+<row name="org_id" null="1" autoincrement="0">
+<datatype>INTEGER</datatype>
+<default>NULL</default></row>
+<row name="target" null="1" autoincrement="0">
+<datatype>INTEGER</datatype>
+<default>NULL</default><comment>Enum for [:payslip, :bill]</comment>
+</row>
+<row name="due_date" null="1" autoincrement="0">
+<datatype>DATE</datatype>
+<default>NULL</default></row>
+<row name="reference_date" null="1" autoincrement="0">
+<datatype>DATE</datatype>
+<default>NULL</default></row>
+<row name="amount" null="1" autoincrement="0">
+<datatype>INTEGER</datatype>
+<default>NULL</default></row>
+<row name="method" null="1" autoincrement="0">
+<datatype>INTEGER</datatype>
+<default>NULL</default><comment>Enum for [:cash, :check, :billet, bank_transfer]</comment>
+</row>
+<row name="credit_bank_account_id" null="1" autoincrement="0">
+<datatype>INTEGER</datatype>
+<default>NULL</default><relation table="bank_accounts" row="id" />
+</row>
+<row name="check_account_id" null="1" autoincrement="0">
+<datatype>INTEGER</datatype>
+<default>NULL</default><relation table="bank_accounts" row="id" />
+</row>
+<row name="check_number" null="1" autoincrement="0">
+<datatype>VARCHAR</datatype>
+<default>NULL</default></row>
+<row name="billet_barcode" null="1" autoincrement="0">
+<datatype>VARCHAR</datatype>
+<default>NULL</default></row>
+<row name="id" null="1" autoincrement="1">
+<datatype>INTEGER</datatype>
+<default>NULL</default></row>
+<row name="authorized_by" null="1" autoincrement="0">
+<datatype>INTEGER</datatype>
+<default>NULL</default></row>
+<row name="description" null="1" autoincrement="0">
+<datatype>VARCHAR</datatype>
+<default>NULL</default></row>
+<row name="note" null="1" autoincrement="0">
+<datatype>VARCHAR</datatype>
+<default>NULL</default></row>
+<row name="is_fulfilled" null="1" autoincrement="0">
+<datatype>BOOLEAN</datatype>
+<default>NULL</default></row>
+<key type="PRIMARY" name="">
+<part>id</part>
+</key>
+</table>
+<table x="1764" y="1907" name="payable_financial_transactions">
+<row name="financial_transaction_id" null="1" autoincrement="0">
+<datatype>INTEGER</datatype>
+<default>NULL</default><relation table="financial_transactions" row="id" />
+</row>
+<row name="payable_id" null="1" autoincrement="0">
+<datatype>INTEGER</datatype>
+<default>NULL</default><relation table="payables" row="id" />
+</row>
+<key type="PRIMARY" name="">
 </key>
 </table>
 </sql>

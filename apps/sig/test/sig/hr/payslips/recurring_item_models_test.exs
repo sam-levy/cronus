@@ -15,7 +15,7 @@ defmodule Sig.HR.Payslips.RecurringItemModelsTest do
 
       assert Enum.count(return) == 2
 
-      assert Enum.all?(return, & &1.org_id == org.id)
+      assert Enum.all?(return, &(&1.org_id == org.id))
     end
 
     test "when org has no recurring item" do
