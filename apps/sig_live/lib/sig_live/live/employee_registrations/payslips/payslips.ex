@@ -18,7 +18,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips do
   @impl true
   def render(assigns) do
     ~F"""
-    <div class="flex mt-7 divide-x divide-gray-400 divide-opacity-50">
+    <div class="flex divide-x divide-gray-400 divide-opacity-50">
       <div class="w-3/4 pr-5">
         <ShowWithPayables
           id="payslip_show_with_payables"
