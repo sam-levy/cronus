@@ -12,6 +12,8 @@ defmodule SigLive.Payslips.ShowWithPayables do
   prop payslip_payables, :list, default: []
   prop payslip_id, :string, default: nil
 
+  prop hide_payslip_date, :boolean, default: false
+
   data payment_difference, :struct, default: Money.new(0)
 
   @impl true
@@ -32,14 +34,15 @@ defmodule SigLive.Payslips.ShowWithPayables do
       <Show
         id="payslip_show"
         items={@payslip_items}
+        hide_date={@hide_payslip_date}
         {=@payslip}
         {=@registration}
       />
 
       <Payables.List
         id="payables_list"
-        {=@payslip_payables}
         {=@payslip}
+        {=@payslip_payables}
         {=@payment_difference}
         {=@current_user}
         {=@registration}

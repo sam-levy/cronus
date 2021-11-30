@@ -17,6 +17,8 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
   prop payslip, :struct, default: nil
   prop items, :list, default: []
 
+  prop hide_date, :boolean, default: false
+
   data payslip_form_state, :atom, default: :closed, values!: PayslipForm.states()
   data payslip_item_form_state, :atom, default: :closed, values!: PayslipItemForm.states()
   data outside_item_form_state, :atom, default: :closed, values!: OutsideItemForm.states()
@@ -87,7 +89,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
 
     case HR.toggle_payslip_is_closed(payslip) do
       {:ok, payslip} ->
-        HR.broadcast_updated_registration_payslip(payslip)
+        HR.broadcast_updated_payslip(payslip, nil, refetch: true, preload_registration: true)
 
         message = if payslip.is_closed, do: "Holerite bloqueado", else: "Holerite desbloqueado"
 
@@ -108,7 +110,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
 
     with {:ok, item} <- HR.fetch_payslip_item(payslip, item_id),
          {:ok, _item} <- HR.delete_payslip_item(payslip, item) do
-      HR.broadcast_updated_registration_payslip(payslip, refetch: true)
+      HR.broadcast_updated_payslip(payslip, nil, refetch: true, preload_registration: true)
       HR.broadcast_payslip_items(payslip)
       Finance.broadcast_payables_for_payslip(payslip)
       send(self(), {:flash, :info, "Item removido"})
@@ -125,11 +127,9 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
 
   @impl true
   def handle_event("delete_payslip", _, socket) do
-    %{registration: registration, payslip: payslip} = socket.assigns
-
-    case HR.delete_payslip(payslip) do
+    case HR.delete_payslip(socket.assigns.payslip) do
       {:ok, payslip} ->
-        HR.broadcast_deleted_registration_payslip(registration, payslip)
+        HR.broadcast_deleted_payslip(payslip)
         send(self(), {:flash, :info, "Holerite removido"})
 
         {:noreply, assign(socket, closed_state())}
@@ -209,13 +209,26 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
         <thead class="top-0 z-20">
           <tr class="bg-white">
             <th colspan="5">
-              <div class="flex justify-between items-center py-3 px-6">
-                <span class="text-gray-500 font-medium tracking-wider mr-4">
-                  Holerite {handle_date(@payslip)}
-                  <span class="text-gray-400 italic font-extralight">
-                    {capitalize_type(@payslip.type)}
-                  </span>
-                </span>
+              <div class="flex justify-between items-center py-2 px-6">
+                <div>
+                  <div class="text-gray-500 font-medium tracking-wider mr-4">
+                    <span :if={assoc_loaded?(@registration.individual)}>
+                      {@registration.individual.name}
+                    </span>
+
+                    <div class="inline">
+                      {handle_date(@payslip, @hide_date)}
+
+                      <span class="text-gray-400 italic font-extralight">
+                        {capitalize_type(@payslip.type)}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div :if={assoc_loaded?(@registration.registered_at)} class="mt-1 text-left text-gray-400 font-light tracking-wider">
+                    {@registration.registered_at.trade_name}
+                  </div>
+                </div>
 
                 <div class="flex items-center">
                   <ToggleIcon
@@ -350,12 +363,16 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
     """
   end
 
-  defp handle_date(%{start_date: start_date, end_date: end_date}) do
-    if start_date == Date.beginning_of_month(start_date) and
-         end_date == Date.end_of_month(end_date) do
-      format_month(start_date)
-    else
-      format_date(start_date) <> " à " <> format_date(end_date)
+  defp handle_date(%{start_date: start_date, end_date: end_date}, hide_date) do
+    cond do
+      !Sig.Date.full_month?(start_date, end_date) ->
+        format_date(start_date) <> " à " <> format_date(end_date)
+
+      Sig.Date.full_month?(start_date, end_date) and !hide_date ->
+        format_month(start_date)
+
+      true ->
+        ""
     end
   end
 
@@ -371,7 +388,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
     assign(socket,
       payslip_items_credit_subtotal: payslip_items_credit_subtotal,
       payslip_items_debit_subtotal: payslip_items_debit_subtotal,
-      payslip_items_total: payslip_items_total,
+      payslip_items_total: payslip_items_total
     )
   end
 

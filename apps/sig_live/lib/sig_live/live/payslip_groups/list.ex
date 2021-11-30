@@ -66,7 +66,7 @@ defmodule SigLive.PayslipGroups.List do
             <th colspan="6">
               <div class="flex justify-between items-center py-3 px-6">
                 <span class="text-gray-500 font-medium tracking-wider">
-                  Grupos de Holerites
+                  Holerites
                 </span>
 
                 <ButtonPlus on_click="open_form"/>
@@ -89,7 +89,7 @@ defmodule SigLive.PayslipGroups.List do
             <tr class="border-b border-gray-200 hover:bg-gray-50">
               <td class="py-3 pl-6 text-left cursor-pointer hover:underline">
                 <LiveRedirect
-                  to={Routes.sig_payslip_groups_payslips_list_path(@socket, :payslips, @org, group)}
+                  to={Routes.sig_payslip_groups_show_path(@socket, :payslip_groups, @org, group)}
                   class="hover:underline"
                 >
                   <span>{format_month(group.date)}</span>

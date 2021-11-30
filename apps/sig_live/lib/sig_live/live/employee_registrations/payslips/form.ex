@@ -118,10 +118,15 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Form do
   end
 
   @impl true
+  def handle_event("form_change", %{"payslip" => params}, socket) do
+    {:noreply, assign(socket, changeset: HR.create_payslip_change(params))}
+  end
+
+  @impl true
   def render(assigns) do
     ~F"""
     <Modal title={handle_title(@form_state)} close={@close_event}>
-      <Form for={@changeset} submit="save" opts={autocomplete: "off"}>
+      <Form for={@changeset} change="form_change" submit="save" opts={autocomplete: "off"}>
         <div class="form-field">
           <label for="month" class="form-label">Mês</label>
 
@@ -226,17 +231,16 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Form do
   defp set_selected_type(%{data: %{type: nil}}), do: :regular
   defp set_selected_type(%{data: %{type: type}}), do: type
 
-  defp assign_changeset_dates(socket, date) do
-    start_date = Date.beginning_of_month(date)
-    end_date = Date.end_of_month(date)
-
+  defp assign_changeset_dates(%{assigns: %{changeset: %{data: %{start_date: nil}}}} = socket, date) do
     changeset =
       socket.assigns.changeset
-      |> Ecto.Changeset.put_change(:start_date, start_date)
-      |> Ecto.Changeset.put_change(:end_date, end_date)
+      |> Ecto.Changeset.put_change(:start_date, Date.beginning_of_month(date))
+      |> Ecto.Changeset.put_change(:end_date, Date.end_of_month(date))
 
     assign(socket, :changeset, changeset)
   end
+
+  defp assign_changeset_dates(socket, _date), do: socket
 
   defp assign_payables_due_dates(socket, date) do
     payment_advance_date = Sig.Date.prior_month_day_adjusted_for_workday(date, 20)
@@ -321,21 +325,23 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Form do
   end
 
   defp handle_return(%{return: {:ok, payslip}, socket: socket}) do
-    %{registration: registration, form_state: form_state, close_fun: close_fun} = socket.assigns
+    %{form_state: form_state, close_fun: close_fun} = socket.assigns
 
-    handle_broadcast(form_state, registration, payslip)
+    handle_broadcast(form_state, payslip, socket)
     handle_flash(form_state)
     close_fun.()
 
     {:noreply, socket}
   end
 
-  defp handle_broadcast(:new_mode, registration, _payslip) do
-    HR.broadcast_registration_payslips(registration)
+  defp handle_broadcast(:new_mode, payslip, _socket) do
+    HR.broadcast_new_payslip(payslip, refetch: true, preload_registration: true)
   end
 
-  defp handle_broadcast(:edit_mode, _registration, payslip) do
-    HR.broadcast_updated_registration_payslip(payslip)
+  defp handle_broadcast(:edit_mode, payslip, socket) do
+    %{payslip: old_payslip} = socket.assigns
+
+    HR.broadcast_updated_payslip(payslip, old_payslip, refetch: true, preload_registration: true)
   end
 
   defp handle_flash(:new_mode), do: send(self(), {:flash, :info, "Holerite criado"})
