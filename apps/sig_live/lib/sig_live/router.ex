@@ -27,7 +27,7 @@ defmodule SigLive.Router do
     pipe_through [:browser, :org_authorization]
 
     live "/payslip_groups", PayslipGroups.List, :payslip_groups
-    live "/payslip_groups/:id", PayslipGroups.Payslips.List, :payslips
+    live "/payslip_groups/:id", PayslipGroups.Show, :payslip_groups
     live "/individuals", Individuals.Index
     live "/individuals/:id", Individuals.Show, :show
     live "/individuals/:entity_id/registrations/:id", EmployeeRegistrations.Show, :registration_show

@@ -1,80 +1,78 @@
 defmodule SigLive.PayslipGroups.Payslips.List do
-  use SigLive, :surface_live_view
-  on_mount SigLive.InitAssigns
-
-  alias Sig.HR
+  use SigLive, :surface_live_component
 
   alias SigLive.Components.Icon
 
-  @impl true
-  def mount(%{"id" => id}, _session, socket) do
-    %{org: org} = socket.assigns
-    group = HR.get_group(org, id)
+  prop payslips, :list, required: true
+  prop selected_payslip_id, :string
 
-    socket =
-      assign(socket,
-        group: group,
-        payslips: HR.list_payslips_by(group, preload_registration: true)
-      )
+  prop companies, :list
+  prop payslips_filters, :map, default: %{company_entity_id: "", individual_entity_name: ""}
 
-    {:ok, socket, temporary_assigns: [payslips: []]}
-  end
-
-  @impl true
-  def handle_info({:flash, type, message}, socket) do
-    {:noreply, put_flash(socket, type, message)}
-  end
+  prop select_payslip, :event, required: true
+  prop filter_payslips, :event
 
   @impl true
   def render(assigns) do
     ~F"""
-    <div>
-      <table class="w-full bg-white shadow-lg my-7">
-        <thead class="top-0 z-20">
-          <tr class="bg-white">
-            <th colspan="6">
-              <div class="flex justify-between items-center py-3 px-6">
-                <span class="text-gray-500 font-medium tracking-wider">
-                  Holerites {format_month(@group.date)}
-                  <span class="text-gray-400 italic font-extralight">
-                    {capitalize_type(@group.type)}
-                  </span>
-                </span>
-              </div>
-            </th>
-          </tr>
+    <div class="w-full flex flex-col items-end space-y-4">
+      <div class="bg-white shadow-md py-2 px-2 text-sm rounded-md border-2 border-white">
+        <form :on-change={@filter_payslips} :on-keyup={@filter_payslips} class="space-y-3">
+          <select :if={@companies} name="company_entity_id" class="form-input text-gray-500">
+            <option value="" selected={is_nil(@payslips_filters.company_entity_id)}>
+              Todas as Empresas
+            </option>
 
-          <tr
-            :if={@payslips != []}
-            class="bg-gray-100 uppercase text-xs font-medium text-gray-500 tracking-wider"
+            {#for company <- @companies}
+              <option
+                value={company.entity_id}
+                selected={company.entity_id == @payslips_filters.company_entity_id}
+              >
+                {company.trade_name}
+              </option>
+            {/for}
+          </select>
+
+          <input
+            class="form-input text-gray-500"
+            type="search"
+            name="individual_entity_name"
+            placeholder="Nome do Funcionário"
+            value={@payslips_filters.individual_entity_name}
+            autocomplete="off"
+          />
+        </form>
+      </div>
+
+      <div class="w-full space-y-3">
+        {#for payslip <- @payslips}
+          <div
+            :on-click={@select_payslip}
+            phx-value-payslip_id={payslip.id}
+            class={selectable_card_classes(payslip.id, @selected_payslip_id)}
           >
-            <th class="py-3 px-6 text-left">Funcionário</th>
-            <th class="py-3 px-6 text-left">Empresa</th>
-            <th></th>
-          </tr>
-        </thead>
+            <div class="text-gray-500">
+              <div>{payslip.registration.individual.name}</div>
 
-        <tbody class="text-gray-600 text-sm font-light">
-          {#for payslip <- @payslips}
-            <tr class="border-b border-gray-200 hover:bg-gray-50">
-              <td class="py-3 px-6 text-left cursor-pointer hover:underline">
-                {payslip.registration.individual.name}
-              </td>
-
-              <td class="py-3 px-6 text-left">
+              <div class="text-gray-400 font-light">
                 {payslip.registration.registered_at.trade_name}
-              </td>
+              </div>
+            </div>
 
-              <td class="pr-5 text-right">
-                <div class="flex justify-end">
-                  <Icon name="lock_open" :if={!payslip.is_closed} size="4" class="ml-2"/>
-                </div>
-              </td>
-            </tr>
-          {/for}
-        </tbody>
-      </table>
+            <Icon name="lock_open" :if={!payslip.is_closed} size="4" class="ml-2"/>
+          </div>
+        {#else}
+          <div class="text-gray-400 text-center tracking-wider">Não há holerites</div>
+        {/for}
+      </div>
     </div>
     """
+  end
+
+  defp selectable_card_classes(id, id), do: ~w(border-blue-500) ++ base_card_classes()
+  defp selectable_card_classes(_id, _selected_id), do: ~w(border-white) ++ base_card_classes()
+
+  defp base_card_classes do
+    ~w(flex justify-between items-center bg-white shadow-md py-2 px-3 text-sm rounded-md border-2 cursor-pointer select-none)
   end
 end
