@@ -149,6 +149,7 @@ defmodule Sig.HR do
 
   defdelegate list_groups_by(schema), to: Groups, as: :list_by
   defdelegate get_group(org, id), to: Groups, as: :get
+  defdelegate fetch_group(org, id), to: Groups, as: :fetch
   defdelegate subscribe_to_groups(schema), to: Groups
   defdelegate broadcast_deleted_group(schema, group), to: Groups
   defdelegate broadcast_new_group(schema, group), to: Groups
@@ -161,17 +162,17 @@ defmodule Sig.HR do
   defdelegate update_payslip(payslip, attrs), to: Payslips, as: :update
 
   defdelegate list_payslips_by(schema, opts \\ []), to: Payslips, as: :list_by
-  defdelegate get_payslip(registration, id), to: Payslips, as: :get
+  defdelegate get_payslip(registration, id, opts \\ []), to: Payslips, as: :get
   defdelegate delete_payslip(payslip), to: Payslips, as: :delete
   defdelegate create_payslip_change(attrs \\ %{}), to: Payslips, as: :create_change
   defdelegate update_payslip_change(payslip, attrs \\ %{}), to: Payslips, as: :update_change
-  defdelegate subscribe_to_registration_payslips(registration), to: Payslips
-  defdelegate broadcast_registration_payslips(registration), to: Payslips
-  defdelegate broadcast_deleted_registration_payslip(registration, payslip), to: Payslips
-  defdelegate broadcast_updated_registration_payslip(payslip, opts \\ []), to: Payslips
-  defdelegate subscribe_to_payslip(payslip), to: Payslips
-  defdelegate unsubscribe_from_payslip(payslip), to: Payslips
   defdelegate toggle_payslip_is_closed(payslip), to: Payslips, as: :toggle_is_closed
+
+  defdelegate subscribe_to_payslips(schema), to: Payslips
+  defdelegate broadcast_new_payslip(payslip, opts \\ []), to: Payslips
+  defdelegate broadcast_updated_payslip(updated_payslip, old_payslip, opts \\ []), to: Payslips
+  defdelegate broadcast_deleted_payslip(payslip), to: Payslips
+  defdelegate unsubscribe_from_payslip(payslip), to: Payslips
 
   defdelegate list_items_by_payslip(payslip), to: Items, as: :list_by_payslip
   defdelegate get_payslip_item(payslip, id), to: Items, as: :get
