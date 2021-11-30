@@ -1,5 +1,7 @@
 defmodule SigLive.EmployeeRegistrations.Show do
   use SigLive, :surface_live_view
+  use SigLive.PayslipsState
+
   on_mount SigLive.InitAssigns
 
   alias Surface.Components.LivePatch
@@ -91,23 +93,20 @@ defmodule SigLive.EmployeeRegistrations.Show do
 
   defp build_assigns_for(socket, :payslips) do
     %{registration: registration, assigns_built_for: assigns_built_for} = socket.assigns
+
     payslips = HR.list_payslips_by(registration)
     selected_payslip = List.first(payslips)
 
     if connected?(socket) do
-      HR.subscribe_to_registration_payslips(registration)
+      HR.subscribe_to_payslips(registration)
 
       if selected_payslip, do: subscribe_to_payslip_subscriptions(selected_payslip)
     end
 
-    assign(
-      socket,
-      payslips: payslips,
-      selected_payslip: selected_payslip,
-      selected_payslip_items: list_payslip_items(selected_payslip),
-      selected_payslip_payables: list_payslip_payables(selected_payslip),
-      assigns_built_for: [:payslips | assigns_built_for]
-    )
+    socket
+    |> assign(:payslips, payslips)
+    |> assign_selected_payslip(selected_payslip)
+    |> assign(:assigns_built_for, [:payslips | assigns_built_for])
   end
 
   @impl true
@@ -151,80 +150,6 @@ defmodule SigLive.EmployeeRegistrations.Show do
   end
 
   @impl true
-  def handle_info({:updated_registration_payslips, payslips}, socket) do
-    if socket.assigns.selected_payslip do
-      {:noreply, assign(socket, payslips: payslips)}
-    else
-      payslip = List.first(payslips)
-
-      subscribe_to_payslip_subscriptions(payslip)
-
-      {:noreply,
-       socket
-       |> assign(payslips: payslips)
-       |> assign_selected_payslip(payslip)}
-    end
-  end
-
-  @impl true
-  def handle_info({:updated_payslip, %{id: id} = updated_payslip}, socket) do
-    %{payslips: payslips, selected_payslip: selected_payslip} = socket.assigns
-
-    payslips =
-      payslips
-      |> Enum.map(fn
-        %{id: ^id} -> updated_payslip
-        payslip -> payslip
-      end)
-      |> Enum.sort_by(&(&1.start_date), {:desc, Date})
-
-    if selected_payslip != nil and selected_payslip.id == updated_payslip.id do
-      {:noreply, assign(socket, payslips: payslips, selected_payslip: updated_payslip)}
-    else
-      {:noreply, assign(socket, payslips: payslips)}
-    end
-  end
-
-  @impl true
-  def handle_info({:deleted_payslip, payslip}, socket) do
-    payslips = Enum.reject(socket.assigns.payslips, & &1.id == payslip.id)
-
-    with true <- socket.assigns.selected_payslip.id == payslip.id,
-         [_ | _] <- payslips do
-      payslip = List.first(payslips)
-
-      unsubscribe_from_payslip_subscriptions(socket.assigns.selected_payslip)
-      subscribe_to_payslip_subscriptions(payslip)
-
-      {:noreply,
-        socket
-        |> assign(payslips: payslips)
-        |> assign_selected_payslip(payslip)}
-    else
-      false ->
-        {:noreply, assign(socket, payslips: payslips)}
-
-      [] ->
-        unsubscribe_from_payslip_subscriptions(socket.assigns.selected_payslip)
-
-        {:noreply,
-          socket
-          |> assign(payslips: payslips)
-          |> clear_selected_payslip()}
-    end
-  end
-
-  @impl true
-  def handle_info({:updated_payslip_items, items}, socket) do
-    {:noreply, assign(socket, selected_payslip_items: items)}
-  end
-
-  @impl true
-  def handle_info({:updated_payables_for_payslip, payables}, socket) do
-    {:noreply, assign(socket, selected_payslip_payables: payables)}
-  end
-
-  @impl true
   def handle_event("select_payslip", %{"payslip_id" => id}, socket) do
     payslip = HR.get_payslip(socket.assigns.registration, id)
 
@@ -238,23 +163,29 @@ defmodule SigLive.EmployeeRegistrations.Show do
   def render(assigns) do
     ~F"""
     <div>
-      <div class="flex flex-row justify-end mt-5 space-x-4">
-        <LivePatch
-          to={Routes.sig_employee_registrations_show_path(@socket, :registration_show, @individual.org_id, @individual.entity_id, @registration)}
-          class={tab_classes_for(:registration_show, @active_screen)}
-        >
-          Cadastro
-        </LivePatch>
+      <div class="flex justify-between items-center mt-4">
+        <div class="text-lg text-gray-500 font-medium tracking-wider">
+          {@individual.name}
+        </div>
 
-        <LivePatch
-          to={Routes.sig_employee_registrations_show_path(@socket, :payslips, @individual.org_id, @individual.entity_id, @registration)}
-          class={tab_classes_for(:payslips, @active_screen)}
-        >
-          Holerites
-        </LivePatch>
+        <div class="flex flex-row justify-end space-x-4">
+          <LivePatch
+            to={Routes.sig_employee_registrations_show_path(@socket, :registration_show, @individual.org_id, @individual.entity_id, @registration)}
+            class={tab_classes_for(:registration_show, @active_screen)}
+          >
+            Cadastro
+          </LivePatch>
+
+          <LivePatch
+            to={Routes.sig_employee_registrations_show_path(@socket, :payslips, @individual.org_id, @individual.entity_id, @registration)}
+            class={tab_classes_for(:payslips, @active_screen)}
+          >
+            Holerites
+          </LivePatch>
+        </div>
       </div>
 
-      <div :show={@active_screen == :registration_show}>
+      <div :show={@active_screen == :registration_show} class="mt-4">
         <RecurringPayslipItems.List id="recurring_payslip_items_list" {=@registration} {=@recurring_payslip_items}/>
         <Salaries.List id="benefit_list" {=@registration} {=@salaries}/>
         <Benefits.List id="salary_list" {=@registration} {=@benefits}/>
@@ -264,7 +195,7 @@ defmodule SigLive.EmployeeRegistrations.Show do
         <LeavePeriods.List id="leave_period_list" {=@registration} {=@leave_periods}/>
       </div>
 
-      <div :show={@active_screen == :payslips}>
+      <div :show={@active_screen == :payslips} class="mt-4">
         <Payslips
           id="payslips"
           select_payslip="select_payslip"
@@ -281,37 +212,8 @@ defmodule SigLive.EmployeeRegistrations.Show do
     """
   end
 
-  defp subscribe_to_payslip_subscriptions(payslip) do
-    HR.subscribe_to_payslip_items(payslip)
-    Finance.subscribe_to_payables_for_payslip(payslip)
-  end
-
-  defp unsubscribe_from_payslip_subscriptions(payslip) do
-    HR.unsubscribe_from_payslip_items(payslip)
-    Finance.unsubscribe_from_payables_for_payslip(payslip)
-  end
-
-  defp assign_selected_payslip(socket, payslip) do
-    assign(socket,
-      selected_payslip: payslip,
-      selected_payslip_items: list_payslip_items(payslip),
-      selected_payslip_payables: list_payslip_payables(payslip)
-    )
-  end
-
-  defp clear_selected_payslip(socket) do
-    assign(socket,
-      selected_payslip: nil,
-      selected_payslip_items: [],
-      selected_payslip_payables: []
-    )
-  end
-
-  defp list_payslip_items(nil), do: []
-  defp list_payslip_items(payslip), do: HR.list_items_by_payslip(payslip)
-
-  defp list_payslip_payables(nil), do: []
-  defp list_payslip_payables(payslip), do: Finance.list_payables_by_payslip(payslip)
+  @impl SigLive.PayslipsState
+  def sort_payslips(payslips), do: Enum.sort_by(payslips, & &1.start_date, {:desc, Date})
 
   defp tab_classes_for(screen, screen) do
     ~w(text-purple-500 bg-purple-300 bg-opacity-75) ++ tab_base_classes()
