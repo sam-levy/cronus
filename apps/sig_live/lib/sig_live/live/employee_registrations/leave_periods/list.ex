@@ -46,7 +46,7 @@ defmodule SigLive.EmployeeRegistrations.LeavePeriods.List do
       />
 
       <table class="w-full bg-white shadow-lg my-7">
-        <thead class="sticky top-0 z-20">
+        <thead class="top-0 z-20">
           <tr class="bg-white">
             <th colspan="5">
               <div class="flex justify-between items-center py-3 px-6">
@@ -54,7 +54,7 @@ defmodule SigLive.EmployeeRegistrations.LeavePeriods.List do
                   Licenças
                 </span>
 
-                <ButtonPlus value="Adicionar" on_click="open_new_leave_period_form"/>
+                <ButtonPlus on_click="open_new_leave_period_form"/>
               </div>
             </th>
           </tr>

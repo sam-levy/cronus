@@ -73,7 +73,7 @@ defmodule SigLive.EmployeeRegistrations.Benefits.List do
       />
 
       <table class="w-full bg-white shadow-lg my-7">
-        <thead class="sticky top-0 z-20">
+        <thead class="top-0 z-20">
           <tr class="bg-white">
             <th colspan="6">
               <div class="flex justify-between items-center py-3 px-6">
@@ -81,7 +81,7 @@ defmodule SigLive.EmployeeRegistrations.Benefits.List do
                   Benefícios
                 </span>
 
-                <DropdownBtn text="Adicionar">
+                <DropdownBtn>
                   <a :on-click="open_new_benefit_form" class="dropdown-item">Novo benefício</a>
                   <a :on-click="open_new_benefit_from_model_form" class="dropdown-item">Benefício a partir de modelo</a>
                 </DropdownBtn>

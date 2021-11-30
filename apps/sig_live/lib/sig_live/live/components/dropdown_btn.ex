@@ -1,7 +1,7 @@
 defmodule SigLive.Components.DropdownBtn do
   use SigLive, :surface_component
 
-  prop text, :string, required: true
+  prop text, :string
 
   slot default, required: true
 
@@ -15,7 +15,7 @@ defmodule SigLive.Components.DropdownBtn do
       <button class="btn-blue" @click="isOpen = !isOpen">
         <svg
           :class="{ 'rotate-90': isOpen, 'rotate-0': !isOpen }"
-          class="group-hover:text-light-blue-600 text-light-blue-500 mr-2 transition-transform duration-200 transform"
+          class="group-hover:text-light-blue-600 text-light-blue-500 transition-transform duration-200 transform"
           width="12"
           height="20"
           fill="currentColor"
@@ -23,7 +23,7 @@ defmodule SigLive.Components.DropdownBtn do
           <path fill-rule="evenodd" clip-rule="evenodd" d="M6 5a1 1 0 011 1v3h3a1 1 0 110 2H7v3a1 1 0 11-2 0v-3H2a1 1 0 110-2h3V6a1 1 0 011-1z"/>
         </svg>
 
-        {@text}
+        <span :if={@text} class="ml-2">{@text}</span>
       </button>
       <div
         class="dropdown-list"

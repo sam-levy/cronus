@@ -96,7 +96,7 @@ defmodule Sig.HR do
 
   defdelegate list_payslip_recurring_item_models(org), to: RecurringItemModels, as: :list
 
-  defdelegate list_recurring_payslip_items_by_registration(registraion),
+  defdelegate list_recurring_payslip_items_by_registration(registraion, opts \\ []),
     to: RecurringPayslipItems,
     as: :list_by_registration
 

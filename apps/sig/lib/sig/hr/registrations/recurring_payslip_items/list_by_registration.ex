@@ -16,7 +16,9 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistration do
               indexed_benefits: %{}
   end
 
-  def call(%Registration{} = registration, %Date{} = start_date \\ Date.utc_today()) do
+  def call(%Registration{} = registration, opts \\ []) do
+    start_date = Keyword.get(opts, :start_date, Date.utc_today())
+
     context = %Context{registration: registration, start_date: start_date}
 
     registration

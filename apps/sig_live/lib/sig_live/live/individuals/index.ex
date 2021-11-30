@@ -56,13 +56,13 @@ defmodule SigLive.Individuals.Index do
       />
 
       <table class="w-full bg-white shadow-lg my-7">
-        <thead class="sticky top-0">
+        <thead class="top-0">
         <tr class="bg-white">
           <th colspan="2">
             <div class="flex justify-between items-center py-3 px-6">
               <span class="text-gray-500 font-medium tracking-wider">Pessoas</span>
 
-              <ButtonPlus value="Adicionar" on_click="toggle_new_individual_modal"/>
+              <ButtonPlus on_click="toggle_new_individual_modal"/>
             </div>
           </th>
         </tr>

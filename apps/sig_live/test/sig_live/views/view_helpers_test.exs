@@ -117,6 +117,13 @@ defmodule SigLive.ViewHelpersTest do
     end
   end
 
+  describe "fformat_month/2" do
+    test "formats month" do
+      assert ViewHelpers.format_month(~D[2010-01-01]) == "Janeiro 2010"
+      assert ViewHelpers.format_month(~D[2020-06-15]) == "Junho 2020"
+    end
+  end
+
   describe "format_type/1" do
     assert ViewHelpers.format_type(:health_insurance) == "health insurance"
     assert ViewHelpers.format_type("health_insurance") == "health insurance"

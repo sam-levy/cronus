@@ -75,6 +75,16 @@ defmodule SigLive.ViewHelpers do
   def format_date(nil, _format), do: ""
   def format_date(date, format), do: Calendar.strftime(date, format)
 
+  def format_month(date) do
+    Calendar.strftime(date, "%B %Y",
+      month_names: fn month ->
+        {"Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro",
+         "Outubro", "Novembro", "Dezembro"}
+        |> elem(month - 1)
+      end
+    )
+  end
+
   def format_type(atom) when is_atom(atom), do: atom |> to_string() |> format_type()
   def format_type(string) when is_binary(string), do: String.replace(string, "_", " ")
 

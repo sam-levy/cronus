@@ -39,7 +39,7 @@ defmodule SigLive.EmployeeRegistrations.List do
       />
 
       <table class="w-full bg-white shadow-lg my-7">
-        <thead class="sticky top-0 z-20">
+        <thead class="top-0 z-20">
           <tr class="bg-white">
             <th colspan="6">
               <div class="flex justify-between items-center py-3 px-6">
@@ -47,7 +47,7 @@ defmodule SigLive.EmployeeRegistrations.List do
                   Registros de Trabalho
                 </span>
 
-                <ButtonPlus value="Adicionar" on_click="open_form"/>
+                <ButtonPlus on_click="open_form"/>
               </div>
             </th>
           </tr>
