@@ -19,6 +19,12 @@ defmodule Sig.Repo.Migrations.CreatePayslipsTable do
       timestamps()
     end
 
+    create unique_index(
+             :payslips,
+             [:group_id, :registration_id],
+             name: :payslips_group_registration_unique
+           )
+
     create constraint(
              :payslips,
              :payslips_amount_positive,

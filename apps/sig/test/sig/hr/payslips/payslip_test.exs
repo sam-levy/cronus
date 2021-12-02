@@ -87,6 +87,37 @@ defmodule Sig.HR.Payslips.PayslipTest do
       assert Repo.get_by(Payslip, id: return.id, org_id: org.id, amount: 0)
     end
 
+    test "payslips_group_registration_unique unique_constraint" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+      group = insert(:payslip_group, org: org, date: ~D[2020-01-01])
+
+      _existing_payslip =
+        insert(:payslip,
+          org: org,
+          registration: registration,
+          group: group,
+          type: group.type,
+          start_date: ~D[2020-01-01],
+          end_date: ~D[2020-01-15]
+        )
+
+      payslip = %Payslip{
+        org_id: org.id,
+        amount: 0,
+        type: group.type,
+        start_date: ~D[2020-01-16],
+        end_date: ~D[2020-01-31],
+        is_closed: false,
+        group_id: group.id,
+        registration_id: registration.id
+      }
+
+      assert_raise Ecto.ConstraintError,
+                   ~r/payslips_group_registration_unique \(unique_constraint\)/,
+                   fn -> Repo.insert(payslip) end
+    end
+
     test "payslips_start_date_before_end_date constraint" do
       org = insert(:org)
       registration = insert(:employee_registration, org: org)
@@ -532,6 +563,7 @@ defmodule Sig.HR.Payslips.PayslipTest do
                type: attrs[:type],
                start_date: attrs[:start_date],
                end_date: attrs[:end_date],
+               group_id: attrs[:group_id],
                registration_id: attrs[:registration_id]
              }
     end
