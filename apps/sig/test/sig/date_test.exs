@@ -73,6 +73,26 @@ defmodule Sig.DateTest do
     end
   end
 
+  describe "get_max/2" do
+    test "returns the max date" do
+      assert Sig.Date.get_max(~D[2021-01-01], ~D[2021-01-02]) == ~D[2021-01-02]
+      assert Sig.Date.get_max(~D[2021-01-02], ~D[2021-01-01]) == ~D[2021-01-02]
+      assert Sig.Date.get_max(~D[2021-01-01], ~D[2021-01-01]) == ~D[2021-01-01]
+      assert Sig.Date.get_max(nil, ~D[2021-01-01]) == ~D[2021-01-01]
+      assert Sig.Date.get_max(~D[2021-01-01], nil) == ~D[2021-01-01]
+    end
+  end
+
+  describe "get_min/2" do
+    test "returns the max date" do
+      assert Sig.Date.get_min(~D[2021-01-01], ~D[2021-01-02]) == ~D[2021-01-01]
+      assert Sig.Date.get_min(~D[2021-01-02], ~D[2021-01-01]) == ~D[2021-01-01]
+      assert Sig.Date.get_min(~D[2021-01-01], ~D[2021-01-01]) == ~D[2021-01-01]
+      assert Sig.Date.get_min(nil, ~D[2021-01-01]) == ~D[2021-01-01]
+      assert Sig.Date.get_min(~D[2021-01-01], nil) == ~D[2021-01-01]
+    end
+  end
+
   describe "nth_workday/2" do
     test "returns the nth workday of a month" do
       assert Sig.Date.nth_workday(~D[2021-10-01], 5) == ~D[2021-10-07]
