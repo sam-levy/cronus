@@ -212,6 +212,12 @@ defmodule Sig.Changeset do
     end)
   end
 
+  def add_timestamps(%{} = attrs) do
+    attrs
+    |> Map.put(:inserted_at, DateTime.utc_now())
+    |> Map.put(:updated_at, DateTime.utc_now())
+  end
+
   defp compare_numbers(num, num), do: :eq
   defp compare_numbers(first, second) when first < second, do: :lt
   defp compare_numbers(_first, _second), do: :gt
