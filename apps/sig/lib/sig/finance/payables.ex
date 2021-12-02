@@ -9,9 +9,9 @@ defmodule Sig.Finance.Payables do
     to: PayablesForPayslip,
     as: :create
 
-  defdelegate create_standard_payable_for_payslip(registration, payslip, items, due_dates),
+  defdelegate create_payables_for_payslip(registration, payslip, items, opts \\ []),
     to: PayablesForPayslip,
-    as: :create_standard_payables
+    as: :create_payables
 
   defdelegate update_payable_for_payslip(payslip, payable, attrs),
     to: PayablesForPayslip,
