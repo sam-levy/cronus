@@ -48,7 +48,6 @@ defmodule Sig.HR.Payslips.ItemsTest do
         outside_item_entry_type: :credit
       )
 
-
       [rpi] = RecurringPayslipItems.list_by_registration(registration)
 
       assert %Ecto.Changeset{changes: changes} = Items.build_changeset_from(rpi, payslip)

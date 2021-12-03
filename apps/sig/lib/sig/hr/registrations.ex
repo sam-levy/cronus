@@ -1,5 +1,6 @@
 defmodule Sig.HR.Registrations do
-  use Sig.Preloader, registration: [:work_at, :registered_at, :salaries, :individual, :org, :sector]
+  use Sig.Preloader,
+    registration: [:work_at, :registered_at, :salaries, :individual, :org, :sector]
 
   import Ecto.Query
 
@@ -125,7 +126,10 @@ defmodule Sig.HR.Registrations do
       [start_date: start_date, end_date: end_date] ->
         queryable
         |> where([registration: r], r.admission_date < ^end_date)
-        |> where([registration: r], is_nil(r.resignation_date) or r.resignation_date > ^start_date)
+        |> where(
+          [registration: r],
+          is_nil(r.resignation_date) or r.resignation_date > ^start_date
+        )
     end
   end
 

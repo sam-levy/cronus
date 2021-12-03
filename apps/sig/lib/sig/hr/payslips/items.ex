@@ -42,7 +42,10 @@ defmodule Sig.HR.Payslips.Items do
     |> Item.create_changeset()
   end
 
-  def build_changeset_from(%RecurringPayslipItem{type: :payslip_item_model} = rpi, %Payslip{} = payslip) do
+  def build_changeset_from(
+        %RecurringPayslipItem{type: :payslip_item_model} = rpi,
+        %Payslip{} = payslip
+      ) do
     rpi
     |> handle_attrs(payslip.id)
     |> Map.put(:category_id, rpi.payslip_recurring_item_model.category_id)

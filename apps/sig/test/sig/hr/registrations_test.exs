@@ -399,7 +399,7 @@ defmodule Sig.HR.RegistrationsTest do
     test "when registration does't exist" do
       org = insert(:org)
 
-      assert Registrations.get_by([org_id: org.id, id: UUID.generate()]) == nil
+      assert Registrations.get_by(org_id: org.id, id: UUID.generate()) == nil
     end
   end
 
