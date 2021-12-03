@@ -4,6 +4,7 @@ defmodule Sig.HR.Payslips.Items do
   alias Sig.HR.Payslips.Items.Item
   alias Sig.HR.Payslips.Items.Mutator
   alias Sig.HR.Payslips.Payslip
+  alias Sig.HR.Registrations.RecurringPayslipItems.RecurringPayslipItem
   alias Sig.Repo
 
   defdelegate create_payslip_item(payslip, attrs), to: Mutator
@@ -21,6 +22,43 @@ defmodule Sig.HR.Payslips.Items do
 
   def update_amount_change(%Item{} = item, %{} = attrs \\ %{}) do
     Item.update_amount_changeset(item, attrs)
+  end
+
+  def build_changeset_from(%RecurringPayslipItem{type: :outside_item} = rpi, %Payslip{} = payslip) do
+    Item.create_outside_item_changeset(%{
+      org_id: rpi.org_id,
+      description: rpi.description,
+      entry_type: rpi.entry_type,
+      is_payment_advance: rpi.is_payment_advance,
+      amount: rpi.amount,
+      payslip_id: payslip.id
+    })
+  end
+
+  def build_changeset_from(%RecurringPayslipItem{type: :payslip_item} = rpi, %Payslip{} = payslip) do
+    rpi
+    |> handle_attrs(payslip.id)
+    |> Map.put(:category_id, rpi.payslip_category_id)
+    |> Item.create_changeset()
+  end
+
+  def build_changeset_from(%RecurringPayslipItem{type: :payslip_item_model} = rpi, %Payslip{} = payslip) do
+    rpi
+    |> handle_attrs(payslip.id)
+    |> Map.put(:category_id, rpi.payslip_recurring_item_model.category_id)
+    |> Item.create_changeset()
+  end
+
+  defp handle_attrs(rpi, payslip_id) do
+    %{
+      org_id: rpi.org_id,
+      description: rpi.description,
+      entry_type: rpi.entry_type,
+      is_payment_advance: rpi.is_payment_advance,
+      amount: rpi.amount,
+      payslip_id: payslip_id,
+      code: rpi.code
+    }
   end
 
   def list_by_payslip(%Payslip{} = payslip) do

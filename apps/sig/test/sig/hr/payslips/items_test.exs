@@ -3,6 +3,7 @@ defmodule Sig.HR.Payslips.ItemsTest do
 
   alias Sig.HR.Payslips.Items
   alias Sig.HR.Payslips.Items.Item
+  alias Sig.HR.Registrations.RecurringPayslipItems
 
   @endpoint SigLive.Endpoint
 
@@ -24,6 +25,133 @@ defmodule Sig.HR.Payslips.ItemsTest do
     test "returns a changeset" do
       assert %Ecto.Changeset{data: %Item{}} = Items.update_amount_change(%Item{})
       assert %Ecto.Changeset{data: %Item{}} = Items.update_amount_change(%Item{}, %{})
+    end
+  end
+
+  describe "build_changeset_from/2" do
+    test "returns a changeset from a RecurringPayslipItem outside_item" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org, admission_date: ~D[2021-01-01])
+
+      payslip =
+        insert(:payslip,
+          org: org,
+          registration: registration,
+          start_date: registration.admission_date
+        )
+
+      insert({:employee_registration_recurring_payslip_item, :outside_item},
+        org: org,
+        registration: registration,
+        item_amount: 200_00,
+        outside_item_description: "OUTSIDE ITEM DESCRIPTION",
+        outside_item_entry_type: :credit
+      )
+
+
+      [rpi] = RecurringPayslipItems.list_by_registration(registration)
+
+      assert %Ecto.Changeset{changes: changes} = Items.build_changeset_from(rpi, payslip)
+
+      assert changes == %{
+               org_id: org.id,
+               type: :outside_item,
+               description: "OUTSIDE ITEM DESCRIPTION",
+               entry_type: :credit,
+               amount: %Money{amount: 200_00, currency: :BRL},
+               payslip_id: payslip.id
+             }
+    end
+
+    test "returns a changeset from a RecurringPayslipItem payslip_item" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org, admission_date: ~D[2021-01-01])
+
+      payslip =
+        insert(:payslip,
+          org: org,
+          registration: registration,
+          start_date: registration.admission_date
+        )
+
+      payslip_item_category =
+        insert(:payslip_category,
+          org: org,
+          code: "123",
+          entry_type: :credit,
+          description: "PAYSLIP ITEM DESCRIPTION"
+        )
+
+      insert({:employee_registration_recurring_payslip_item, :payslip_item},
+        org: org,
+        registration: registration,
+        payslip_category: payslip_item_category,
+        item_amount: 100_00
+      )
+
+      [rpi] = RecurringPayslipItems.list_by_registration(registration)
+
+      assert %Ecto.Changeset{changes: changes} = Items.build_changeset_from(rpi, payslip)
+
+      assert changes == %{
+               org_id: org.id,
+               type: :payslip_item,
+               description: "PAYSLIP ITEM DESCRIPTION",
+               entry_type: :credit,
+               code: "123",
+               amount: %Money{amount: 100_00, currency: :BRL},
+               payslip_id: payslip.id,
+               category_id: payslip_item_category.id
+             }
+    end
+
+    test "returns a changeset from a RecurringPayslipItem payslip_item_model" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org, admission_date: ~D[2021-01-01])
+
+      payslip =
+        insert(:payslip,
+          org: org,
+          registration: registration,
+          start_date: registration.admission_date
+        )
+
+      category =
+        insert(:payslip_category,
+          org: org,
+          code: "1038",
+          entry_type: :credit,
+          description: "LAVAR UNIFORME"
+        )
+
+      fixed_payslip_recurring_item_model =
+        insert({:payslip_recurring_item_model, :fixed_amount},
+          org: org,
+          description: "Lavagem de uniformes - Mogi das Cruzes",
+          amount: 50_00,
+          category: category
+        )
+
+      insert({:employee_registration_recurring_payslip_item, :payslip_item_model},
+        org: org,
+        registration: registration,
+        payslip_recurring_item_model: fixed_payslip_recurring_item_model
+      )
+
+      [rpi] = RecurringPayslipItems.list_by_registration(registration)
+
+      assert %Ecto.Changeset{changes: changes} = Items.build_changeset_from(rpi, payslip)
+
+      assert changes == %{
+               org_id: org.id,
+               type: :payslip_item,
+               description: "LAVAR UNIFORME",
+               entry_type: :credit,
+               code: "1038",
+               amount: %Money{amount: 50_00, currency: :BRL},
+               payslip_id: payslip.id,
+               category_id: category.id
+             }
     end
   end
 
