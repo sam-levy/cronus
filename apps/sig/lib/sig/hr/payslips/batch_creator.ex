@@ -118,7 +118,7 @@ defmodule Sig.HR.Payslips.BatchCreator do
           registration_id: registration.id
         }
         |> Payslip.create_changeset()
-        |> handle_changeset(:insert, acc)
+        |> handle_changeset(acc)
       end
     end)
   end
@@ -135,7 +135,7 @@ defmodule Sig.HR.Payslips.BatchCreator do
       |> Enum.reduce([], fn rpi, acc ->
         rpi
         |> Items.build_changeset_from(payslip)
-        |> handle_changeset(:insert, acc)
+        |> handle_changeset(acc)
       end)
     end)
   end
@@ -204,8 +204,8 @@ defmodule Sig.HR.Payslips.BatchCreator do
     end)
   end
 
-  defp handle_changeset(changeset, action, acc) do
-    case Ecto.Changeset.apply_action(changeset, action) do
+  defp handle_changeset(changeset, acc) do
+    case Ecto.Changeset.apply_action(changeset, :insert) do
       {:ok, _struct} -> [Sig.Changeset.add_timestamps(changeset.changes) | acc]
       {:error, _changeset} -> acc
     end
@@ -213,6 +213,7 @@ defmodule Sig.HR.Payslips.BatchCreator do
 
   defp handle_verify_return({:error, :rollback, _reason, changes}) do
     %{payslips_attrs: payslips_attrs, group: {group_status, group}} = changes
+
     registration_ids = Enum.map(payslips_attrs, & &1.registration_id)
 
     registrations =
