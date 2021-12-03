@@ -6,6 +6,7 @@ defmodule Sig.HR.RegistrationsTest do
   alias Sig.HR.Registrations.Salaries.Salary
   alias Sig.HR.Registrations.Registration
   alias Sig.Organizations.Org
+  alias Sig.Organizations.Sector
 
   @endpoint SigLive.Endpoint
 
@@ -101,7 +102,7 @@ defmodule Sig.HR.RegistrationsTest do
     end
   end
 
-  describe "list_by/1" do
+  describe "list_by/1 Individual" do
     test "lists registrations by individual ordered by admission_date" do
       org = insert(:org)
       individual = insert(:individual, org: org)
@@ -234,6 +235,110 @@ defmodule Sig.HR.RegistrationsTest do
     end
   end
 
+  describe "list_by/1 Org" do
+    test "lists registrations by org ordered by admission date" do
+      org = insert(:org)
+
+      insert(:employee_registration,
+        org: org,
+        admission_date: ~D[2012-01-01]
+      )
+
+      insert(:employee_registration,
+        org: org,
+        admission_date: ~D[2010-01-01]
+      )
+
+      insert(:employee_registration,
+        org: org,
+        admission_date: ~D[2009-01-01]
+      )
+
+      insert(:employee_registration,
+        org: org,
+        admission_date: ~D[2009-02-01],
+        resignation_date: ~D[2010-06-01],
+        resignation_type: :resigned
+      )
+
+      insert(:employee_registration,
+        org: org,
+        admission_date: ~D[2009-03-01],
+        resignation_date: ~D[2009-06-01],
+        resignation_type: :resigned
+      )
+
+      _to_ignore = insert(:employee_registration)
+
+      assert [
+               %Registration{admission_date: ~D[2009-01-01], resignation_date: nil},
+               %Registration{admission_date: ~D[2009-02-01], resignation_date: ~D[2010-06-01]},
+               %Registration{admission_date: ~D[2010-01-01], resignation_date: nil}
+             ] =
+               Registrations.list_by(org,
+                 active_in_period: [start_date: ~D[2010-01-01], end_date: ~D[2010-01-31]]
+               )
+    end
+
+    test "filter by sectors" do
+      org = insert(:org)
+
+      insert(:employee_registration,
+        org: org,
+        admission_date: ~D[2012-01-01],
+        sector: insert(:org_sector, org: org, name: "kitchen")
+      )
+
+      insert(:employee_registration,
+        org: org,
+        admission_date: ~D[2012-02-01],
+        sector: insert(:org_sector, org: org, name: "cleaning")
+      )
+
+      insert(:employee_registration,
+        org: org,
+        admission_date: ~D[2012-03-01],
+        sector: insert(:org_sector, org: org, name: "delivery")
+      )
+
+      assert [
+               %Registration{sector: %Sector{name: "kitchen"}},
+               %Registration{sector: %Sector{name: "cleaning"}}
+             ] =
+               Registrations.list_by(org,
+                 sectors: ["kitchen", "cleaning"],
+                 active_in_period: [start_date: ~D[2020-01-01], end_date: ~D[2020-01-31]]
+               )
+    end
+
+    test "org has no registration" do
+      org = insert(:org)
+
+      assert Registrations.list_by(org,
+               active_in_period: [start_date: ~D[2010-01-01], end_date: ~D[2010-01-31]]
+             ) == []
+    end
+  end
+
+  describe "list_by_ids/2" do
+    test "lists by the given ids" do
+      org = insert(:org)
+
+      %{id: id_1} = insert(:employee_registration, org: org, admission_date: ~D[2021-03-01])
+      %{id: id_2} = insert(:employee_registration, org: org, admission_date: ~D[2021-02-01])
+      insert(:employee_registration, org: org, admission_date: ~D[2021-01-01])
+
+      assert [
+               %Registration{id: ^id_2, org: %Org{}, admission_date: ~D[2021-02-01]},
+               %Registration{id: ^id_1, org: %Org{}, admission_date: ~D[2021-03-01]}
+             ] = Registrations.list_by_ids([id_1, id_2], preload: :org)
+    end
+
+    test "invalid registrations ids" do
+      assert Registrations.list_by_ids([UUID.generate(), UUID.generate()], preload: :org) == []
+    end
+  end
+
   describe "get/2" do
     test "gets a registration" do
       org = insert(:org)
@@ -278,6 +383,23 @@ defmodule Sig.HR.RegistrationsTest do
       individual = insert(:individual)
 
       assert Registrations.get(individual, UUID.generate()) == nil
+    end
+  end
+
+  describe "get_by/2" do
+    test "returns a registration by attrs" do
+      org = insert(:org)
+
+      %{id: id} = insert(:employee_registration, org: org)
+
+      assert %Registration{id: ^id, org: %Org{}} =
+               Registrations.get_by([org_id: org.id, id: id], preload: :org)
+    end
+
+    test "when registration does't exist" do
+      org = insert(:org)
+
+      assert Registrations.get_by([org_id: org.id, id: UUID.generate()]) == nil
     end
   end
 
