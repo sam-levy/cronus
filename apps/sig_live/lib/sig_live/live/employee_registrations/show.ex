@@ -187,10 +187,10 @@ defmodule SigLive.EmployeeRegistrations.Show do
 
       <div :show={@active_screen == :registration_show} class="mt-4">
         <RecurringPayslipItems.List id="recurring_payslip_items_list" {=@registration} {=@recurring_payslip_items}/>
+        <Overtimes.List id="warning_list" {=@registration} {=@overtimes}/>
         <Salaries.List id="benefit_list" {=@registration} {=@salaries}/>
         <Benefits.List id="salary_list" {=@registration} {=@benefits}/>
         <Warnings.List id="warning_list" {=@registration} {=@warnings}/>
-        <Overtimes.List id="warning_list" {=@registration} {=@overtimes}/>
         <Suspensions.List id="suspension_list" {=@registration} {=@suspensions}/>
         <LeavePeriods.List id="leave_period_list" {=@registration} {=@leave_periods}/>
       </div>
