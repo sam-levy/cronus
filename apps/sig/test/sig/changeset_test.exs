@@ -787,4 +787,11 @@ defmodule Sig.ChangesetTest do
              }
     end
   end
+
+  describe "add_timestamps/1" do
+    test "adds timestmaps" do
+      assert %{inserted_at: %DateTime{}, updated_at: %DateTime{}} =
+               Sig.Changeset.add_timestamps(%{})
+    end
+  end
 end

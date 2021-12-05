@@ -4,6 +4,7 @@ defmodule Sig.HR.Payslips do
   import Ecto.Query
 
   alias Sig.HR.Registrations.Registration
+  alias Sig.HR.Payslips.BatchCreator
   alias Sig.HR.Payslips.Broadcaster
   alias Sig.HR.Payslips.CreateFromModel
   alias Sig.HR.Payslips.Groups.Group
@@ -14,12 +15,13 @@ defmodule Sig.HR.Payslips do
 
   defdelegate create(registration, attrs), to: Mutator, as: :create
   defdelegate update(payslip, attrs), to: Mutator, as: :update
+  defdelegate delete(payslip), to: Delete, as: :call
+  defdelegate batch_create(org, attrs, opts \\ []), to: BatchCreator, as: :create
+  defdelegate verify_batch_create(org, attrs), to: BatchCreator, as: :verify
 
   defdelegate create_from_model(registration, attrs, opts \\ []),
     to: CreateFromModel,
     as: :call
-
-  defdelegate delete(payslip), to: Delete, as: :call
 
   defdelegate subscribe_to_payslips(schema), to: Broadcaster
   defdelegate broadcast_new_payslip(payslip, opts \\ []), to: Broadcaster
@@ -87,7 +89,7 @@ defmodule Sig.HR.Payslips do
   def update_payslip_amount(%Payslip{} = payslip, items) when is_list(items) do
     items
     |> Enum.filter(&(&1.payslip_id == payslip.id))
-    |> calculate_amount()
+    |> calculate_payslip_items_amount()
     |> case do
       %Money{amount: amount} when amount < 0 ->
         {:error, "payslip amount can't be negative"}
@@ -102,7 +104,9 @@ defmodule Sig.HR.Payslips do
     end
   end
 
-  defp calculate_amount(items) do
+  def calculate_payslip_items_amount([]), do: Money.new(0)
+
+  def calculate_payslip_items_amount(items) do
     Money.subtract(Sig.sum_by(:credit, items), Sig.sum_by(:debit, items))
   end
 

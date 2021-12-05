@@ -20,9 +20,19 @@ defmodule Sig.Finance.Payables.PayablesForPayslip do
 
   defdelegate create(payslip, attrs, opts \\ []), to: Create, as: :call
 
-  defdelegate create_standard_payables(registration, payslip, items, due_dates),
-    to: CreateStandardPayables,
-    as: :call
+  def create_payables(%Registration{} = registration, %Payslip{} = payslip, items, opts \\ [])
+      when is_list(items) do
+    case Keyword.get(opts, :payables_attrs) do
+      %{type: :standard, due_dates: due_dates} ->
+        CreateStandardPayables.call(registration, payslip, items, due_dates)
+
+      nil ->
+        {:ok, nil}
+
+      _ ->
+        {:error, "invalid payables attrs"}
+    end
+  end
 
   defdelegate delete(payslip, payable), to: Delete, as: :call
   defdelegate update(payslip, payable, attrs), to: Update, as: :call

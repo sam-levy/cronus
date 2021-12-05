@@ -167,6 +167,8 @@ defmodule Sig.HR do
   defdelegate create_payslip_change(attrs \\ %{}), to: Payslips, as: :create_change
   defdelegate update_payslip_change(payslip, attrs \\ %{}), to: Payslips, as: :update_change
   defdelegate toggle_payslip_is_closed(payslip), to: Payslips, as: :toggle_is_closed
+  defdelegate batch_create_payslips(org, attrs, opts \\ []), to: Payslips, as: :batch_create
+  defdelegate verify_batch_create_payslips(org, attrs), to: Payslips, as: :verify_batch_create
 
   defdelegate subscribe_to_payslips(schema), to: Payslips
   defdelegate broadcast_new_payslip(payslip, opts \\ []), to: Payslips

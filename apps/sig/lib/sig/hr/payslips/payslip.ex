@@ -31,7 +31,7 @@ defmodule Sig.HR.Payslips.Payslip do
 
   def create_changeset(attrs) do
     %__MODULE__{}
-    |> cast(attrs, @create_fields)
+    |> cast(attrs, @create_fields ++ [:group_id])
     |> validate_required(@create_fields)
     |> validate_dates(:end_date, :gt, :start_date)
   end

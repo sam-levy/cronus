@@ -69,6 +69,21 @@ defmodule Sig.Date do
   def next_month_start, do: build_date(:next, Date.utc_today(), 1)
   def last_month_start, do: build_date(:prior, Date.utc_today(), 1)
 
+  def get_max(%Date{} = first, %Date{} = second) do
+    if Date.compare(first, second) == :gt, do: first, else: second
+  end
+
+  def get_max(first, second), do: get_date(first, second)
+
+  def get_min(%Date{} = first, %Date{} = second) do
+    if Date.compare(first, second) == :lt, do: first, else: second
+  end
+
+  def get_min(first, second), do: get_date(first, second)
+
+  defp get_date(nil, %Date{} = second), do: second
+  defp get_date(%Date{} = first, nil), do: first
+
   def nth_workday(date, days) do
     start_date = date |> Date.beginning_of_month() |> adjust_for_workday()
 
