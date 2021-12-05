@@ -18,6 +18,7 @@ defmodule Sig.HR.Payslips do
   defdelegate delete(payslip), to: Delete, as: :call
   defdelegate batch_create(org, attrs, opts \\ []), to: BatchCreator, as: :create
   defdelegate verify_batch_create(org, attrs), to: BatchCreator, as: :verify
+  defdelegate batch_create_change(attrs \\ %{}), to: BatchCreator, as: :changeset
 
   defdelegate create_from_model(registration, attrs, opts \\ []),
     to: CreateFromModel,
