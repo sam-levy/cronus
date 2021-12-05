@@ -7,6 +7,7 @@ defmodule SigLive.PayslipGroups.List do
   alias Sig.HR
 
   alias SigLive.Components.ButtonPlus
+  alias SigLive.PayslipGroups.Form
 
   @impl true
   def mount(_params, _session, socket) do
@@ -19,6 +20,7 @@ defmodule SigLive.PayslipGroups.List do
     socket =
       assign(socket,
         message: nil,
+        form_state: :closed,
         groups: HR.list_groups_by(org)
       )
 
@@ -45,21 +47,33 @@ defmodule SigLive.PayslipGroups.List do
   end
 
   @impl true
-  def handle_event("open_form", _, socket) do
-    IO.puts("Open form")
-
-    {:noreply, socket}
+  def handle_info("close_form", socket) do
+    {:noreply, assign(socket, closed_state())}
   end
 
   @impl true
-  def handle_event("close_modals", _, socket) do
+  def handle_event("close_form", _, socket) do
     {:noreply, assign(socket, closed_state())}
+  end
+
+  @impl true
+  def handle_event("open_form", _, socket) do
+    {:noreply, assign(socket, form_state: :open)}
   end
 
   @impl true
   def render(assigns) do
     ~F"""
     <div>
+      <Form
+        :if={@form_state != :closed}
+        id="batch_create_form"
+        close_event="close_form"
+        close_fun={fn -> send(self(), "close_form") end}
+        {=@form_state}
+        {=@org}
+      />
+
       <table class="w-full bg-white shadow-lg my-7">
         <thead class="top-0 z-20">
           <tr class="bg-white">
@@ -110,15 +124,5 @@ defmodule SigLive.PayslipGroups.List do
     """
   end
 
-  def close_modals(id), do: send_update(__MODULE__, closed_state(id))
-
-  defp closed_state(id), do: closed_state() ++ [id: id]
-
-  defp closed_state do
-    [
-      group_id: nil,
-      message: nil,
-      form_state: :closed
-    ]
-  end
+  defp closed_state, do: [message: nil, form_state: :closed]
 end
