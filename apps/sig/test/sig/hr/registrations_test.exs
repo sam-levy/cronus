@@ -6,7 +6,6 @@ defmodule Sig.HR.RegistrationsTest do
   alias Sig.HR.Registrations.Salaries.Salary
   alias Sig.HR.Registrations.Registration
   alias Sig.Organizations.Org
-  alias Sig.Organizations.Sector
 
   @endpoint SigLive.Endpoint
 
@@ -283,30 +282,34 @@ defmodule Sig.HR.RegistrationsTest do
     test "filter by sectors" do
       org = insert(:org)
 
+      %{id: ktchen_sector_id} = kitchen_sector = insert(:org_sector, org: org, name: "kitchen")
+      %{id: cleaning_sector_id} = cleaning_sector = insert(:org_sector, org: org, name: "cleaning")
+      delivery_sector = insert(:org_sector, org: org, name: "delivery")
+
       insert(:employee_registration,
         org: org,
         admission_date: ~D[2012-01-01],
-        sector: insert(:org_sector, org: org, name: "kitchen")
+        sector: kitchen_sector
       )
 
       insert(:employee_registration,
         org: org,
         admission_date: ~D[2012-02-01],
-        sector: insert(:org_sector, org: org, name: "cleaning")
+        sector: cleaning_sector
       )
 
       insert(:employee_registration,
         org: org,
         admission_date: ~D[2012-03-01],
-        sector: insert(:org_sector, org: org, name: "delivery")
+        sector: delivery_sector
       )
 
       assert [
-               %Registration{sector: %Sector{name: "kitchen"}},
-               %Registration{sector: %Sector{name: "cleaning"}}
+               %Registration{sector_id: ^ktchen_sector_id},
+               %Registration{sector_id: ^cleaning_sector_id}
              ] =
                Registrations.list_by(org,
-                 sectors: ["kitchen", "cleaning"],
+                 sectors_ids: [kitchen_sector.id, cleaning_sector.id],
                  active_in_period: [start_date: ~D[2020-01-01], end_date: ~D[2020-01-31]]
                )
     end
