@@ -65,7 +65,8 @@ defmodule Sig.DateTest do
 
   describe "next_month_start/1" do
     test "returns the first day of the next month" do
-      assert Sig.Date.next_month_start(Date.utc_today()) == Date.utc_today() |> Date.end_of_month() |> Date.add(1)
+      assert Sig.Date.next_month_start(Date.utc_today()) ==
+               Date.utc_today() |> Date.end_of_month() |> Date.add(1)
     end
   end
 

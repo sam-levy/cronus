@@ -143,7 +143,7 @@ defmodule Sig.HR.Registrations do
   defp handle_order_by(queryable, opts) do
     case Keyword.get(opts, :order_by) do
       :individual_name -> order_by(queryable, [individual: i], i.name)
-       _ ->  order_by(queryable, :admission_date)
+      _ -> order_by(queryable, :admission_date)
     end
   end
 end

@@ -283,7 +283,10 @@ defmodule Sig.HR.RegistrationsTest do
       org = insert(:org)
 
       %{id: ktchen_sector_id} = kitchen_sector = insert(:org_sector, org: org, name: "kitchen")
-      %{id: cleaning_sector_id} = cleaning_sector = insert(:org_sector, org: org, name: "cleaning")
+
+      %{id: cleaning_sector_id} =
+        cleaning_sector = insert(:org_sector, org: org, name: "cleaning")
+
       delivery_sector = insert(:org_sector, org: org, name: "delivery")
 
       insert(:employee_registration,
