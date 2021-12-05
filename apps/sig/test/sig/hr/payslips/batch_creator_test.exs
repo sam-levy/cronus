@@ -10,13 +10,18 @@ defmodule Sig.HR.Payslips.BatchCreatorTest do
   alias Sig.HR.Payslips.Items.Item
   alias Sig.HR.Payslips.Payslip
   alias Sig.HR.Registrations.Registration
+  alias Sig.Organizations.Sector
 
   describe "changeset/3" do
+    test "returns a changeset" do
+      assert %Ecto.Changeset{data: %BatchCreator.Attrs{}} = BatchCreator.changeset()
+    end
+
     test "valid attrs" do
       attrs = %{
         type: :regular,
         start_date: ~D[2021-01-01],
-        sectors: ~w[kitchen cleaning]
+        sectors_ids: [UUID.generate(), UUID.generate()]
       }
 
       assert changeset = BatchCreator.changeset(attrs)
@@ -26,7 +31,7 @@ defmodule Sig.HR.Payslips.BatchCreatorTest do
       assert changeset.changes == %{
                type: attrs[:type],
                start_date: attrs[:start_date],
-               sectors: attrs[:sectors]
+               sectors_ids: attrs[:sectors_ids]
              }
     end
 
@@ -34,7 +39,7 @@ defmodule Sig.HR.Payslips.BatchCreatorTest do
       attrs = %{
         type: :invalid,
         start_date: :invalid,
-        sectors: [:invalid, :invalid]
+        sectors_ids: [:invalid, :invalid]
       }
 
       assert changeset = BatchCreator.changeset(attrs)
@@ -42,7 +47,7 @@ defmodule Sig.HR.Payslips.BatchCreatorTest do
       refute changeset.valid?
 
       assert errors_on(changeset) == %{
-               sectors: ["is invalid"],
+               sectors_ids: ["is invalid"],
                start_date: ["is invalid"],
                type: ["is invalid"]
              }
@@ -55,14 +60,14 @@ defmodule Sig.HR.Payslips.BatchCreatorTest do
 
       assert errors_on(changeset) == %{
                type: ["can't be blank"],
-               sectors: ["can't be blank"],
-               start_date: ["can't be blank"]
+               start_date: ["can't be blank"],
+               sectors_ids: ["can't be blank"]
              }
     end
   end
 
   describe "verify/2" do
-    test "returns data about the payslips to be created" do
+    test "returns the registrations from payslips to be created ordered by individual name" do
       org = insert(:org)
 
       kitchen_sector = insert(:org_sector, org: org, name: "kitchen")
@@ -71,14 +76,19 @@ defmodule Sig.HR.Payslips.BatchCreatorTest do
       date = ~D[2021-01-01]
       type = :regular
 
+      kitchen_individual = insert(:individual, org: org, name: "Zenon")
+      cleaning_individual = insert(:individual, org: org, name: "Allan")
+
       registration_without_payables = [
         insert(:employee_registration,
           org: org,
+          individual: kitchen_individual,
           sector: kitchen_sector,
           admission_date: ~D[2020-01-01]
         ),
         insert(:employee_registration,
           org: org,
+          individual: cleaning_individual,
           sector: cleaning_sector,
           admission_date: ~D[2020-01-01]
         )
@@ -87,22 +97,26 @@ defmodule Sig.HR.Payslips.BatchCreatorTest do
       attrs = %{
         type: type,
         start_date: date,
-        sectors: ~w[kitchen cleaning]
+        sectors_ids: [kitchen_sector.id, cleaning_sector.id]
       }
 
       assert {:ok,
-              %{
-                group_status: :new,
-                group: %Group{date: ^date, type: ^type},
-                registrations: [
-                  %Registration{individual: %Individual{}, registered_at: %Company{}},
-                  %Registration{individual: %Individual{}, registered_at: %Company{}}
-                ]
-              } = return} = BatchCreator.verify(org, attrs)
+              [
+                %Registration{
+                  individual: %Individual{name: "Allan"},
+                  sector: %Sector{},
+                  registered_at: %Company{}
+                },
+                %Registration{
+                  individual: %Individual{name: "Zenon"},
+                  sector: %Sector{},
+                  registered_at: %Company{}
+                }
+              ] = return} = BatchCreator.verify(org, attrs)
 
       refute Repo.get_by(Group, org_id: org.id, date: date, type: type)
 
-      returned_registrations_ids = Enum.map(return.registrations, & &1.id)
+      returned_registrations_ids = Enum.map(return, & &1.id)
 
       Enum.each(registration_without_payables, fn new_registration ->
         refute Repo.get_by(Payslip, org_id: org.id, registration_id: new_registration.id)
@@ -111,7 +125,7 @@ defmodule Sig.HR.Payslips.BatchCreatorTest do
       end)
     end
 
-    test "returns data about the payslips to be created when group and other payslips already exist" do
+    test "returns the registrations from the payslips to be created when group and other payslips already exist" do
       org = insert(:org)
 
       kitchen_sector = insert(:org_sector, org: org, name: "kitchen")
@@ -170,22 +184,26 @@ defmodule Sig.HR.Payslips.BatchCreatorTest do
       attrs = %{
         type: type,
         start_date: date,
-        sectors: ~w[kitchen cleaning]
+        sectors_ids: [kitchen_sector.id, cleaning_sector.id]
       }
 
       assert {:ok,
-              %{
-                group_status: :existing,
-                group: %Group{id: ^group_id, date: ^date, type: ^type},
-                registrations: [
-                  %Registration{individual: %Individual{}, registered_at: %Company{}},
-                  %Registration{individual: %Individual{}, registered_at: %Company{}}
-                ]
-              } = return} = BatchCreator.verify(org, attrs)
+              [
+                %Registration{
+                  individual: %Individual{},
+                  sector: %Sector{},
+                  registered_at: %Company{}
+                },
+                %Registration{
+                  individual: %Individual{},
+                  sector: %Sector{},
+                  registered_at: %Company{}
+                }
+              ] = return} = BatchCreator.verify(org, attrs)
 
       assert Repo.get_by(Group, org_id: org.id, id: group_id, date: date, type: type)
 
-      returned_registrations_ids = Enum.map(return.registrations, & &1.id)
+      returned_registrations_ids = Enum.map(return, & &1.id)
 
       Enum.each(registrations_without_payables, fn registration ->
         refute Repo.get_by(Payslip, org_id: org.id, registration_id: registration.id)
@@ -245,7 +263,7 @@ defmodule Sig.HR.Payslips.BatchCreatorTest do
       attrs = %{
         type: :regular,
         start_date: ~D[2021-01-01],
-        sectors: ~w[kitchen cleaning]
+        sectors_ids: [kitchen_sector.id, cleaning_sector.id]
       }
 
       payables_attrs = %{
@@ -383,7 +401,7 @@ defmodule Sig.HR.Payslips.BatchCreatorTest do
       attrs = %{
         type: :regular,
         start_date: ~D[2021-01-01],
-        sectors: ~w[kitchen cleaning]
+        sectors_ids: [kitchen_sector.id, cleaning_sector.id]
       }
 
       assert {:ok, [%Payslip{}, %Payslip{}]} = BatchCreator.create(org, attrs)
@@ -512,7 +530,7 @@ defmodule Sig.HR.Payslips.BatchCreatorTest do
       attrs = %{
         type: type,
         start_date: date,
-        sectors: ~w[kitchen cleaning]
+        sectors_ids: [kitchen_sector.id, cleaning_sector.id]
       }
 
       payables_attrs = %{
@@ -604,11 +622,12 @@ defmodule Sig.HR.Payslips.BatchCreatorTest do
 
     test "admission date is after the beginning of the month and resignation date is before the end of the month" do
       org = insert(:org)
+      kitchen_sector = insert(:org_sector, org: org, name: "kitchen")
 
       registration =
         insert(:employee_registration,
           org: org,
-          sector: insert(:org_sector, org: org, name: "kitchen"),
+          sector: kitchen_sector,
           admission_date: ~D[2021-01-10],
           resignation_date: ~D[2021-01-20],
           resignation_type: :dismissal
@@ -625,7 +644,7 @@ defmodule Sig.HR.Payslips.BatchCreatorTest do
       attrs = %{
         type: :regular,
         start_date: ~D[2021-01-01],
-        sectors: ~w[kitchen]
+        sectors_ids: [kitchen_sector.id]
       }
 
       assert {:ok, [%Payslip{}]} = BatchCreator.create(org, attrs)
@@ -686,7 +705,7 @@ defmodule Sig.HR.Payslips.BatchCreatorTest do
       attrs = %{
         type: :regular,
         start_date: ~D[2021-01-01],
-        sectors: ~w[kitchen]
+        sectors_ids: [kitchen_sector.id]
       }
 
       assert BatchCreator.create(org, attrs) ==
@@ -707,7 +726,7 @@ defmodule Sig.HR.Payslips.BatchCreatorTest do
 
       assert errors_on(changeset) == %{
                type: ["can't be blank"],
-               sectors: ["can't be blank"],
+               sectors_ids: ["can't be blank"],
                start_date: ["can't be blank"]
              }
     end
@@ -753,7 +772,7 @@ defmodule Sig.HR.Payslips.BatchCreatorTest do
       attrs = %{
         type: :regular,
         start_date: ~D[2021-01-01],
-        sectors: ~w[kitchen cleaning]
+        sectors_ids: [kitchen_sector.id, cleaning_sector.id]
       }
 
       assert {:ok, [%Payslip{}, %Payslip{}]} =
@@ -801,13 +820,17 @@ defmodule Sig.HR.Payslips.BatchCreatorTest do
     test "org has no registrations" do
       org = insert(:org)
 
+      kitchen_sector = insert(:org_sector, org: org, name: "kitchen")
+      cleaning_sector = insert(:org_sector, org: org, name: "cleaning")
+
       attrs = %{
         type: :regular,
         start_date: ~D[2021-01-01],
-        sectors: ~w[kitchen cleaning]
+        sectors_ids: [kitchen_sector.id, cleaning_sector.id]
       }
 
-      assert BatchCreator.create(org, attrs) == {:error, "Não existem registros de funcionários"}
+      assert BatchCreator.create(org, attrs) ==
+               {:error, "Não existem registros de funcionários para os setores nesta data"}
     end
 
     test "registrations has no recurring payslip items" do
@@ -832,7 +855,7 @@ defmodule Sig.HR.Payslips.BatchCreatorTest do
       attrs = %{
         type: :regular,
         start_date: ~D[2021-01-01],
-        sectors: ~w[kitchen cleaning]
+        sectors_ids: [kitchen_sector.id, cleaning_sector.id]
       }
 
       payables_attrs = %{
