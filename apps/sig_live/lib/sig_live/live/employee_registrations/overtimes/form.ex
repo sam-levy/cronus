@@ -90,7 +90,7 @@ defmodule SigLive.EmployeeRegistrations.Overtimes.Form do
   defp set_changeset(nil), do: HR.create_overtime_change()
   defp set_changeset(overtime), do: HR.update_overtime_change(overtime)
 
-  defp set_selected_date(nil), do: Sig.Date.last_month_start()
+  defp set_selected_date(nil), do: Sig.Date.prior_month_start()
   defp set_selected_date(overtime), do: overtime.date
 
   defp build_dates_for_select(selected_date, floor_date) do
