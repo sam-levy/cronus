@@ -1,9 +1,15 @@
 defmodule Sig.Finance.Payables do
+  use Sig.Preloader, payable: [:payslip_payable]
+
   import Ecto.Changeset, only: [put_change: 3]
 
   alias Sig.Finance.Payables.Payable
   alias Sig.Finance.Payables.PayablesForPayslip
+  alias Sig.Finance.Payables.DeleteByIds
+  alias Sig.Organizations.Org
   alias Sig.Repo
+
+  defdelegate delete_by_ids(org, ids), to: DeleteByIds, as: :call
 
   defdelegate create_payable_for_payslip(payslip, attrs, opts \\ []),
     to: PayablesForPayslip,
@@ -49,6 +55,14 @@ defmodule Sig.Finance.Payables do
   defdelegate unauthorize_payable_for_payslip(payable), to: PayablesForPayslip, as: :unauthorize
 
   defdelegate list_payslip_payables_by_payslip(payslip), to: PayablesForPayslip
+
+  def list_by_ids(%Org{} = org, payable_ids, opts \\ []) when is_list(payable_ids) do
+    from(p in Payable, as: :payable)
+    |> where([payable: p], p.org_id == ^org.id)
+    |> where([payable: p], p.id in ^payable_ids)
+    |> shallow_preload(opts)
+    |> Repo.all()
+  end
 
   def get_by(attrs), do: Repo.get_by(Payable, attrs)
 
