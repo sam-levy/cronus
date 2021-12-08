@@ -40,11 +40,11 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistration do
   end
 
   defp handle_index(%RecurringPayslipItem{type: :outside_item} = item, acc) do
-    put_item(acc, :outside_item, item)
+    Sig.Map.flat_put(acc, :outside_item, item)
   end
 
   defp handle_index(%RecurringPayslipItem{type: :payslip_item} = item, acc) do
-    put_item(acc, :payslip_item, item)
+    Sig.Map.flat_put(acc, :payslip_item, item)
   end
 
   defp handle_index(
@@ -54,7 +54,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistration do
          } = item,
          acc
        ) do
-    put_item(acc, :payslip_item_model, item)
+    Sig.Map.flat_put(acc, :payslip_item_model, item)
   end
 
   defp handle_index(
@@ -67,7 +67,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistration do
          } = item,
          acc
        ) do
-    put_item(acc, {:payslip_item_model, :employee_salary}, item)
+    Sig.Map.flat_put(acc, {:payslip_item_model, :employee_salary}, item)
   end
 
   defp handle_index(
@@ -80,7 +80,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistration do
          } = item,
          acc
        ) do
-    put_item(acc, {:payslip_item_model, :employee_benefit}, item)
+    Sig.Map.flat_put(acc, {:payslip_item_model, :employee_benefit}, item)
   end
 
   defp handle_salary_amount(%{status: :halted} = context), do: context
@@ -126,7 +126,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistration do
         in_effect_on_date: context.start_date
       )
 
-    %{context | indexed_benefits: Enum.reduce(benefits, %{}, &put_item(&2, &1.type, &1))}
+    %{context | indexed_benefits: Enum.reduce(benefits, %{}, &Sig.Map.flat_put(&2, &1.type, &1))}
   end
 
   defp handle_virtual_fields(%{status: :halted}), do: []
@@ -263,13 +263,6 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistration do
           |> Money.add(acc)
         end)
     end
-  end
-
-  defp put_item(map, key, item) do
-    existing_items = Map.get(map, key, [])
-    updated_items = [item | existing_items]
-
-    Map.put(map, key, updated_items)
   end
 
   defp query_by_registration(registration) do
