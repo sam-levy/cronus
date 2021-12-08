@@ -150,9 +150,10 @@ defmodule Sig.HR do
   defdelegate list_groups_by(schema), to: Groups, as: :list_by
   defdelegate get_group(org, id), to: Groups, as: :get
   defdelegate fetch_group(org, id), to: Groups, as: :fetch
-  defdelegate subscribe_to_groups(schema), to: Groups
-  defdelegate broadcast_deleted_group(schema, group), to: Groups
-  defdelegate broadcast_new_group(schema, group), to: Groups
+  defdelegate delete_group_with_payslips(org, group), to: Groups, as: :delete_with_payslips
+  defdelegate subscribe_to_groups(org), to: Groups
+  defdelegate broadcast_deleted_group(group), to: Groups
+  defdelegate broadcast_new_group(group), to: Groups
 
   defdelegate create_payslip_from_model(registration, attrs, opts \\ []),
     to: Payslips,
@@ -163,7 +164,7 @@ defmodule Sig.HR do
 
   defdelegate list_payslips_by(schema, opts \\ []), to: Payslips, as: :list_by
   defdelegate get_payslip(registration, id, opts \\ []), to: Payslips, as: :get
-  defdelegate delete_payslip(payslip), to: Payslips, as: :delete
+  defdelegate delete_payslip(org, payslip), to: Payslips, as: :delete
   defdelegate create_payslip_change(attrs \\ %{}), to: Payslips, as: :create_change
   defdelegate update_payslip_change(payslip, attrs \\ %{}), to: Payslips, as: :update_change
   defdelegate toggle_payslip_is_closed(payslip), to: Payslips, as: :toggle_is_closed
