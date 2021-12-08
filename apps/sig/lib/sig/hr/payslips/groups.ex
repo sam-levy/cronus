@@ -76,11 +76,16 @@ defmodule Sig.HR.Payslips.Groups do
     |> Multi.run(:group, fn _, _ -> delete(group) end)
     |> Repo.transaction()
     |> case do
-      {:ok, %{group: group, payslips: payslips}} ->
+      {:ok, %{group: group, payslips: payslips}} when is_list(payslips) ->
         Task.start(fn ->
           broadcast_deleted_group(group)
           Enum.each(payslips, &Payslips.broadcast_deleted_payslip/1)
         end)
+
+        {:ok, group}
+
+      {:ok, %{group: group, payslips: nil}} ->
+        broadcast_deleted_group(group)
 
         {:ok, group}
 

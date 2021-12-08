@@ -95,7 +95,7 @@ defmodule Sig.HR.Payslips.GroupsTest do
       refute Repo.get_by(Group, org_id: org.id, id: group.id)
 
       Enum.each(payslips, fn payslip ->
-        refute Repo.get(Payslip, org_id: org.id, id: payslip.id)
+        refute Repo.get_by(Payslip, org_id: org.id, id: payslip.id)
       end)
     end
 
