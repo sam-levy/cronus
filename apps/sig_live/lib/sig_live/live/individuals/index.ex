@@ -1,6 +1,5 @@
 defmodule SigLive.Individuals.Index do
   use SigLive, :surface_live_view
-  on_mount SigLive.InitAssigns
 
   alias Surface.Components.LiveRedirect
 

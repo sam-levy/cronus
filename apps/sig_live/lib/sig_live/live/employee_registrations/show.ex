@@ -2,8 +2,6 @@ defmodule SigLive.EmployeeRegistrations.Show do
   use SigLive, :surface_live_view
   use SigLive.PayslipsState
 
-  on_mount SigLive.InitAssigns
-
   alias Surface.Components.LivePatch
 
   alias Sig.Entities
