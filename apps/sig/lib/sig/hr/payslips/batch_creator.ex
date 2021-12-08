@@ -5,7 +5,6 @@ defmodule Sig.HR.Payslips.BatchCreator do
   alias Ecto.UUID
 
   alias Sig.Finance
-  alias Sig.HR
   alias Sig.HR.Payslips
   alias Sig.HR.Payslips.BatchCreator.Attrs
   alias Sig.HR.Payslips.Groups
@@ -55,7 +54,7 @@ defmodule Sig.HR.Payslips.BatchCreator do
     |> Multi.merge(&update_payslips_amounts/1)
     |> Multi.merge(&create_payables(&1, opts))
     |> Repo.transaction()
-    |> handle_create_return(org)
+    |> handle_create_return()
   end
 
   defp base_multi(multi, org, attrs) do
@@ -234,14 +233,19 @@ defmodule Sig.HR.Payslips.BatchCreator do
 
   defp handle_verify_return({:error, _operation, reason, _changes}), do: {:error, reason}
 
-  def handle_create_return({:error, _operation, reason, _changes}, _org), do: {:error, reason}
+  defp handle_create_return({:error, _operation, reason, _changes}), do: {:error, reason}
 
-  def handle_create_return({:ok, %{group: {:existing, _}, payslips: {_, payslips}}}, _org) do
+  defp handle_create_return({:ok, %{group: {:existing, _}, payslips: {_, payslips}}}) do
+    Task.start(fn -> Enum.each(payslips, &Payslips.broadcast_new_payslip/1) end)
+
     {:ok, payslips}
   end
 
-  def handle_create_return({:ok, %{group: {:new, group}, payslips: {_, payslips}}}, org) do
-    HR.broadcast_new_group(org, group)
+  defp handle_create_return({:ok, %{group: {:new, group}, payslips: {_, payslips}}}) do
+    Task.start(fn ->
+      Groups.broadcast_new_group(group)
+      Enum.each(payslips, &Payslips.broadcast_new_payslip/1)
+    end)
 
     {:ok, payslips}
   end
