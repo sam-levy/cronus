@@ -1,6 +1,10 @@
 defmodule Sig.HR.Payslips.Groups do
   import Ecto.Query
+  import Sig.Broadcaster
 
+  alias Ecto.Multi
+
+  alias Sig.HR.Payslips
   alias Sig.HR.Payslips.Groups.Group
   alias Sig.Organizations.Org
   alias Sig.Repo
@@ -64,17 +68,41 @@ defmodule Sig.HR.Payslips.Groups do
     end
   end
 
-  def subscribe_to_groups(%Org{} = org) do
-    Phoenix.PubSub.subscribe(Sig.PubSub, groups_topic(org))
+  def delete_with_payslips(%Org{} = org, %Group{} = group) do
+    payslip_ids = group |> Payslips.list_by() |> Enum.map(& &1.id)
+
+    Multi.new()
+    |> Multi.run(:payslips, fn _, _ -> Payslips.delete_by_ids(org, payslip_ids) end)
+    |> Multi.run(:group, fn _, _ -> delete(group) end)
+    |> Repo.transaction()
+    |> case do
+      {:ok, %{group: group, payslips: payslips}} ->
+        Task.start(fn ->
+          broadcast_deleted_group(group)
+          Enum.each(payslips, &Payslips.broadcast_deleted_payslip/1)
+        end)
+
+        {:ok, group}
+
+      {:error, _operation, reason, _changes} ->
+        {:error, reason}
+    end
   end
 
-  def broadcast_new_group(%Org{} = org, %Group{} = group) do
-    Phoenix.PubSub.broadcast(Sig.PubSub, groups_topic(org), {:new_payslip_group, group})
+  def subscribe_to_groups(schema), do: subscribe(topic(schema))
+
+  def broadcast_new_group(%Group{} = group) do
+    broadcast(topic(group), {:new_payslip_group, group})
   end
 
-  def broadcast_deleted_group(%Org{} = org, %Group{} = group) do
-    Phoenix.PubSub.broadcast(Sig.PubSub, groups_topic(org), {:deleted_payslip_group, group})
+  def broadcast_deleted_group(%Group{} = group) do
+    broadcast(topic(group), {:deleted_payslip_group, group})
   end
 
-  defp groups_topic(%Org{} = org), do: "org_id:" <> org.id <> ":payslip_groups"
+  defp topic(%Group{} = group), do: org_groups_topic(group.org_id)
+  defp topic(%Org{} = org), do: org_groups_topic(org.id)
+
+  defp org_groups_topic(org_id) do
+    "org_id:" <> org_id <> ":payslip_groups"
+  end
 end
