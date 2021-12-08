@@ -40,7 +40,7 @@ defmodule Sig.HR.Payslips.BatchCreator do
     end)
     |> Multi.run(:rollback, fn _, _ -> {:error, nil} end)
     |> Repo.transaction()
-    |> handle_verify_return()
+    |> handle_verify_return(org)
   end
 
   @spec create(Org.t(), map(), list()) ::
@@ -219,11 +219,11 @@ defmodule Sig.HR.Payslips.BatchCreator do
     end
   end
 
-  defp handle_verify_return({:error, :rollback, _reason, %{payslips_attrs: payslips_attrs}}) do
+  defp handle_verify_return({:error, :rollback, _reason, %{payslips_attrs: payslips_attrs}}, org) do
     registration_ids = Enum.map(payslips_attrs, & &1.registration_id)
 
     registrations =
-      Registrations.list_by_ids(registration_ids,
+      Registrations.list_by_ids(org, registration_ids,
         preload: [:individual, :sector, :registered_at],
         order_by: :individual_name
       )
@@ -231,7 +231,7 @@ defmodule Sig.HR.Payslips.BatchCreator do
     {:ok, registrations}
   end
 
-  defp handle_verify_return({:error, _operation, reason, _changes}), do: {:error, reason}
+  defp handle_verify_return({:error, _operation, reason, _changes}, _org), do: {:error, reason}
 
   defp handle_create_return({:error, _operation, reason, _changes}), do: {:error, reason}
 

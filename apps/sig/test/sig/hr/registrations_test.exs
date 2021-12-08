@@ -337,11 +337,13 @@ defmodule Sig.HR.RegistrationsTest do
       assert [
                %Registration{id: ^id_2, org: %Org{}, admission_date: ~D[2021-02-01]},
                %Registration{id: ^id_1, org: %Org{}, admission_date: ~D[2021-03-01]}
-             ] = Registrations.list_by_ids([id_1, id_2], preload: :org)
+             ] = Registrations.list_by_ids(org, [id_1, id_2], preload: :org)
     end
 
     test "invalid registrations ids" do
-      assert Registrations.list_by_ids([UUID.generate(), UUID.generate()], preload: :org) == []
+      org = insert(:org)
+
+      assert Registrations.list_by_ids(org, [UUID.generate(), UUID.generate()], preload: :org) == []
     end
   end
 

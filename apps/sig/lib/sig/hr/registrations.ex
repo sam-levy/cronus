@@ -51,8 +51,9 @@ defmodule Sig.HR.Registrations do
     |> handle_salary_amount()
   end
 
-  def list_by_ids(ids, opts \\ []) when is_list(ids) do
+  def list_by_ids(%Org{} = org, ids, opts \\ []) when is_list(ids) do
     init_query()
+    |> where([registration: r], r.org_id == ^org.id)
     |> where([registration: r], r.id in ^ids)
     |> shallow_preload(opts)
     |> handle_order_by(opts)
