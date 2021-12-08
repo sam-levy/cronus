@@ -1,8 +1,11 @@
 defmodule Sig.HR.Payslips.Payslip do
   use Sig.Schema
 
+  alias Sig.Finance.Payables.PayablesForPayslip.PayslipPayables.PayslipPayable
+  alias Sig.HR.Payslips.Items.Item
   alias Sig.HR.Payslips.Groups.Group
   alias Sig.HR.Payslips.PayslipGroupType
+  alias Sig.HR.Registrations.Overtimes.Overtime
   alias Sig.HR.Registrations.Registration
   alias Sig.Organizations.Org
 
@@ -17,6 +20,10 @@ defmodule Sig.HR.Payslips.Payslip do
 
     belongs_to :group, Group
     belongs_to :registration, Registration
+
+    has_many :items, Item
+    has_many :overtimes, Overtime
+    has_many :payslip_payables, PayslipPayable
 
     timestamps()
   end
