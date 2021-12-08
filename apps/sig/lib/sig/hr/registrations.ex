@@ -51,11 +51,12 @@ defmodule Sig.HR.Registrations do
     |> handle_salary_amount()
   end
 
-  def list_by_ids(ids, opts \\ []) when is_list(ids) do
+  def list_by_ids(%Org{} = org, ids, opts \\ []) when is_list(ids) do
     init_query()
+    |> where([registration: r], r.org_id == ^org.id)
     |> where([registration: r], r.id in ^ids)
     |> shallow_preload(opts)
-    |> order_by(:admission_date)
+    |> handle_order_by(opts)
     |> Repo.all()
   end
 
@@ -134,14 +135,16 @@ defmodule Sig.HR.Registrations do
   end
 
   defp filter_by_org_sector(queryable, opts) do
-    case Keyword.get(opts, :sectors, []) do
-      [] ->
-        queryable
+    case Keyword.get(opts, :sectors_ids, []) do
+      [] -> queryable
+      sectors_ids -> where(queryable, [registration: r], r.sector_id in ^sectors_ids)
+    end
+  end
 
-      sectors ->
-        queryable
-        |> shallow_preload(:sector)
-        |> where([sector: s], s.name in ^sectors)
+  defp handle_order_by(queryable, opts) do
+    case Keyword.get(opts, :order_by) do
+      :individual_name -> order_by(queryable, [individual: i], i.name)
+      _ -> order_by(queryable, :admission_date)
     end
   end
 end

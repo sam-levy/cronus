@@ -1,23 +1,27 @@
 defmodule Sig.HR.Payslips do
-  use Sig.Preloader, payslip: [:org, :registration]
+  use Sig.Preloader, payslip: [:org, :registration, :group, :items, :payslip_payables, :overtimes]
 
   import Ecto.Query
 
-  alias Sig.HR.Registrations.Registration
   alias Sig.HR.Payslips.BatchCreator
   alias Sig.HR.Payslips.Broadcaster
   alias Sig.HR.Payslips.CreateFromModel
+  alias Sig.HR.Payslips.DeleteByIds
   alias Sig.HR.Payslips.Groups.Group
   alias Sig.HR.Payslips.Mutator
   alias Sig.HR.Payslips.Delete
   alias Sig.HR.Payslips.Payslip
+  alias Sig.HR.Registrations.Registration
+  alias Sig.Organizations.Org
   alias Sig.Repo
 
   defdelegate create(registration, attrs), to: Mutator, as: :create
   defdelegate update(payslip, attrs), to: Mutator, as: :update
-  defdelegate delete(payslip), to: Delete, as: :call
+  defdelegate delete(org, payslip), to: Delete, as: :call
+  defdelegate delete_by_ids(org, payslip_ids), to: DeleteByIds, as: :call
   defdelegate batch_create(org, attrs, opts \\ []), to: BatchCreator, as: :create
   defdelegate verify_batch_create(org, attrs), to: BatchCreator, as: :verify
+  defdelegate batch_create_change(attrs \\ %{}), to: BatchCreator, as: :changeset
 
   defdelegate create_from_model(registration, attrs, opts \\ []),
     to: CreateFromModel,
@@ -42,7 +46,7 @@ defmodule Sig.HR.Payslips do
   def list_by(%Registration{} = registration, opts) do
     registration
     |> query_by()
-    |> order_by(desc: :start_date)
+    |> order_by([payslip: p], desc: p.start_date, asc: p.inserted_at)
     |> apply_limit(opts)
     |> Repo.all()
   end
@@ -51,6 +55,15 @@ defmodule Sig.HR.Payslips do
     group
     |> query_by()
     |> preload_registration(opts)
+    |> Repo.all()
+  end
+
+  def list_by_ids(%Org{} = org, payslip_ids, opts \\ []) when is_list(payslip_ids) do
+    init_query()
+    |> where([payslip: p], p.org_id == ^org.id)
+    |> where([payslip: p], p.id in ^payslip_ids)
+    |> preload_registration(opts)
+    |> shallow_preload(opts)
     |> Repo.all()
   end
 

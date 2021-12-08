@@ -52,7 +52,7 @@ defmodule Sig.HR.Payslips.Mutator do
     |> Multi.run(:group, fn _, _ -> provide_group(org, changeset) end)
     |> Multi.insert(:payslip, fn %{group: {_, group}} -> assign_group(changeset, group) end)
     |> Repo.transaction()
-    |> handle_return(org)
+    |> handle_return()
   end
 
   defp handle_create(changeset, _org), do: {:error, changeset}
@@ -65,7 +65,7 @@ defmodule Sig.HR.Payslips.Mutator do
     |> Multi.update(:payslip, fn %{group: {_, group}} -> assign_group(changeset, group) end)
     |> Multi.run(:delete_group, fn _, _ -> maybe_delete_group(changeset) end)
     |> Repo.transaction()
-    |> handle_return(org)
+    |> handle_return()
   end
 
   defp handle_update(changeset, _org), do: {:error, changeset}
@@ -124,24 +124,24 @@ defmodule Sig.HR.Payslips.Mutator do
     end
   end
 
-  defp handle_return({:error, _operation, reason, _changes}, _org), do: {:error, reason}
+  defp handle_return({:error, _operation, reason, _changes}), do: {:error, reason}
 
-  defp handle_return({:ok, %{payslip: payslip} = changes}, org) do
-    broadcast_new_group(changes, org)
-    broadcast_deleted_group(changes, org)
+  defp handle_return({:ok, %{payslip: payslip} = changes}) do
+    broadcast_new_group(changes)
+    broadcast_deleted_group(changes)
 
     {:ok, payslip}
   end
 
-  defp broadcast_new_group(%{group: {:new, group}}, org) do
-    Groups.broadcast_new_group(org, group)
+  defp broadcast_new_group(%{group: {:new, group}}) do
+    Groups.broadcast_new_group(group)
   end
 
-  defp broadcast_new_group(_changes, _org), do: nil
+  defp broadcast_new_group(_changes), do: nil
 
-  defp broadcast_deleted_group(%{delete_group: group}, org) when is_struct(group) do
-    Groups.broadcast_deleted_group(org, group)
+  defp broadcast_deleted_group(%{delete_group: group}) when is_struct(group) do
+    Groups.broadcast_deleted_group(group)
   end
 
-  defp broadcast_deleted_group(_changes, _org), do: nil
+  defp broadcast_deleted_group(_changes), do: nil
 end

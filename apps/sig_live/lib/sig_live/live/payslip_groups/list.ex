@@ -1,12 +1,14 @@
 defmodule SigLive.PayslipGroups.List do
   use SigLive, :surface_live_view
-  on_mount SigLive.InitAssigns
 
   alias Surface.Components.LiveRedirect
 
   alias Sig.HR
 
   alias SigLive.Components.ButtonPlus
+  alias SigLive.Components.ConfirmationDialog
+  alias SigLive.Components.DropdownOpts
+  alias SigLive.PayslipGroups.Form
 
   @impl true
   def mount(_params, _session, socket) do
@@ -19,7 +21,10 @@ defmodule SigLive.PayslipGroups.List do
     socket =
       assign(socket,
         message: nil,
-        groups: HR.list_groups_by(org)
+        form_state: :closed,
+        groups: HR.list_groups_by(org),
+        group_id: nil,
+        delete_group_confirmation_dialog_state: :closed
       )
 
     {:ok, socket}
@@ -45,10 +50,8 @@ defmodule SigLive.PayslipGroups.List do
   end
 
   @impl true
-  def handle_event("open_form", _, socket) do
-    IO.puts("Open form")
-
-    {:noreply, socket}
+  def handle_info("close_modals", socket) do
+    {:noreply, assign(socket, closed_state())}
   end
 
   @impl true
@@ -57,9 +60,63 @@ defmodule SigLive.PayslipGroups.List do
   end
 
   @impl true
+  def handle_event("open_form", _, socket) do
+    {:noreply, assign(socket, form_state: :open)}
+  end
+
+  @impl true
+  def handle_event("open_delete_group_confirmation_dialog", %{"group_id" => id}, socket) do
+    {:noreply, assign(socket, delete_group_confirmation_dialog_state: :open, group_id: id)}
+  end
+
+  @impl true
+  def handle_event("delete_group", _, socket) do
+    %{org: org, groups: groups, group_id: group_id} = socket.assigns
+
+    with {:ok, group} <- fetch_group(groups, group_id),
+         {:ok, _group} <- HR.delete_group_with_payslips(org, group) do
+      send(self(), {:flash, :info, "Grupo removido"})
+
+      {:noreply, assign(socket, closed_state())}
+    else
+      {:error, message} when is_binary(message) ->
+        {:noreply, assign(socket, message: message)}
+
+      {:error, changeset} when is_struct(changeset) ->
+        {:noreply, assign(socket, message: Sig.Changeset.errors_to_string(changeset))}
+    end
+  end
+
+  defp fetch_group(groups, group_id) do
+    case Enum.find(groups, & &1.id == group_id) do
+      nil -> {:error, "Grupo não encontrado"}
+      group -> {:ok, group}
+    end
+  end
+
+  @impl true
   def render(assigns) do
     ~F"""
     <div>
+      <ConfirmationDialog
+        :if={@delete_group_confirmation_dialog_state != :closed}
+        close_event="close_modals"
+        action_event="delete_group"
+        dialog_title="Confirmar Remoção dos Holerites"
+        confirmation_msg="Deseja realmente remover todos os holerites deste grupo? Esta ação não poderá ser desfeita."
+        action_btn_msg="Remover"
+        error_message={@message}
+      />
+
+      <Form
+        :if={@form_state != :closed}
+        id="batch_create_form"
+        close_event="close_modals"
+        close_fun={fn -> send(self(), "close_modals") end}
+        {=@form_state}
+        {=@org}
+      />
+
       <table class="w-full bg-white shadow-lg my-7">
         <thead class="top-0 z-20">
           <tr class="bg-white">
@@ -101,6 +158,15 @@ defmodule SigLive.PayslipGroups.List do
               </td>
 
               <td class="pr-5 text-right">
+                <DropdownOpts>
+                  <a
+                    :on-click="open_delete_group_confirmation_dialog"
+                    phx-value-group_id={group.id}
+                    class="dropdown-item"
+                  >
+                    Remover
+                  </a>
+                </DropdownOpts>
               </td>
             </tr>
           {/for}
@@ -110,15 +176,12 @@ defmodule SigLive.PayslipGroups.List do
     """
   end
 
-  def close_modals(id), do: send_update(__MODULE__, closed_state(id))
-
-  defp closed_state(id), do: closed_state() ++ [id: id]
-
   defp closed_state do
     [
-      group_id: nil,
       message: nil,
-      form_state: :closed
+      group_id: nil,
+      form_state: :closed,
+      delete_group_confirmation_dialog_state: :closed
     ]
   end
 end

@@ -5,11 +5,13 @@ defmodule Sig.Factories.PayslipPayableFactory do
 
       def factory(:payslip_payable, attrs) do
         org = Keyword.get(attrs, :org) || insert(:org)
+        payslip = Keyword.get(attrs, :payslip) || insert(:payslip, org: org, amount: 0)
+        payable = Keyword.get(attrs, :payable) || insert(:payable_cash, org: org, amount: 0)
 
         %PayslipPayable{
           org: org,
-          payslip: insert(:payslip, org: org, amount: 0),
-          payable: insert(:payable_cash, org: org, amount: 0),
+          payslip: payslip,
+          payable: payable,
           is_auto_adjustable_amount: false
         }
       end

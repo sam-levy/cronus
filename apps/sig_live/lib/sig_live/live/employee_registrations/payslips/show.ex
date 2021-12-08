@@ -127,9 +127,12 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
 
   @impl true
   def handle_event("delete_payslip", _, socket) do
-    case HR.delete_payslip(socket.assigns.payslip) do
-      {:ok, payslip} ->
-        HR.broadcast_deleted_payslip(payslip)
+    %{registration: registration, payslip: payslip} = socket.assigns
+
+    %{org: org} = Sig.Repo.preload(registration, :org)
+
+    case HR.delete_payslip(org, payslip) do
+      {:ok, _payslip} ->
         send(self(), {:flash, :info, "Holerite removido"})
 
         {:noreply, assign(socket, closed_state())}
@@ -165,7 +168,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
         close_event="close_modals"
         action_event="delete_payslip"
         dialog_title="Confirmar Remoção do Holerite"
-        confirmation_msg="Deseja realmente remover o Holerite?"
+        confirmation_msg="Deseja realmente remover o holerite? Esta ação não poderá ser desfeita."
         action_btn_msg="Remover"
         error_message={@message}
       />
@@ -243,7 +246,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
                     <a :on-click="open_new_payslip_item_form" class="dropdown-item">Item do holerite</a>
                     <a :on-click="open_new_outside_item_form" class="dropdown-item">Item fora do holerite</a>
                     <a :on-click="open_edit_payslip_form" class="dropdown-item">Editar Holerite</a>
-                    <a :if={@items == []} :on-click="open_delete_payslip_confirmation_dialog" class="dropdown-item">Remover Holerite</a>
+                    <a :on-click="open_delete_payslip_confirmation_dialog" class="dropdown-item">Remover Holerite</a>
                   </DropdownBtn>
                 </div>
               </div>

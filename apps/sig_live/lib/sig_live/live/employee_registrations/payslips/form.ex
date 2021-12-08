@@ -243,8 +243,8 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Form do
   defp assign_changeset_dates(socket, _date), do: socket
 
   defp assign_payables_due_dates(socket, date) do
-    payment_advance_date = Sig.Date.prior_month_day_adjusted_for_workday(date, 20)
-    salary_date = Sig.Date.nth_workday(date, 5)
+    payment_advance_date = %Date{date | day: 20} |> Sig.Date.adjust_for_workday()
+    salary_date = date |> Sig.Date.next_month_start() |> Sig.Date.nth_workday(5)
 
     assign(socket, :due_dates, %{
       payment_advance_date: payment_advance_date,
@@ -253,10 +253,12 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Form do
   end
 
   defp build_dates_for_select(selected_date, floor_date) do
-    (Sig.Date.list_by_month(selected_date, :prior, 1) ++
-       [selected_date] ++
-       Sig.Date.list_by_month(selected_date, :next, 3))
-    |> Enum.reject(fn date -> Date.compare(date, floor_date) == :lt end)
+    prior = selected_date |> Sig.Date.list_by_month(:prior, 3) |> Enum.reverse()
+    next = Sig.Date.list_by_month(selected_date, :next, 3)
+
+    dates = prior ++ [selected_date] ++ next
+
+    Enum.reject(dates, fn date -> Date.compare(date, floor_date) == :lt end)
   end
 
   defp validate_params(%{form_state: :new_mode} = context) do

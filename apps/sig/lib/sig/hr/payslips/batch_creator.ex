@@ -13,22 +13,25 @@ defmodule Sig.HR.Payslips.BatchCreator do
   alias Sig.HR.Payslips.Payslip
   alias Sig.HR.Payslips.PayslipGroupType
   alias Sig.HR.Registrations
+  alias Sig.HR.Registrations.Registration
   alias Sig.HR.Registrations.RecurringPayslipItems
   alias Sig.Organizations.Org
   alias Sig.Repo
 
   defmodule Attrs do
-    defstruct [:type, :start_date, :sectors]
+    defstruct [:type, :start_date, :sectors_ids]
   end
 
-  def changeset(%{} = params) do
-    types = %{type: PayslipGroupType, start_date: :date, sectors: {:array, :string}}
+  def changeset(%{} = params \\ %{}) do
+    types = %{type: PayslipGroupType, start_date: :date, sectors_ids: {:array, UUID}}
 
     {%Attrs{}, types}
     |> cast(params, Map.keys(types))
-    |> validate_required([:type, :start_date, :sectors])
+    |> validate_required([:type, :start_date, :sectors_ids])
   end
 
+  @spec verify(Org.t(), map()) ::
+          {:ok, list(Registration.t())} | {:error, Ecto.Changeset.t() | String.t()}
   def verify(%Org{} = org, %{} = attrs) do
     Multi.new()
     |> base_multi(org, attrs)
@@ -37,9 +40,11 @@ defmodule Sig.HR.Payslips.BatchCreator do
     end)
     |> Multi.run(:rollback, fn _, _ -> {:error, nil} end)
     |> Repo.transaction()
-    |> handle_verify_return()
+    |> handle_verify_return(org)
   end
 
+  @spec create(Org.t(), map(), list()) ::
+          {:ok, list(Payslip.t())} | {:error, Ecto.Changeset.t() | String.t()}
   def create(%Org{} = org, %{} = attrs, opts \\ []) do
     Multi.new()
     |> base_multi(org, attrs)
@@ -68,15 +73,15 @@ defmodule Sig.HR.Payslips.BatchCreator do
   end
 
   defp index_registrations(_, %{batch_create_attrs: attrs}, org) do
-    %{start_date: start_date, sectors: sectors} = attrs
+    %{start_date: start_date, sectors_ids: sectors_ids} = attrs
 
     end_date = Date.end_of_month(start_date)
 
     case Registrations.list_by(org,
            active_in_period: [start_date: start_date, end_date: end_date],
-           sectors: sectors
+           sectors_ids: sectors_ids
          ) do
-      [] -> {:error, "Não existem registros de funcionários"}
+      [] -> {:error, "Não existem registros de funcionários para os setores nesta data"}
       registrations -> {:ok, Map.new(registrations, &{&1.id, &1})}
     end
   end
@@ -102,7 +107,10 @@ defmodule Sig.HR.Payslips.BatchCreator do
       if Map.get(indexed_existing_group_payslips, registration.id) do
         acc
       else
-        start_date = Sig.Date.get_max(attrs.start_date, registration.admission_date)
+        start_date =
+          attrs.start_date
+          |> Date.beginning_of_month()
+          |> Sig.Date.get_max(registration.admission_date)
 
         end_date =
           start_date
@@ -211,19 +219,34 @@ defmodule Sig.HR.Payslips.BatchCreator do
     end
   end
 
-  defp handle_verify_return({:error, :rollback, _reason, changes}) do
-    %{payslips_attrs: payslips_attrs, group: {group_status, group}} = changes
-
+  defp handle_verify_return({:error, :rollback, _reason, %{payslips_attrs: payslips_attrs}}, org) do
     registration_ids = Enum.map(payslips_attrs, & &1.registration_id)
 
     registrations =
-      Registrations.list_by_ids(registration_ids, preload: [:individual, :registered_at])
+      Registrations.list_by_ids(org, registration_ids,
+        preload: [:individual, :sector, :registered_at],
+        order_by: :individual_name
+      )
 
-    {:ok, %{group_status: group_status, group: group, registrations: registrations}}
+    {:ok, registrations}
   end
 
-  defp handle_verify_return({:error, _operation, reason, _changes}), do: {:error, reason}
+  defp handle_verify_return({:error, _operation, reason, _changes}, _org), do: {:error, reason}
 
-  def handle_create_return({:error, _operation, reason, _changes}), do: {:error, reason}
-  def handle_create_return({:ok, %{payslips: {_, payslips}}}), do: {:ok, payslips}
+  defp handle_create_return({:error, _operation, reason, _changes}), do: {:error, reason}
+
+  defp handle_create_return({:ok, %{group: {:existing, _}, payslips: {_, payslips}}}) do
+    Task.start(fn -> Enum.each(payslips, &Payslips.broadcast_new_payslip/1) end)
+
+    {:ok, payslips}
+  end
+
+  defp handle_create_return({:ok, %{group: {:new, group}, payslips: {_, payslips}}}) do
+    Task.start(fn ->
+      Groups.broadcast_new_group(group)
+      Enum.each(payslips, &Payslips.broadcast_new_payslip/1)
+    end)
+
+    {:ok, payslips}
+  end
 end

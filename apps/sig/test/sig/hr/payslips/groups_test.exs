@@ -1,6 +1,7 @@
 defmodule Sig.HR.Payslips.GroupsTest do
   use Sig.DataCase
 
+  alias Sig.HR.Payslips.Payslip
   alias Sig.HR.Payslips.Groups
   alias Sig.HR.Payslips.Groups.Group
 
@@ -78,6 +79,33 @@ defmodule Sig.HR.Payslips.GroupsTest do
       Repo.delete(group)
 
       assert Groups.delete(group) == {:error, :not_found}
+    end
+  end
+
+  describe "delete_with_payslips/2" do
+    test "delete group with payslips" do
+      org = insert(:org)
+      group = insert(:payslip_group, org: org, type: :regular, date: ~D[2021-01-01])
+
+      payslips =
+        insert_list(2, :payslip, org: org, group: group, start_date: ~D[2021-01-01], type: :regular)
+
+      assert {:ok, %Group{}} =  Groups.delete_with_payslips(org, group)
+
+      refute Repo.get_by(Group, org_id: org.id, id: group.id)
+
+      Enum.each(payslips, fn payslip ->
+        refute Repo.get_by(Payslip, org_id: org.id, id: payslip.id)
+      end)
+    end
+
+    test "when group has no payslip" do
+      org = insert(:org)
+      group = insert(:payslip_group, org: org)
+
+      assert {:ok, %Group{}} =  Groups.delete_with_payslips(org, group)
+
+      refute Repo.get_by(Group, org_id: org.id, id: group.id)
     end
   end
 

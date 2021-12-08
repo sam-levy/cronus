@@ -2,8 +2,6 @@ defmodule SigLive.PayslipGroups.Show do
   use SigLive, :surface_live_view
   use SigLive.PayslipsState
 
-  on_mount SigLive.InitAssigns
-
   alias Sig.HR
   alias Sig.Entities
 
@@ -26,6 +24,7 @@ defmodule SigLive.PayslipGroups.Show do
         selected_payslip = List.first(payslips)
 
         if connected?(socket) do
+          HR.subscribe_to_groups(group)
           HR.subscribe_to_payslips(group)
 
           if selected_payslip, do: subscribe_to_payslip_subscriptions(selected_payslip)
@@ -51,6 +50,18 @@ defmodule SigLive.PayslipGroups.Show do
   @impl true
   def handle_info({:flash, type, message}, socket) do
     {:noreply, put_flash(socket, type, message)}
+  end
+
+  @impl true
+  def handle_info({:deleted_payslip_group, group}, socket) do
+    if group.id == socket.assigns.group.id do
+      {:noreply,
+        push_redirect(socket,
+          to: Routes.sig_payslip_groups_list_path(socket, :payslip_groups, socket.assigns.org)
+      )}
+    else
+      {:noreply, socket}
+    end
   end
 
   @impl true

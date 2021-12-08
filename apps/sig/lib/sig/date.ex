@@ -67,7 +67,10 @@ defmodule Sig.Date do
   end
 
   def next_month_start, do: build_date(:next, Date.utc_today(), 1)
-  def last_month_start, do: build_date(:prior, Date.utc_today(), 1)
+  def next_month_start(date), do: build_date(:next, date, 1)
+
+  def prior_month_start, do: build_date(:prior, Date.utc_today(), 1)
+  def prior_month_start(date), do: build_date(:prior, date, 1)
 
   def get_max(%Date{} = first, %Date{} = second) do
     if Date.compare(first, second) == :gt, do: first, else: second
@@ -92,15 +95,7 @@ defmodule Sig.Date do
     end)
   end
 
-  def prior_month_day_adjusted_for_workday(date, days) do
-    date = build_date(:prior, date, 1)
-
-    date
-    |> Date.add(days - 1)
-    |> adjust_for_workday()
-  end
-
-  defp adjust_for_workday(date) do
+  def adjust_for_workday(date) do
     case Date.day_of_week(date) do
       6 -> Date.add(date, 2)
       7 -> Date.add(date, 1)

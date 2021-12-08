@@ -1,6 +1,5 @@
 defmodule SigLive.Individuals.Show do
   use SigLive, :surface_live_view
-  on_mount SigLive.InitAssigns
 
   alias Sig.Entities
   alias Sig.Finance

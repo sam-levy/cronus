@@ -57,15 +57,32 @@ defmodule Sig.DateTest do
     end
   end
 
-  describe "next_month_start/3" do
+  describe "next_month_start/0" do
     test "returns the first day of the next month" do
       assert Sig.Date.next_month_start() == Date.utc_today() |> Date.end_of_month() |> Date.add(1)
     end
   end
 
-  describe "last_month_start/3" do
+  describe "next_month_start/1" do
+    test "returns the first day of the next month" do
+      assert Sig.Date.next_month_start(Date.utc_today()) ==
+               Date.utc_today() |> Date.end_of_month() |> Date.add(1)
+    end
+  end
+
+  describe "prior_month_start/0" do
     test "returns the first day of the last month" do
-      assert Sig.Date.last_month_start() ==
+      assert Sig.Date.prior_month_start() ==
+               Date.utc_today()
+               |> Date.beginning_of_month()
+               |> Date.add(-1)
+               |> Date.beginning_of_month()
+    end
+  end
+
+  describe "prior_month_start/1" do
+    test "returns the first day of the last month" do
+      assert Sig.Date.prior_month_start(Date.utc_today()) ==
                Date.utc_today()
                |> Date.beginning_of_month()
                |> Date.add(-1)
@@ -102,10 +119,11 @@ defmodule Sig.DateTest do
     end
   end
 
-  describe "prior_month_day_adjusted_for_workday/2" do
-    test "returns the nth workday of a month" do
-      assert Sig.Date.prior_month_day_adjusted_for_workday(~D[2021-10-01], 20) == ~D[2021-09-20]
-      assert Sig.Date.prior_month_day_adjusted_for_workday(~D[2021-12-01], 20) == ~D[2021-11-22]
+  describe "adjust_for_workday/1" do
+    test "returns the next work day when it is not a workday" do
+      assert Sig.Date.adjust_for_workday(~D[2021-10-01]) == ~D[2021-10-01]
+      assert Sig.Date.adjust_for_workday(~D[2021-10-31]) == ~D[2021-11-01]
+      assert Sig.Date.adjust_for_workday(~D[2021-10-30]) == ~D[2021-11-01]
     end
   end
 end

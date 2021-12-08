@@ -23,7 +23,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.Delete do
 
   def call(%Payslip{} = payslip, %Payable{target: :payslip} = payable) do
     Multi.new()
-    |> Multi.run(:payable, fn _, _ -> ensure_valid_payable_to_delete(payable) end)
+    |> Multi.run(:payable, fn _, _ -> ensure_can_be_deleted(payable) end)
     |> Multi.delete_all(
       :payslip_payable,
       PayslipPayable
@@ -45,7 +45,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.Delete do
     |> handle_return()
   end
 
-  defp ensure_valid_payable_to_delete(%Payable{org_id: org_id, id: id}) do
+  defp ensure_can_be_deleted(%Payable{org_id: org_id, id: id}) do
     case Payables.get_by(id: id, org_id: org_id) do
       %Payable{is_fulfilled: true} -> {:error, @fulfilled_payable_message}
       %Payable{authorized_by_id: id} when is_binary(id) -> {:error, @authorized_payable_message}

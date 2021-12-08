@@ -56,47 +56,6 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
   end
 
   @impl true
-  def update(%{recurring_payslip_items: items} = assigns, socket) do
-    socket =
-      socket
-      |> assign(assigns)
-      |> assign(
-        target_date: Date.utc_today() |> Date.end_of_month(),
-        recurring_payslip_items: items
-      )
-
-    {:ok, socket}
-  end
-
-  @impl true
-  def update(assigns, socket), do: {:ok, assign(socket, assigns)}
-
-  @impl true
-  def handle_event("previous_month", _, socket) do
-    %{target_date: date} = socket.assigns
-
-    target_date =
-      date
-      |> Date.beginning_of_month()
-      |> Date.add(-1)
-
-    update_items(socket, target_date)
-  end
-
-  @impl true
-  def handle_event("next_month", _, socket) do
-    %{target_date: date} = socket.assigns
-
-    target_date =
-      date
-      |> Date.end_of_month()
-      |> Date.add(1)
-      |> Date.end_of_month()
-
-    update_items(socket, target_date)
-  end
-
-  @impl true
   def handle_event("open_new_payslip_item_form", _, socket) do
     {:noreply, assign(socket, payslip_item_form_state: :new_mode)}
   end
