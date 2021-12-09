@@ -26,6 +26,7 @@ defmodule Sig.HR.Registrations.Warnings.Warning do
   def update_changeset(%__MODULE__{} = target, attrs) do
     target
     |> cast(attrs, [:date, :description])
+    |> validate_required([:date, :description])
     |> validate_length(:description, max: 255)
   end
 end

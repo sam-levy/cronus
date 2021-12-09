@@ -174,6 +174,24 @@ defmodule Sig.HR.Registrations.Warnings.WarningTest do
              }
     end
 
+    test "nil required attrs" do
+      warning = insert(:employee_warning)
+
+      attrs = %{
+        date: nil,
+        description: nil
+      }
+
+      assert changeset = Warning.update_changeset(warning, attrs)
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+               date: ["can't be blank"],
+               description: ["can't be blank"]
+             }
+    end
+
     test "ignores non permitted attrs" do
       warning =
         insert(:employee_warning,

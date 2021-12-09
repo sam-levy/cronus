@@ -120,6 +120,18 @@ defmodule Sig.HR.Registrations.WarningsTest do
                description: attrs[:description]
              )
     end
+
+    test "returns changeset errors" do
+      warning = insert(:employee_warning)
+
+      attrs = %{description: nil}
+
+      assert {:error, changeset} = Warnings.update(warning, attrs)
+
+      assert errors_on(changeset) == %{
+        description: ["can't be blank"]
+      }
+    end
   end
 
   describe "subscribe_to_registration_warnings/1" do
