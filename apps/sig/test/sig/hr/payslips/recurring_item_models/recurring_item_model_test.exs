@@ -614,7 +614,7 @@ defmodule Sig.HR.Payslips.RecurringItemModels.RecurringItemModelTest do
 
       assert changeset.changes == %{
                description: attrs[:description],
-               amount: %Money{amount: attrs[:amount], currency: :BRL},
+               amount: %Money{amount: attrs[:amount], currency: :BRL}
              }
     end
 
@@ -650,7 +650,7 @@ defmodule Sig.HR.Payslips.RecurringItemModels.RecurringItemModelTest do
       attrs = %{
         description: Faker.Lorem.sentence(),
         percentage: 20,
-        percentage_target: :employee_salary,
+        percentage_target: :employee_salary
       }
 
       assert changeset = RecurringItemModel.update_changeset(rim, attrs)
@@ -714,7 +714,7 @@ defmodule Sig.HR.Payslips.RecurringItemModels.RecurringItemModelTest do
       refute changeset.valid?
 
       assert errors_on(changeset) == %{
-               percentage: ["can't be blank"],
+               percentage: ["can't be blank"]
              }
     end
 

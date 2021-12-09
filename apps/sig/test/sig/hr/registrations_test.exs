@@ -343,7 +343,8 @@ defmodule Sig.HR.RegistrationsTest do
     test "invalid registrations ids" do
       org = insert(:org)
 
-      assert Registrations.list_by_ids(org, [UUID.generate(), UUID.generate()], preload: :org) == []
+      assert Registrations.list_by_ids(org, [UUID.generate(), UUID.generate()], preload: :org) ==
+               []
     end
   end
 

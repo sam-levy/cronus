@@ -88,9 +88,14 @@ defmodule Sig.HR.Payslips.GroupsTest do
       group = insert(:payslip_group, org: org, type: :regular, date: ~D[2021-01-01])
 
       payslips =
-        insert_list(2, :payslip, org: org, group: group, start_date: ~D[2021-01-01], type: :regular)
+        insert_list(2, :payslip,
+          org: org,
+          group: group,
+          start_date: ~D[2021-01-01],
+          type: :regular
+        )
 
-      assert {:ok, %Group{}} =  Groups.delete_with_payslips(org, group)
+      assert {:ok, %Group{}} = Groups.delete_with_payslips(org, group)
 
       refute Repo.get_by(Group, org_id: org.id, id: group.id)
 
@@ -103,7 +108,7 @@ defmodule Sig.HR.Payslips.GroupsTest do
       org = insert(:org)
       group = insert(:payslip_group, org: org)
 
-      assert {:ok, %Group{}} =  Groups.delete_with_payslips(org, group)
+      assert {:ok, %Group{}} = Groups.delete_with_payslips(org, group)
 
       refute Repo.get_by(Group, org_id: org.id, id: group.id)
     end

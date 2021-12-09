@@ -81,7 +81,6 @@ defmodule Sig.HR.Payslips.RecurringItemModels.RecurringItemModel do
     do_handle_percentage_changeset(changeset)
   end
 
-
   defp handle_percentage_changeset(changeset), do: changeset
 
   defp do_handle_fixed_amount_changeset(changeset) do
