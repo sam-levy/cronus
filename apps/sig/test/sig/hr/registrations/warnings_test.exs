@@ -129,8 +129,8 @@ defmodule Sig.HR.Registrations.WarningsTest do
       assert {:error, changeset} = Warnings.update(warning, attrs)
 
       assert errors_on(changeset) == %{
-        description: ["can't be blank"]
-      }
+               description: ["can't be blank"]
+             }
     end
   end
 
