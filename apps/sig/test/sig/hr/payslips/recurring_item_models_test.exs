@@ -191,7 +191,7 @@ defmodule Sig.HR.Payslips.RecurringItemModelsTest do
   end
 
   describe "broadcast_new_payslip_recurring_item_model/1" do
-    test "broadcasts warnings from a org" do
+    test "broadcasts recurring item models from a org" do
       org = insert(:org)
 
       rim = insert({:payslip_recurring_item_model, :fixed_amount}, org: org)
@@ -211,7 +211,7 @@ defmodule Sig.HR.Payslips.RecurringItemModelsTest do
   end
 
   describe "broadcast_updated_payslip_recurring_item_model/1" do
-    test "broadcasts warnings from a org" do
+    test "broadcasts recurring item models from a org" do
       org = insert(:org)
 
       rim = insert({:payslip_recurring_item_model, :fixed_amount}, org: org)
@@ -231,7 +231,7 @@ defmodule Sig.HR.Payslips.RecurringItemModelsTest do
   end
 
   describe "broadcast_deleted_payslip_recurring_item_model/1" do
-    test "broadcasts warnings from a org" do
+    test "broadcasts recurring item models from a org" do
       org = insert(:org)
 
       rim = insert({:payslip_recurring_item_model, :fixed_amount}, org: org)
