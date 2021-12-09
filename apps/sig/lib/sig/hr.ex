@@ -123,11 +123,23 @@ defmodule Sig.HR do
   defdelegate subscribe_to_registration_overtimes(registration), to: Overtimes
   defdelegate broadcast_registration_overtimes(registration), to: Overtimes
 
-  defdelegate list_payslip_recurring_item_models(org), to: RecurringItemModels, as: :list
+  defdelegate list_payslip_recurring_item_models(org, opts \\ []), to: RecurringItemModels, as: :list
+  defdelegate get_payslip_recurring_item_model(org, id, opts \\ []), to: RecurringItemModels, as: :get
+  defdelegate create_payslip_recurring_item_model_change(attrs \\ %{}), to: RecurringItemModels, as: :create_change
+  defdelegate update_payslip_recurring_item_model_change(rim, attrs \\ %{}), to: RecurringItemModels, as: :update_change
+  defdelegate create_payslip_recurring_item_model(org, attrs \\ %{}), to: RecurringItemModels, as: :create
+  defdelegate update_payslip_recurring_item_model(rim, attrs \\ %{}), to: RecurringItemModels, as: :update
+  defdelegate delete_payslip_recurring_item_model(rim), to: RecurringItemModels, as: :delete
+  defdelegate subscribe_to_payslip_recurring_item_models(schema), to: RecurringItemModels
+  defdelegate broadcast_new_payslip_recurring_item_model(rim, opts \\ []), to: RecurringItemModels
+  defdelegate broadcast_updated_payslip_recurring_item_model(rim, opts \\ []), to: RecurringItemModels
+  defdelegate broadcast_deleted_payslip_recurring_item_model(rim), to: RecurringItemModels
 
   defdelegate list_recurring_payslip_items_by_registration(registraion, opts \\ []),
     to: RecurringPayslipItems,
     as: :list_by_registration
+
+  defdelegate list_recurring_payslip_items_by(schema, opts \\ []), to: RecurringPayslipItems, as: :list_by
 
   defdelegate create_recurring_payslip_item(registraion, attrs, type),
     to: RecurringPayslipItems,
