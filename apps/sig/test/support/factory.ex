@@ -19,6 +19,7 @@ defmodule Sig.Factory do
   use Sig.Factories.PayslipItemFactory
   use Sig.Factories.PayslipCategoryFactory
   use Sig.Factories.PayslipGroupFactory
+  use Sig.Factories.PayslipTemplateFactory
   use Sig.Factories.PayslipRecurringItemModelFactory
   use Sig.Factories.EmployeeRegistraionRecurringPayslipItemFactory
   use Sig.Factories.BankAccountFactory
