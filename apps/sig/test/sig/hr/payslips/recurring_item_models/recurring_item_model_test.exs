@@ -31,6 +31,19 @@ defmodule Sig.HR.Payslips.RecurringItemModels.RecurringItemModelTest do
                    fn -> Repo.insert(model) end
     end
 
+    test "category_id not_null_violation" do
+      model = %RecurringItemModel{
+        org_id: insert(:payslip_category).id,
+        description: Faker.Lorem.sentence(),
+        is_fixed_amount: true,
+        amount: Enum.random(100_00..1_000_00)
+      }
+
+      assert_raise Postgrex.Error,
+                   ~r/\(not_null_violation\) null value in column \"category_id\" of relation \"payslip_recurring_item_models\" violates not-null constraint/,
+                   fn -> Repo.insert(model) end
+    end
+
     test "[:description, :org_id] payslip_recurring_item_models_description_org_id_index citext unique_constraint" do
       org = insert(:org)
 
@@ -532,6 +545,215 @@ defmodule Sig.HR.Payslips.RecurringItemModels.RecurringItemModelTest do
       assert errors_on(changeset) == %{
                category: ["does not exist"]
              }
+    end
+  end
+
+  describe "update_changeset/2" do
+    test "missing required description for fixed amount" do
+      rim = insert({:payslip_recurring_item_model, :fixed_amount})
+
+      attrs = %{description: nil}
+
+      assert changeset = RecurringItemModel.update_changeset(rim, attrs)
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{description: ["can't be blank"]}
+    end
+
+    test "missing required amount for fixed amount" do
+      rim = insert({:payslip_recurring_item_model, :fixed_amount})
+
+      attrs = %{
+        description: "New Description",
+        amount: nil
+      }
+
+      assert changeset = RecurringItemModel.update_changeset(rim, attrs)
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{amount: ["can't be blank"]}
+    end
+
+    test "valid attrs for fixed amount" do
+      rim = insert({:payslip_recurring_item_model, :fixed_amount})
+
+      attrs = %{
+        description: Faker.Lorem.sentence(),
+        amount: Enum.random(100_00..1_000_00)
+      }
+
+      assert changeset = RecurringItemModel.update_changeset(rim, attrs)
+
+      assert changeset.valid?
+
+      assert changeset.changes == %{
+               description: attrs[:description],
+               amount: %Money{amount: attrs[:amount], currency: :BRL}
+             }
+    end
+
+    test "drops non permitted attrs for fixed amount" do
+      rim = insert({:payslip_recurring_item_model, :fixed_amount})
+
+      attrs = %{
+        org_id: UUID.generate(),
+        description: Faker.Lorem.sentence(),
+        is_fixed_amount: false,
+        amount: Enum.random(100_00..1_000_00),
+        category_id: UUID.generate(),
+        percentage: 6,
+        percentage_target: :employee_benefit,
+        employee_benefit_type_percentage_target: :transportation_voucher
+      }
+
+      assert changeset = RecurringItemModel.update_changeset(rim, attrs)
+
+      assert changeset.valid?
+
+      assert changeset.changes == %{
+               description: attrs[:description],
+               amount: %Money{amount: attrs[:amount], currency: :BRL},
+             }
+    end
+
+    test "string fields length greater than 255 chars" do
+      rim = insert({:payslip_recurring_item_model, :fixed_amount})
+
+      attrs = %{description: String.duplicate("a", 256)}
+
+      assert changeset = RecurringItemModel.update_changeset(rim, attrs)
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{description: ["should be at most 255 character(s)"]}
+    end
+
+    test "updates fixed amount" do
+      rim = insert({:payslip_recurring_item_model, :fixed_amount})
+
+      attrs = %{
+        description: Faker.Lorem.sentence(),
+        amount: Enum.random(100_00..1_000_00)
+      }
+
+      assert {:ok, %RecurringItemModel{}} =
+               rim
+               |> RecurringItemModel.update_changeset(attrs)
+               |> Repo.update()
+    end
+
+    test "valid attrs for percentage of employee salary" do
+      rim = insert({:payslip_recurring_item_model, :percentage})
+
+      attrs = %{
+        description: Faker.Lorem.sentence(),
+        percentage: 20,
+        percentage_target: :employee_salary,
+      }
+
+      assert changeset = RecurringItemModel.update_changeset(rim, attrs)
+
+      assert changeset.valid?
+
+      assert changeset.changes == %{
+               description: attrs[:description],
+               percentage: attrs[:percentage]
+             }
+    end
+
+    test "drops non permitted attrs for percentage of employee salary" do
+      rim = insert({:payslip_recurring_item_model, :percentage})
+
+      attrs = %{
+        org_id: UUID.generate(),
+        description: Faker.Lorem.sentence(),
+        is_fixed_amount: true,
+        percentage: 20,
+        percentage_target: :employee_salary,
+        category_id: UUID.generate(),
+        amount: Enum.random(100_00..1_000_00),
+        employee_benefit_type_percentage_target: :transportation_voucher
+      }
+
+      assert changeset = RecurringItemModel.update_changeset(rim, attrs)
+
+      assert changeset.valid?
+
+      assert changeset.changes == %{
+               description: attrs[:description],
+               percentage: attrs[:percentage]
+             }
+    end
+
+    test "missing description for percentage of employee salary" do
+      rim = insert({:payslip_recurring_item_model, :percentage})
+
+      attrs = %{description: nil}
+
+      assert changeset = RecurringItemModel.update_changeset(rim, attrs)
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+               description: ["can't be blank"]
+             }
+    end
+
+    test "missing attrs for percentage of employee salary" do
+      rim = insert({:payslip_recurring_item_model, :percentage})
+
+      attrs = %{
+        description: "New Description",
+        percentage: nil
+      }
+
+      assert changeset = RecurringItemModel.update_changeset(rim, attrs)
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+               percentage: ["can't be blank"],
+             }
+    end
+
+    test "validates percentage inclusion for less than 0" do
+      rim = insert({:payslip_recurring_item_model, :percentage})
+
+      attrs = %{percentage: -1}
+
+      assert changeset = RecurringItemModel.update_changeset(rim, attrs)
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{percentage: ["is invalid"]}
+    end
+
+    test "validates percentage inclusion for more than 100" do
+      rim = insert({:payslip_recurring_item_model, :percentage})
+
+      attrs = %{percentage: 101}
+
+      assert changeset = RecurringItemModel.update_changeset(rim, attrs)
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{percentage: ["is invalid"]}
+    end
+
+    test "updates percentage of employee salary" do
+      rim = insert({:payslip_recurring_item_model, :percentage})
+
+      attrs = %{
+        description: Faker.Lorem.sentence(),
+        percentage: 20
+      }
+
+      assert {:ok, %RecurringItemModel{}} =
+               rim
+               |> RecurringItemModel.update_changeset(attrs)
+               |> Repo.update()
     end
   end
 end
