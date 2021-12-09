@@ -44,7 +44,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItemsTest do
 
     test "when recurring item model has no recurring payslilp items" do
       org = insert(:org)
-      rim = insert({:payslip_recurring_item_model, :fixed_amount}, org: org)
+      insert({:payslip_recurring_item_model, :fixed_amount}, org: org)
 
       assert RecurringPayslipItems.list_by(rim) == []
     end
