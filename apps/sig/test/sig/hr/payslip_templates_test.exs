@@ -78,7 +78,7 @@ defmodule Sig.HR.PayslipTemplatesTest do
 
       attrs = %{name: "New Description"}
 
-      assert {:ok, _return} = PayslipTemplates.update(payslip_template, attrs)
+      assert {:ok, %PayslipTemplate{}} = PayslipTemplates.update(payslip_template, attrs)
 
       assert Repo.get_by(PayslipTemplate,
                name: attrs[:name]
