@@ -29,7 +29,7 @@ defmodule SigLive.Components.Modal do
 
                   <div
                     :on-click={@close}
-                    class="p-1 hover:bg-gray-100 hover:rounded-md cursor-pointer text-gray-500"
+                    class="ml-2 p-1 hover:bg-gray-100 hover:rounded-md cursor-pointer text-gray-500"
                   >
                     <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />

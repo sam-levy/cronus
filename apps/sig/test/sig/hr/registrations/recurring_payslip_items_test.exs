@@ -28,6 +28,28 @@ defmodule Sig.HR.Registrations.RecurringPayslipItemsTest do
     end
   end
 
+  describe "list_by/2" do
+    test "lists recurring payslip items by recurring item model" do
+      org = insert(:org)
+      rim = insert({:payslip_recurring_item_model, :fixed_amount}, org: org)
+
+      insert_list(2, {:employee_registration_recurring_payslip_item, :payslip_item_model},
+        org: org,
+        payslip_recurring_item_model: rim
+      )
+
+      assert [%RecurringPayslipItem{}, %RecurringPayslipItem{}] =
+               RecurringPayslipItems.list_by(rim)
+    end
+
+    test "when recurring item model has no recurring payslilp items" do
+      org = insert(:org)
+      rim = insert({:payslip_recurring_item_model, :fixed_amount}, org: org)
+
+      assert RecurringPayslipItems.list_by(rim) == []
+    end
+  end
+
   describe "create/3" do
     test "creates a recurring payslip_item" do
       org = insert(:org)

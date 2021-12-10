@@ -19,13 +19,10 @@ defmodule Sig.HR.Payslips do
   defdelegate update(payslip, attrs), to: Mutator, as: :update
   defdelegate delete(org, payslip), to: Delete, as: :call
   defdelegate delete_by_ids(org, payslip_ids), to: DeleteByIds, as: :call
+  defdelegate create_from_model(registration, attrs, opts \\ []), to: CreateFromModel, as: :call
   defdelegate batch_create(org, attrs, opts \\ []), to: BatchCreator, as: :create
   defdelegate verify_batch_create(org, attrs), to: BatchCreator, as: :verify
   defdelegate batch_create_change(attrs \\ %{}), to: BatchCreator, as: :changeset
-
-  defdelegate create_from_model(registration, attrs, opts \\ []),
-    to: CreateFromModel,
-    as: :call
 
   defdelegate subscribe_to_payslips(schema), to: Broadcaster
   defdelegate broadcast_new_payslip(payslip, opts \\ []), to: Broadcaster

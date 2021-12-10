@@ -47,20 +47,50 @@ defmodule Sig.HR.Payslips.RecurringItemModels.RecurringItemModel do
     |> handle_percentage_changeset()
   end
 
+  @update_fields [:description, :amount, :percentage]
+
+  def update_changeset(%__MODULE__{} = target, attrs) do
+    target
+    |> cast(attrs, @update_fields)
+    |> validate_required([:description])
+    |> validate_length(:description, max: 255)
+    |> unique_constraint([:description, :org_id])
+    |> handle_fixed_amount_changeset()
+    |> handle_percentage_changeset()
+  end
+
+  defp handle_fixed_amount_changeset(%{valid?: true, data: %{is_fixed_amount: true}} = changeset) do
+    do_handle_fixed_amount_changeset(changeset)
+  end
+
   defp handle_fixed_amount_changeset(
          %{valid?: true, changes: %{is_fixed_amount: true}} = changeset
        ) do
+    do_handle_fixed_amount_changeset(changeset)
+  end
+
+  defp handle_fixed_amount_changeset(changeset), do: changeset
+
+  defp handle_percentage_changeset(%{valid?: true, data: %{is_fixed_amount: false}} = changeset) do
+    do_handle_percentage_changeset(changeset)
+  end
+
+  defp handle_percentage_changeset(
+         %{valid?: true, changes: %{is_fixed_amount: false}} = changeset
+       ) do
+    do_handle_percentage_changeset(changeset)
+  end
+
+  defp handle_percentage_changeset(changeset), do: changeset
+
+  defp do_handle_fixed_amount_changeset(changeset) do
     changeset
     |> validate_required(:amount)
     |> validate_money(:amount, [:gt, :eq], 0)
     |> drop_changes([:percentage, :percentage_target, :employee_benefit_type_percentage_target])
   end
 
-  defp handle_fixed_amount_changeset(changeset), do: changeset
-
-  defp handle_percentage_changeset(
-         %{valid?: true, changes: %{is_fixed_amount: false}} = changeset
-       ) do
+  defp do_handle_percentage_changeset(changeset) do
     changeset
     |> validate_required([:percentage, :percentage_target])
     |> validate_inclusion(:percentage, 0..100)
@@ -76,8 +106,6 @@ defmodule Sig.HR.Payslips.RecurringItemModels.RecurringItemModel do
       :employee_benefit_type_percentage_target
     )
   end
-
-  defp handle_percentage_changeset(changeset), do: changeset
 
   # TODO: Add amount_start_date and historical_amounts
 end
