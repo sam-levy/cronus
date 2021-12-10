@@ -60,7 +60,7 @@ defmodule Sig.HR.Payslips.RecurringItemModelsTest do
       _to_ignore = insert({:payslip_recurring_item_model, :fixed_amount}, org: org)
 
       assert [%RecurringItemModel{}, %RecurringItemModel{}] =
-        RecurringItemModels.list_by(category)
+               RecurringItemModels.list_by(category)
     end
 
     test "when category has no recurring payslilp items" do

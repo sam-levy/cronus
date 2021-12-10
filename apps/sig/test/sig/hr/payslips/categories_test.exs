@@ -171,7 +171,8 @@ defmodule Sig.HR.Payslips.CategoriesTest do
       category = insert(:payslip_category, org: org)
       insert({:payslip_recurring_item_model, :fixed_amount}, org: org, category: category)
 
-      assert Categories.delete(category) == {:error, "Existem modelos de items de holerite associados"}
+      assert Categories.delete(category) ==
+               {:error, "Existem modelos de items de holerite associados"}
 
       assert Repo.get_by(Category, org_id: org.id, id: category.id)
     end
@@ -179,9 +180,14 @@ defmodule Sig.HR.Payslips.CategoriesTest do
     test "when category has payslip registration recurring payslip items associated" do
       org = insert(:org)
       category = insert(:payslip_category, org: org)
-      insert({:employee_registration_recurring_payslip_item, :payslip_item}, org: org, category: category)
 
-      assert Categories.delete(category) == {:error, "Existem items de holerite modelo associados"}
+      insert({:employee_registration_recurring_payslip_item, :payslip_item},
+        org: org,
+        category: category
+      )
+
+      assert Categories.delete(category) ==
+               {:error, "Existem items de holerite modelo associados"}
 
       assert Repo.get_by(Category, org_id: org.id, id: category.id)
     end

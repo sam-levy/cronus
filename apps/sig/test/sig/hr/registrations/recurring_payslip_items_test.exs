@@ -38,7 +38,8 @@ defmodule Sig.HR.Registrations.RecurringPayslipItemsTest do
         payslip_recurring_item_model: rim
       )
 
-      _to_ignore = insert({:employee_registration_recurring_payslip_item, :payslip_item_model}, org: org)
+      _to_ignore =
+        insert({:employee_registration_recurring_payslip_item, :payslip_item_model}, org: org)
 
       assert [%RecurringPayslipItem{}, %RecurringPayslipItem{}] =
                RecurringPayslipItems.list_by(rim)
@@ -60,7 +61,8 @@ defmodule Sig.HR.Registrations.RecurringPayslipItemsTest do
         payslip_category: category
       )
 
-      _to_ignore = insert({:employee_registration_recurring_payslip_item, :payslip_item}, org: org)
+      _to_ignore =
+        insert({:employee_registration_recurring_payslip_item, :payslip_item}, org: org)
 
       assert [%RecurringPayslipItem{}, %RecurringPayslipItem{}] =
                RecurringPayslipItems.list_by(category)
