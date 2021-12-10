@@ -1,6 +1,8 @@
 defmodule SigLive.PayslipTemplates.List do
   use SigLive, :surface_live_component
 
+  alias Surface.Components.LiveRedirect
+
   alias Sig.HR
 
   alias SigLive.Components.ButtonPlus
@@ -118,7 +120,12 @@ defmodule SigLive.PayslipTemplates.List do
           {#for payslip_template <- @payslip_templates}
             <tr class="border-b border-gray-200 hover:bg-gray-50">
               <td class="py-3 pl-6 text-left">
-                {payslip_template.name}
+                <LiveRedirect
+                  to={Routes.sig_payslip_templates_show_path(@socket, :payslip_templates, @org, payslip_template)}
+                  class="hover:underline"
+                >
+                  {payslip_template.name}
+                </LiveRedirect>
               </td>
 
               <td class="pr-5 text-right">

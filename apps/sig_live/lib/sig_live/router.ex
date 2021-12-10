@@ -28,6 +28,7 @@ defmodule SigLive.Router do
 
     live_session :default, on_mount: SigLive.InitAssigns do
       live "/payslip_templates", PayslipTemplates.Index, :payslip_templates
+      live "/payslip_templates/:id", PayslipTemplates.Show, :payslip_templates
       live "/payslip_recurring_item_models", PayslipRecurringItemModels.Index, :payslip_recurring_item_models
       live "/payslip_groups", PayslipGroups.List, :payslip_groups
       live "/payslip_groups/:id", PayslipGroups.Show, :payslip_groups
