@@ -1,6 +1,8 @@
 defmodule Sig.HR do
   alias Sig.HR.BenefitModels
   alias Sig.HR.Payslips
+  alias Sig.HR.PayslipTemplates
+  alias Sig.HR.PayslipTemplates.PayslipTemplateItems
   alias Sig.HR.Payslips.Categories
   alias Sig.HR.Payslips.Groups
   alias Sig.HR.Payslips.Items
@@ -30,6 +32,45 @@ defmodule Sig.HR do
   defdelegate get_registration(individual, id), to: Registrations, as: :get
   defdelegate subscribe_to_individual_registrations(individual), to: Registrations
   defdelegate broadcast_individual_registrations(indiviual), to: Registrations
+
+  defdelegate create_payslip_template_change(attrs \\ %{}),
+    to: PayslipTemplates,
+    as: :create_change
+
+  defdelegate update_payslip_template_change(payslip_template, attrs \\ %{}),
+    to: PayslipTemplates,
+    as: :update_change
+
+  defdelegate list_payslip_templates(org), to: PayslipTemplates, as: :list
+  defdelegate get_payslip_template(registration, id), to: PayslipTemplates, as: :get
+  defdelegate fetch_payslip_template(registration, id), to: PayslipTemplates, as: :fetch
+  defdelegate create_payslip_template(registration, attrs), to: PayslipTemplates, as: :create
+  defdelegate update_payslip_template(payslip_template, attrs), to: PayslipTemplates, as: :update
+  defdelegate delete_payslip_template(payslip_template), to: PayslipTemplates, as: :delete
+  defdelegate subscribe_to_payslip_templates(payslip_template), to: PayslipTemplates
+  defdelegate broadcast_new_payslip_template(payslip_template), to: PayslipTemplates
+  defdelegate broadcast_updated_payslip_template(payslip_template), to: PayslipTemplates
+  defdelegate broadcast_deleted_payslip_template(payslip_template), to: PayslipTemplates
+
+  defdelegate create_payslip_template_item_change(attrs \\ %{}),
+    to: PayslipTemplateItems,
+    as: :create_change
+
+  defdelegate list_payslip_template_items(payslip_template), to: PayslipTemplateItems, as: :list
+
+  defdelegate create_payslip_template_item(payslip_template, attrs),
+    to: PayslipTemplateItems,
+    as: :create
+
+  defdelegate delete_payslip_template_item(payslip_template_item),
+    to: PayslipTemplateItems,
+    as: :delete
+
+  defdelegate subscribe_to_payslip_template_items(schema), to: PayslipTemplateItems
+  defdelegate broadcast_new_payslip_template_item(payslip_template_item), to: PayslipTemplateItems
+
+  defdelegate broadcast_deleted_payslip_template_item(payslip_template_item),
+    to: PayslipTemplateItems
 
   defdelegate list_salaries_by_registration(registration), to: Salaries, as: :list_by_registration
   defdelegate create_salary(registration, attrs), to: Salaries, as: :create
