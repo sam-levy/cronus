@@ -137,9 +137,9 @@ defmodule Sig.HR.PayslipTemplates.PayslipTemplateItemsTest do
   end
 
   describe "broadcast_new_payslip_template_item/1" do
-    test "broadcasts a new payslip template_item from an org" do
+    test "broadcasts a new payslip template_item from a template with preloads" do
       org = insert(:org)
-      payslip_template = insert(:payslip_template, org: org)
+      %{id: payslip_template_id} = insert(:payslip_template, org: org)
 
       payslip_template_item =
         insert(:payslip_template_item, payslip_template: payslip_template, org: org)
@@ -153,15 +153,17 @@ defmodule Sig.HR.PayslipTemplates.PayslipTemplateItemsTest do
 
       assert_receive {:new_payslip_template_item, received_payslip_template_item}
 
-      assert received_payslip_template_item.payslip_template_id ==
-               payslip_template_item.payslip_template_id
+      assert %PayslipTemplateItem{
+               payslip_template_id: ^payslip_template_id,
+               payslip_recurring_item_model: %RecurringItemModel{category: %Category{}}
+             } = payslip_template_item
 
       @endpoint.unsubscribe(topic)
     end
   end
 
   describe "broadcast_deleted_payslip_template_item/1" do
-    test "broadcasts a deleted payslip template_item from an org" do
+    test "broadcasts a deleted payslip template_item from a template" do
       org = insert(:org)
       payslip_template = insert(:payslip_template, org: org)
 
