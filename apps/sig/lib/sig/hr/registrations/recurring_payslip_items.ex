@@ -3,6 +3,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems do
 
   alias Ecto.Multi
 
+  alias Sig.HR.Payslips.Categories.Category
   alias Sig.HR.Payslips.RecurringItemModels.RecurringItemModel
   alias Sig.HR.Registrations.Registration
   alias Sig.HR.Registrations.RecurringPayslipItems.RecurringPayslipItem
@@ -25,10 +26,19 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems do
     RecurringPayslipItem.create_outside_item_changeset(attrs)
   end
 
-  def list_by(%RecurringItemModel{} = rim, _opts \\ []) do
+  def list_by(schema, opts \\ [])
+
+  def list_by(%RecurringItemModel{} = rim, _opts) do
     RecurringPayslipItem
     |> where(org_id: ^rim.org_id)
     |> where(payslip_recurring_item_model_id: ^rim.id)
+    |> Repo.all()
+  end
+
+  def list_by(%Category{} = category, _opts) do
+    RecurringPayslipItem
+    |> where(org_id: ^category.org_id)
+    |> where(payslip_category_id: ^category.id)
     |> Repo.all()
   end
 

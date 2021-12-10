@@ -2,6 +2,7 @@ defmodule Sig.HR.Payslips.Categories do
   import Ecto.Query
   import Sig.Broadcaster
 
+  alias Sig.HR
   alias Sig.HR.Payslips.Categories.Category
   alias Sig.Organizations.Org
   alias Sig.Repo
@@ -25,6 +26,16 @@ defmodule Sig.HR.Payslips.Categories do
     category
     |> Category.update_changeset(attrs)
     |> Repo.update()
+  end
+
+  def delete(%Category{} = category) do
+    with {:rim, []} <- {:rim, HR.list_payslip_recurring_item_models_by(category)},
+         {:rpi, []} <- {:rpi, HR.list_recurring_payslip_items_by(category)} do
+      Repo.delete(category)
+    else
+      {:rim, _} -> {:error, "Existem modelos de items de holerite associados"}
+      {:rpi, _} -> {:error, "Existem items de holerite modelo associados"}
+    end
   end
 
   def list(org_id) when is_binary(org_id) do

@@ -5,6 +5,7 @@ defmodule Sig.HR.Payslips.RecurringItemModels do
   import Sig.Broadcaster
 
   alias Sig.HR
+  alias Sig.HR.Payslips.Categories.Category
   alias Sig.HR.Payslips.RecurringItemModels.RecurringItemModel
   alias Sig.Organizations.Org
   alias Sig.Repo
@@ -35,6 +36,13 @@ defmodule Sig.HR.Payslips.RecurringItemModels do
     |> query_by()
     |> shallow_preload(:category)
     |> order_by([category: c], c.code)
+    |> Repo.all()
+  end
+
+  def list_by(%Category{} = category, _opts \\ []) do
+    RecurringItemModel
+    |> where(org_id: ^category.org_id)
+    |> where(category_id: ^category.id)
     |> Repo.all()
   end
 

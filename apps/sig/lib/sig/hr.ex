@@ -140,7 +140,24 @@ defmodule Sig.HR do
     to: LeavePeriods,
     as: :update_change
 
+  defdelegate create_payslip_category_change(attrs \\ %{}),
+    to: Categories,
+    as: :create_change
+
+  defdelegate update_payslip_category_change(payslip_category, attrs \\ %{}),
+    to: Categories,
+    as: :update_change
+
+  defdelegate create_payslip_category(org, attrs), to: Categories, as: :create
+  defdelegate update_payslip_category(payslip_category, attrs), to: Categories, as: :update
+  defdelegate delete_payslip_category(payslip_category), to: Categories, as: :delete
   defdelegate list_payslip_categories(org_id), to: Categories, as: :list
+  defdelegate get_payslip_category(org_id, id), to: Categories, as: :get
+  defdelegate fetch_payslip_category(org_id, id), to: Categories, as: :fetch
+  defdelegate subscribe_to_payslip_categories(payslip_category), to: Categories
+  defdelegate broadcast_new_payslip_category(payslip_category), to: Categories
+  defdelegate broadcast_updated_payslip_category(payslip_category), to: Categories
+  defdelegate broadcast_deleted_payslip_category(payslip_category), to: Categories
 
   defdelegate create_overtime_change(attrs \\ %{}), to: Overtimes, as: :create_change
   defdelegate update_overtime_change(overtime, attrs \\ %{}), to: Overtimes, as: :update_change
@@ -167,6 +184,10 @@ defmodule Sig.HR do
   defdelegate list_payslip_recurring_item_models(org, opts \\ []),
     to: RecurringItemModels,
     as: :list
+
+  defdelegate list_payslip_recurring_item_models_by(schema, opts \\ []),
+    to: RecurringItemModels,
+    as: :list_by
 
   defdelegate get_payslip_recurring_item_model(org, id, opts \\ []),
     to: RecurringItemModels,

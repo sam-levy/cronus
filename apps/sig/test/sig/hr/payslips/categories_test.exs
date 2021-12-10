@@ -157,6 +157,36 @@ defmodule Sig.HR.Payslips.CategoriesTest do
     end
   end
 
+  describe "delete/1" do
+    test "deletes a category" do
+      %{id: id} = category = insert(:payslip_category)
+
+      assert {:ok, %Category{id: ^id}} = Categories.delete(category)
+
+      refute Repo.get_by(Category, org_id: category.org_id, id: category.id)
+    end
+
+    test "when category has payslip recurring item models associated" do
+      org = insert(:org)
+      category = insert(:payslip_category, org: org)
+      insert({:payslip_recurring_item_model, :fixed_amount}, org: org, category: category)
+
+      assert Categories.delete(category) == {:error, "Existem modelos de items de holerite associados"}
+
+      assert Repo.get_by(Category, org_id: org.id, id: category.id)
+    end
+
+    test "when category has payslip registration recurring payslip items associated" do
+      org = insert(:org)
+      category = insert(:payslip_category, org: org)
+      insert({:employee_registration_recurring_payslip_item, :payslip_item}, org: org, category: category)
+
+      assert Categories.delete(category) == {:error, "Existem items de holerite modelo associados"}
+
+      assert Repo.get_by(Category, org_id: org.id, id: category.id)
+    end
+  end
+
   describe "broadcast_new_payslip_category/1" do
     test "broadcasts a new payslip category from an org" do
       org = insert(:org)

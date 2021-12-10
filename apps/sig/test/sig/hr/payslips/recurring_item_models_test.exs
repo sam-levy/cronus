@@ -47,6 +47,30 @@ defmodule Sig.HR.Payslips.RecurringItemModelsTest do
     end
   end
 
+  describe "list_by/1" do
+    test "lists recurring item models by category" do
+      org = insert(:org)
+      category = insert(:payslip_category, org: org)
+
+      insert_list(2, {:payslip_recurring_item_model, :fixed_amount},
+        org: org,
+        category: category
+      )
+
+      _to_ignore = insert({:payslip_recurring_item_model, :fixed_amount}, org: org)
+
+      assert [%RecurringItemModel{}, %RecurringItemModel{}] =
+        RecurringItemModels.list_by(category)
+    end
+
+    test "when category has no recurring payslilp items" do
+      org = insert(:org)
+      category = insert(:payslip_category, org: org)
+
+      assert RecurringItemModels.list_by(category) == []
+    end
+  end
+
   describe "create/2" do
     test "creates a recurring item model" do
       org = insert(:org)

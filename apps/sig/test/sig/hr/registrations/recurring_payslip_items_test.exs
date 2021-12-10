@@ -38,6 +38,8 @@ defmodule Sig.HR.Registrations.RecurringPayslipItemsTest do
         payslip_recurring_item_model: rim
       )
 
+      _to_ignore = insert({:employee_registration_recurring_payslip_item, :payslip_item_model}, org: org)
+
       assert [%RecurringPayslipItem{}, %RecurringPayslipItem{}] =
                RecurringPayslipItems.list_by(rim)
     end
@@ -47,6 +49,28 @@ defmodule Sig.HR.Registrations.RecurringPayslipItemsTest do
       rim = insert({:payslip_recurring_item_model, :fixed_amount}, org: org)
 
       assert RecurringPayslipItems.list_by(rim) == []
+    end
+
+    test "lists recurring payslip items by category" do
+      org = insert(:org)
+      category = insert(:payslip_category, org: org)
+
+      insert_list(2, {:employee_registration_recurring_payslip_item, :payslip_item},
+        org: org,
+        payslip_category: category
+      )
+
+      _to_ignore = insert({:employee_registration_recurring_payslip_item, :payslip_item}, org: org)
+
+      assert [%RecurringPayslipItem{}, %RecurringPayslipItem{}] =
+               RecurringPayslipItems.list_by(category)
+    end
+
+    test "when category has no recurring payslilp items" do
+      org = insert(:org)
+      category = insert(:payslip_category, org: org)
+
+      assert RecurringPayslipItems.list_by(category) == []
     end
   end
 
