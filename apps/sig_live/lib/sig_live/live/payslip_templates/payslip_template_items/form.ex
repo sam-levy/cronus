@@ -77,7 +77,6 @@ defmodule SigLive.PayslipTemplates.PayslipTemplateItems.Form do
       |> Map.put("org_id", "id")
       |> Map.put("payslip_template_id", "id")
       |> HR.create_payslip_template_item_change()
-      |> IO.inspect()
 
     case apply_action(changeset, :insert) do
       {:error, changeset} -> Map.put(context, :validation, {:error, changeset})
