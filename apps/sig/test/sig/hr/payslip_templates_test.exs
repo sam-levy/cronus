@@ -130,17 +130,18 @@ defmodule Sig.HR.PayslipTemplatesTest do
         payslip_template: payslip_template
       )
 
-      assert {:ok, %PayslipTemplate{id: ^payslip_template_id}} = PayslipTemplates.delete(payslip_template)
+      assert {:ok, %PayslipTemplate{id: ^payslip_template_id}} =
+               PayslipTemplates.delete(payslip_template)
 
       refute Repo.get_by(PayslipTemplate,
-        org_id: org.id,
-        id: payslip_template_id
-      )
+               org_id: org.id,
+               id: payslip_template_id
+             )
 
       refute Repo.get_by(PayslipTemplateItem,
-        org_id: org.id,
-        payslip_template_id: payslip_template_id
-      )
+               org_id: org.id,
+               payslip_template_id: payslip_template_id
+             )
     end
   end
 

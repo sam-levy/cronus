@@ -141,7 +141,8 @@ defmodule Sig.HR.PayslipTemplates.PayslipTemplateItemsTest do
       org = insert(:org)
       payslip_template = insert(:payslip_template, org: org)
 
-      payslip_template_item = insert(:payslip_template_item, payslip_template: payslip_template, org: org)
+      payslip_template_item =
+        insert(:payslip_template_item, payslip_template: payslip_template, org: org)
 
       topic = "payslip_template_id:" <> payslip_template.id <> ":payslip_template_items"
 
@@ -164,7 +165,8 @@ defmodule Sig.HR.PayslipTemplates.PayslipTemplateItemsTest do
       org = insert(:org)
       payslip_template = insert(:payslip_template, org: org)
 
-      payslip_template_item = insert(:payslip_template_item, payslip_template: payslip_template, org: org)
+      payslip_template_item =
+        insert(:payslip_template_item, payslip_template: payslip_template, org: org)
 
       topic = "payslip_template_id:" <> payslip_template.id <> ":payslip_template_items"
 
