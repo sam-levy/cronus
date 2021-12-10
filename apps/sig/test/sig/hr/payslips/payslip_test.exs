@@ -389,12 +389,10 @@ defmodule Sig.HR.Payslips.PayslipTest do
           registration: registration
         )
 
-      credit_category = insert(:payslip_category, org: org, entry_type: :credit)
-
       insert(:payslip_item,
         org: org,
         payslip: jan_payslip,
-        category: credit_category,
+        entry_type: :credit,
         amount: 1_000_00
       )
 
@@ -421,7 +419,7 @@ defmodule Sig.HR.Payslips.PayslipTest do
       insert(:payslip_item,
         org: org,
         payslip: feb_payslip,
-        category: credit_category,
+        entry_type: :credit,
         amount: 500_00
       )
 

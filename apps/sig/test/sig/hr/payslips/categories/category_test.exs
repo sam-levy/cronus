@@ -112,12 +112,12 @@ defmodule Sig.HR.Payslips.Categories.CategoryTest do
       refute changeset.valid?
 
       assert errors_on(changeset) == %{
-        code: ["can't be blank"],
-        description: ["can't be blank"],
-        entry_type: ["can't be blank"],
-        is_payment_advance: ["can't be blank"],
-        org_id: ["can't be blank"]
-      }
+               code: ["can't be blank"],
+               description: ["can't be blank"],
+               entry_type: ["can't be blank"],
+               is_payment_advance: ["can't be blank"],
+               org_id: ["can't be blank"]
+             }
     end
 
     test "invalid attrs" do
@@ -134,12 +134,12 @@ defmodule Sig.HR.Payslips.Categories.CategoryTest do
       refute changeset.valid?
 
       assert errors_on(changeset) == %{
-        code: ["is invalid"],
-        description: ["is invalid"],
-        entry_type: ["is invalid"],
-        is_payment_advance: ["is invalid"],
-        org_id: ["is invalid"]
-      }
+               code: ["is invalid"],
+               description: ["is invalid"],
+               entry_type: ["is invalid"],
+               is_payment_advance: ["is invalid"],
+               org_id: ["is invalid"]
+             }
     end
 
     test "string fields length greater than 255 chars" do
@@ -156,9 +156,9 @@ defmodule Sig.HR.Payslips.Categories.CategoryTest do
       refute changeset.valid?
 
       assert errors_on(changeset) == %{
-        code: ["should be at most 255 character(s)"],
-        description: ["should be at most 255 character(s)"]
-      }
+               code: ["should be at most 255 character(s)"],
+               description: ["should be at most 255 character(s)"]
+             }
     end
 
     test "is_payment_advance true when entry_type is credit" do
@@ -175,8 +175,8 @@ defmodule Sig.HR.Payslips.Categories.CategoryTest do
       refute changeset.valid?
 
       assert errors_on(changeset) == %{
-        is_payment_advance: ["deve ser falso quando o tipo de entrada é crédito"]
-      }
+               is_payment_advance: ["deve ser falso quando o tipo de entrada é crédito"]
+             }
     end
 
     test "code unique constraint" do
@@ -199,8 +199,8 @@ defmodule Sig.HR.Payslips.Categories.CategoryTest do
       refute changeset.valid?
 
       assert errors_on(changeset) == %{
-        code: ["has already been taken"]
-      }
+               code: ["has already been taken"]
+             }
     end
   end
 
@@ -225,7 +225,6 @@ defmodule Sig.HR.Payslips.Categories.CategoryTest do
                entry_type: attrs[:entry_type],
                is_payment_advance: attrs[:is_payment_advance]
              }
-
     end
 
     test "nil required attrs" do
@@ -243,11 +242,11 @@ defmodule Sig.HR.Payslips.Categories.CategoryTest do
       refute changeset.valid?
 
       assert errors_on(changeset) == %{
-        code: ["can't be blank"],
-        description: ["can't be blank"],
-        entry_type: ["can't be blank"],
-        is_payment_advance: ["can't be blank"]
-      }
+               code: ["can't be blank"],
+               description: ["can't be blank"],
+               entry_type: ["can't be blank"],
+               is_payment_advance: ["can't be blank"]
+             }
     end
 
     test "ignores non permitted attrs" do
@@ -271,7 +270,6 @@ defmodule Sig.HR.Payslips.Categories.CategoryTest do
                entry_type: attrs[:entry_type],
                is_payment_advance: attrs[:is_payment_advance]
              }
-
     end
 
     test "string fields length greater than 255 chars" do
@@ -289,9 +287,9 @@ defmodule Sig.HR.Payslips.Categories.CategoryTest do
       refute changeset.valid?
 
       assert errors_on(changeset) == %{
-        code: ["should be at most 255 character(s)"],
-        description: ["should be at most 255 character(s)"]
-      }
+               code: ["should be at most 255 character(s)"],
+               description: ["should be at most 255 character(s)"]
+             }
     end
 
     test "is_payment_advance true when entry_type is credit" do
@@ -309,8 +307,8 @@ defmodule Sig.HR.Payslips.Categories.CategoryTest do
       refute changeset.valid?
 
       assert errors_on(changeset) == %{
-        is_payment_advance: ["deve ser falso quando o tipo de entrada é crédito"]
-      }
+               is_payment_advance: ["deve ser falso quando o tipo de entrada é crédito"]
+             }
     end
 
     test "code unique constraint" do
@@ -334,8 +332,8 @@ defmodule Sig.HR.Payslips.Categories.CategoryTest do
       refute changeset.valid?
 
       assert errors_on(changeset) == %{
-        code: ["has already been taken"]
-      }
+               code: ["has already been taken"]
+             }
     end
   end
 end

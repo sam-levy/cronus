@@ -1,7 +1,6 @@
 defmodule Sig.HR.Payslips.Items.Item do
   use Sig.Schema
 
-  alias Sig.HR.Payslips.Categories.Category
   alias Sig.HR.Payslips.Payslip
   alias Sig.Organizations.Org
 
@@ -19,7 +18,8 @@ defmodule Sig.HR.Payslips.Items.Item do
     field :is_payment_advance, :boolean, default: false
 
     belongs_to :payslip, Payslip
-    belongs_to :category, Category
+
+    field :category_id, :binary_id, virtual: true
 
     timestamps()
   end
@@ -41,9 +41,8 @@ defmodule Sig.HR.Payslips.Items.Item do
     |> validate_length(:description, max: 255)
     |> validate_length(:reference, max: 255)
     |> validate_money(:amount, [:gt, :eq], 0)
-    |> assoc_constraint(:category, name: :payslip_items_category)
-    |> unique_constraint([:category_id, :payslip_id, :org_id],
-      name: :payslip_items_category_unique
+    |> unique_constraint([:code, :payslip_id, :org_id],
+      name: :payslip_items_code_unique
     )
   end
 

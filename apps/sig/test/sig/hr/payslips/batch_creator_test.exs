@@ -241,13 +241,15 @@ defmodule Sig.HR.Payslips.BatchCreatorTest do
         admission_date: ~D[2020-01-01]
       )
 
+      salary_category =
+        insert(:payslip_category, org: org, code: "1", entry_type: :credit, description: "SALÁRIO")
+
       Enum.each(kitchen_registrations ++ cleaning_registrations, fn registration ->
-        insert({:employee_registration_recurring_payslip_item, :outside_item},
+        insert({:employee_registration_recurring_payslip_item, :payslip_item},
           org: org,
           registration: registration,
-          item_amount: 300_00,
-          outside_item_description: "OUTSIDE ITEM CREDIT",
-          outside_item_entry_type: :credit
+          payslip_category: salary_category,
+          item_amount: 300_00
         )
 
         insert({:employee_registration_recurring_payslip_item, :outside_item},
@@ -295,7 +297,7 @@ defmodule Sig.HR.Payslips.BatchCreatorTest do
                  org_id: org.id,
                  amount: 300_00,
                  entry_type: :credit,
-                 type: :outside_item,
+                 type: :payslip_item,
                  is_payment_advance: false,
                  payslip_id: payslip.id
                )
@@ -379,13 +381,15 @@ defmodule Sig.HR.Payslips.BatchCreatorTest do
         admission_date: ~D[2020-01-01]
       )
 
+      salary_category =
+        insert(:payslip_category, org: org, code: "1", entry_type: :credit, description: "SALÁRIO")
+
       Enum.each(registrations, fn registration ->
-        insert({:employee_registration_recurring_payslip_item, :outside_item},
+        insert({:employee_registration_recurring_payslip_item, :payslip_item},
           org: org,
           registration: registration,
-          item_amount: 300_00,
-          outside_item_description: "OUTSIDE ITEM CREDIT",
-          outside_item_entry_type: :credit
+          payslip_category: salary_category,
+          item_amount: 300_00
         )
 
         insert({:employee_registration_recurring_payslip_item, :outside_item},
@@ -425,7 +429,7 @@ defmodule Sig.HR.Payslips.BatchCreatorTest do
                  org_id: org.id,
                  amount: 300_00,
                  entry_type: :credit,
-                 type: :outside_item,
+                 type: :payslip_item,
                  is_payment_advance: false,
                  payslip_id: payslip.id
                )
@@ -508,13 +512,15 @@ defmodule Sig.HR.Payslips.BatchCreatorTest do
         admission_date: ~D[2020-01-01]
       )
 
+      salary_category =
+        insert(:payslip_category, org: org, code: "1", entry_type: :credit, description: "SALÁRIO")
+
       Enum.each(registrations_without_payables, fn registration ->
-        insert({:employee_registration_recurring_payslip_item, :outside_item},
+        insert({:employee_registration_recurring_payslip_item, :payslip_item},
           org: org,
           registration: registration,
-          item_amount: 300_00,
-          outside_item_description: "OUTSIDE ITEM CREDIT",
-          outside_item_entry_type: :credit
+          payslip_category: salary_category,
+          item_amount: 300_00
         )
 
         insert({:employee_registration_recurring_payslip_item, :outside_item},
@@ -562,7 +568,7 @@ defmodule Sig.HR.Payslips.BatchCreatorTest do
                  org_id: org.id,
                  amount: 300_00,
                  entry_type: :credit,
-                 type: :outside_item,
+                 type: :payslip_item,
                  is_payment_advance: false,
                  payslip_id: payslip.id
                )

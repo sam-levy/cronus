@@ -9,7 +9,7 @@ defmodule Sig.Repo.Migrations.CreatePayslipItemsTable do
       add :org_id, references(:orgs), primary_key: true
 
       add :type, :payslip_item_type, null: false
-      add :code, :string
+      add :code, :citext
       add :reference, :string
       add :description, :string, null: false
       add :entry_type, :entry_type, null: false
@@ -18,19 +18,13 @@ defmodule Sig.Repo.Migrations.CreatePayslipItemsTable do
 
       add :payslip_id, references(:payslips, with: [org_id: :org_id]), null: false
 
-      add :category_id,
-          references(:payslip_categories,
-            with: [org_id: :org_id],
-            name: :payslip_items_category
-          )
-
       timestamps()
     end
 
     create unique_index(
              :payslip_items,
-             [:category_id, :payslip_id, :org_id],
-             name: :payslip_items_category_unique
+             [:code, :payslip_id, :org_id],
+             name: :payslip_items_code_unique
            )
 
     create constraint(
@@ -51,11 +45,9 @@ defmodule Sig.Repo.Migrations.CreatePayslipItemsTable do
              check: """
                CASE
                  WHEN type = 'payslip_item' THEN
-                   category_id IS NOT NULL AND
                    code IS NOT NULL
 
                  WHEN type = 'outside_item' THEN
-                   category_id IS NULL AND
                    code IS NULL AND
                    reference IS NULL
                END

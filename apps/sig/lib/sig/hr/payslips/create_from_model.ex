@@ -45,7 +45,10 @@ defmodule Sig.HR.Payslips.CreateFromModel do
   defp handle_params(rpi, acc, payslip) do
     with %{valid?: true} = changeset <- Items.build_changeset_from(rpi, payslip),
          {:ok, _item} <- Ecto.Changeset.apply_action(changeset, :insert) do
-      params = Sig.Changeset.add_timestamps(changeset.changes)
+      params =
+        changeset.changes
+        |> Map.drop([:category_id])
+        |> Sig.Changeset.add_timestamps()
 
       {:cont, [params | acc]}
     else
