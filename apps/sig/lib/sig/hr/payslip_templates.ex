@@ -53,6 +53,13 @@ defmodule Sig.HR.PayslipTemplates do
     |> Repo.one()
   end
 
+  def fetch(%Org{} = org, id) when is_binary(id) do
+    case get(org, id) do
+      %PayslipTemplate{} = template -> {:ok, template}
+      nil -> {:error, :not_found}
+    end
+  end
+
   def list(%Org{} = org, _opts \\ []) do
     org
     |> query_by()

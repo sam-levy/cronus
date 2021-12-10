@@ -43,6 +43,7 @@ defmodule Sig.HR do
 
   defdelegate list_payslip_templates(org), to: PayslipTemplates, as: :list
   defdelegate get_payslip_template(registration, id), to: PayslipTemplates, as: :get
+  defdelegate fetch_payslip_template(registration, id), to: PayslipTemplates, as: :fetch
   defdelegate create_payslip_template(registration, attrs), to: PayslipTemplates, as: :create
   defdelegate update_payslip_template(payslip_template, attrs), to: PayslipTemplates, as: :update
   defdelegate delete_payslip_template(payslip_template), to: PayslipTemplates, as: :delete

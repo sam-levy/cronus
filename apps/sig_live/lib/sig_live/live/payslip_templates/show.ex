@@ -9,19 +9,27 @@ defmodule SigLive.PayslipTemplates.Show do
   def mount(%{"id" => payslip_template_id}, _session, socket) do
     %{org: org} = socket.assigns
 
-    payslip_template = HR.get_payslip_template(org, payslip_template_id)
+    case HR.fetch_payslip_template(org, payslip_template_id) do
+      {:error, :not_found} ->
+        {:ok,
+        push_redirect(socket,
+          to: Routes.sig_payslip_templates_index_path(socket, :payslip_templates, org)
+        )}
 
-    if connected?(socket) do
-      HR.subscribe_to_payslip_template_items(payslip_template)
+      {:ok, payslip_template} ->
+        if connected?(socket) do
+          HR.subscribe_to_payslip_templates(payslip_template)
+          HR.subscribe_to_payslip_template_items(payslip_template)
+        end
+
+        socket =
+          assign(socket,
+            payslip_template: payslip_template,
+            payslip_template_items: HR.list_payslip_template_items(payslip_template)
+          )
+
+        {:ok, socket}
     end
-
-    socket =
-      assign(socket,
-        payslip_template: payslip_template,
-        payslip_template_items: HR.list_payslip_template_items(payslip_template)
-      )
-
-    {:ok, socket}
   end
 
   @impl true
@@ -46,6 +54,18 @@ defmodule SigLive.PayslipTemplates.Show do
       )
 
     {:noreply, assign(socket, payslip_template_items: updated_payslip_template_items)}
+  end
+
+  @impl true
+  def handle_info({:deleted_payslip_template, deleted_payslip_template}, socket) do
+    if deleted_payslip_template.id == socket.assigns.payslip_template.id do
+      {:noreply,
+        push_redirect(socket,
+          to: Routes.sig_payslip_templates_index_path(socket, :payslip_templates, socket.assigns.org)
+      )}
+    else
+      {:noreply, socket}
+    end
   end
 
   @impl true
