@@ -164,5 +164,34 @@ defmodule Sig.HR.PayslipTemplates.PayslipTemplateItems.PayslipTemplateItemTest d
                payslip_recurring_item_model: ["does not exist"]
              }
     end
+
+    test "payslip_recurring_item_model unique constraint" do
+      org = insert(:org)
+      payslip_template = insert(:payslip_template, org: org)
+      rim = insert({:payslip_recurring_item_model, :fixed_amount}, org: org)
+
+      insert(:payslip_template_item,
+        org: org,
+        payslip_template: payslip_template,
+        payslip_recurring_item_model: rim
+      )
+
+      attrs = %{
+        org_id: org.id,
+        payslip_template_id: payslip_template.id,
+        payslip_recurring_item_model_id: rim.id
+      }
+
+      assert {:error, changeset} =
+               attrs
+               |> PayslipTemplateItem.create_changeset()
+               |> Repo.insert()
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+               payslip_recurring_item_model_id: ["has already been taken"]
+             }
+    end
   end
 end

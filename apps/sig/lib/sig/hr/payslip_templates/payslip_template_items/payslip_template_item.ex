@@ -5,11 +5,10 @@ defmodule Sig.HR.PayslipTemplates.PayslipTemplateItems.PayslipTemplateItem do
   alias Sig.HR.PayslipTemplates.PayslipTemplate
   alias Sig.HR.Payslips.RecurringItemModels.RecurringItemModel
 
-  @primary_key false
   schema "payslip_template_items" do
     belongs_to :org, Org, primary_key: true
-    belongs_to :payslip_template, PayslipTemplate, primary_key: true
-    belongs_to :payslip_recurring_item_model, RecurringItemModel, primary_key: true
+    belongs_to :payslip_template, PayslipTemplate
+    belongs_to :payslip_recurring_item_model, RecurringItemModel
   end
 
   @fields [:org_id, :payslip_template_id, :payslip_recurring_item_model_id]
@@ -19,5 +18,8 @@ defmodule Sig.HR.PayslipTemplates.PayslipTemplateItems.PayslipTemplateItem do
     |> cast(attrs, @fields)
     |> validate_required(@fields)
     |> assoc_constraint(:payslip_recurring_item_model)
+    |> unique_constraint(:payslip_recurring_item_model_id,
+      name: :payslip_template_items_model_unique
+    )
   end
 end
