@@ -8,7 +8,7 @@ defmodule Sig.Factories.PayslipTemplateFactory do
 
         %PayslipTemplate{
           org: org,
-          name: Faker.Commerce.department()
+          name: sequence(&"#{Faker.Commerce.department()}#{&1}")
         }
       end
     end
