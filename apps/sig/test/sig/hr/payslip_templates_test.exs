@@ -3,6 +3,7 @@ defmodule Sig.HR.PayslipTemplatesTest do
 
   alias Sig.HR.PayslipTemplates
   alias Sig.HR.PayslipTemplates.PayslipTemplate
+  alias Sig.HR.PayslipTemplates.PayslipTemplateItems.PayslipTemplateItem
 
   @endpoint SigLive.Endpoint
 
@@ -120,10 +121,26 @@ defmodule Sig.HR.PayslipTemplatesTest do
   end
 
   describe "delete/1" do
-    test "deletes a payslip template" do
-      %{id: id} = payslip_template = insert(:payslip_template)
+    test "deletes a payslip template and its payslip items" do
+      org = insert(:org)
+      %{id: payslip_template_id} = payslip_template = insert(:payslip_template, org: org)
 
-      assert {:ok, %PayslipTemplate{id: ^id}} = PayslipTemplates.delete(payslip_template)
+      insert_list(2, :payslip_template_item,
+        org: org,
+        payslip_template: payslip_template
+      )
+
+      assert {:ok, %PayslipTemplate{id: ^payslip_template_id}} = PayslipTemplates.delete(payslip_template)
+
+      refute Repo.get_by(PayslipTemplate,
+        org_id: org.id,
+        id: payslip_template_id
+      )
+
+      refute Repo.get_by(PayslipTemplateItem,
+        org_id: org.id,
+        payslip_template_id: payslip_template_id
+      )
     end
   end
 

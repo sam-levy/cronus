@@ -2,7 +2,10 @@ defmodule Sig.HR.PayslipTemplates do
   import Ecto.Query
   import Sig.Broadcaster
 
+  alias Ecto.Multi
+
   alias Sig.HR.PayslipTemplates.PayslipTemplate
+  alias Sig.HR.PayslipTemplates.PayslipTemplateItems.PayslipTemplateItem
   alias Sig.Organizations.Org
   alias Sig.Repo
 
@@ -28,7 +31,19 @@ defmodule Sig.HR.PayslipTemplates do
   end
 
   def delete(%PayslipTemplate{} = payslip_template) do
-    Repo.delete(payslip_template)
+    Multi.new()
+    |> Multi.delete_all(
+      :template_items,
+      PayslipTemplateItem
+      |> where(org_id: ^payslip_template.org_id)
+      |> where(payslip_template_id: ^payslip_template.id)
+    )
+    |> Multi.delete(:payslip_template, payslip_template)
+    |> Repo.transaction()
+    |> case do
+      {:ok, %{payslip_template: template}} -> {:ok, template}
+      {:error, _operation, reason, _changes} -> {:error, reason}
+    end
   end
 
   def get(%Org{} = org, id) when is_binary(id) do
