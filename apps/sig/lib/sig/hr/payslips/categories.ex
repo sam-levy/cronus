@@ -38,11 +38,16 @@ defmodule Sig.HR.Payslips.Categories do
     end
   end
 
+  def list(%Org{} = org), do: list(org.id)
+
   def list(org_id) when is_binary(org_id) do
     Category
     |> where(org_id: ^org_id)
+    |> order_by(:code)
     |> Repo.all()
   end
+
+  def get(%Org{} = org, id) when is_binary(id), do: get(org.id, id)
 
   def get(org_id, id) when is_binary(org_id) and is_binary(id) do
     Category
