@@ -39,11 +39,16 @@ defmodule Sig.HR.Payslips.RecurringItemModels do
     |> Repo.all()
   end
 
-  def list_by(%Category{} = category, _opts \\ []) do
-    RecurringItemModel
-    |> where(org_id: ^category.org_id)
-    |> where(category_id: ^category.id)
+  def list_by(schema, _opts \\ []) do
+    schema
+    |> query_by()
     |> Repo.all()
+  end
+
+  def count_by(schema) do
+    schema
+    |> query_by()
+    |> Repo.aggregate(:count)
   end
 
   def get(%Org{} = org, id, _opts \\ []) when is_binary(id) do
@@ -62,14 +67,21 @@ defmodule Sig.HR.Payslips.RecurringItemModels do
   end
 
   def delete(%RecurringItemModel{} = rim) do
-    case HR.list_recurring_payslip_items_by(rim) do
-      [] -> Repo.delete(rim)
+    case HR.count_recurring_payslip_items_by(rim) do
+      0 -> Repo.delete(rim)
       _ -> {:error, "Existem holerites modelo usando este modelo de item"}
     end
   end
 
   defp query_by(%Org{} = org) do
-    where(init_query(), org_id: ^org.id)
+    init_query()
+    |> where(org_id: ^org.id)
+  end
+
+  defp query_by(%Category{} = category) do
+    init_query()
+    |> where(org_id: ^category.org_id)
+    |> where(category_id: ^category.id)
   end
 
   defp init_query, do: from(rim in RecurringItemModel, as: :payslip_recurring_item_model)
