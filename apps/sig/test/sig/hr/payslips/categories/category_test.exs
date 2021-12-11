@@ -115,7 +115,6 @@ defmodule Sig.HR.Payslips.Categories.CategoryTest do
                code: ["can't be blank"],
                description: ["can't be blank"],
                entry_type: ["can't be blank"],
-               is_payment_advance: ["can't be blank"],
                org_id: ["can't be blank"]
              }
     end
@@ -158,24 +157,6 @@ defmodule Sig.HR.Payslips.Categories.CategoryTest do
       assert errors_on(changeset) == %{
                code: ["should be at most 255 character(s)"],
                description: ["should be at most 255 character(s)"]
-             }
-    end
-
-    test "is_payment_advance true when entry_type is credit" do
-      attrs = %{
-        org_id: UUID.generate(),
-        code: random_string_number(),
-        description: Faker.Lorem.sentence(),
-        entry_type: :credit,
-        is_payment_advance: true
-      }
-
-      assert changeset = Category.create_changeset(attrs)
-
-      refute changeset.valid?
-
-      assert errors_on(changeset) == %{
-               is_payment_advance: ["deve ser falso quando o tipo de entrada é crédito"]
              }
     end
 
@@ -234,7 +215,6 @@ defmodule Sig.HR.Payslips.Categories.CategoryTest do
         code: nil,
         description: nil,
         entry_type: nil,
-        is_payment_advance: nil
       }
 
       assert changeset = Category.update_changeset(category, attrs)
@@ -244,8 +224,7 @@ defmodule Sig.HR.Payslips.Categories.CategoryTest do
       assert errors_on(changeset) == %{
                code: ["can't be blank"],
                description: ["can't be blank"],
-               entry_type: ["can't be blank"],
-               is_payment_advance: ["can't be blank"]
+               entry_type: ["can't be blank"]
              }
     end
 
@@ -289,25 +268,6 @@ defmodule Sig.HR.Payslips.Categories.CategoryTest do
       assert errors_on(changeset) == %{
                code: ["should be at most 255 character(s)"],
                description: ["should be at most 255 character(s)"]
-             }
-    end
-
-    test "is_payment_advance true when entry_type is credit" do
-      category = insert(:payslip_category, entry_type: :debit, is_payment_advance: true)
-
-      attrs = %{
-        code: random_string_number(),
-        description: Faker.Lorem.sentence(),
-        entry_type: :credit,
-        is_payment_advance: true
-      }
-
-      assert changeset = Category.update_changeset(category, attrs)
-
-      refute changeset.valid?
-
-      assert errors_on(changeset) == %{
-               is_payment_advance: ["deve ser falso quando o tipo de entrada é crédito"]
              }
     end
 
