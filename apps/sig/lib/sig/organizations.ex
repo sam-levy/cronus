@@ -1,6 +1,4 @@
 defmodule Sig.Organizations do
-  import Ecto.Query
-
   alias Sig.Organizations.Org
   alias Sig.Organizations.Positions
   alias Sig.Organizations.Sectors
