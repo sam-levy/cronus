@@ -280,52 +280,28 @@ defmodule Sig.HR.PayslipsTest do
       org = insert(:org)
       payslip = insert(:payslip, org: org)
 
-      salary_category =
-        insert(:payslip_category,
-          org: org,
-          code: "1",
-          entry_type: :credit,
-          description: "SALÁRIO"
-        )
-
       salary_item =
         insert(:payslip_item,
           org: org,
           payslip: payslip,
-          category: salary_category,
+          entry_type: :credit,
           amount: Money.new(1_000_00)
-        )
-
-      salary_advance_category =
-        insert(:payslip_category,
-          org: org,
-          code: "12",
-          entry_type: :debit,
-          description: "ADIANTAMENTO ANTERIOR"
         )
 
       payment_advance_item =
         insert(:payslip_item,
           org: org,
           payslip: payslip,
-          category: salary_advance_category,
+          entry_type: :debit,
           amount: Money.new(400_00),
           is_payment_advance: true
-        )
-
-      health_insurance_category =
-        insert(:payslip_category,
-          org: org,
-          code: "115",
-          entry_type: :debit,
-          description: "ASSISTÊNCIA MÉDICA"
         )
 
       health_insurance_item =
         insert(:payslip_item,
           org: org,
           payslip: payslip,
-          category: health_insurance_category,
+          entry_type: :debit,
           amount: Money.new(300_00)
         )
 
@@ -363,35 +339,20 @@ defmodule Sig.HR.PayslipsTest do
       org = insert(:org)
       payslip = insert(:payslip, org: org)
 
-      salary_category =
-        insert(:payslip_category,
-          org: org,
-          code: "1",
-          entry_type: :credit,
-          description: "SALÁRIO"
-        )
-
       salary_item =
         insert(:payslip_item,
           org: org,
           payslip: payslip,
-          category: salary_category,
+          entry_type: :credit,
+          description: "SALÁRIO",
           amount: Money.new(1_000_00)
-        )
-
-      salary_advance_category =
-        insert(:payslip_category,
-          org: org,
-          code: "12",
-          entry_type: :debit,
-          description: "ADIANTAMENTO ANTERIOR"
         )
 
       payment_advance_item =
         insert(:payslip_item,
           org: org,
           payslip: payslip,
-          category: salary_advance_category,
+          entry_type: :debit,
           amount: Money.new(1_100_00),
           is_payment_advance: true
         )
@@ -406,35 +367,19 @@ defmodule Sig.HR.PayslipsTest do
       org = insert(:org)
       payslip = insert(:payslip, org: org)
 
-      salary_category =
-        insert(:payslip_category,
-          org: org,
-          code: "1",
-          entry_type: :credit,
-          description: "SALÁRIO"
-        )
-
       salary_item =
         insert(:payslip_item,
           org: org,
           payslip: payslip,
-          category: salary_category,
+          entry_type: :credit,
           amount: Money.new(1_000_00)
-        )
-
-      salary_advance_category =
-        insert(:payslip_category,
-          org: org,
-          code: "12",
-          entry_type: :debit,
-          description: "ADIANTAMENTO ANTERIOR"
         )
 
       payment_advance_item =
         insert(:payslip_item,
           org: org,
           payslip: payslip,
-          category: salary_advance_category,
+          entry_type: :debit,
           amount: Money.new(1_000_00),
           is_payment_advance: true
         )

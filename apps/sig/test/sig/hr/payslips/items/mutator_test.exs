@@ -24,7 +24,6 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
                id: id,
                org_id: org.id,
                payslip_id: payslip.id,
-               category_id: category.id,
                description: category.description,
                entry_type: category.entry_type,
                code: category.code,
@@ -44,15 +43,7 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
       org = insert(:org)
       payslip = insert(:payslip, org: org)
 
-      cashier_category =
-        insert(:payslip_category,
-          org: org,
-          code: "1000",
-          entry_type: :credit,
-          description: "QUEBRA DE CAIXA"
-        )
-
-      insert(:payslip_item, org: org, payslip: payslip, category: cashier_category, amount: 200_00)
+      insert(:payslip_item, org: org, payslip: payslip, amount: 200_00)
 
       insert(:payslip_outside_item,
         org: org,
@@ -78,7 +69,6 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
                id: id,
                org_id: org.id,
                payslip_id: payslip.id,
-               category_id: salary_category.id,
                description: salary_category.description,
                entry_type: salary_category.entry_type,
                code: salary_category.code,
@@ -137,7 +127,6 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
                id: id,
                org_id: org.id,
                payslip_id: payslip.id,
-               category_id: health_insurance_category.id,
                description: health_insurance_category.description,
                entry_type: health_insurance_category.entry_type,
                code: health_insurance_category.code,
@@ -157,13 +146,9 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
       org = insert(:org)
       payslip = insert(:payslip, org: org)
 
-      salary_category =
-        insert(:payslip_category, org: org, code: "1", entry_type: :credit, description: "SALÁRIO")
-
       insert(:payslip_item,
         org: org,
         payslip: payslip,
-        category: salary_category,
         amount: 1_000_00
       )
 
@@ -196,7 +181,6 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
       refute Repo.get_by(Item,
                org_id: org.id,
                payslip_id: payslip.id,
-               category_id: health_insurance_category.id,
                type: :payslip_item,
                amount: attrs[:amount]
              )
@@ -212,13 +196,9 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
       org = insert(:org)
       payslip = insert(:payslip, org: org)
 
-      salary_category =
-        insert(:payslip_category, org: org, code: "1", entry_type: :credit, description: "SALÁRIO")
-
       insert(:payslip_item,
         org: org,
         payslip: payslip,
-        category: salary_category,
         amount: 1_000_00
       )
 
@@ -251,7 +231,6 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
                id: id,
                org_id: org.id,
                payslip_id: payslip.id,
-               category_id: health_insurance_category.id,
                description: health_insurance_category.description,
                entry_type: health_insurance_category.entry_type,
                code: health_insurance_category.code,
@@ -271,13 +250,9 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
       org = insert(:org)
       payslip = insert(:payslip, org: org, is_closed: false)
 
-      salary_category =
-        insert(:payslip_category, org: org, code: "1", entry_type: :credit, description: "SALÁRIO")
-
       insert(:payslip_item,
         org: org,
         payslip: payslip,
-        category: salary_category,
         amount: 1_000_00
       )
 
@@ -310,7 +285,6 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
       refute Repo.get_by(Item,
                org_id: org.id,
                payslip_id: payslip.id,
-               category_id: health_insurance_category.id,
                description: health_insurance_category.description,
                entry_type: health_insurance_category.entry_type,
                code: health_insurance_category.code,
@@ -330,13 +304,9 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
       org = insert(:org)
       payslip = insert(:payslip, org: org, is_closed: false)
 
-      salary_category =
-        insert(:payslip_category, org: org, code: "1", entry_type: :credit, description: "SALÁRIO")
-
       insert(:payslip_item,
         org: org,
         payslip: payslip,
-        category: salary_category,
         amount: 1_000_00
       )
 
@@ -369,7 +339,6 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
       refute Repo.get_by(Item,
                org_id: org.id,
                payslip_id: payslip.id,
-               category_id: health_insurance_category.id,
                type: :payslip_item,
                amount: attrs[:amount]
              )
@@ -430,15 +399,7 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
       org = insert(:org)
       payslip = insert(:payslip, org: org, amount: Money.new(300_00))
 
-      cashier_category =
-        insert(:payslip_category,
-          org: org,
-          code: "1000",
-          entry_type: :credit,
-          description: "QUEBRA DE CAIXA"
-        )
-
-      insert(:payslip_item, org: org, payslip: payslip, category: cashier_category, amount: 200_00)
+      insert(:payslip_item, org: org, payslip: payslip, amount: 200_00)
 
       insert(:payslip_outside_item,
         org: org,
@@ -476,13 +437,9 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
       org = insert(:org)
       payslip = insert(:payslip, org: org, amount: Money.new(900_00))
 
-      salary_category =
-        insert(:payslip_category, org: org, code: "1", entry_type: :credit, description: "SALÁRIO")
-
       insert(:payslip_item,
         org: org,
         payslip: payslip,
-        category: salary_category,
         amount: 1_000_00
       )
 
@@ -522,13 +479,9 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
       org = insert(:org)
       payslip = insert(:payslip, org: org)
 
-      salary_category =
-        insert(:payslip_category, org: org, code: "1", entry_type: :credit, description: "SALÁRIO")
-
       insert(:payslip_item,
         org: org,
         payslip: payslip,
-        category: salary_category,
         amount: 1_000_00
       )
 
@@ -571,13 +524,9 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
       org = insert(:org)
       payslip = insert(:payslip, org: org)
 
-      salary_category =
-        insert(:payslip_category, org: org, code: "1", entry_type: :credit, description: "SALÁRIO")
-
       insert(:payslip_item,
         org: org,
         payslip: payslip,
-        category: salary_category,
         amount: 1_000_00
       )
 
@@ -620,13 +569,9 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
       org = insert(:org)
       payslip = insert(:payslip, org: org, is_closed: false)
 
-      salary_category =
-        insert(:payslip_category, org: org, code: "1", entry_type: :credit, description: "SALÁRIO")
-
       insert(:payslip_item,
         org: org,
         payslip: payslip,
-        category: salary_category,
         amount: 1_000_00
       )
 
@@ -670,13 +615,9 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
 
       payslip = insert(:payslip, org: org, is_closed: false)
 
-      salary_category =
-        insert(:payslip_category, org: org, code: "1", entry_type: :credit, description: "SALÁRIO")
-
       insert(:payslip_item,
         org: org,
         payslip: payslip,
-        category: salary_category,
         amount: 1_000_00
       )
 
@@ -740,19 +681,10 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
         amount: 100_00
       )
 
-      cashier_category =
-        insert(:payslip_category,
-          org: org,
-          code: "1000",
-          entry_type: :credit,
-          description: "QUEBRA DE CAIXA"
-        )
-
       payslip_item =
         insert(:payslip_item,
           org: org,
           payslip: payslip,
-          category: cashier_category,
           amount: 200_00
         )
 
@@ -765,7 +697,6 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
                id: payslip_item.id,
                org_id: org.id,
                payslip_id: payslip.id,
-               category_id: cashier_category.id,
                type: :payslip_item,
                reference: payslip_item.reference,
                amount: 250_00
@@ -782,18 +713,9 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
       org = insert(:org)
       payslip = insert(:payslip, org: org, amount: Money.new(300_00))
 
-      cashier_category =
-        insert(:payslip_category,
-          org: org,
-          code: "1000",
-          entry_type: :credit,
-          description: "QUEBRA DE CAIXA"
-        )
-
       insert(:payslip_item,
         org: org,
         payslip: payslip,
-        category: cashier_category,
         amount: 200_00
       )
 
@@ -831,18 +753,9 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
       org = insert(:org)
       payslip = insert(:payslip, org: org)
 
-      cashier_category =
-        insert(:payslip_category,
-          org: org,
-          code: "1000",
-          entry_type: :credit,
-          description: "QUEBRA DE CAIXA"
-        )
-
       insert(:payslip_item,
         org: org,
         payslip: payslip,
-        category: cashier_category,
         amount: 200_00
       )
 
@@ -880,19 +793,10 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
       org = insert(:org)
       payslip = insert(:payslip, org: org, amount: Money.new(100_00))
 
-      cashier_category =
-        insert(:payslip_category,
-          org: org,
-          code: "1000",
-          entry_type: :credit,
-          description: "QUEBRA DE CAIXA"
-        )
-
       payslip_item =
         insert(:payslip_item,
           org: org,
           payslip: payslip,
-          category: cashier_category,
           amount: 200_00
         )
 
@@ -961,14 +865,10 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
       org = insert(:org)
       payslip = insert(:payslip, org: org)
 
-      salary_category =
-        insert(:payslip_category, org: org, code: "1", entry_type: :credit, description: "SALÁRIO")
-
       item =
         insert(:payslip_item,
           org: org,
           payslip: payslip,
-          category: salary_category,
           amount: 1_000_00
         )
 
@@ -1093,20 +993,11 @@ defmodule Sig.HR.Payslips.Items.MutatorTest do
         amount: 100_00
       )
 
-      cashier_category =
-        insert(:payslip_category,
-          org: org,
-          code: "1000",
-          entry_type: :credit,
-          description: "QUEBRA DE CAIXA"
-        )
-
       %{id: id} =
         item =
         insert(:payslip_item,
           org: org,
           payslip: payslip,
-          category: cashier_category,
           amount: 200_00
         )
 

@@ -159,17 +159,6 @@ defmodule Sig.HR.Payslips.ItemsTest do
       org = insert(:org)
       payslip = insert(:payslip, org: org)
 
-      salary_category =
-        insert(:payslip_category, org: org, code: "1", entry_type: :credit, description: "SALÁRIO")
-
-      health_insurance_category =
-        insert(:payslip_category,
-          org: org,
-          code: "115",
-          entry_type: :debit,
-          description: "ASSISTÊNCIA MÉDICA"
-        )
-
       insert(:payslip_outside_item,
         org: org,
         payslip: payslip,
@@ -177,8 +166,21 @@ defmodule Sig.HR.Payslips.ItemsTest do
         entry_type: :credit
       )
 
-      insert(:payslip_item, org: org, payslip: payslip, category: health_insurance_category)
-      insert(:payslip_item, org: org, payslip: payslip, category: salary_category)
+      insert(:payslip_item,
+        org: org,
+        payslip: payslip,
+        entry_type: :credit,
+        code: "1",
+        description: "SALÁRIO"
+      )
+
+      insert(:payslip_item,
+        org: org,
+        payslip: payslip,
+        entry_type: :debit,
+        code: "115",
+        description: "ASSISTÊNCIA MÉDICA"
+      )
 
       assert [
                %Item{code: "1", description: "SALÁRIO", entry_type: :credit},
@@ -199,10 +201,14 @@ defmodule Sig.HR.Payslips.ItemsTest do
       org = insert(:org)
       payslip = insert(:payslip, org: org)
 
-      category =
-        insert(:payslip_category, org: org, code: "1", entry_type: :credit, description: "SALÁRIO")
-
-      %{id: id} = insert(:payslip_item, org: org, payslip: payslip, category: category)
+      %{id: id} =
+        insert(:payslip_item,
+          org: org,
+          payslip: payslip,
+          code: "1",
+          entry_type: :credit,
+          description: "SALÁRIO"
+        )
 
       assert %Item{id: ^id, code: "1", description: "SALÁRIO", entry_type: :credit} =
                Items.get(payslip, id)
@@ -252,10 +258,14 @@ defmodule Sig.HR.Payslips.ItemsTest do
       org = insert(:org)
       payslip = insert(:payslip, org: org)
 
-      category =
-        insert(:payslip_category, org: org, code: "1", entry_type: :credit, description: "SALÁRIO")
-
-      %{id: id} = insert(:payslip_item, org: org, payslip: payslip, category: category)
+      %{id: id} =
+        insert(:payslip_item,
+          org: org,
+          payslip: payslip,
+          code: "1",
+          entry_type: :credit,
+          description: "SALÁRIO"
+        )
 
       assert {:ok, %Item{id: ^id, code: "1", description: "SALÁRIO", entry_type: :credit}} =
                Items.fetch(payslip, id)
@@ -273,33 +283,17 @@ defmodule Sig.HR.Payslips.ItemsTest do
       org = insert(:org)
       payslip = insert(:payslip, org: org)
 
-      salary_category =
-        insert(:payslip_category,
-          org: org,
-          code: "1",
-          entry_type: :credit,
-          description: "SALÁRIO"
-        )
-
       insert(:payslip_item,
         org: org,
         payslip: payslip,
-        category: salary_category,
+        entry_type: :credit,
         amount: 1_000_00
       )
 
-      salary_advance_category =
-        insert(:payslip_category,
-          org: org,
-          code: "12",
-          entry_type: :debit,
-          description: "ADIANTAMENTO ANTERIOR"
-        )
-
       insert(:payslip_item,
         org: org,
         payslip: payslip,
-        category: salary_advance_category,
+        entry_type: :debit,
         amount: 400_00,
         is_payment_advance: true
       )
@@ -313,18 +307,10 @@ defmodule Sig.HR.Payslips.ItemsTest do
         is_payment_advance: true
       )
 
-      health_insurance_category =
-        insert(:payslip_category,
-          org: org,
-          code: "115",
-          entry_type: :debit,
-          description: "ASSISTÊNCIA MÉDICA"
-        )
-
       insert(:payslip_item,
         org: org,
         payslip: payslip,
-        category: health_insurance_category,
+        entry_type: :debit,
         amount: 300_00
       )
 
@@ -338,33 +324,17 @@ defmodule Sig.HR.Payslips.ItemsTest do
       org = insert(:org)
       payslip = insert(:payslip, org: org)
 
-      salary_category =
-        insert(:payslip_category,
-          org: org,
-          code: "1",
-          entry_type: :credit,
-          description: "SALÁRIO"
-        )
-
       insert(:payslip_item,
         org: org,
         payslip: payslip,
-        category: salary_category,
+        entry_type: :credit,
         amount: 1_000_00
       )
 
-      health_insurance_category =
-        insert(:payslip_category,
-          org: org,
-          code: "115",
-          entry_type: :debit,
-          description: "ASSISTÊNCIA MÉDICA"
-        )
-
       insert(:payslip_item,
         org: org,
         payslip: payslip,
-        category: health_insurance_category,
+        entry_type: :debit,
         amount: 300_00
       )
 

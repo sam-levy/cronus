@@ -204,28 +204,17 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.PayslipPayables.PayslipPayable
       org = insert(:org)
       payslip = insert(:payslip, org: org)
 
-      salary_category =
-        insert(:payslip_category, org: org, code: "1", entry_type: :credit, description: "SALÁRIO")
-
       insert(:payslip_item,
         org: org,
         payslip: payslip,
-        category: salary_category,
+        entry_type: :credit,
         amount: 1_000_00
       )
 
-      salary_advance_category =
-        insert(:payslip_category,
-          org: org,
-          code: "12",
-          entry_type: :debit,
-          description: "ADIANTAMENTO ANTERIOR"
-        )
-
       insert(:payslip_item,
         org: org,
         payslip: payslip,
-        category: salary_advance_category,
+        entry_type: :debit,
         amount: 400_00,
         is_payment_advance: true
       )
@@ -261,28 +250,17 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.PayslipPayables.PayslipPayable
       org = insert(:org)
       payslip = insert(:payslip, org: org)
 
-      salary_category =
-        insert(:payslip_category, org: org, code: "1", entry_type: :credit, description: "SALÁRIO")
-
       insert(:payslip_item,
         org: org,
         payslip: payslip,
-        category: salary_category,
+        entry_type: :credit,
         amount: 1_000_00
       )
 
-      transport_voucher_category =
-        insert(:payslip_category,
-          org: org,
-          code: "109",
-          entry_type: :debit,
-          description: "DESC. VALE TRANSPORTE"
-        )
-
       insert(:payslip_item,
         org: org,
         payslip: payslip,
-        category: transport_voucher_category,
+        entry_type: :debit,
         amount: 10_00,
         is_payment_advance: false
       )
@@ -309,28 +287,17 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.PayslipPayables.PayslipPayable
       org = insert(:org)
       payslip = insert(:payslip, org: org)
 
-      salary_category =
-        insert(:payslip_category, org: org, code: "1", entry_type: :credit, description: "SALÁRIO")
-
       insert(:payslip_item,
         org: org,
         payslip: payslip,
-        category: salary_category,
+        entry_type: :credit,
         amount: 1_000_00
       )
 
-      salary_advance_category =
-        insert(:payslip_category,
-          org: org,
-          code: "12",
-          entry_type: :debit,
-          description: "ADIANTAMENTO ANTERIOR"
-        )
-
       insert(:payslip_item,
         org: org,
         payslip: payslip,
-        category: salary_advance_category,
+        entry_type: :debit,
         amount: 400_00,
         is_payment_advance: true
       )

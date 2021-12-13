@@ -214,8 +214,16 @@ defmodule Sig.HR.Payslips.BatchCreator do
 
   defp handle_changeset(changeset, acc) do
     case Ecto.Changeset.apply_action(changeset, :insert) do
-      {:ok, _struct} -> [Sig.Changeset.add_timestamps(changeset.changes) | acc]
-      {:error, _changeset} -> acc
+      {:ok, _struct} ->
+        params =
+          changeset.changes
+          |> Map.drop([:category_id])
+          |> Sig.Changeset.add_timestamps()
+
+        [params | acc]
+
+      {:error, _changeset} ->
+        acc
     end
   end
 

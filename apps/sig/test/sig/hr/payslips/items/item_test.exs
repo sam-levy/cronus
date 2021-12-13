@@ -6,7 +6,6 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
   describe "payslip_items table base constraints" do
     test "org_id not_null_violation" do
       payslip = insert(:payslip)
-      category = insert(:payslip_category, org: payslip.org)
 
       item = %Item{
         type: :payslip_item,
@@ -15,8 +14,7 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
         description: Faker.Lorem.sentence(),
         entry_type: random_enum_value(:entry_type),
         amount: Enum.random(100_00..300_00),
-        payslip_id: payslip.id,
-        category_id: category.id
+        payslip_id: payslip.id
       }
 
       assert_raise Postgrex.Error,
@@ -26,7 +24,6 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
 
     test "org_id foreign_key_constraint" do
       payslip = insert(:payslip)
-      category = insert(:payslip_category, org: payslip.org)
 
       item = %Item{
         org_id: UUID.generate(),
@@ -36,8 +33,7 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
         description: Faker.Lorem.sentence(),
         entry_type: random_enum_value(:entry_type),
         amount: Enum.random(100_00..300_00),
-        payslip_id: payslip.id,
-        category_id: category.id
+        payslip_id: payslip.id
       }
 
       assert_raise Ecto.ConstraintError,
@@ -48,7 +44,6 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
     test "payslip_items_amount_positive constraint" do
       org = insert(:org)
       payslip = insert(:payslip, org: org)
-      category = insert(:payslip_category, org: org)
 
       item = %Item{
         org_id: org.id,
@@ -58,8 +53,7 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
         description: Faker.Lorem.sentence(),
         entry_type: random_enum_value(:entry_type),
         amount: -1,
-        payslip_id: payslip.id,
-        category_id: category.id
+        payslip_id: payslip.id
       }
 
       assert_raise Ecto.ConstraintError,
@@ -70,7 +64,6 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
     test "payslip_items_is_payment_advance_entry_type_debit constraint" do
       org = insert(:org)
       payslip = insert(:payslip, org: org)
-      category = insert(:payslip_category, org: org)
 
       item = %Item{
         org_id: org.id,
@@ -80,7 +73,6 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
         description: Faker.Lorem.sentence(),
         amount: 100_00,
         payslip_id: payslip.id,
-        category_id: category.id,
         entry_type: :credit,
         is_payment_advance: true
       }
@@ -93,7 +85,6 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
     test "insertion when payslip is closed" do
       org = insert(:org)
       payslip = insert(:payslip, org: org, is_closed: true, amount: 0)
-      category = insert(:payslip_category, org: org)
 
       item = %Item{
         org_id: org.id,
@@ -103,8 +94,7 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
         description: Faker.Lorem.sentence(),
         entry_type: random_enum_value(:entry_type),
         amount: 100_00,
-        payslip_id: payslip.id,
-        category_id: category.id
+        payslip_id: payslip.id
       }
 
       assert_raise Postgrex.Error,
@@ -115,7 +105,6 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
     test "update when payslip is closed" do
       org = insert(:org)
       payslip = insert(:payslip, org: org, is_closed: false)
-      category = insert(:payslip_category, org: org, entry_type: :credit)
 
       item =
         insert(:payslip_item,
@@ -124,8 +113,7 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
           description: Faker.Lorem.sentence(),
           entry_type: :credit,
           amount: 100_00,
-          payslip: payslip,
-          category: category
+          payslip: payslip
         )
 
       # close payslip
@@ -139,7 +127,6 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
     test "deletion when payslip is closed" do
       org = insert(:org)
       payslip = insert(:payslip, org: org, is_closed: false)
-      category = insert(:payslip_category, org: org, entry_type: :credit)
 
       item =
         insert(:payslip_item,
@@ -148,8 +135,7 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
           description: Faker.Lorem.sentence(),
           entry_type: :credit,
           amount: 100_00,
-          payslip: payslip,
-          category: category
+          payslip: payslip
         )
 
       # close payslip
@@ -162,31 +148,48 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
   end
 
   describe "payslip_items table `payslip_item` type conditional constraints" do
-    test "payslip_items_category_unique unique_index" do
+    test "payslip_items_code_unique unique_index" do
       org = insert(:org)
       payslip = insert(:payslip, org: org)
-      category = insert(:payslip_category, org: org)
 
-      insert(:payslip_item, org: org, payslip: payslip, category: category)
+      insert(:payslip_item, org: org, payslip: payslip, code: "CODE")
 
       item = %Item{
         org_id: org.id,
         type: :payslip_item,
-        code: random_string_number(),
+        code: "code",
         reference: random_string_number(),
         description: Faker.Lorem.sentence(),
         entry_type: random_enum_value(:entry_type),
         amount: Enum.random(100_00..300_00),
-        payslip_id: payslip.id,
-        category_id: category.id
+        payslip_id: payslip.id
       }
 
       assert_raise Ecto.ConstraintError,
-                   ~r/payslip_items_category_unique \(unique_constraint\)/,
+                   ~r/payslip_items_code_unique \(unique_constraint\)/,
                    fn -> Repo.insert(item) end
     end
 
-    test "category_id IS NOT NULL" do
+    test "code IS NULL" do
+      org = insert(:org)
+      payslip = insert(:payslip, org: org)
+
+      item = %Item{
+        org_id: org.id,
+        type: :payslip_item,
+        reference: random_string_number(),
+        description: Faker.Lorem.sentence(),
+        entry_type: random_enum_value(:entry_type),
+        amount: Enum.random(100_00..300_00),
+        payslip_id: payslip.id
+      }
+
+      assert_raise Ecto.ConstraintError,
+                   ~r/payslip_items_conditional \(check_constraint\)/,
+                   fn -> Repo.insert(item) end
+    end
+
+    test "inserts" do
       org = insert(:org)
       payslip = insert(:payslip, org: org)
 
@@ -201,74 +204,11 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
         payslip_id: payslip.id
       }
 
-      assert_raise Ecto.ConstraintError,
-                   ~r/payslip_items_conditional \(check_constraint\)/,
-                   fn -> Repo.insert(item) end
-    end
-
-    test "code IS NULL" do
-      org = insert(:org)
-      payslip = insert(:payslip, org: org)
-      category = insert(:payslip_category, org: org)
-
-      item = %Item{
-        org_id: org.id,
-        type: :payslip_item,
-        reference: random_string_number(),
-        description: Faker.Lorem.sentence(),
-        entry_type: random_enum_value(:entry_type),
-        amount: Enum.random(100_00..300_00),
-        payslip_id: payslip.id,
-        category_id: category.id
-      }
-
-      assert_raise Ecto.ConstraintError,
-                   ~r/payslip_items_conditional \(check_constraint\)/,
-                   fn -> Repo.insert(item) end
-    end
-
-    test "inserts" do
-      org = insert(:org)
-      payslip = insert(:payslip, org: org)
-      category = insert(:payslip_category, org: org)
-
-      item = %Item{
-        org_id: org.id,
-        type: :payslip_item,
-        code: random_string_number(),
-        reference: random_string_number(),
-        description: Faker.Lorem.sentence(),
-        entry_type: random_enum_value(:entry_type),
-        amount: Enum.random(100_00..300_00),
-        payslip_id: payslip.id,
-        category_id: category.id
-      }
-
       assert {:ok, _return} = Repo.insert(item)
     end
   end
 
   describe "payslip_items table `outside_item` type conditional constraints" do
-    test "category_id IS NULL" do
-      org = insert(:org)
-      payslip = insert(:payslip, org: org)
-      category = insert(:payslip_category, org: org)
-
-      item = %Item{
-        org_id: org.id,
-        type: :outside_item,
-        amount: Enum.random(100_00..300_00),
-        description: Faker.Lorem.sentence(),
-        entry_type: random_enum_value(:entry_type),
-        payslip_id: payslip.id,
-        category_id: category.id
-      }
-
-      assert_raise Ecto.ConstraintError,
-                   ~r/payslip_items_conditional \(check_constraint\)/,
-                   fn -> Repo.insert(item) end
-    end
-
     test "reference IS NULL" do
       org = insert(:org)
       payslip = insert(:payslip, org: org)
@@ -474,14 +414,16 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
              }
     end
 
-    test "category assoc constraint" do
+    test "code unique constraint" do
       org = insert(:org)
       payslip = insert(:payslip, org: org)
+
+      insert(:payslip_item, org: org, payslip: payslip, code: "CODE")
 
       attrs = %{
         org_id: org.id,
         reference: random_string_number(),
-        code: random_string_number(),
+        code: "code",
         description: Faker.Lorem.sentence(),
         entry_type: random_enum_value(:entry_type),
         amount: Enum.random(100_00..300_00),
@@ -495,35 +437,7 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
                |> Repo.insert()
 
       assert errors_on(changeset) == %{
-               category: ["does not exist"]
-             }
-    end
-
-    test "category_id unique constraint" do
-      org = insert(:org)
-      payslip = insert(:payslip, org: org)
-      category = insert(:payslip_category, org: org)
-
-      insert(:payslip_item, org: org, payslip: payslip, category: category)
-
-      attrs = %{
-        org_id: org.id,
-        reference: random_string_number(),
-        code: random_string_number(),
-        description: Faker.Lorem.sentence(),
-        entry_type: random_enum_value(:entry_type),
-        amount: Enum.random(100_00..300_00),
-        payslip_id: payslip.id,
-        category_id: category.id
-      }
-
-      assert {:error, changeset} =
-               attrs
-               |> Item.create_changeset()
-               |> Repo.insert()
-
-      assert errors_on(changeset) == %{
-               category_id: ["has already been taken"]
+               code: ["has already been taken"]
              }
     end
   end
@@ -652,7 +566,6 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
     test "payment advance validation" do
       org = insert(:org)
       payslip = insert(:payslip, org: org)
-      category = insert(:payslip_category, org: org)
 
       attrs = %{
         org_id: org.id,
@@ -661,7 +574,7 @@ defmodule Sig.HR.Payslips.Items.ItemTest do
         description: Faker.Lorem.sentence(),
         amount: Enum.random(100_00..300_00),
         payslip_id: payslip.id,
-        category_id: category.id,
+        category_id: UUID.generate(),
         entry_type: :credit,
         is_payment_advance: true
       }

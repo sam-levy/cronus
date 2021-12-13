@@ -27,6 +27,7 @@ defmodule SigLive.Router do
     pipe_through [:browser, :org_authorization]
 
     live_session :default, on_mount: SigLive.InitAssigns do
+      live "/payslip_categories", PayslipCategories.Index, :payslip_categories
       live "/payslip_templates", PayslipTemplates.Index, :payslip_templates
       live "/payslip_templates/:id", PayslipTemplates.Show, :payslip_templates
       live "/payslip_recurring_item_models", PayslipRecurringItemModels.Index, :payslip_recurring_item_models
