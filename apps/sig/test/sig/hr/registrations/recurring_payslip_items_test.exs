@@ -76,6 +76,52 @@ defmodule Sig.HR.Registrations.RecurringPayslipItemsTest do
     end
   end
 
+  describe "count_by/1" do
+    test "counts recurring payslip items by recurring item model" do
+      org = insert(:org)
+      rim = insert({:payslip_recurring_item_model, :fixed_amount}, org: org)
+
+      insert_list(2, {:employee_registration_recurring_payslip_item, :payslip_item_model},
+        org: org,
+        payslip_recurring_item_model: rim
+      )
+
+      _to_ignore =
+        insert({:employee_registration_recurring_payslip_item, :payslip_item_model}, org: org)
+
+      assert RecurringPayslipItems.count_by(rim) == 2
+    end
+
+    test "when recurring item model has no recurring payslilp items" do
+      org = insert(:org)
+      rim = insert({:payslip_recurring_item_model, :fixed_amount}, org: org)
+
+      assert RecurringPayslipItems.count_by(rim) == 0
+    end
+
+    test "counts recurring payslip items by category" do
+      org = insert(:org)
+      category = insert(:payslip_category, org: org)
+
+      insert_list(2, {:employee_registration_recurring_payslip_item, :payslip_item},
+        org: org,
+        payslip_category: category
+      )
+
+      _to_ignore =
+        insert({:employee_registration_recurring_payslip_item, :payslip_item}, org: org)
+
+      assert RecurringPayslipItems.count_by(category) == 2
+    end
+
+    test "when category has no recurring payslilp items" do
+      org = insert(:org)
+      category = insert(:payslip_category, org: org)
+
+      assert RecurringPayslipItems.count_by(category) == 0
+    end
+  end
+
   describe "create/3" do
     test "creates a recurring payslip_item" do
       org = insert(:org)

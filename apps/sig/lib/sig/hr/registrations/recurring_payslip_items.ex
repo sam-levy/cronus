@@ -26,20 +26,16 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems do
     RecurringPayslipItem.create_outside_item_changeset(attrs)
   end
 
-  def list_by(schema, opts \\ [])
-
-  def list_by(%RecurringItemModel{} = rim, _opts) do
-    RecurringPayslipItem
-    |> where(org_id: ^rim.org_id)
-    |> where(payslip_recurring_item_model_id: ^rim.id)
+  def list_by(schema, _opts \\ []) do
+    schema
+    |> query_by()
     |> Repo.all()
   end
 
-  def list_by(%Category{} = category, _opts) do
-    RecurringPayslipItem
-    |> where(org_id: ^category.org_id)
-    |> where(payslip_category_id: ^category.id)
-    |> Repo.all()
+  def count_by(schema) do
+    schema
+    |> query_by()
+    |> Repo.aggregate(:count)
   end
 
   def create(%Registration{} = registration, %{} = attrs, type) when is_atom(type) do
@@ -136,6 +132,18 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems do
     else
       {:ok, nil}
     end
+  end
+
+  defp query_by(%RecurringItemModel{} = rim) do
+    RecurringPayslipItem
+    |> where(org_id: ^rim.org_id)
+    |> where(payslip_recurring_item_model_id: ^rim.id)
+  end
+
+  defp query_by(%Category{} = category) do
+    RecurringPayslipItem
+    |> where(org_id: ^category.org_id)
+    |> where(payslip_category_id: ^category.id)
   end
 
   def subscribe_to_registration_recurring_payslip_items(%Registration{} = registration) do

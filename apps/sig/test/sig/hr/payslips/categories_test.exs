@@ -20,17 +20,32 @@ defmodule Sig.HR.Payslips.CategoriesTest do
   end
 
   describe "list/1" do
-    test "lists payslips categories from an organization" do
+    test "lists payslips categories by org ordered by code" do
       org = insert(:org)
 
-      insert_list(2, :payslip_category, org: org)
+      insert(:payslip_category, org: org, code: "2")
+      insert(:payslip_category, org: org, code: "1")
+
       _to_ignore = insert(:payslip_category)
 
-      assert return = Categories.list(org.id)
+      assert [
+        %Category{code: "1"},
+        %Category{code: "2"}
+      ] = Categories.list(org)
+    end
 
-      assert Enum.count(return) == 2
+    test "lists payslips categories by org id ordered by code" do
+      org = insert(:org)
 
-      assert Enum.all?(return, &(&1.org_id == org.id))
+      insert(:payslip_category, org: org, code: "2")
+      insert(:payslip_category, org: org, code: "1")
+
+      _to_ignore = insert(:payslip_category)
+
+      assert [
+        %Category{code: "1"},
+        %Category{code: "2"}
+      ] = Categories.list(org.id)
     end
 
     test "when org has no category" do
@@ -41,7 +56,14 @@ defmodule Sig.HR.Payslips.CategoriesTest do
   end
 
   describe "get/2" do
-    test "returns a category" do
+    test "returns a category by org" do
+      org = insert(:org)
+      %{id: id} = insert(:payslip_category, org: org)
+
+      assert %Category{id: ^id} = Categories.get(org, id)
+    end
+
+    test "returns a category by org id" do
       org = insert(:org)
       %{id: id} = insert(:payslip_category, org: org)
 
@@ -117,8 +139,7 @@ defmodule Sig.HR.Payslips.CategoriesTest do
       assert errors_on(changeset) == %{
                code: ["can't be blank"],
                description: ["can't be blank"],
-               entry_type: ["can't be blank"],
-               is_payment_advance: ["can't be blank"]
+               entry_type: ["can't be blank"]
              }
     end
   end

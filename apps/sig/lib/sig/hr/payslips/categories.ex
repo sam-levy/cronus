@@ -29,8 +29,8 @@ defmodule Sig.HR.Payslips.Categories do
   end
 
   def delete(%Category{} = category) do
-    with {:rim, []} <- {:rim, HR.list_payslip_recurring_item_models_by(category)},
-         {:rpi, []} <- {:rpi, HR.list_recurring_payslip_items_by(category)} do
+    with {:rim, 0} <- {:rim, HR.count_payslip_recurring_item_models_by(category)},
+         {:rpi, 0} <- {:rpi, HR.count_recurring_payslip_items_by(category)} do
       Repo.delete(category)
     else
       {:rim, _} -> {:error, "Existem modelos de items de holerite associados"}
@@ -38,11 +38,16 @@ defmodule Sig.HR.Payslips.Categories do
     end
   end
 
+  def list(%Org{} = org), do: list(org.id)
+
   def list(org_id) when is_binary(org_id) do
     Category
     |> where(org_id: ^org_id)
+    |> order_by(:code)
     |> Repo.all()
   end
+
+  def get(%Org{} = org, id) when is_binary(id), do: get(org.id, id)
 
   def get(org_id, id) when is_binary(org_id) and is_binary(id) do
     Category

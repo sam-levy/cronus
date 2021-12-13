@@ -189,6 +189,10 @@ defmodule Sig.HR do
     to: RecurringItemModels,
     as: :list_by
 
+  defdelegate count_payslip_recurring_item_models_by(schema),
+    to: RecurringItemModels,
+    as: :count_by
+
   defdelegate get_payslip_recurring_item_model(org, id, opts \\ []),
     to: RecurringItemModels,
     as: :get
@@ -225,6 +229,10 @@ defmodule Sig.HR do
   defdelegate list_recurring_payslip_items_by(schema, opts \\ []),
     to: RecurringPayslipItems,
     as: :list_by
+
+  defdelegate count_recurring_payslip_items_by(schema),
+    to: RecurringPayslipItems,
+    as: :count_by
 
   defdelegate create_recurring_payslip_item(registraion, attrs, type),
     to: RecurringPayslipItems,
