@@ -41,7 +41,7 @@ defmodule SigLive.PayslipGroups.Form do
       |> assign(
         changeset: HR.batch_create_payslips_change(%{start_date: selected_date, type: :regular}),
         dates_for_select: build_dates_for_select(selected_date),
-        sectors: Organizations.list_sectors(assigns.org),
+        sectors: Organizations.list_org_sectors(assigns.org),
         selected_date: selected_date,
       )
 

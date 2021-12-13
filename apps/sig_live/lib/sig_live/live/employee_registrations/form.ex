@@ -44,8 +44,8 @@ defmodule SigLive.EmployeeRegistrations.Form do
         changeset: set_changeset(registration),
         companies: companies,
         real_companies: Enum.filter(companies, &(not &1.is_virtual)),
-        sectors: Organizations.list_sectors(org),
-        positions: Organizations.list_positions(org)
+        sectors: Organizations.list_org_sectors(org),
+        positions: Organizations.list_org_positions(org)
       )
 
     {:ok, socket}
