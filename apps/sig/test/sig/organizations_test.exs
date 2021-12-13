@@ -2,8 +2,6 @@ defmodule Sig.OrganizationsTest do
   use Sig.DataCase
 
   alias Sig.Organizations
-  alias Sig.Organizations.Sector
-  alias Sig.Organizations.Position
   alias Sig.Organizations.Org
 
   describe "fetch_org/1" do
