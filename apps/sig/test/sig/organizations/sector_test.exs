@@ -67,4 +67,71 @@ defmodule Sig.Organizations.SectorTest do
              )
     end
   end
+
+  describe "changeset/2" do
+    test "valid attrs" do
+      attrs = %{
+        org_id: UUID.generate(),
+        name: "Sector Name"
+      }
+
+      assert changeset = Sector.changeset(attrs)
+
+      assert changeset.valid?
+
+      assert changeset.changes == %{
+        name: attrs[:name],
+        org_id: attrs[:org_id]
+      }
+    end
+
+    test "invalid attrs" do
+      attrs = %{
+        org_id: :invalid,
+        name: :invalid
+      }
+
+      assert changeset = Sector.changeset(attrs)
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+        org_id: ["is invalid"],
+        name: ["is invalid"]
+      }
+    end
+
+    test "missing required attrs" do
+      assert changeset = Sector.changeset(%{})
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+        org_id: ["can't be blank"],
+        name: ["can't be blank"]
+      }
+    end
+
+    test "name unique constraint" do
+      org = insert(:org)
+
+      insert(:org_sector, org: org, name: "SECTOR NAME")
+
+      attrs = %{
+        org_id: org.id,
+        name: "Sector Name"
+      }
+
+      assert {:error, changeset} =
+        attrs
+        |> Sector.changeset()
+        |> Repo.insert()
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+        name: ["has already been taken"]
+      }
+    end
+  end
 end
