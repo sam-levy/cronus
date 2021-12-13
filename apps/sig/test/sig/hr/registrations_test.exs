@@ -326,6 +326,30 @@ defmodule Sig.HR.RegistrationsTest do
     end
   end
 
+  describe "count_by/1" do
+    test "count registrations by sector" do
+      org = insert(:org)
+      sector = insert(:org_sector, org: org)
+
+      insert_list(2, :employee_registration, org: org, sector: sector)
+      _to_ignore_1= insert(:employee_registration, org: org)
+      _to_ignore_2 = insert(:employee_registration)
+
+      assert Registrations.count_by(sector) == 2
+    end
+
+    test "count registrations by position" do
+      org = insert(:org)
+      position = insert(:org_position, org: org)
+
+      insert_list(2, :employee_registration, org: org, position: position)
+      _to_ignore_1= insert(:employee_registration, org: org)
+      _to_ignore_2 = insert(:employee_registration)
+
+      assert Registrations.count_by(position) == 2
+    end
+  end
+
   describe "list_by_ids/2" do
     test "lists by the given ids" do
       org = insert(:org)
