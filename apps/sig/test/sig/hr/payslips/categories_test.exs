@@ -29,9 +29,9 @@ defmodule Sig.HR.Payslips.CategoriesTest do
       _to_ignore = insert(:payslip_category)
 
       assert [
-        %Category{code: "1"},
-        %Category{code: "2"}
-      ] = Categories.list(org)
+               %Category{code: "1"},
+               %Category{code: "2"}
+             ] = Categories.list(org)
     end
 
     test "lists payslips categories by org id ordered by code" do
@@ -43,9 +43,9 @@ defmodule Sig.HR.Payslips.CategoriesTest do
       _to_ignore = insert(:payslip_category)
 
       assert [
-        %Category{code: "1"},
-        %Category{code: "2"}
-      ] = Categories.list(org.id)
+               %Category{code: "1"},
+               %Category{code: "2"}
+             ] = Categories.list(org.id)
     end
 
     test "when org has no category" do

@@ -332,7 +332,7 @@ defmodule Sig.HR.RegistrationsTest do
       sector = insert(:org_sector, org: org)
 
       insert_list(2, :employee_registration, org: org, sector: sector)
-      _to_ignore_1= insert(:employee_registration, org: org)
+      _to_ignore_1 = insert(:employee_registration, org: org)
       _to_ignore_2 = insert(:employee_registration)
 
       assert Registrations.count_by(sector) == 2
@@ -343,7 +343,7 @@ defmodule Sig.HR.RegistrationsTest do
       position = insert(:org_position, org: org)
 
       insert_list(2, :employee_registration, org: org, position: position)
-      _to_ignore_1= insert(:employee_registration, org: org)
+      _to_ignore_1 = insert(:employee_registration, org: org)
       _to_ignore_2 = insert(:employee_registration)
 
       assert Registrations.count_by(position) == 2

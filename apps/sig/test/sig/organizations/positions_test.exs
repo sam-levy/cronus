@@ -28,9 +28,9 @@ defmodule Sig.Organizations.PositionsTest do
       _to_ignore = insert(:org_position)
 
       assert [
-        %Position{name: "A"},
-        %Position{name: "Z"}
-      ] = Positions.list(org)
+               %Position{name: "A"},
+               %Position{name: "Z"}
+             ] = Positions.list(org)
     end
 
     test "when org has no position" do
@@ -80,8 +80,8 @@ defmodule Sig.Organizations.PositionsTest do
       assert {:error, changeset} = Positions.create(org, %{})
 
       assert errors_on(changeset) == %{
-        name: ["can't be blank"]
-      }
+               name: ["can't be blank"]
+             }
     end
   end
 
@@ -106,8 +106,8 @@ defmodule Sig.Organizations.PositionsTest do
       assert {:error, changeset} = Positions.update(position, attrs)
 
       assert errors_on(changeset) == %{
-        name: ["can't be blank"]
-      }
+               name: ["can't be blank"]
+             }
 
       assert Repo.get_by(Position, org_id: org.id, id: position.id, name: "Kitchen")
     end
@@ -129,7 +129,8 @@ defmodule Sig.Organizations.PositionsTest do
 
       insert(:employee_registration, org: org, position: position)
 
-      assert Positions.delete(position) == {:error, "Existem registros de funcionários associados"}
+      assert Positions.delete(position) ==
+               {:error, "Existem registros de funcionários associados"}
 
       assert Repo.get_by(Position, org_id: org.id, id: position.id)
     end

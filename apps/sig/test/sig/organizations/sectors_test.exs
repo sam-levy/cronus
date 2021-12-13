@@ -28,9 +28,9 @@ defmodule Sig.Organizations.SectorsTest do
       _to_ignore = insert(:org_sector)
 
       assert [
-        %Sector{name: "A"},
-        %Sector{name: "Z"}
-      ] = Sectors.list(org)
+               %Sector{name: "A"},
+               %Sector{name: "Z"}
+             ] = Sectors.list(org)
     end
 
     test "when org has no sector" do
@@ -80,8 +80,8 @@ defmodule Sig.Organizations.SectorsTest do
       assert {:error, changeset} = Sectors.create(org, %{})
 
       assert errors_on(changeset) == %{
-        name: ["can't be blank"]
-      }
+               name: ["can't be blank"]
+             }
     end
   end
 
@@ -106,8 +106,8 @@ defmodule Sig.Organizations.SectorsTest do
       assert {:error, changeset} = Sectors.update(sector, attrs)
 
       assert errors_on(changeset) == %{
-        name: ["can't be blank"]
-      }
+               name: ["can't be blank"]
+             }
 
       assert Repo.get_by(Sector, org_id: org.id, id: sector.id, name: "Kitchen")
     end

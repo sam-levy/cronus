@@ -80,9 +80,9 @@ defmodule Sig.Organizations.SectorTest do
       assert changeset.valid?
 
       assert changeset.changes == %{
-        name: attrs[:name],
-        org_id: attrs[:org_id]
-      }
+               name: attrs[:name],
+               org_id: attrs[:org_id]
+             }
     end
 
     test "invalid attrs" do
@@ -96,9 +96,9 @@ defmodule Sig.Organizations.SectorTest do
       refute changeset.valid?
 
       assert errors_on(changeset) == %{
-        org_id: ["is invalid"],
-        name: ["is invalid"]
-      }
+               org_id: ["is invalid"],
+               name: ["is invalid"]
+             }
     end
 
     test "missing required attrs" do
@@ -107,9 +107,9 @@ defmodule Sig.Organizations.SectorTest do
       refute changeset.valid?
 
       assert errors_on(changeset) == %{
-        org_id: ["can't be blank"],
-        name: ["can't be blank"]
-      }
+               org_id: ["can't be blank"],
+               name: ["can't be blank"]
+             }
     end
 
     test "name unique constraint" do
@@ -123,15 +123,15 @@ defmodule Sig.Organizations.SectorTest do
       }
 
       assert {:error, changeset} =
-        attrs
-        |> Sector.changeset()
-        |> Repo.insert()
+               attrs
+               |> Sector.changeset()
+               |> Repo.insert()
 
       refute changeset.valid?
 
       assert errors_on(changeset) == %{
-        name: ["has already been taken"]
-      }
+               name: ["has already been taken"]
+             }
     end
   end
 end

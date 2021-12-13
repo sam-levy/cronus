@@ -214,7 +214,7 @@ defmodule Sig.HR.Payslips.Categories.CategoryTest do
       attrs = %{
         code: nil,
         description: nil,
-        entry_type: nil,
+        entry_type: nil
       }
 
       assert changeset = Category.update_changeset(category, attrs)
