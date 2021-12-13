@@ -35,42 +35,4 @@ defmodule Sig.OrganizationsTest do
       assert Organizations.get_org(UUID.generate()) == nil
     end
   end
-
-  describe "list_sectors/1" do
-    test "lists sectors ordered by name" do
-      org = insert(:org)
-      insert(:org_sector, org: org, name: "finance")
-      insert(:org_sector, org: org, name: "accounting")
-
-      assert [
-               %Sector{name: "accounting"},
-               %Sector{name: "finance"}
-             ] = Organizations.list_sectors(org)
-    end
-
-    test "when org has no sectors" do
-      org = insert(:org)
-
-      assert Organizations.list_sectors(org) == []
-    end
-  end
-
-  describe "list_positions/1" do
-    test "lists positions ordered by name" do
-      org = insert(:org)
-      insert(:org_position, org: org, name: "cooker")
-      insert(:org_position, org: org, name: "clerk")
-
-      assert [
-               %Position{name: "clerk"},
-               %Position{name: "cooker"}
-             ] = Organizations.list_positions(org)
-    end
-
-    test "when org has no positions" do
-      org = insert(:org)
-
-      assert Organizations.list_positions(org) == []
-    end
-  end
 end
