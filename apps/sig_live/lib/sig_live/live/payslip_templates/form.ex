@@ -15,7 +15,7 @@ defmodule SigLive.PayslipTemplates.Form do
 
   alias SigLive.Components.Modal
 
-  @form_states [:new_mode, :edit_mode, :closed]
+  @form_states [:new_mode, :edit_mode, :show_mode, :closed]
 
   prop close_event, :event, required: true
   prop close_fun, :fun, required: true
