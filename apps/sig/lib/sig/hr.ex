@@ -80,9 +80,19 @@ defmodule Sig.HR do
   defdelegate create_salary_change(attrs \\ %{}), to: Salaries, as: :create_change
 
   defdelegate create_benefit_model_change(attrs \\ %{}), to: BenefitModels, as: :create_change
-  defdelegate update_benefit_model_change(model, attrs \\ %{}), to: BenefitModels, as: :update_change
-  defdelegate update_benefit_model_amount_change(model, attrs \\ %{}), to: BenefitModels, as: :update_amount_change
-  defdelegate disable_benefit_model_change(model, attrs \\ %{}), to: BenefitModels, as: :disable_change
+
+  defdelegate update_benefit_model_change(model, attrs \\ %{}),
+    to: BenefitModels,
+    as: :update_change
+
+  defdelegate update_benefit_model_amount_change(model, attrs \\ %{}),
+    to: BenefitModels,
+    as: :update_amount_change
+
+  defdelegate disable_benefit_model_change(model, attrs \\ %{}),
+    to: BenefitModels,
+    as: :disable_change
+
   defdelegate list_benefit_models(org, opts \\ []), to: BenefitModels, as: :list
   defdelegate get_benefit_model(org, id), to: BenefitModels, as: :get
   defdelegate fetch_benefit_model(org, id), to: BenefitModels, as: :fetch
