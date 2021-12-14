@@ -419,4 +419,231 @@ defmodule Sig.HR.BenefitModels.BenefitModelTest do
              }
     end
   end
+
+  describe "update_changeset/2" do
+    test "valid attrs" do
+      model = insert(:employee_benefit_model, type: :meal_voucher, description: "Description")
+
+      attrs = %{
+        description: "New Description",
+        type: :transportation_voucher
+      }
+
+      assert changeset = BenefitModel.update_changeset(model, attrs)
+
+      assert changeset.valid?
+
+      assert changeset.changes == %{
+               description: attrs[:description],
+               type: attrs[:type]
+             }
+    end
+
+    test "invalid attrs" do
+      model = insert(:employee_benefit_model)
+
+      attrs = %{
+        description: :invalid,
+        type: :invalid
+      }
+
+      assert changeset = BenefitModel.update_changeset(model, attrs)
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+               description: ["is invalid"],
+               type: ["is invalid"]
+             }
+    end
+
+    test "nil required attrs" do
+      model = insert(:employee_benefit_model)
+
+      attrs = %{
+        description: nil,
+        type: nil
+      }
+
+      assert changeset = BenefitModel.update_changeset(model, attrs)
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+               description: ["can't be blank"],
+               type: ["can't be blank"]
+             }
+    end
+
+    test "ignores non permitted attrs" do
+      model = insert(:employee_benefit_model, type: :meal_voucher, description: "Description")
+
+      attrs = %{
+        description: "New Description",
+        type: :transportation_voucher,
+        org_id: UUID.generate(),
+        amount: Enum.random(400_00..600_00),
+        amount_date: Faker.Date.backward(100),
+        disabled_at: Date.utc_today(),
+        historical_amounts: []
+      }
+
+      assert changeset = BenefitModel.update_changeset(model, attrs)
+
+      assert changeset.valid?
+
+      assert changeset.changes == %{
+               description: attrs[:description],
+               type: attrs[:type]
+             }
+    end
+
+    test "string fields length greater than 255 chars" do
+      model = insert(:employee_benefit_model, type: :meal_voucher, description: "Description")
+
+      attrs = %{
+        description: String.duplicate("a", 256),
+        type: :transportation_voucher
+      }
+
+      assert changeset = BenefitModel.update_changeset(model, attrs)
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+               description: ["should be at most 255 character(s)"]
+             }
+    end
+
+    test "description unique constraint" do
+      org = insert(:org)
+
+      model =
+        insert(:employee_benefit_model, org: org, type: :meal_voucher, description: "Description")
+
+      insert(:employee_benefit_model, org: org, description: "NEW DESCRIPTION")
+
+      attrs = %{
+        description: "New Description",
+        type: :transportation_voucher
+      }
+
+      assert {:error, changeset} =
+               model
+               |> BenefitModel.update_changeset(attrs)
+               |> Repo.update()
+
+      assert errors_on(changeset) == %{
+               description: ["has already been taken"]
+             }
+    end
+  end
+
+  describe "disable_changeset/2" do
+    test "valid attrs" do
+      model = insert(:employee_benefit_model, disabled_at: nil)
+
+      attrs = %{disabled_at: Date.utc_today()}
+
+      assert changeset = BenefitModel.disable_changeset(model, attrs)
+
+      assert changeset.valid?
+
+      assert changeset.changes == %{
+               disabled_at: attrs[:disabled_at]
+             }
+    end
+
+    test "invalid attrs" do
+      model = insert(:employee_benefit_model, disabled_at: nil)
+
+      attrs = %{disabled_at: :invalid}
+
+      assert changeset = BenefitModel.disable_changeset(model, attrs)
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+               disabled_at: ["is invalid"]
+             }
+    end
+
+    test "nil required attrs" do
+      model = insert(:employee_benefit_model, disabled_at: nil)
+
+      attrs = %{
+        disabled_at: nil
+      }
+
+      assert changeset = BenefitModel.disable_changeset(model, attrs)
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+               disabled_at: ["can't be blank"]
+             }
+    end
+
+    test "ignores non permitted attrs" do
+      model = insert(:employee_benefit_model, disabled_at: nil)
+
+      attrs = %{
+        description: "New Description",
+        type: :transportation_voucher,
+        org_id: UUID.generate(),
+        amount: Enum.random(400_00..600_00),
+        amount_date: Faker.Date.backward(100),
+        disabled_at: Date.utc_today(),
+        historical_amounts: []
+      }
+
+      assert changeset = BenefitModel.disable_changeset(model, attrs)
+
+      assert changeset.valid?
+
+      assert changeset.changes == %{
+               disabled_at: attrs[:disabled_at]
+             }
+    end
+
+    test "disabled_at field is already filled" do
+      model = insert(:employee_benefit_model, disabled_at: Date.utc_today())
+
+      attrs = %{
+        disabled_at: Date.utc_today()
+      }
+
+      assert changeset = BenefitModel.disable_changeset(model, attrs)
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+               disabled_at: ["is already filled"]
+             }
+    end
+  end
+
+  describe "enable_changeset/1" do
+    test "enables a benefit model" do
+      model = insert(:employee_benefit_model, disabled_at: Date.utc_today())
+
+      assert changeset = BenefitModel.enable_changeset(model)
+
+      assert changeset.valid?
+
+      assert changeset.changes == %{
+               disabled_at: nil
+             }
+    end
+
+    test "when benefit model is already enabled" do
+      model = insert(:employee_benefit_model, disabled_at: nil)
+
+      assert changeset = BenefitModel.enable_changeset(model)
+
+      assert changeset.valid?
+
+      assert changeset.changes == %{}
+    end
+  end
 end
