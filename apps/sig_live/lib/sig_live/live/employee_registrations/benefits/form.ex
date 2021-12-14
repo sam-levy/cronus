@@ -18,7 +18,7 @@ defmodule SigLive.EmployeeRegistrations.Benefits.Form do
   }
 
   alias SigLive.Components.Modal
-  alias SigLive.EmployeeRegistrations.Benefits.HistoricalAmounts
+  alias SigLive.Components.HistoricalAmounts
 
   @form_states [:new_mode, :show_mode, :edit_amount_mode, :finalize_mode, :closed]
 
@@ -246,8 +246,10 @@ defmodule SigLive.EmployeeRegistrations.Benefits.Form do
 
   defp show_field?(:benefit_historical_amounts, :show_mode, %{is_from_model: false}), do: true
 
+  # TODO: maybe not necessary?
   defp show_field?(:benefit_historical_amounts, :show_mode, _benefit), do: false
 
+  # TODO: maybe not necessary?
   defp show_field?(:benefit_historical_amounts, :edit_amount_mode, _benefit), do: true
 
   defp show_field?(:benefit_historical_amounts, _form_state, _benefit), do: false
