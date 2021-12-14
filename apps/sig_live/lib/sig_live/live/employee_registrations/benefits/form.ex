@@ -245,13 +245,9 @@ defmodule SigLive.EmployeeRegistrations.Benefits.Form do
   end
 
   defp show_field?(:benefit_historical_amounts, :show_mode, %{is_from_model: false}), do: true
-
-  # TODO: maybe not necessary?
   defp show_field?(:benefit_historical_amounts, :show_mode, _benefit), do: false
 
-  # TODO: maybe not necessary?
   defp show_field?(:benefit_historical_amounts, :edit_amount_mode, _benefit), do: true
-
   defp show_field?(:benefit_historical_amounts, _form_state, _benefit), do: false
 
   @input_enabled [opts: [disabled: false], class: ["form-input"]]
