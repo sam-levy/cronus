@@ -1,6 +1,7 @@
 defmodule Sig.HR.Registrations.Benefits do
   import Ecto.Query
 
+  alias Sig.HR.BenefitModels.BenefitModel
   alias Sig.HR.Registrations.Registration
   alias Sig.HR.Registrations.Benefits.Creator
   alias Sig.HR.Registrations.Benefits.Benefit
@@ -25,7 +26,7 @@ defmodule Sig.HR.Registrations.Benefits do
 
   def get(%Registration{} = registration, id) when is_binary(id) do
     registration
-    |> query_by_registration()
+    |> query_by()
     |> preload_benefit_model()
     |> where(id: ^id)
     |> Repo.one()
@@ -34,7 +35,7 @@ defmodule Sig.HR.Registrations.Benefits do
 
   def list_by_registration(%Registration{} = registration, opts \\ []) do
     registration
-    |> query_by_registration()
+    |> query_by()
     |> preload_benefit_model()
     |> filter_by_types(opts)
     |> filter_by_in_effect_on_date(opts)
@@ -42,6 +43,12 @@ defmodule Sig.HR.Registrations.Benefits do
     |> order_by(:start_date)
     |> Repo.all()
     |> fill_virtual_fields(opts)
+  end
+
+  def count_by(schema) do
+    schema
+    |> query_by()
+    |> Repo.aggregate(:count)
   end
 
   def update_benefit_amount(%Benefit{} = benefit, %{} = attrs) do
@@ -72,10 +79,16 @@ defmodule Sig.HR.Registrations.Benefits do
     "registration_id:" <> registration.id <> ":benefits"
   end
 
-  defp query_by_registration(registration) do
+  defp query_by(%Registration{} = registration) do
     Benefit
     |> where(org_id: ^registration.org_id)
     |> where(registration_id: ^registration.id)
+  end
+
+  defp query_by(%BenefitModel{} = benefit_model) do
+    Benefit
+    |> where(org_id: ^benefit_model.org_id)
+    |> where(benefit_model_id: ^benefit_model.id)
   end
 
   defp preload_benefit_model(query) do
