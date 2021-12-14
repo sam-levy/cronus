@@ -1,5 +1,6 @@
 defmodule Sig.HR.Registrations.RecurringPayslipItems do
   import Ecto.Query
+  import Sig.Broadcaster
 
   alias Ecto.Multi
 
@@ -146,13 +147,12 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems do
     |> where(payslip_category_id: ^category.id)
   end
 
-  def subscribe_to_registration_recurring_payslip_items(%Registration{} = registration) do
-    Phoenix.PubSub.subscribe(Sig.PubSub, topic(registration))
+  def subscribe_to_registration_recurring_payslip_items(schema) do
+    subscribe(topic(schema))
   end
 
   def broadcast_registration_recurring_payslip_items(%Registration{} = registration) do
-    Phoenix.PubSub.broadcast(
-      Sig.PubSub,
+    broadcast(
       topic(registration),
       {:updated_registration_recurring_payslip_items, list_by_registration(registration)}
     )
