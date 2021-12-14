@@ -943,5 +943,39 @@ defmodule Sig.HR.Registrations.Benefits.CreatorTest do
                benefit_model_id: attrs[:benefit_model_id]
              )
     end
+
+    test "when benefit_model does't exsist" do
+      registration = insert(:employee_registration)
+
+      attrs = %{
+        description: Faker.Lorem.sentence(),
+        is_for_dependent: Enum.random([true, false]),
+        start_date: Faker.Date.backward(100),
+        benefit_model_id: UUID.generate()
+      }
+
+      assert Creator.create_from_model(registration, attrs) == {:error, "benefit model not found"}
+
+      refute Repo.get_by(Benefit, org_id: registration.org_id)
+    end
+
+    test "when benefit_model is disabled" do
+      registration = insert(:employee_registration)
+
+      benefit_model =
+        insert(:employee_benefit_model, org: registration.org, disabled_at: Date.utc_today())
+
+      attrs = %{
+        description: Faker.Lorem.sentence(),
+        is_for_dependent: Enum.random([true, false]),
+        start_date: Faker.Date.backward(100),
+        benefit_model_id: benefit_model.id
+      }
+
+      assert Creator.create_from_model(registration, attrs) ==
+               {:error, "benefit model is disabled"}
+
+      refute Repo.get_by(Benefit, org_id: registration.org_id)
+    end
   end
 end
