@@ -28,6 +28,7 @@ defmodule SigLive.Router do
 
     live_session :default, on_mount: SigLive.InitAssigns do
       live "/", Organizations.Show, :organizations
+      live "/benefit_models", BenefitModels.Index, :benefit_models
       live "/payslip_categories", PayslipCategories.Index, :payslip_categories
       live "/payslip_templates", PayslipTemplates.Index, :payslip_templates
       live "/payslip_templates/:id", PayslipTemplates.Show, :payslip_templates
