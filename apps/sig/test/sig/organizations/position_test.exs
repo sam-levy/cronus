@@ -1,69 +1,69 @@
-defmodule Sig.Organizations.SectorTest do
+defmodule Sig.Organizations.PositionTest do
   use Sig.DataCase
 
-  alias Sig.Organizations.Sector
+  alias Sig.Organizations.Position
 
-  describe "org_sectors table constraints" do
+  describe "org_positions table constraints" do
     test "org_id not_null_violation" do
-      sector = %Sector{
-        name: "kitchen"
+      position = %Position{
+        name: "store manager"
       }
 
       assert_raise Postgrex.Error,
-                   ~r/\(not_null_violation\) null value in column \"org_id\" of relation \"org_sectors\" violates not-null constraint/,
-                   fn -> Repo.insert(sector) end
+                   ~r/\(not_null_violation\) null value in column \"org_id\" of relation \"org_positions\" violates not-null constraint/,
+                   fn -> Repo.insert(position) end
     end
 
     test "org_id foreign_key_constraint" do
-      sector = %Sector{
+      position = %Position{
         org_id: UUID.generate(),
-        name: "kitchen"
+        name: "store manager"
       }
 
       assert_raise Ecto.ConstraintError,
-                   ~r/org_sectors_org_id_fkey \(foreign_key_constraint\)/,
-                   fn -> Repo.insert(sector) end
+                   ~r/org_positions_org_id_fkey \(foreign_key_constraint\)/,
+                   fn -> Repo.insert(position) end
     end
 
     test "name not_null_violation" do
       org = insert(:org)
 
-      sector = %Sector{
+      position = %Position{
         org_id: org.id
       }
 
       assert_raise Postgrex.Error,
-                   ~r/\(not_null_violation\) null value in column \"name\" of relation \"org_sectors\" violates not-null constraint/,
-                   fn -> Repo.insert(sector) end
+                   ~r/\(not_null_violation\) null value in column \"name\" of relation \"org_positions\" violates not-null constraint/,
+                   fn -> Repo.insert(position) end
     end
 
     test "[:name, :org_id] citext unique_constraint" do
       org = insert(:org)
-      insert(:org_sector, org: org, name: "kitchen")
+      insert(:org_position, org: org, name: "store manager")
 
-      sector = %Sector{
+      position = %Position{
         org_id: org.id,
-        name: "KITCHEN"
+        name: "STORE MANAGER"
       }
 
       assert_raise Ecto.ConstraintError,
-                   ~r/org_sectors_name_org_id_index \(unique_constraint\)/,
-                   fn -> Repo.insert(sector) end
+                   ~r/org_positions_name_org_id_index \(unique_constraint\)/,
+                   fn -> Repo.insert(position) end
     end
 
     test "valid attrs" do
       org = insert(:org)
 
-      sector = %Sector{
+      position = %Position{
         org_id: org.id,
-        name: "delivery"
+        name: "delivery person"
       }
 
-      assert {:ok, _sector} = Repo.insert(sector)
+      assert {:ok, _position} = Repo.insert(position)
 
-      assert Repo.get_by(Sector,
+      assert Repo.get_by(Position,
                org_id: org.id,
-               name: "delivery"
+               name: "delivery person"
              )
     end
   end
@@ -72,10 +72,10 @@ defmodule Sig.Organizations.SectorTest do
     test "valid attrs" do
       attrs = %{
         org_id: UUID.generate(),
-        name: "Sector Name"
+        name: "Position Name"
       }
 
-      assert changeset = Sector.changeset(attrs)
+      assert changeset = Position.changeset(attrs)
 
       assert changeset.valid?
 
@@ -91,7 +91,7 @@ defmodule Sig.Organizations.SectorTest do
         name: :invalid
       }
 
-      assert changeset = Sector.changeset(attrs)
+      assert changeset = Position.changeset(attrs)
 
       refute changeset.valid?
 
@@ -102,7 +102,7 @@ defmodule Sig.Organizations.SectorTest do
     end
 
     test "missing required attrs" do
-      assert changeset = Sector.changeset(%{})
+      assert changeset = Position.changeset(%{})
 
       refute changeset.valid?
 
@@ -115,16 +115,16 @@ defmodule Sig.Organizations.SectorTest do
     test "name unique constraint" do
       org = insert(:org)
 
-      insert(:org_sector, org: org, name: "SECTOR NAME")
+      insert(:org_position, org: org, name: "POSITION NAME")
 
       attrs = %{
         org_id: org.id,
-        name: "Sector Name"
+        name: "Position Name"
       }
 
       assert {:error, changeset} =
                attrs
-               |> Sector.changeset()
+               |> Position.changeset()
                |> Repo.insert()
 
       refute changeset.valid?

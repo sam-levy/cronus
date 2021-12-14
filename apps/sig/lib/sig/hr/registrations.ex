@@ -4,6 +4,8 @@ defmodule Sig.HR.Registrations do
 
   import Ecto.Query
 
+  alias Sig.Organizations.Sector
+  alias Sig.Organizations.Position
   alias Sig.Organizations.Org
   alias Sig.Entities.Individuals.Individual
   alias Sig.HR.Registrations.Create
@@ -60,6 +62,12 @@ defmodule Sig.HR.Registrations do
     |> Repo.all()
   end
 
+  def count_by(schema) do
+    schema
+    |> query_by()
+    |> Repo.aggregate(:count)
+  end
+
   def get(%Individual{} = individual, id) when is_binary(id) do
     individual
     |> query_by()
@@ -97,8 +105,21 @@ defmodule Sig.HR.Registrations do
     |> where(individual_id: ^individual.entity_id)
   end
 
+  defp query_by(%Position{} = position) do
+    init_query()
+    |> where(org_id: ^position.org_id)
+    |> where(position_id: ^position.id)
+  end
+
+  defp query_by(%Sector{} = sector) do
+    init_query()
+    |> where(org_id: ^sector.org_id)
+    |> where(sector_id: ^sector.id)
+  end
+
   defp query_by(%Org{} = org) do
-    init_query() |> where(org_id: ^org.id)
+    init_query()
+    |> where(org_id: ^org.id)
   end
 
   defp init_query, do: from(r in Registration, as: :registration)
