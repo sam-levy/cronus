@@ -142,15 +142,21 @@ defmodule Sig.HR.PayslipTemplates.PayslipTemplateItemsTest do
                  payslip_template_id: ^payslip_template_id,
                  payslip_recurring_item_model: %RecurringItemModel{category: %Category{code: "B"}}
                }
-             ] = PayslipTemplateItems.list_by(org_id: org.id, payslip_template_id: payslip_template.id)
-
+             ] =
+               PayslipTemplateItems.list_by(
+                 org_id: org.id,
+                 payslip_template_id: payslip_template.id
+               )
     end
 
     test "when payslip templates has no items" do
       org = insert(:org)
       payslip_template = insert(:payslip_template, org: org)
 
-      assert PayslipTemplateItems.list_by(org_id: org.id, payslip_template_id: payslip_template.id) == []
+      assert PayslipTemplateItems.list_by(
+               org_id: org.id,
+               payslip_template_id: payslip_template.id
+             ) == []
     end
   end
 
