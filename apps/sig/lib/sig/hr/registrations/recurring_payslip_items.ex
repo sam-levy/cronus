@@ -7,11 +7,16 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems do
   alias Sig.HR.Payslips.Categories.Category
   alias Sig.HR.Payslips.RecurringItemModels.RecurringItemModel
   alias Sig.HR.Registrations.Registration
-  alias Sig.HR.Registrations.RecurringPayslipItems.RecurringPayslipItem
+  alias Sig.HR.Registrations.RecurringPayslipItems.CreateFromPayslipTemplate
   alias Sig.HR.Registrations.RecurringPayslipItems.ListByRegistration
+  alias Sig.HR.Registrations.RecurringPayslipItems.RecurringPayslipItem
   alias Sig.Repo
 
   defdelegate list_by_registration(registration, opts \\ []), to: ListByRegistration, as: :call
+
+  defdelegate create_from_payslip_template(registration, template_id),
+    to: CreateFromPayslipTemplate,
+    as: :call
 
   def create_change(attrs \\ %{}, type)
 
@@ -133,6 +138,12 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems do
     else
       {:ok, nil}
     end
+  end
+
+  defp query_by(%Registration{} = registration) do
+    RecurringPayslipItem
+    |> where(org_id: ^registration.org_id)
+    |> where(registration_id: ^registration.id)
   end
 
   defp query_by(%RecurringItemModel{} = rim) do

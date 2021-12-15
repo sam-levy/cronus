@@ -58,6 +58,7 @@ defmodule Sig.HR do
     as: :create_change
 
   defdelegate list_payslip_template_items(payslip_template), to: PayslipTemplateItems, as: :list
+  defdelegate list_payslip_template_items_by(attrs), to: PayslipTemplateItems, as: :list_by
 
   defdelegate create_payslip_template_item(payslip_template, attrs),
     to: PayslipTemplateItems,
@@ -265,6 +266,10 @@ defmodule Sig.HR do
   defdelegate create_recurring_payslip_item(registraion, attrs, type),
     to: RecurringPayslipItems,
     as: :create
+
+  defdelegate create_recurring_payslip_items_from_template(registraion, template_id),
+    to: RecurringPayslipItems,
+    as: :create_from_payslip_template
 
   defdelegate delete_recurring_payslip_item(registraion, id),
     to: RecurringPayslipItems,
