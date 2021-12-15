@@ -78,7 +78,7 @@ defmodule SigLive.EmployeeRegistrations.LeavePeriods.List do
                 phx-value-leave_period_id={leave_period.id}
                 class="py-3 pl-6 text-left cursor-pointer hover:underline"
               >
-                {leave_period.type}
+                {capitalize_type(leave_period.type)}
               </td>
 
               <td class="py-3 pl-6 text-right">

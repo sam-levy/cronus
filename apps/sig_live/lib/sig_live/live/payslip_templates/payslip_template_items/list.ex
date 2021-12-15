@@ -113,7 +113,7 @@ defmodule SigLive.PayslipTemplates.PayslipTemplateItems.List do
                 <span class="text-gray-500 font-medium tracking-wider">
                   {@payslip_template.name}
 
-                  <span class="text-gray-300 italic">
+                  <span class="text-gray-400 italic font-extralight">
                     Modelo de Holerite
                   </span>
                 </span>
