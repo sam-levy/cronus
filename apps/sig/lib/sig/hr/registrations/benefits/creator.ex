@@ -63,9 +63,10 @@ defmodule Sig.HR.Registrations.Benefits.Creator do
   defp fetch_benefit_model(%{status: :ok, is_from_model: true} = context) do
     %{registration: %{org: org}, attrs: %{benefit_model_id: benefit_model_id}} = context
 
-    case BenefitModels.get(org, benefit_model_id) do
-      nil -> put_error(context, "benefit model not found")
-      benefit_model -> %{context | benefit_model: benefit_model}
+    case BenefitModels.fetch(org, benefit_model_id) do
+      {:ok, %{disabled_at: nil} = model} -> %{context | benefit_model: model}
+      {:ok, _model} -> put_error(context, "benefit model is disabled")
+      {:error, :not_found} -> put_error(context, "benefit model not found")
     end
   end
 

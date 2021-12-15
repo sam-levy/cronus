@@ -551,6 +551,30 @@ defmodule Sig.HR.Registrations.BenefitsTest do
     end
   end
 
+  describe "count_by/1" do
+    test "counts benefits by benefit model" do
+      org = insert(:org)
+      model = insert(:employee_benefit_model, org: org)
+
+      insert_list(2, :employee_benefit_from_model, org: org, benefit_model: model)
+
+      _to_igonre_1 = insert(:employee_benefit_from_model, org: org)
+      _to_igonre_2 = insert(:employee_benefit_from_model)
+
+      assert Benefits.count_by(model) == 2
+    end
+
+    test "when there is no benefits" do
+      org = insert(:org)
+      model = insert(:employee_benefit_model, org: org)
+
+      _to_igonre_1 = insert(:employee_benefit_from_model, org: org)
+      _to_igonre_2 = insert(:employee_benefit_from_model)
+
+      assert Benefits.count_by(model) == 0
+    end
+  end
+
   describe "update_benefit_amount/2" do
     test "updates the amount of a benefit" do
       benefit =

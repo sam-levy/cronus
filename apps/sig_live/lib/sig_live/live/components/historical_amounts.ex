@@ -1,4 +1,4 @@
-defmodule SigLive.EmployeeRegistrations.Benefits.HistoricalAmounts do
+defmodule SigLive.Components.HistoricalAmounts do
   use SigLive, :surface_component
 
   prop historical_amounts, :list, default: []

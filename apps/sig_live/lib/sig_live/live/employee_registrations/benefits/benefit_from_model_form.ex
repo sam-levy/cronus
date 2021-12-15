@@ -17,7 +17,7 @@ defmodule SigLive.EmployeeRegistrations.Benefits.BenefitFromModelForm do
   }
 
   alias SigLive.Components.Modal
-  alias SigLive.EmployeeRegistrations.Benefits.HistoricalAmounts
+  alias SigLive.Components.HistoricalAmounts
 
   @form_states [:new_mode, :show_mode, :closed]
 

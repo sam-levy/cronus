@@ -79,9 +79,36 @@ defmodule Sig.HR do
   defdelegate broadcast_registration_salaries(registration), to: Salaries
   defdelegate create_salary_change(attrs \\ %{}), to: Salaries, as: :create_change
 
-  defdelegate list_benefit_models(org), to: BenefitModels, as: :list
+  defdelegate create_benefit_model_change(attrs \\ %{}), to: BenefitModels, as: :create_change
+
+  defdelegate update_benefit_model_change(model, attrs \\ %{}),
+    to: BenefitModels,
+    as: :update_change
+
+  defdelegate update_benefit_model_amount_change(model, attrs \\ %{}),
+    to: BenefitModels,
+    as: :update_amount_change
+
+  defdelegate disable_benefit_model_change(model, attrs \\ %{}),
+    to: BenefitModels,
+    as: :disable_change
+
+  defdelegate list_benefit_models(org, opts \\ []), to: BenefitModels, as: :list
+  defdelegate get_benefit_model(org, id), to: BenefitModels, as: :get
+  defdelegate fetch_benefit_model(org, id), to: BenefitModels, as: :fetch
+  defdelegate delete_benefit_model(model), to: BenefitModels, as: :delete
+  defdelegate create_benefit_model(org, id), to: BenefitModels, as: :create
+  defdelegate update_benefit_model(model, attrs), to: BenefitModels, as: :update
+  defdelegate update_benefit_model_amount(model, attrs), to: BenefitModels, as: :update_amount
+  defdelegate disable_benefit_model(model, attrs), to: BenefitModels, as: :disable
+  defdelegate enable_benefit_model(model), to: BenefitModels, as: :enable
+  defdelegate subscribe_to_benefit_models(schema), to: BenefitModels
+  defdelegate broadcast_new_benefit_model(model), to: BenefitModels
+  defdelegate broadcast_updated_benefit_model(model), to: BenefitModels
+  defdelegate broadcast_deleted_benefit_model(model), to: BenefitModels
 
   defdelegate list_benefits_by_registration(registration), to: Benefits, as: :list_by_registration
+  defdelegate count_benefits_by(schema), to: Benefits, as: :count_by
   defdelegate get_benefit(registration, id), to: Benefits, as: :get
   defdelegate create_benefit(registration, attrs), to: Benefits, as: :create
   defdelegate create_benefit_from_model(registration, attrs), to: Benefits, as: :create_from_model
