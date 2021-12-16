@@ -30,6 +30,14 @@ defmodule Sig.HR.PayslipTemplates.PayslipTemplateItems do
     |> Repo.all()
   end
 
+  def list_by(attrs) do
+    init_query()
+    |> where(^attrs)
+    |> preload_model_and_category()
+    |> order_by([category: c], c.code)
+    |> Repo.all()
+  end
+
   def get_by(attrs) do
     init_query()
     |> where(^attrs)

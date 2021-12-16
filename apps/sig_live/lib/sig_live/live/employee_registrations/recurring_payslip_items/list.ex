@@ -10,12 +10,14 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
   alias SigLive.EmployeeRegistrations.RecurringPayslipItems.PayslipItemForm
   alias SigLive.EmployeeRegistrations.RecurringPayslipItems.PayslipItemModelForm
   alias SigLive.EmployeeRegistrations.RecurringPayslipItems.MonthToggle
+  alias SigLive.EmployeeRegistrations.RecurringPayslipItems.CreateFromPayslipTemplateForm
 
   prop registration, :struct, required: true
   prop recurring_payslip_items, :list, required: true
 
   data payslip_item_form_state, :atom, default: :closed, values!: PayslipItemForm.states()
   data payslip_item_model_form_state, :atom, default: :closed, values!: PayslipItemModelForm.states()
+  data payslip_template_form_state, :atom, default: :closed, values!: CreateFromPayslipTemplateForm.states()
   data outside_item_form_state, :atom, default: :closed, values!: OutsideItemForm.states()
   data delete_confirmation_dialog_state, :atom, default: :closed, values!: ConfirmationDialog.states()
 
@@ -66,6 +68,11 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
   end
 
   @impl true
+  def handle_event("open_new_payslip_items_from_payslip_template_form", _, socket) do
+    {:noreply, assign(socket, payslip_template_form_state: :open)}
+  end
+
+  @impl true
   def handle_event("open_new_outside_item_form", _, socket) do
     {:noreply, assign(socket, outside_item_form_state: :new_mode)}
   end
@@ -112,6 +119,14 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
         action_btn_msg="Remover"
       />
 
+      <CreateFromPayslipTemplateForm
+        :if={@payslip_template_form_state != :closed}
+        id="payslip_template_form"
+        close_event="close_modals"
+        close_fun={fn -> close_modals(@id) end}
+        {=@registration}
+      />
+
       <PayslipItemForm
         :if={@payslip_item_form_state != :closed}
         id="recurring_payslip_item_form"
@@ -156,9 +171,17 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
                 </div>
 
                 <DropdownBtn>
-                  <a :on-click="open_new_payslip_item_model_form" class="dropdown-item">Item a partir de modelo</a>
-                  <a :on-click="open_new_outside_item_form" class="dropdown-item">Item fora do holerite</a>
+                  <a
+                    :if={@recurring_payslip_items == [] and @recurring_outside_items == []}
+                    :on-click="open_new_payslip_items_from_payslip_template_form"
+                    class="dropdown-item"
+                  >
+                    Items a partir de um Modelo de Holerite
+                  </a>
+
+                  <a :on-click="open_new_payslip_item_model_form" class="dropdown-item">Item a partir de um Modelo de Item de Holerite</a>
                   <a :on-click="open_new_payslip_item_form" class="dropdown-item">Item do holerite</a>
+                  <a :on-click="open_new_outside_item_form" class="dropdown-item">Item fora do holerite</a>
                 </DropdownBtn>
               </div>
             </th>
@@ -286,6 +309,7 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
       payslip_item_form_state: :closed,
       payslip_item_model_form_state: :closed,
       outside_item_form_state: :closed,
+      payslip_template_form_state: :closed,
       delete_confirmation_dialog_state: :closed
     ]
   end

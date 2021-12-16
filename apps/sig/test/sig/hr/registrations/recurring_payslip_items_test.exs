@@ -45,7 +45,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItemsTest do
                RecurringPayslipItems.list_by(rim)
     end
 
-    test "when recurring item model has no recurring payslilp items" do
+    test "when recurring item model has no recurring payslip items" do
       org = insert(:org)
       rim = insert({:payslip_recurring_item_model, :fixed_amount}, org: org)
 
@@ -68,7 +68,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItemsTest do
                RecurringPayslipItems.list_by(category)
     end
 
-    test "when category has no recurring payslilp items" do
+    test "when category has no recurring payslip items" do
       org = insert(:org)
       category = insert(:payslip_category, org: org)
 
@@ -92,7 +92,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItemsTest do
       assert RecurringPayslipItems.count_by(rim) == 2
     end
 
-    test "when recurring item model has no recurring payslilp items" do
+    test "when recurring item model has no recurring payslip items" do
       org = insert(:org)
       rim = insert({:payslip_recurring_item_model, :fixed_amount}, org: org)
 
@@ -114,11 +114,33 @@ defmodule Sig.HR.Registrations.RecurringPayslipItemsTest do
       assert RecurringPayslipItems.count_by(category) == 2
     end
 
-    test "when category has no recurring payslilp items" do
+    test "when category has no recurring payslip items" do
       org = insert(:org)
       category = insert(:payslip_category, org: org)
 
       assert RecurringPayslipItems.count_by(category) == 0
+    end
+
+    test "counts recurring payslip items by registration" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+
+      insert_list(2, {:employee_registration_recurring_payslip_item, :payslip_item},
+        org: org,
+        registration: registration
+      )
+
+      _to_ignore =
+        insert({:employee_registration_recurring_payslip_item, :payslip_item}, org: org)
+
+      assert RecurringPayslipItems.count_by(registration) == 2
+    end
+
+    test "when registration has no recurring payslip items" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+
+      assert RecurringPayslipItems.count_by(registration) == 0
     end
   end
 

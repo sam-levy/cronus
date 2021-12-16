@@ -1,16 +1,22 @@
 defmodule Sig.HR.Registrations.RecurringPayslipItems do
   import Ecto.Query
+  import Sig.Broadcaster
 
   alias Ecto.Multi
 
   alias Sig.HR.Payslips.Categories.Category
   alias Sig.HR.Payslips.RecurringItemModels.RecurringItemModel
   alias Sig.HR.Registrations.Registration
-  alias Sig.HR.Registrations.RecurringPayslipItems.RecurringPayslipItem
+  alias Sig.HR.Registrations.RecurringPayslipItems.CreateFromPayslipTemplate
   alias Sig.HR.Registrations.RecurringPayslipItems.ListByRegistration
+  alias Sig.HR.Registrations.RecurringPayslipItems.RecurringPayslipItem
   alias Sig.Repo
 
   defdelegate list_by_registration(registration, opts \\ []), to: ListByRegistration, as: :call
+
+  defdelegate create_from_payslip_template(registration, template_id),
+    to: CreateFromPayslipTemplate,
+    as: :call
 
   def create_change(attrs \\ %{}, type)
 
@@ -134,6 +140,12 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems do
     end
   end
 
+  defp query_by(%Registration{} = registration) do
+    RecurringPayslipItem
+    |> where(org_id: ^registration.org_id)
+    |> where(registration_id: ^registration.id)
+  end
+
   defp query_by(%RecurringItemModel{} = rim) do
     RecurringPayslipItem
     |> where(org_id: ^rim.org_id)
@@ -146,13 +158,12 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems do
     |> where(payslip_category_id: ^category.id)
   end
 
-  def subscribe_to_registration_recurring_payslip_items(%Registration{} = registration) do
-    Phoenix.PubSub.subscribe(Sig.PubSub, topic(registration))
+  def subscribe_to_registration_recurring_payslip_items(schema) do
+    subscribe(topic(schema))
   end
 
   def broadcast_registration_recurring_payslip_items(%Registration{} = registration) do
-    Phoenix.PubSub.broadcast(
-      Sig.PubSub,
+    broadcast(
       topic(registration),
       {:updated_registration_recurring_payslip_items, list_by_registration(registration)}
     )

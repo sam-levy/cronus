@@ -105,6 +105,61 @@ defmodule Sig.HR.PayslipTemplates.PayslipTemplateItemsTest do
     end
   end
 
+  describe "list_by/1" do
+    test "lists payslip template items by attrs" do
+      org = insert(:org)
+      %{id: payslip_template_id} = payslip_template = insert(:payslip_template, org: org)
+
+      category_b = insert(:payslip_category, org: org, code: "B")
+      category_a = insert(:payslip_category, org: org, code: "A")
+
+      category_b_rim =
+        insert({:payslip_recurring_item_model, :fixed_amount}, org: org, category: category_b)
+
+      category_a_rim =
+        insert({:payslip_recurring_item_model, :fixed_amount}, org: org, category: category_a)
+
+      insert(:payslip_template_item,
+        org: org,
+        payslip_template: payslip_template,
+        payslip_recurring_item_model: category_b_rim
+      )
+
+      insert(:payslip_template_item,
+        org: org,
+        payslip_template: payslip_template,
+        payslip_recurring_item_model: category_a_rim
+      )
+
+      _to_ignore = insert(:payslip_template_item, org: org)
+
+      assert [
+               %PayslipTemplateItem{
+                 payslip_template_id: ^payslip_template_id,
+                 payslip_recurring_item_model: %RecurringItemModel{category: %Category{code: "A"}}
+               },
+               %PayslipTemplateItem{
+                 payslip_template_id: ^payslip_template_id,
+                 payslip_recurring_item_model: %RecurringItemModel{category: %Category{code: "B"}}
+               }
+             ] =
+               PayslipTemplateItems.list_by(
+                 org_id: org.id,
+                 payslip_template_id: payslip_template.id
+               )
+    end
+
+    test "when payslip templates has no items" do
+      org = insert(:org)
+      payslip_template = insert(:payslip_template, org: org)
+
+      assert PayslipTemplateItems.list_by(
+               org_id: org.id,
+               payslip_template_id: payslip_template.id
+             ) == []
+    end
+  end
+
   describe "delete/1" do
     test "deletes a payslip template item" do
       item = insert(:payslip_template_item)
