@@ -120,7 +120,6 @@ defmodule SigLive.PayslipCategories.Form do
       context.params
       |> Map.put("org_id", "org_id")
       |> HR.create_payslip_category_change()
-      |> IO.inspect()
 
     case apply_action(changeset, :insert) do
       {:error, changeset} -> Map.put(context, :validation, {:error, changeset})
