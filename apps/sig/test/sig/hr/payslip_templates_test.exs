@@ -125,7 +125,7 @@ defmodule Sig.HR.PayslipTemplatesTest do
       org = insert(:org)
       %{id: payslip_template_id} = payslip_template = insert(:payslip_template, org: org)
 
-      insert_list(2, :payslip_template_item,
+      insert_list(2, {:payslip_template_item, :payslip_item},
         org: org,
         payslip_template: payslip_template
       )

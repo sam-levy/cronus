@@ -55,19 +55,26 @@ defmodule Sig.HR do
 
   defdelegate create_payslip_template_item_change(attrs \\ %{}),
     to: PayslipTemplateItems,
-    as: :create_change
+    as: :create_payslip_item_change
 
-  defdelegate list_payslip_template_items(payslip_template), to: PayslipTemplateItems, as: :list
-  defdelegate list_payslip_template_items_by(attrs), to: PayslipTemplateItems, as: :list_by
+  defdelegate create_payslip_template_model_item_change(attrs \\ %{}),
+    to: PayslipTemplateItems,
+    as: :create_payslip_model_item_change
 
   defdelegate create_payslip_template_item(payslip_template, attrs),
     to: PayslipTemplateItems,
-    as: :create
+    as: :create_payslip_item
+
+  defdelegate create_payslip_template_model_item(payslip_template, attrs),
+    to: PayslipTemplateItems,
+    as: :create_payslip_model_item
 
   defdelegate delete_payslip_template_item(payslip_template_item),
     to: PayslipTemplateItems,
     as: :delete
 
+  defdelegate list_payslip_template_items(payslip_template), to: PayslipTemplateItems, as: :list
+  defdelegate list_payslip_template_items_by(attrs), to: PayslipTemplateItems, as: :list_by
   defdelegate subscribe_to_payslip_template_items(schema), to: PayslipTemplateItems
   defdelegate broadcast_new_payslip_template_item(payslip_template_item), to: PayslipTemplateItems
 
