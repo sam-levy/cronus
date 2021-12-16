@@ -1,4 +1,4 @@
-defmodule SigLive.PayslipTemplates.PayslipTemplateItems.Form do
+defmodule SigLive.PayslipTemplates.PayslipTemplateItems.PayslipItemForm do
   use SigLive, :surface_live_component
 
   alias Sig.HR
@@ -7,6 +7,7 @@ defmodule SigLive.PayslipTemplates.PayslipTemplateItems.Form do
 
   alias Surface.Components.Form.{
     Select,
+    TextInput,
     ErrorTag,
     Field,
     Label,
@@ -32,7 +33,7 @@ defmodule SigLive.PayslipTemplates.PayslipTemplateItems.Form do
       |> assign(assigns)
       |> assign(
         changeset: HR.create_payslip_template_item_change(),
-        payslip_recurring_item_models: HR.list_payslip_recurring_item_models(org)
+        payslip_categories: HR.list_payslip_categories(org.id)
       )
 
     {:ok, socket}
@@ -51,13 +52,19 @@ defmodule SigLive.PayslipTemplates.PayslipTemplateItems.Form do
     ~F"""
     <Modal title="Novo Item do Modelo de Holerite" close={@close_event}>
       <Form for={@changeset} submit="save" opts={autocomplete: "off"}>
-        <Field name={:payslip_recurring_item_model_id} class="form-field">
-          <Label class="form-label">Modelo de Item de Holerite</Label>
+        <Field name={:payslip_category_id} class="form-field">
+          <Label class="form-label">Categoria do Item de Holerite</Label>
           <Select
             prompt=""
             class="form-input"
-            options={models_for_select(@payslip_recurring_item_models)}
+            options={payslip_categories_for_select(@payslip_categories)}
           />
+          <ErrorTag class="form-error-tag"/>
+        </Field>
+
+        <Field name={:amount} class="form-field">
+          <Label class="form-label">Valor</Label>
+          <TextInput class="form-input" />
           <ErrorTag class="form-error-tag"/>
         </Field>
 
@@ -108,9 +115,5 @@ defmodule SigLive.PayslipTemplates.PayslipTemplateItems.Form do
     close_fun.()
 
     {:noreply, socket}
-  end
-
-  def models_for_select(payslip_recurring_item_models) do
-    Map.new(payslip_recurring_item_models, &{&1.description, &1.id})
   end
 end

@@ -88,6 +88,6 @@ defmodule SigLive.PayslipTemplates.Show do
   end
 
   defp sort_payslip_template_items(payslip_template_items) do
-    Enum.sort_by(payslip_template_items, & &1.payslip_recurring_item_model.category.code)
+    Enum.sort_by(payslip_template_items, & &1.category_code)
   end
 end
