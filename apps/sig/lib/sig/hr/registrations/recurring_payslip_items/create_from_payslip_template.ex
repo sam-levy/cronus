@@ -59,22 +59,33 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.CreateFromPayslipTemplate d
     end
   end
 
-  defp handle_attrs(template_item, acc, registration) do
-    attrs = %{
+  defp handle_attrs(%{type: :payslip_item} = item, acc, registration) do
+    %{
       org_id: registration.org_id,
       registration_id: registration.id,
-      payslip_recurring_item_model_id: template_item.payslip_recurring_item_model.id
+      payslip_category_id: item.payslip_category_id,
+      item_amount: item.amount
     }
+    |> RecurringPayslipItems.create_change(:payslip_item)
+    |> handle_changeset(acc)
+  end
 
-    case RecurringPayslipItems.create_change(attrs, :payslip_item_model) do
-      %{valid?: true} = changeset ->
-        attrs = Sig.Changeset.add_timestamps(changeset.changes)
+  defp handle_attrs(%{type: :payslip_item_model} = item, acc, registration) do
+    %{
+      org_id: registration.org_id,
+      registration_id: registration.id,
+      payslip_recurring_item_model_id: item.payslip_recurring_item_model.id
+    }
+    |> RecurringPayslipItems.create_change(:payslip_item_model)
+    |> handle_changeset(acc)
+  end
 
-        {:cont, [attrs | acc]}
+  def handle_changeset(%{valid?: true} = changeset, acc) do
+    {:cont, [Sig.Changeset.add_timestamps(changeset.changes) | acc]}
+  end
 
-      %{valid?: false} = changeset ->
-        {:halt, {:error, changeset}}
-    end
+  def handle_changeset(%{valid?: false} = changeset, _acc) do
+    {:halt, {:error, changeset}}
   end
 
   defp insert_all_multi(%{status: :halted} = context), do: context

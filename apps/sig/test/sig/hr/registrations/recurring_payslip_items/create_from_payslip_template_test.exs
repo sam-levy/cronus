@@ -20,6 +20,22 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.CreateFromPayslipTemplateTe
           description: "Desc. Vale Transporte"
         )
 
+      overtime_category =
+        insert(:payslip_category,
+          org: org,
+          code: "82",
+          entry_type: :credit,
+          description: "Hora Extra 100%"
+        )
+
+      cashier_category =
+        insert(:payslip_category,
+          org: org,
+          code: "1000",
+          entry_type: :credit,
+          description: "Quebra de Caixa"
+        )
+
       salary_model =
         insert({:payslip_recurring_item_model, :fixed_amount}, org: org, category: salary_category)
 
@@ -29,25 +45,39 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.CreateFromPayslipTemplateTe
           category: transport_category
         )
 
-      template = insert(:payslip_template, org: org)
+      payslip_template = insert(:payslip_template, org: org)
 
-      insert(:payslip_template_item,
+      insert({:payslip_template_item, :payslip_item_model},
         org: org,
-        payslip_template: template,
+        payslip_template: payslip_template,
         payslip_recurring_item_model: salary_model
       )
 
-      insert(:payslip_template_item,
+      insert({:payslip_template_item, :payslip_item_model},
         org: org,
-        payslip_template: template,
+        payslip_template: payslip_template,
         payslip_recurring_item_model: transport_model
+      )
+
+      insert({:payslip_template_item, :payslip_item},
+        org: org,
+        payslip_template: payslip_template,
+        payslip_category: overtime_category
+      )
+
+      insert({:payslip_template_item, :payslip_item},
+        org: org,
+        payslip_template: payslip_template,
+        payslip_category: cashier_category
       )
 
       assert {:ok,
               [
                 %RecurringPayslipItem{org_id: ^org_id, registration_id: ^registration_id},
+                %RecurringPayslipItem{org_id: ^org_id, registration_id: ^registration_id},
+                %RecurringPayslipItem{org_id: ^org_id, registration_id: ^registration_id},
                 %RecurringPayslipItem{org_id: ^org_id, registration_id: ^registration_id}
-              ]} = CreateFromPayslipTemplate.call(registration, template.id)
+              ]} = CreateFromPayslipTemplate.call(registration, payslip_template.id)
 
       assert Repo.get_by(RecurringPayslipItem,
                org_id: org.id,
@@ -61,6 +91,20 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.CreateFromPayslipTemplateTe
                registration_id: registration.id,
                payslip_recurring_item_model_id: transport_model.id,
                type: :payslip_item_model
+             )
+
+      assert Repo.get_by(RecurringPayslipItem,
+               org_id: org.id,
+               registration_id: registration.id,
+               payslip_category_id: overtime_category.id,
+               type: :payslip_item
+             )
+
+      assert Repo.get_by(RecurringPayslipItem,
+               org_id: org.id,
+               registration_id: registration.id,
+               payslip_category_id: cashier_category.id,
+               type: :payslip_item
              )
     end
 
@@ -90,13 +134,13 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.CreateFromPayslipTemplateTe
 
       template = insert(:payslip_template, org: org)
 
-      insert(:payslip_template_item,
+      insert({:payslip_template_item, :payslip_item_model},
         org: org,
         payslip_template: template,
         payslip_recurring_item_model: salary_model
       )
 
-      insert(:payslip_template_item,
+      insert({:payslip_template_item, :payslip_item_model},
         org: org,
         payslip_template: template,
         payslip_recurring_item_model: transport_model
