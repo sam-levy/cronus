@@ -3,19 +3,22 @@ defmodule SigLive.PayslipTemplates.PayslipTemplateItems.List do
 
   alias Sig.HR
 
-  alias SigLive.Components.ButtonPlus
+  alias SigLive.Components.DropdownBtn
   alias SigLive.Components.ConfirmationDialog
   alias SigLive.Components.DropdownOpts
-  alias SigLive.PayslipTemplates.PayslipTemplateItems.Form
+  alias SigLive.PayslipTemplates.PayslipTemplateItems.PayslipItemForm
+  alias SigLive.PayslipTemplates.PayslipTemplateItems.PayslipModelItemForm
 
   prop payslip_template_items, :list, required: true
   prop payslip_template, :struct, required: true
   prop org, :struct, required: true
 
   data payslip_template_item_id, :string, default: nil
-  data form_state, :atom, default: :closed
   data confirmation_dialog_state, :atom, default: :closed
   data message, :string, default: nil
+
+  data payslip_template_item_form_state, :atom, default: :closed
+  data payslip_template_model_item_form_state, :atom, default: :closed
 
   @impl true
   def handle_event("close_modals", _, socket) do
@@ -24,35 +27,27 @@ defmodule SigLive.PayslipTemplates.PayslipTemplateItems.List do
 
   @impl true
   def handle_event("open_new_payslip_template_item_form", _, socket) do
-    {:noreply, assign(socket, form_state: :new_mode)}
+    {:noreply, assign(socket, payslip_template_item_form_state: :new_mode)}
   end
 
   @impl true
-  def handle_event(
-        "open_delete_confirmation_dialog",
-        %{"payslip_template_item_payslip_recurring_item_model_id" => id},
-        socket
-      ) do
-    {:noreply,
-     assign(socket,
-       confirmation_dialog_state: :open,
-       payslip_template_item_payslip_recurring_item_model_id: id
-     )}
+  def handle_event("open_new_payslip_template_model_item_form", _, socket) do
+    {:noreply, assign(socket, payslip_template_model_item_form_state: :new_mode)}
+  end
+
+  @impl true
+  def handle_event("open_delete_confirmation_dialog", %{"payslip_template_item_id" => id}, socket) do
+    {:noreply, assign(socket, confirmation_dialog_state: :open, payslip_template_item_id: id)}
   end
 
   @impl true
   def handle_event("delete_payslip_template_item", _, socket) do
     %{
       payslip_template_items: payslip_template_items,
-      payslip_template_item_payslip_recurring_item_model_id:
-        payslip_template_item_payslip_recurring_item_model_id
+      payslip_template_item_id: id
     } = socket.assigns
 
-    with {:ok, payslip_template_item} <-
-           fetch_payslip_template_item(
-             payslip_template_items,
-             payslip_template_item_payslip_recurring_item_model_id
-           ),
+    with {:ok, payslip_template_item} <- fetch_payslip_template_item(payslip_template_items, id),
          {:ok, payslip_template_item} <- HR.delete_payslip_template_item(payslip_template_item) do
       HR.broadcast_deleted_payslip_template_item(payslip_template_item)
       send(self(), {:flash, :info, "Item removido"})
@@ -67,15 +62,8 @@ defmodule SigLive.PayslipTemplates.PayslipTemplateItems.List do
     end
   end
 
-  defp fetch_payslip_template_item(
-         payslip_template_items,
-         payslip_template_item_payslip_recurring_item_model_id
-       ) do
-    case Enum.find(
-           payslip_template_items,
-           &(&1.payslip_recurring_item_model_id ==
-               payslip_template_item_payslip_recurring_item_model_id)
-         ) do
+  defp fetch_payslip_template_item(payslip_template_items, id) do
+    case Enum.find(payslip_template_items, &(&1.id == id)) do
       nil -> {:error, "Item não encontrado"}
       payslip_template_item -> {:ok, payslip_template_item}
     end
@@ -85,13 +73,23 @@ defmodule SigLive.PayslipTemplates.PayslipTemplateItems.List do
   def render(assigns) do
     ~F"""
     <div>
-      <Form
-        :if={@form_state != :closed}
+      <PayslipItemForm
+        :if={@payslip_template_item_form_state != :closed}
+        id="payslip_template_model_item_create_form"
+        close_event="close_modals"
+        close_fun={fn -> close_modals(@id) end}
+        form_state={@payslip_template_item_form_state}
+        {=@payslip_template}
+        {=@org}
+      />
+
+      <PayslipModelItemForm
+        :if={@payslip_template_model_item_form_state != :closed}
         id="payslip_template_item_create_form"
         close_event="close_modals"
         close_fun={fn -> close_modals(@id) end}
+        form_state={@payslip_template_model_item_form_state}
         {=@payslip_template}
-        {=@form_state}
         {=@org}
       />
 
@@ -118,7 +116,10 @@ defmodule SigLive.PayslipTemplates.PayslipTemplateItems.List do
                   </span>
                 </span>
 
-                <ButtonPlus on_click="open_new_payslip_template_item_form"/>
+                <DropdownBtn>
+                  <a :on-click="open_new_payslip_template_model_item_form" class="dropdown-item">Item de Holerite a partir de modelo</a>
+                  <a :on-click="open_new_payslip_template_item_form" class="dropdown-item">Item de Holerite</a>
+                </DropdownBtn>
               </div>
             </th>
           </tr>
@@ -136,41 +137,78 @@ defmodule SigLive.PayslipTemplates.PayslipTemplateItems.List do
         </thead>
 
         <tbody class="text-gray-600 text-sm font-light">
-          {#for %{payslip_recurring_item_model: item_model} = payslip_template_item <- @payslip_template_items}
-            <tr class="border-b border-gray-200 hover:bg-gray-50">
-              <td class="py-3 pl-6 text-left">
-                {format_type(item_model.category.code)}
-              </td>
+          {#for item <- @payslip_template_items}
+            {#if item.type == :payslip_item_model}
+              <tr class="border-b border-gray-200 hover:bg-gray-50">
+                <td class="py-3 pl-6 text-left">
+                  {format_type(item.payslip_recurring_item_model.category.code)}
+                </td>
 
-              <td class="px-3 text-left">
-                {format_type(item_model.category.description)}
-              </td>
+                <td class="px-3 text-left">
+                  <div class="flex justify-between">
+                    {format_type(item.payslip_recurring_item_model.category.description)}
 
-              <td class="px-3 text-left">
-                {#if item_model.is_fixed_amount}
-                  Fixo: {item_model.amount}
-                {#else}
-                  Variável
-                {/if}
-              </td>
+                    <div class="label-gray mr-3">modelo</div>
+                  </div>
+                </td>
 
-              <td class="px-3 text-left">
-                <span class={handle_label_class(item_model.category.entry_type)}>
-                  {format_type(item_model.category.entry_type)}
-                </span>
-              </td>
-              <td class="pr-5 text-right">
-                <DropdownOpts>
-                  <a
-                    :on-click="open_delete_confirmation_dialog"
-                    phx-value-payslip_template_item_payslip_recurring_item_model_id={payslip_template_item.payslip_recurring_item_model_id}
-                    class="dropdown-item"
-                  >
-                    Remover
-                  </a>
-                </DropdownOpts>
-              </td>
-            </tr>
+                <td class="px-3 text-left">
+                  {#if item.payslip_recurring_item_model.is_fixed_amount}
+                    Fixo: {item.payslip_recurring_item_model.amount}
+                  {#else}
+                    Variável
+                  {/if}
+                </td>
+
+                <td class="px-3 text-left">
+                  <span class={handle_label_class(item.payslip_recurring_item_model.category.entry_type)}>
+                    {format_type(item.payslip_recurring_item_model.category.entry_type)}
+                  </span>
+                </td>
+                <td class="pr-5 text-right">
+                  <DropdownOpts>
+                    <a
+                      :on-click="open_delete_confirmation_dialog"
+                      phx-value-payslip_template_item_id={item.id}
+                      class="dropdown-item"
+                    >
+                      Remover
+                    </a>
+                  </DropdownOpts>
+                </td>
+              </tr>
+            {#else}
+              <tr class="border-b border-gray-200 hover:bg-gray-50">
+                <td class="py-3 pl-6 text-left">
+                  {format_type(item.payslip_category.code)}
+                </td>
+
+                <td class="px-3 text-left">
+                  {format_type(item.payslip_category.description)}
+                </td>
+
+                <td class="px-3 text-left">
+                  {format_amount(item.amount)}
+                </td>
+
+                <td class="px-3 text-left">
+                  <span class={handle_label_class(item.payslip_category.entry_type)}>
+                    {format_type(item.payslip_category.entry_type)}
+                  </span>
+                </td>
+                <td class="pr-5 text-right">
+                  <DropdownOpts>
+                    <a
+                      :on-click="open_delete_confirmation_dialog"
+                      phx-value-payslip_template_item_id={item.id}
+                      class="dropdown-item"
+                    >
+                      Remover
+                    </a>
+                  </DropdownOpts>
+                </td>
+              </tr>
+            {/if}
           {/for}
         </tbody>
       </table>
@@ -189,8 +227,9 @@ defmodule SigLive.PayslipTemplates.PayslipTemplateItems.List do
     [
       message: nil,
       payslip_template_item_id: nil,
-      form_state: :closed,
-      confirmation_dialog_state: :closed
+      confirmation_dialog_state: :closed,
+      payslip_template_item_form_state: :closed,
+      payslip_template_model_item_form_state: :closed
     ]
   end
 end

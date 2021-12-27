@@ -201,6 +201,60 @@ defmodule Sig.HR.Payslips.CreateFromModelTest do
              ] = Items.list_by_payslip(payslip)
     end
 
+    test "when there are duplicated recurring payslip items" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org, admission_date: ~D[2021-02-01])
+
+      insert(:employee_salary,
+        org: org,
+        registration: registration,
+        amount: 1_000_00,
+        start_date: ~D[2021-02-01]
+      )
+
+      # outside_item
+
+      insert({:employee_registration_recurring_payslip_item, :outside_item},
+        org: org,
+        registration: registration,
+        item_amount: 200_00,
+        outside_item_description: "COMPLEMENTO SALÁRIO",
+        outside_item_entry_type: :credit
+      )
+
+      # payslip_item
+
+      salary_category =
+        insert(:payslip_category, org: org, code: "1", entry_type: :credit, description: "SALÁRIO")
+
+      insert({:employee_registration_recurring_payslip_item, :payslip_item},
+        org: org,
+        registration: registration,
+        item_amount: 1_000_00,
+        payslip_category: salary_category
+      )
+
+      # duplicated payslip_item
+
+      insert({:employee_registration_recurring_payslip_item, :payslip_item},
+        org: org,
+        registration: registration,
+        item_amount: 2_000_00,
+        payslip_category: salary_category
+      )
+
+      attrs = %{
+        type: :regular,
+        start_date: ~D[2021-02-01],
+        end_date: ~D[2021-02-28]
+      }
+
+      assert CreateFromModel.call(registration, attrs) ==
+               {:error, "Existem itens duplicados no holerite modelo"}
+
+      refute Repo.get_by(Payslip, org_id: org.id, registration_id: registration.id)
+    end
+
     test "when recurring payslip items amount sum is negative" do
       org = insert(:org)
       registration = insert(:employee_registration, org: org, admission_date: ~D[2021-02-01])

@@ -49,7 +49,8 @@ defmodule Sig.HR.Payslips.BatchCreator do
     Multi.new()
     |> base_multi(org, attrs)
     |> Multi.insert_all(:payslips, Payslip, &build_payslips_attrs(&1, org, attrs), returning: true)
-    |> Multi.insert_all(:payslip_items, Item, &build_payslip_items_attrs/1, returning: true)
+    |> Multi.run(:payslip_items_attrs, &build_payslip_items_attrs/2)
+    |> Multi.insert_all(:payslip_items, Item, & &1.payslip_items_attrs, returning: true)
     |> Multi.run(:indexed_payslip_items, &index_payslip_items/2)
     |> Multi.merge(&update_payslips_amounts/1)
     |> Multi.merge(&create_payables(&1, opts))
@@ -126,26 +127,81 @@ defmodule Sig.HR.Payslips.BatchCreator do
           registration_id: registration.id
         }
         |> Payslip.create_changeset()
-        |> handle_changeset(acc)
+        |> case do
+          %{valid?: true} = changeset -> [build_payslip_item_attrs(changeset) | acc]
+          _ -> acc
+        end
       end
     end)
   end
 
-  defp build_payslip_items_attrs(changes) do
+  defp build_payslip_items_attrs(_repo, changes) do
     %{indexed_registrations: indexed_registrations, payslips: {_, payslips}} = changes
 
-    Enum.flat_map(payslips, fn payslip ->
+    Enum.reduce_while(payslips, [], fn payslip, acc ->
       start_date = Date.beginning_of_month(payslip.start_date)
 
       indexed_registrations
       |> Map.get(payslip.registration_id)
       |> RecurringPayslipItems.list_by_registration(start_date: start_date)
-      |> Enum.reduce([], fn rpi, acc ->
-        rpi
-        |> Items.build_changeset_from(payslip)
-        |> handle_changeset(acc)
-      end)
+      |> Enum.reduce_while(%{codes: MapSet.new(), attrs: []}, &validate_payslip_item_attrs(&1, &2, payslip))
+      |> case do
+        %{attrs: attrs} -> {:cont, [attrs | acc]}
+        {:error, error} -> {:halt, {:error, error}}
+      end
     end)
+    |> case  do
+      attrs when is_list(attrs) -> {:ok, List.flatten(attrs)}
+      {:error, error} -> {:error, error}
+    end
+  end
+
+  defp validate_payslip_item_attrs(rpi, acc, payslip) do
+    with {:duplicated_rpi, false} <- {:duplicated_rpi, duplicated_rpi?(acc, rpi)},
+         %{valid?: true} = changeset <- Items.build_changeset_from(rpi, payslip) do
+      attrs = build_payslip_item_attrs(changeset)
+
+      {:cont, handle_acc(acc, attrs)}
+    else
+      {:duplicated_rpi, true} -> {:halt, handle_duplicated_recurring_payslip_item(payslip)}
+      %{valid?: false} = changeset -> {:halt, {:error, changeset}}
+    end
+  end
+
+  defp handle_duplicated_recurring_payslip_item(payslip) do
+    name = get_individual_name(payslip)
+
+    {:error, "Existem itens duplicados no holerite modelo de #{name}. Favor corrigir antes de gerar os holerites."}
+  end
+
+  defp get_individual_name(payslip) do
+    registration =
+      Registrations.get_by([org_id: payslip.org_id, id: payslip.registration_id],
+        preload: :individual
+      )
+
+    registration.individual.name
+  end
+
+  defp duplicated_rpi?(_acc, %{type: :outside_item}), do: false
+  defp duplicated_rpi?(acc, %{code: code}), do: MapSet.member?(acc.codes, code)
+
+  defp build_payslip_item_attrs(changeset) do
+    changeset.changes
+    |> Map.drop([:category_id])
+    |> Sig.Changeset.add_timestamps()
+  end
+
+  defp handle_acc(acc, %{type: :outside_item} = attrs) do
+    Sig.Map.flat_put(acc, :attrs, attrs)
+  end
+
+  defp handle_acc(acc, %{type: :payslip_item, code: code} = attrs) do
+    codes = MapSet.put(acc.codes, code)
+
+    acc
+    |> Sig.Map.flat_put(:attrs, attrs)
+    |> Map.put(:codes, codes)
   end
 
   defp index_payslip_items(_, %{payslip_items: {_, payslip_items}}) do
@@ -179,17 +235,12 @@ defmodule Sig.HR.Payslips.BatchCreator do
   end
 
   defp handle_payslip_negative_amount(multi, payslip) do
-    registration =
-      Registrations.get_by([org_id: payslip.org_id, id: payslip.registration_id],
-        preload: :individual
-      )
-
-    individual_name = registration.individual.name
+    name = get_individual_name(payslip)
 
     Multi.error(
       multi,
       {:update_payslip_amount, payslip.id},
-      "O total do holerite modelo de #{individual_name} está negativo. Favor alterar antes de gerar os holerites."
+      "O total do holerite modelo de #{name} está negativo. Favor corrigir antes de gerar os holerites."
     )
   end
 
@@ -210,21 +261,6 @@ defmodule Sig.HR.Payslips.BatchCreator do
         {:ok, nil}
       end)
     end)
-  end
-
-  defp handle_changeset(changeset, acc) do
-    case Ecto.Changeset.apply_action(changeset, :insert) do
-      {:ok, _struct} ->
-        params =
-          changeset.changes
-          |> Map.drop([:category_id])
-          |> Sig.Changeset.add_timestamps()
-
-        [params | acc]
-
-      {:error, _changeset} ->
-        acc
-    end
   end
 
   defp handle_verify_return({:error, :rollback, _reason, %{payslips_attrs: payslips_attrs}}, org) do

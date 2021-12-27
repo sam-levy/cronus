@@ -1,4 +1,4 @@
-defmodule SigLive.PayslipTemplates.PayslipTemplateItems.Form do
+defmodule SigLive.PayslipTemplates.PayslipTemplateItems.PayslipItemForm do
   use SigLive, :surface_live_component
 
   alias Sig.HR
@@ -7,6 +7,7 @@ defmodule SigLive.PayslipTemplates.PayslipTemplateItems.Form do
 
   alias Surface.Components.Form.{
     Select,
+    TextInput,
     ErrorTag,
     Field,
     Label,
@@ -23,6 +24,8 @@ defmodule SigLive.PayslipTemplates.PayslipTemplateItems.Form do
   prop payslip_template, :struct, required: true
   prop org, :struct, required: true
 
+  data message, :string, default: nil
+
   @impl true
   def update(assigns, socket) do
     %{org: org} = assigns
@@ -32,7 +35,7 @@ defmodule SigLive.PayslipTemplates.PayslipTemplateItems.Form do
       |> assign(assigns)
       |> assign(
         changeset: HR.create_payslip_template_item_change(),
-        payslip_recurring_item_models: HR.list_payslip_recurring_item_models(org)
+        payslip_categories: HR.list_payslip_categories(org.id)
       )
 
     {:ok, socket}
@@ -51,15 +54,23 @@ defmodule SigLive.PayslipTemplates.PayslipTemplateItems.Form do
     ~F"""
     <Modal title="Novo Item do Modelo de Holerite" close={@close_event}>
       <Form for={@changeset} submit="save" opts={autocomplete: "off"}>
-        <Field name={:payslip_recurring_item_model_id} class="form-field">
-          <Label class="form-label">Modelo de Item de Holerite</Label>
+        <Field name={:payslip_category_id} class="form-field">
+          <Label class="form-label">Categoria do Item de Holerite</Label>
           <Select
             prompt=""
             class="form-input"
-            options={models_for_select(@payslip_recurring_item_models)}
+            options={payslip_categories_for_select(@payslip_categories)}
           />
           <ErrorTag class="form-error-tag"/>
         </Field>
+
+        <Field name={:amount} class="form-field">
+          <Label class="form-label">Valor</Label>
+          <TextInput class="form-input" />
+          <ErrorTag class="form-error-tag"/>
+        </Field>
+
+        <div :if={@message} class="form-error-tag mb-3">{@message}</div>
 
         <div class="flex justify-end">
           <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Salvando..."}/>
@@ -96,8 +107,14 @@ defmodule SigLive.PayslipTemplates.PayslipTemplateItems.Form do
     {:noreply, assign(socket, changeset: changeset)}
   end
 
-  defp handle_return(%{return: {:error, changeset}} = context) do
-    {:noreply, assign(context.socket, changeset: changeset)}
+  defp handle_return(%{return: {:error, message}} = context) when is_binary(message) do
+    {_, changeset} = context.validation
+
+    {:noreply, assign(context.socket, message: message, changeset: changeset)}
+  end
+
+  defp handle_return(%{return: {:error, changeset}} = context) when is_struct(changeset) do
+    {:noreply, assign(context.socket, message: nil, changeset: changeset)}
   end
 
   defp handle_return(%{return: {:ok, payslip_template_item}, socket: socket}) do
@@ -108,9 +125,5 @@ defmodule SigLive.PayslipTemplates.PayslipTemplateItems.Form do
     close_fun.()
 
     {:noreply, socket}
-  end
-
-  def models_for_select(payslip_recurring_item_models) do
-    Map.new(payslip_recurring_item_models, &{&1.description, &1.id})
   end
 end
