@@ -20,6 +20,7 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.CreateFromPayslipTemplate d
     %Context{registration: registration, payslip_template_id: template_id}
     |> validate_no_recurring_payslip_items()
     |> list_template_items()
+    |> validate_unique_category_code()
     |> build_attrs()
     |> insert_all_multi()
     |> handle_return()
@@ -43,6 +44,22 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.CreateFromPayslipTemplate d
     case HR.list_payslip_template_items_by(attrs) do
       [] -> error(context, "não há items no modelo de holerite")
       items -> %{context | payslip_template_items: items}
+    end
+  end
+
+  defp validate_unique_category_code(%{status: :halted} = context), do: context
+
+  defp validate_unique_category_code(%{payslip_template_items: items} = context) do
+    Enum.reduce_while(items, MapSet.new(), fn item, acc ->
+      if MapSet.member?(acc, item.category_code) do
+        {:halt, {:error, "Existem itens duplicados no modelo de holerite"}}
+      else
+        {:cont, MapSet.put(acc, item.category_code)}
+      end
+    end)
+    |> case do
+      %MapSet{} -> context
+      {:error, message} -> error(context, message)
     end
   end
 

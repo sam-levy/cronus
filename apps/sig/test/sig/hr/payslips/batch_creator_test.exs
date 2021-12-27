@@ -716,11 +716,73 @@ defmodule Sig.HR.Payslips.BatchCreatorTest do
 
       assert BatchCreator.create(org, attrs) ==
                {:error,
-                "O total do holerite modelo de Fulano está negativo. Favor alterar antes de gerar os holerites."}
+                "O total do holerite modelo de Fulano está negativo. Favor corrigir antes de gerar os holerites."}
 
       refute Repo.get_by(Group, org_id: org.id, date: ~D[2021-01-01], type: :regular)
 
       refute Repo.get_by(Payslip, org_id: org.id, registration_id: registration.id)
+    end
+
+    test "when there are duplicated recurring payslip items" do
+      org = insert(:org)
+      individual = insert(:individual, org: org, name: "Fulano")
+      kitchen_sector = insert(:org_sector, org: org, name: "kitchen")
+
+      first_kitchen_registration =
+        insert(:employee_registration,
+          org: org,
+          sector: kitchen_sector,
+          admission_date: ~D[2020-01-01]
+        )
+
+      second_kitchen_registration =
+        insert(:employee_registration,
+          org: org,
+          sector: kitchen_sector,
+          individual: individual,
+          admission_date: ~D[2020-01-01]
+        )
+
+      salary_category =
+        insert(:payslip_category, org: org, code: "1", entry_type: :credit, description: "SALÁRIO")
+
+      Enum.each([first_kitchen_registration, second_kitchen_registration], fn registration ->
+        insert({:employee_registration_recurring_payslip_item, :payslip_item},
+          org: org,
+          registration: registration,
+          payslip_category: salary_category,
+          item_amount: 300_00
+        )
+      end)
+
+      # Duplicated recurring payslip item
+      insert({:employee_registration_recurring_payslip_item, :payslip_item},
+        org: org,
+        registration: second_kitchen_registration,
+        payslip_category: salary_category,
+        item_amount: 100_00
+      )
+
+      attrs = %{
+        type: :regular,
+        start_date: ~D[2021-01-01],
+        sectors_ids: [kitchen_sector.id]
+      }
+
+      payables_attrs = %{
+        type: :standard,
+        due_dates: %{payment_advance_date: ~D[2021-01-20], salary_date: ~D[2021-02-07]}
+      }
+
+      assert BatchCreator.create(org, attrs, payables_attrs: payables_attrs) ==
+               {:error,
+                "Existem itens duplicados no holerite modelo de Fulano. Favor corrigir antes de gerar os holerites."}
+
+      refute Repo.get_by(Group, org_id: org.id)
+      refute Repo.get_by(Payslip, org_id: org.id)
+      refute Repo.get_by(Item, org_id: org.id)
+      refute Repo.get_by(PayslipPayable, org_id: org.id)
+      refute Repo.get_by(Payable, org_id: org.id)
     end
 
     test "invalid attrs" do

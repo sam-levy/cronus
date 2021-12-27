@@ -34,7 +34,7 @@ defmodule Sig.HR.PayslipTemplates.PayslipTemplateItems.PayslipTemplateItem do
     |> put_change(:type, :payslip_item)
     |> validate_money(:amount, [:gt, :eq], 0)
     |> assoc_constraint(:payslip_category)
-    |> unique_constraint(:payslip_category, name: :payslip_template_items_category_unique)
+    |> unique_constraint(:payslip_category_id, name: :payslip_template_items_category_unique)
   end
 
   def create_payslip_model_item_changeset(attrs) do

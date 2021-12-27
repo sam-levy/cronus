@@ -24,6 +24,8 @@ defmodule SigLive.PayslipTemplates.PayslipTemplateItems.PayslipItemForm do
   prop payslip_template, :struct, required: true
   prop org, :struct, required: true
 
+  data message, :string, default: nil
+
   @impl true
   def update(assigns, socket) do
     %{org: org} = assigns
@@ -68,6 +70,8 @@ defmodule SigLive.PayslipTemplates.PayslipTemplateItems.PayslipItemForm do
           <ErrorTag class="form-error-tag"/>
         </Field>
 
+        <div :if={@message} class="form-error-tag mb-3">{@message}</div>
+
         <div class="flex justify-end">
           <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Salvando..."}/>
         </div>
@@ -103,8 +107,14 @@ defmodule SigLive.PayslipTemplates.PayslipTemplateItems.PayslipItemForm do
     {:noreply, assign(socket, changeset: changeset)}
   end
 
-  defp handle_return(%{return: {:error, changeset}} = context) do
-    {:noreply, assign(context.socket, changeset: changeset)}
+  defp handle_return(%{return: {:error, message}} = context) when is_binary(message) do
+    {_, changeset} = context.validation
+
+    {:noreply, assign(context.socket, message: message, changeset: changeset)}
+  end
+
+  defp handle_return(%{return: {:error, changeset}} = context) when is_struct(changeset) do
+    {:noreply, assign(context.socket, message: nil, changeset: changeset)}
   end
 
   defp handle_return(%{return: {:ok, payslip_template_item}, socket: socket}) do

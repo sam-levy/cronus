@@ -3,8 +3,12 @@ defmodule Sig.HR.PayslipTemplates.PayslipTemplateItems do
   import Sig.Broadcaster
 
   alias Sig.HR.PayslipTemplates.PayslipTemplate
+  alias Sig.HR.PayslipTemplates.PayslipTemplateItems.Creator
   alias Sig.HR.PayslipTemplates.PayslipTemplateItems.PayslipTemplateItem
   alias Sig.Repo
+
+  defdelegate create_payslip_item(payslip_template, attrs), to: Creator
+  defdelegate create_payslip_model_item(payslip_template, attrs), to: Creator
 
   def create_payslip_item_change(%{} = attrs \\ %{}) do
     PayslipTemplateItem.create_payslip_item_changeset(attrs)
@@ -12,22 +16,6 @@ defmodule Sig.HR.PayslipTemplates.PayslipTemplateItems do
 
   def create_payslip_model_item_change(%{} = attrs \\ %{}) do
     PayslipTemplateItem.create_payslip_model_item_changeset(attrs)
-  end
-
-  def create_payslip_item(%PayslipTemplate{} = payslip_template, %{} = attrs) do
-    attrs
-    |> Map.put(:org_id, payslip_template.org_id)
-    |> Map.put(:payslip_template_id, payslip_template.id)
-    |> PayslipTemplateItem.create_payslip_item_changeset()
-    |> Repo.insert()
-  end
-
-  def create_payslip_model_item(%PayslipTemplate{} = payslip_template, %{} = attrs) do
-    attrs
-    |> Map.put(:org_id, payslip_template.org_id)
-    |> Map.put(:payslip_template_id, payslip_template.id)
-    |> PayslipTemplateItem.create_payslip_model_item_changeset()
-    |> Repo.insert()
   end
 
   def delete(%PayslipTemplateItem{} = payslip_template_item) do
@@ -48,6 +36,7 @@ defmodule Sig.HR.PayslipTemplates.PayslipTemplateItems do
     |> where(^attrs)
     |> preloads()
     |> Repo.all()
+    |> fill_category_code()
   end
 
   def get_by(attrs) do
@@ -87,9 +76,9 @@ defmodule Sig.HR.PayslipTemplates.PayslipTemplateItems do
       [
         payslip_recurring_item_model: rim,
         payslip_category: payslip_category,
-        payslip_recurring_item_model_category: payslip_recurring_item_model_category
+        payslip_recurring_item_model_category: rim_category
       ],
-      payslip_recurring_item_model: {rim, category: payslip_recurring_item_model_category},
+      payslip_recurring_item_model: {rim, category: rim_category},
       payslip_category: payslip_category
     )
   end
@@ -106,9 +95,8 @@ defmodule Sig.HR.PayslipTemplates.PayslipTemplateItems do
     %{item | category_code: item.payslip_recurring_item_model.category.code}
   end
 
-  defp order_by_category_code([]), do: []
-  defp order_by_category_code([_] = items), do: items
   defp order_by_category_code([_ | _] = items), do: Enum.sort_by(items, & &1.category_code)
+  defp order_by_category_code(items), do: items
 
   def subscribe_to_payslip_template_items(schema), do: subscribe(topic(schema))
 

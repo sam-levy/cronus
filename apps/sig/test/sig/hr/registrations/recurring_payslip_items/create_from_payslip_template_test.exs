@@ -153,6 +153,38 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.CreateFromPayslipTemplateTe
 
       assert CreateFromPayslipTemplate.call(registration, template.id) ==
                {:error, "o holerite modelo deve estar vazio"}
+
+      assert Repo.get_by(RecurringPayslipItem, org_id: org.id, registration_id: registration.id)
+    end
+
+    test "payslip template items with duplicated category code" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+
+      salary_category =
+        insert(:payslip_category, org: org, code: "1", entry_type: :credit, description: "Salário")
+
+      salary_model =
+        insert({:payslip_recurring_item_model, :fixed_amount}, org: org, category: salary_category)
+
+      payslip_template = insert(:payslip_template, org: org)
+
+      insert({:payslip_template_item, :payslip_item_model},
+        org: org,
+        payslip_template: payslip_template,
+        payslip_recurring_item_model: salary_model
+      )
+
+      insert({:payslip_template_item, :payslip_item},
+        org: org,
+        payslip_template: payslip_template,
+        payslip_category: salary_category
+      )
+
+      assert CreateFromPayslipTemplate.call(registration, payslip_template.id) ==
+               {:error, "Existem itens duplicados no modelo de holerite"}
+
+      refute Repo.get_by(RecurringPayslipItem, org_id: org.id, registration_id: registration.id)
     end
 
     test "template has no items" do

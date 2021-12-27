@@ -530,7 +530,7 @@ defmodule Sig.HR.PayslipTemplates.PayslipTemplateItems.PayslipTemplateItemTest d
       refute changeset.valid?
 
       assert errors_on(changeset) == %{
-               payslip_category: ["has already been taken"]
+               payslip_category_id: ["has already been taken"]
              }
     end
   end
