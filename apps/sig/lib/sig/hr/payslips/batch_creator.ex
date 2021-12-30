@@ -144,13 +144,16 @@ defmodule Sig.HR.Payslips.BatchCreator do
       indexed_registrations
       |> Map.get(payslip.registration_id)
       |> RecurringPayslipItems.list_by_registration(start_date: start_date)
-      |> Enum.reduce_while(%{codes: MapSet.new(), attrs: []}, &validate_payslip_item_attrs(&1, &2, payslip))
+      |> Enum.reduce_while(
+        %{codes: MapSet.new(), attrs: []},
+        &validate_payslip_item_attrs(&1, &2, payslip)
+      )
       |> case do
         %{attrs: attrs} -> {:cont, [attrs | acc]}
         {:error, error} -> {:halt, {:error, error}}
       end
     end)
-    |> case  do
+    |> case do
       attrs when is_list(attrs) -> {:ok, List.flatten(attrs)}
       {:error, error} -> {:error, error}
     end
@@ -171,7 +174,8 @@ defmodule Sig.HR.Payslips.BatchCreator do
   defp handle_duplicated_recurring_payslip_item(payslip) do
     name = get_individual_name(payslip)
 
-    {:error, "Existem itens duplicados no holerite modelo de #{name}. Favor corrigir antes de gerar os holerites."}
+    {:error,
+     "Existem itens duplicados no holerite modelo de #{name}. Favor corrigir antes de gerar os holerites."}
   end
 
   defp get_individual_name(payslip) do

@@ -151,6 +151,7 @@ defmodule Sig.HR.PayslipTemplates.PayslipTemplateItems.CreatorTest do
                type: :payslip_item_model
              )
     end
+
     test "when recurring item model belongs to another org" do
       org = insert(:org)
       payslip_template = insert(:payslip_template, org: org)
