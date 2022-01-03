@@ -155,13 +155,14 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.PayslipPayablesTest do
       Repo.update!(change(payslip, amount: 100_00))
 
       user = insert(:user, org: org)
+      financial_transaction = insert(:financial_transaction, org: org)
 
       payable =
         insert(:payable_cash,
           org: org,
           target: :payslip,
           amount: 100_00,
-          is_fulfilled: true,
+          financial_transaction: financial_transaction,
           authorized_by_id: user.id
         )
 
@@ -284,6 +285,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.PayslipPayablesTest do
     test "when payable is fulfilled" do
       org = insert(:org)
       payslip = insert(:payslip, org: org)
+      financial_transaction = insert(:financial_transaction, org: org)
 
       insert(:payslip_outside_item,
         org: org,
@@ -302,7 +304,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.PayslipPayablesTest do
           org: org,
           target: :payslip,
           amount: 100_00,
-          is_fulfilled: true,
+          financial_transaction: financial_transaction,
           authorized_by_id: user.id
         )
 

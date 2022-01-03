@@ -13,8 +13,7 @@ defmodule Sig.Factories.PayableFactory do
           reference_date: Date.beginning_of_month(due_date),
           amount: Enum.random(100_00..5_000_00) |> Money.new(),
           description: Faker.Lorem.sentence(),
-          target: random_enum_value(:payable_target),
-          is_fulfilled: false
+          target: random_enum_value(:payable_target)
         }
       end
 

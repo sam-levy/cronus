@@ -9,9 +9,8 @@ defmodule Sig.Finance.Payables.PayableTest do
         target: random_enum_value(:payable_target),
         due_date: Date.utc_today(),
         reference_date: Date.utc_today() |> Date.beginning_of_month(),
-        amount: Enum.random(100_00..5_000_00),
+        amount: 1,
         description: Faker.Lorem.sentence(),
-        is_fulfilled: false,
         method: :cash
       }
 
@@ -26,9 +25,8 @@ defmodule Sig.Finance.Payables.PayableTest do
         target: random_enum_value(:payable_target),
         due_date: Date.utc_today(),
         reference_date: Date.utc_today() |> Date.beginning_of_month(),
-        amount: Enum.random(100_00..5_000_00),
+        amount: 1,
         description: Faker.Lorem.sentence(),
-        is_fulfilled: false,
         method: :cash
       }
 
@@ -48,7 +46,6 @@ defmodule Sig.Finance.Payables.PayableTest do
         reference_date: Date.utc_today() |> Date.beginning_of_month(),
         amount: -1,
         description: Faker.Lorem.sentence(),
-        is_fulfilled: false,
         method: :cash
       }
 
@@ -66,9 +63,8 @@ defmodule Sig.Finance.Payables.PayableTest do
         target: random_enum_value(:payable_target),
         due_date: ~D[2021-01-15],
         reference_date: ~D[2021-01-15],
-        amount: Enum.random(100_00..5_000_00),
+        amount: 1,
         description: Faker.Lorem.sentence(),
-        is_fulfilled: false,
         method: :cash
       }
 
@@ -78,10 +74,11 @@ defmodule Sig.Finance.Payables.PayableTest do
     end
   end
 
-  describe "payables table payables_is_fulfilled_conditional constraints" do
+  describe "payables table financial_transaction_id_conditional constraints" do
     test "method is null" do
       org = insert(:org)
       user = insert(:user, org: org)
+      financial_transaction = insert(:financial_transaction, org: org)
 
       payable = %Payable{
         org: org,
@@ -89,19 +86,20 @@ defmodule Sig.Finance.Payables.PayableTest do
         target: random_enum_value(:payable_target),
         due_date: Date.utc_today(),
         reference_date: Date.utc_today() |> Date.beginning_of_month(),
-        amount: Enum.random(100_00..5_000_00),
+        amount: 1,
         description: Faker.Lorem.sentence(),
-        is_fulfilled: true,
+        financial_transaction_id: financial_transaction.id,
         authorized_by_id: user.id
       }
 
       assert_raise Ecto.ConstraintError,
-                   ~r/payables_is_fulfilled_conditional \(check_constraint\)/,
+                   ~r/financial_transaction_id_conditional \(check_constraint\)/,
                    fn -> Repo.insert(payable) end
     end
 
     test "authorized_by_id is null" do
       org = insert(:org)
+      financial_transaction = insert(:financial_transaction, org: org)
 
       payable = %Payable{
         org: org,
@@ -109,20 +107,21 @@ defmodule Sig.Finance.Payables.PayableTest do
         target: random_enum_value(:payable_target),
         due_date: Date.utc_today(),
         reference_date: Date.utc_today() |> Date.beginning_of_month(),
-        amount: Enum.random(100_00..5_000_00),
+        amount: 1,
         description: Faker.Lorem.sentence(),
-        is_fulfilled: true,
+        financial_transaction_id: financial_transaction.id,
         method: :cash
       }
 
       assert_raise Ecto.ConstraintError,
-                   ~r/payables_is_fulfilled_conditional \(check_constraint\)/,
+                   ~r/financial_transaction_id_conditional \(check_constraint\)/,
                    fn -> Repo.insert(payable) end
     end
 
     test "success" do
       org = insert(:org)
       user = insert(:user, org: org)
+      financial_transaction = insert(:financial_transaction, org: org)
 
       payable = %Payable{
         org: org,
@@ -130,9 +129,9 @@ defmodule Sig.Finance.Payables.PayableTest do
         target: random_enum_value(:payable_target),
         due_date: Date.utc_today(),
         reference_date: Date.utc_today() |> Date.beginning_of_month(),
-        amount: Enum.random(100_00..5_000_00),
+        amount: 1,
         description: Faker.Lorem.sentence(),
-        is_fulfilled: true,
+        financial_transaction_id: financial_transaction.id,
         method: :cash,
         authorized_by_id: user.id
       }
@@ -152,7 +151,7 @@ defmodule Sig.Finance.Payables.PayableTest do
         target: random_enum_value(:payable_target),
         due_date: Date.utc_today(),
         reference_date: Date.utc_today() |> Date.beginning_of_month(),
-        amount: Enum.random(100_00..5_000_00),
+        amount: 1,
         description: Faker.Lorem.sentence(),
         method: :check,
         check_bank_account_id: account.id
@@ -172,7 +171,7 @@ defmodule Sig.Finance.Payables.PayableTest do
         target: random_enum_value(:payable_target),
         due_date: Date.utc_today(),
         reference_date: Date.utc_today() |> Date.beginning_of_month(),
-        amount: Enum.random(100_00..5_000_00),
+        amount: 1,
         description: Faker.Lorem.sentence(),
         method: :check,
         check_number: random_string_number()
@@ -192,7 +191,7 @@ defmodule Sig.Finance.Payables.PayableTest do
         target: random_enum_value(:payable_target),
         due_date: Date.utc_today(),
         reference_date: Date.utc_today() |> Date.beginning_of_month(),
-        amount: Enum.random(100_00..5_000_00),
+        amount: 1,
         description: Faker.Lorem.sentence(),
         method: :check,
         check_number: random_string_number(),
@@ -214,7 +213,7 @@ defmodule Sig.Finance.Payables.PayableTest do
         target: random_enum_value(:payable_target),
         due_date: Date.utc_today(),
         reference_date: Date.utc_today() |> Date.beginning_of_month(),
-        amount: Enum.random(100_00..5_000_00),
+        amount: 1,
         description: Faker.Lorem.sentence(),
         method: :check,
         check_number: random_string_number(),
@@ -235,7 +234,7 @@ defmodule Sig.Finance.Payables.PayableTest do
         target: random_enum_value(:payable_target),
         due_date: Date.utc_today(),
         reference_date: Date.utc_today() |> Date.beginning_of_month(),
-        amount: Enum.random(100_00..5_000_00),
+        amount: 1,
         description: Faker.Lorem.sentence(),
         method: :billet
       }
@@ -254,7 +253,7 @@ defmodule Sig.Finance.Payables.PayableTest do
         target: random_enum_value(:payable_target),
         due_date: Date.utc_today(),
         reference_date: Date.utc_today() |> Date.beginning_of_month(),
-        amount: Enum.random(100_00..5_000_00),
+        amount: 1,
         description: Faker.Lorem.sentence(),
         method: :billet,
         billet_barcode: random_string_number()
@@ -274,7 +273,7 @@ defmodule Sig.Finance.Payables.PayableTest do
         target: random_enum_value(:payable_target),
         due_date: Date.utc_today(),
         reference_date: Date.utc_today() |> Date.beginning_of_month(),
-        amount: Enum.random(100_00..5_000_00),
+        amount: 1,
         description: Faker.Lorem.sentence(),
         method: :bank_transfer
       }
@@ -293,7 +292,7 @@ defmodule Sig.Finance.Payables.PayableTest do
         target: random_enum_value(:payable_target),
         due_date: Date.utc_today(),
         reference_date: Date.utc_today() |> Date.beginning_of_month(),
-        amount: Enum.random(100_00..5_000_00),
+        amount: 1,
         description: Faker.Lorem.sentence(),
         method: :bank_transfer,
         credit_bank_account_id: UUID.generate()
@@ -314,7 +313,7 @@ defmodule Sig.Finance.Payables.PayableTest do
         target: random_enum_value(:payable_target),
         due_date: Date.utc_today(),
         reference_date: Date.utc_today() |> Date.beginning_of_month(),
-        amount: Enum.random(100_00..5_000_00),
+        amount: 1,
         description: Faker.Lorem.sentence(),
         method: :bank_transfer,
         credit_bank_account_id: account.id
@@ -331,7 +330,7 @@ defmodule Sig.Finance.Payables.PayableTest do
         target: random_enum_value(:payable_target),
         due_date: Date.utc_today(),
         reference_date: Date.utc_today() |> Date.beginning_of_month(),
-        amount: Enum.random(100_00..5_000_00),
+        amount: 1,
         description: Faker.Lorem.sentence(),
         note: Faker.Lorem.sentence()
       }
@@ -392,14 +391,14 @@ defmodule Sig.Finance.Payables.PayableTest do
 
     test "ignores non permitted attrs" do
       attrs = %{
-        is_fulfilled: true,
         org_id: UUID.generate(),
         target: random_enum_value(:payable_target),
         due_date: Date.utc_today(),
         reference_date: Date.utc_today() |> Date.beginning_of_month(),
-        amount: Enum.random(100_00..5_000_00),
+        amount: 1,
         description: Faker.Lorem.sentence(),
-        note: Faker.Lorem.sentence()
+        note: Faker.Lorem.sentence(),
+        financial_transaction_id: UUID.generate()
       }
 
       assert changeset = Payable.create_changeset(attrs)
@@ -443,7 +442,7 @@ defmodule Sig.Finance.Payables.PayableTest do
         target: random_enum_value(:payable_target),
         due_date: Date.utc_today(),
         reference_date: Date.utc_today() |> Date.beginning_of_month(),
-        amount: Enum.random(100_00..5_000_00),
+        amount: 1,
         description: String.duplicate("a", 256),
         note: String.duplicate("a", 256)
       }
@@ -466,7 +465,7 @@ defmodule Sig.Finance.Payables.PayableTest do
         target: random_enum_value(:payable_target),
         due_date: Date.utc_today(),
         reference_date: Date.utc_today() |> Date.beginning_of_month(),
-        amount: Enum.random(100_00..5_000_00),
+        amount: 1,
         description: Faker.Lorem.sentence(),
         note: Faker.Lorem.sentence(),
         method: :check,
@@ -498,7 +497,7 @@ defmodule Sig.Finance.Payables.PayableTest do
         target: random_enum_value(:payable_target),
         due_date: Date.utc_today(),
         reference_date: Date.utc_today() |> Date.beginning_of_month(),
-        amount: Enum.random(100_00..5_000_00),
+        amount: 1,
         description: Faker.Lorem.sentence(),
         note: Faker.Lorem.sentence(),
         method: :check,
@@ -522,7 +521,7 @@ defmodule Sig.Finance.Payables.PayableTest do
         target: random_enum_value(:payable_target),
         due_date: Date.utc_today(),
         reference_date: Date.utc_today() |> Date.beginning_of_month(),
-        amount: Enum.random(100_00..5_000_00),
+        amount: 1,
         description: Faker.Lorem.sentence(),
         note: Faker.Lorem.sentence(),
         method: :check
@@ -546,7 +545,7 @@ defmodule Sig.Finance.Payables.PayableTest do
         target: random_enum_value(:payable_target),
         due_date: Date.utc_today(),
         reference_date: Date.utc_today() |> Date.beginning_of_month(),
-        amount: Enum.random(100_00..5_000_00),
+        amount: 1,
         description: Faker.Lorem.sentence(),
         note: Faker.Lorem.sentence(),
         method: :check,
@@ -569,7 +568,7 @@ defmodule Sig.Finance.Payables.PayableTest do
         target: random_enum_value(:payable_target),
         due_date: Date.utc_today(),
         reference_date: Date.utc_today() |> Date.beginning_of_month(),
-        amount: Enum.random(100_00..5_000_00),
+        amount: 1,
         description: Faker.Lorem.sentence(),
         note: Faker.Lorem.sentence(),
         method: :check,
@@ -594,7 +593,7 @@ defmodule Sig.Finance.Payables.PayableTest do
         target: random_enum_value(:payable_target),
         due_date: Date.utc_today(),
         reference_date: Date.utc_today() |> Date.beginning_of_month(),
-        amount: Enum.random(100_00..5_000_00),
+        amount: 1,
         description: Faker.Lorem.sentence(),
         note: Faker.Lorem.sentence(),
         method: :billet,
@@ -624,7 +623,7 @@ defmodule Sig.Finance.Payables.PayableTest do
         target: random_enum_value(:payable_target),
         due_date: Date.utc_today(),
         reference_date: Date.utc_today() |> Date.beginning_of_month(),
-        amount: Enum.random(100_00..5_000_00),
+        amount: 1,
         description: Faker.Lorem.sentence(),
         note: Faker.Lorem.sentence(),
         method: :billet,
@@ -646,7 +645,7 @@ defmodule Sig.Finance.Payables.PayableTest do
         target: random_enum_value(:payable_target),
         due_date: Date.utc_today(),
         reference_date: Date.utc_today() |> Date.beginning_of_month(),
-        amount: Enum.random(100_00..5_000_00),
+        amount: 1,
         description: Faker.Lorem.sentence(),
         note: Faker.Lorem.sentence(),
         method: :billet
@@ -667,7 +666,7 @@ defmodule Sig.Finance.Payables.PayableTest do
         target: random_enum_value(:payable_target),
         due_date: Date.utc_today(),
         reference_date: Date.utc_today() |> Date.beginning_of_month(),
-        amount: Enum.random(100_00..5_000_00),
+        amount: 1,
         description: Faker.Lorem.sentence(),
         note: Faker.Lorem.sentence(),
         method: :billet,
@@ -691,7 +690,7 @@ defmodule Sig.Finance.Payables.PayableTest do
         target: random_enum_value(:payable_target),
         due_date: Date.utc_today(),
         reference_date: Date.utc_today() |> Date.beginning_of_month(),
-        amount: Enum.random(100_00..5_000_00),
+        amount: 1,
         description: Faker.Lorem.sentence(),
         note: Faker.Lorem.sentence(),
         method: :bank_transfer,
@@ -721,7 +720,7 @@ defmodule Sig.Finance.Payables.PayableTest do
         target: random_enum_value(:payable_target),
         due_date: Date.utc_today(),
         reference_date: Date.utc_today() |> Date.beginning_of_month(),
-        amount: Enum.random(100_00..5_000_00),
+        amount: 1,
         description: Faker.Lorem.sentence(),
         note: Faker.Lorem.sentence(),
         method: :bank_transfer,
@@ -743,7 +742,7 @@ defmodule Sig.Finance.Payables.PayableTest do
         target: random_enum_value(:payable_target),
         due_date: Date.utc_today(),
         reference_date: Date.utc_today() |> Date.beginning_of_month(),
-        amount: Enum.random(100_00..5_000_00),
+        amount: 1,
         description: Faker.Lorem.sentence(),
         note: Faker.Lorem.sentence(),
         method: :bank_transfer
@@ -766,7 +765,7 @@ defmodule Sig.Finance.Payables.PayableTest do
         target: random_enum_value(:payable_target),
         due_date: Date.utc_today(),
         reference_date: Date.utc_today() |> Date.beginning_of_month(),
-        amount: Enum.random(100_00..5_000_00),
+        amount: 1,
         description: Faker.Lorem.sentence(),
         note: Faker.Lorem.sentence(),
         method: :bank_transfer,
@@ -816,7 +815,6 @@ defmodule Sig.Finance.Payables.PayableTest do
       attrs = %{
         org_id: UUID.generate(),
         target: :payslip,
-        is_fulfilled: true,
         due_date: ~D[2021-01-15],
         reference_date: ~D[2021-01-01],
         amount: 50_00,
@@ -827,7 +825,8 @@ defmodule Sig.Finance.Payables.PayableTest do
         note: Faker.Lorem.sentence(),
         check_bank_account_id: UUID.generate(),
         credit_bank_account_id: UUID.generate(),
-        authorized_by_id: UUID.generate()
+        authorized_by_id: UUID.generate(),
+        financial_transaction_id: UUID.generate()
       }
 
       assert changeset = Payable.update_changeset(payable, attrs)
@@ -913,16 +912,16 @@ defmodule Sig.Finance.Payables.PayableTest do
         target: random_enum_value(:payable_target),
         due_date: Date.utc_today(),
         reference_date: Date.utc_today() |> Date.beginning_of_month(),
-        amount: Enum.random(100_00..5_000_00),
+        amount: 1,
         method: :cash,
-        is_fulfilled: true,
         description: Faker.Lorem.sentence(),
         check_number: random_string_number(),
         billet_barcode: random_string_number(),
         note: Faker.Lorem.sentence(),
         check_bank_account_id: UUID.generate(),
         credit_bank_account_id: UUID.generate(),
-        authorized_by_id: UUID.generate()
+        authorized_by_id: UUID.generate(),
+        financial_transaction_id: UUID.generate()
       }
 
       assert changeset = Payable.authorize_changeset(payable, attrs)

@@ -12,7 +12,6 @@ defmodule Sig.Repo.Migrations.CreatePayablesTable do
       add :due_date, :date, null: false
       add :reference_date, :date, null: false
       add :amount, :integer, null: false, default: 0
-      add :is_fulfilled, :boolean, null: false, default: false
       add :method, :payment_method
       add :description, :string
       add :check_number, :string
@@ -22,6 +21,7 @@ defmodule Sig.Repo.Migrations.CreatePayablesTable do
       add :authorized_by_id, references(:users)
       add :check_bank_account_id, references(:bank_accounts, with: [org_id: :org_id])
       add :credit_bank_account_id, references(:bank_accounts, with: [org_id: :org_id])
+      add :financial_transaction_id, references(:financial_transactions, with: [org_id: :org_id])
 
       timestamps()
     end
@@ -40,9 +40,9 @@ defmodule Sig.Repo.Migrations.CreatePayablesTable do
 
     create constraint(
              :payables,
-             :payables_is_fulfilled_conditional,
+             :financial_transaction_id_conditional,
              check: """
-               CASE WHEN is_fulfilled THEN
+               CASE WHEN financial_transaction_id IS NOT NULL THEN
                  method IS NOT NULL AND
                  authorized_by_id IS NOT NULL
                END

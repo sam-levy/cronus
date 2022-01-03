@@ -51,8 +51,7 @@ defmodule Sig.Finance.Payables.DeleteByIdsTest do
 
       payable = insert(:payable_cash, org: org, amount: 100_00)
 
-      authorized_payable =
-        insert(:payable_cash, org: org, amount: 100_00, is_fulfilled: false, authorized_by: user)
+      authorized_payable = insert(:payable_cash, org: org, amount: 100_00, authorized_by: user)
 
       Enum.each([payable, authorized_payable], fn payable ->
         insert(:payslip_payable, org: org, payslip: payslip, payable: payable)
@@ -73,6 +72,7 @@ defmodule Sig.Finance.Payables.DeleteByIdsTest do
       org = insert(:org)
       user = insert(:user, org: org)
       payslip = insert(:payslip, org: org)
+      financial_transaction = insert(:financial_transaction, org: org)
 
       insert(:payslip_outside_item,
         org: org,
@@ -86,7 +86,12 @@ defmodule Sig.Finance.Payables.DeleteByIdsTest do
       payable = insert(:payable_cash, org: org, amount: 100_00)
 
       fulfilled_payable =
-        insert(:payable_cash, org: org, amount: 100_00, is_fulfilled: true, authorized_by: user)
+        insert(:payable_cash,
+          org: org,
+          amount: 100_00,
+          authorized_by: user,
+          financial_transaction: financial_transaction
+        )
 
       Enum.each([payable, fulfilled_payable], fn payable ->
         insert(:payslip_payable, org: org, payslip: payslip, payable: payable)

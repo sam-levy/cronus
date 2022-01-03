@@ -218,7 +218,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.List do
               <td class="py-3 px-6">
                 <div class="flex justify-end items-center">
                   <span
-                    :if={!payable.is_fulfilled and payable.payslip_payable.is_auto_adjustable_amount}
+                    :if={!payable.financial_transaction_id and payable.payslip_payable.is_auto_adjustable_amount}
                     class="label-gray mr-3"
                   >
                     automático
@@ -250,7 +250,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.List do
 
                   <a
                     :if={
-                      !payable.is_fulfilled and
+                      !payable.financial_transaction_id and
                       !payable.authorized_by_id and
                       !payable.payslip_payable.is_auto_adjustable_amount
                     }
@@ -262,7 +262,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.List do
                   </a>
 
                   <a
-                    :if={!payable.is_fulfilled and payable.payslip_payable.is_auto_adjustable_amount}
+                    :if={!payable.financial_transaction_id and payable.payslip_payable.is_auto_adjustable_amount}
                     :on-click="unset_as_auto_adjustable_amount"
                     phx-value-payable_id={payable.id}
                     class="dropdown-item"
@@ -271,7 +271,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.List do
                   </a>
 
                   <a
-                    :if={!payable.is_fulfilled and !payable.authorized_by_id}
+                    :if={!payable.financial_transaction_id and !payable.authorized_by_id}
                     :on-click="open_edit_payable_form"
                     phx-value-payable_id={payable.id}
                     class="dropdown-item"
@@ -280,7 +280,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.List do
                   </a>
 
                   <a
-                    :if={!payable.is_fulfilled and !payable.authorized_by_id}
+                    :if={!payable.financial_transaction_id and !payable.authorized_by_id}
                     :on-click="open_delete_confirmation_dialog"
                     phx-value-payable_id={payable.id}
                     class="dropdown-item"

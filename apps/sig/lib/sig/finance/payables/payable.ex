@@ -3,6 +3,7 @@ defmodule Sig.Finance.Payables.Payable do
 
   alias Sig.Accounts.User
   alias Sig.Finance.Banks.Accounts.Account
+  alias Sig.Finance.FinancialTransactions.FinancialTransaction
   alias Sig.Finance.Payables.PayablesForPayslip.PayslipPayables.PayslipPayable
   alias Sig.Organizations.Org
 
@@ -16,7 +17,6 @@ defmodule Sig.Finance.Payables.Payable do
     field :reference_date, :date
     field :amount, Money.Ecto.Amount.Type
     field :method, Sig.PaymentMethod
-    field :is_fulfilled, :boolean
     field :description, :string
     field :check_number, :string
     field :billet_barcode, :string
@@ -25,6 +25,7 @@ defmodule Sig.Finance.Payables.Payable do
     belongs_to :authorized_by, User
     belongs_to :check_bank_account, Account
     belongs_to :credit_bank_account, Account
+    belongs_to :financial_transaction, FinancialTransaction
 
     has_one :payslip_payable, PayslipPayable
 
@@ -86,6 +87,7 @@ defmodule Sig.Finance.Payables.Payable do
     |> validate_length(:note, max: 255)
     |> assoc_constraint(:check_bank_account)
     |> assoc_constraint(:credit_bank_account)
+    |> assoc_constraint(:financial_transaction)
   end
 
   # TODO: Add procedure to ensure payable is not fulfilled before delete or udpate amount
