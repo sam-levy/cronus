@@ -27,6 +27,8 @@ defmodule Sig.Factory do
   use Sig.Factories.EntityBankAccountFactory
   use Sig.Factories.PayableFactory
   use Sig.Factories.PayslipPayableFactory
+  use Sig.Factories.FinancialTransactionFactory
+  use Sig.Factories.BankTransactionFactory
 
   def build(factory_name, attributes \\ []) do
     factory_name |> factory(attributes) |> struct(attributes)
