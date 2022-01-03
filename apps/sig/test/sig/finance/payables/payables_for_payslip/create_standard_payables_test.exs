@@ -53,7 +53,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateStandardPayablesTest do
                amount: 400_00,
                due_date: ~D[2021-01-20],
                reference_date: Date.beginning_of_month(payslip.start_date),
-               method: :bank_transfer,
+               financial_transaction_type: :bank_transfer,
                credit_bank_account_id: bank_account.id
              )
 
@@ -72,7 +72,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateStandardPayablesTest do
                amount: 500_00,
                due_date: ~D[2021-02-05],
                reference_date: Date.beginning_of_month(payslip.start_date),
-               method: :bank_transfer,
+               financial_transaction_type: :bank_transfer,
                credit_bank_account_id: bank_account.id
              )
 
@@ -124,7 +124,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateStandardPayablesTest do
                amount: 600_00,
                due_date: ~D[2021-02-05],
                reference_date: Date.beginning_of_month(payslip.start_date),
-               method: :bank_transfer,
+               financial_transaction_type: :bank_transfer,
                credit_bank_account_id: bank_account.id
              )
 
@@ -195,7 +195,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateStandardPayablesTest do
                amount: 800_00,
                due_date: ~D[2021-01-20],
                reference_date: Date.beginning_of_month(payslip.start_date),
-               method: :bank_transfer,
+               financial_transaction_type: :bank_transfer,
                credit_bank_account_id: bank_account.id
              )
 
@@ -214,7 +214,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateStandardPayablesTest do
                amount: 1_200_00,
                due_date: ~D[2021-02-05],
                reference_date: Date.beginning_of_month(payslip.start_date),
-               method: :bank_transfer,
+               financial_transaction_type: :bank_transfer,
                credit_bank_account_id: bank_account.id
              )
 
@@ -265,7 +265,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateStandardPayablesTest do
                amount: 400_00,
                due_date: ~D[2021-01-20],
                reference_date: Date.beginning_of_month(payslip.start_date),
-               method: :cash
+               financial_transaction_type: :cash
              )
 
       assert Repo.get_by(PayslipPayable,
@@ -283,7 +283,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateStandardPayablesTest do
                amount: 600_00,
                due_date: ~D[2021-02-05],
                reference_date: Date.beginning_of_month(payslip.start_date),
-               method: :cash
+               financial_transaction_type: :cash
              )
 
       assert Repo.get_by(PayslipPayable,
@@ -313,7 +313,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateStandardPayablesTest do
                amount: 0,
                due_date: ~D[2021-02-05],
                reference_date: Date.beginning_of_month(payslip.start_date),
-               method: :cash
+               financial_transaction_type: :cash
              )
 
       assert Repo.get_by(PayslipPayable,

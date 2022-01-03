@@ -36,7 +36,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.UpdateTest do
         amount: 50_00,
         description: "Updated description",
         note: "Updated note",
-        method: :billet,
+        financial_transaction_type: :billet,
         billet_barcode: random_string_number()
       }
 
@@ -51,7 +51,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.UpdateTest do
                amount: attrs[:amount],
                description: attrs[:description],
                note: attrs[:note],
-               method: attrs[:method],
+               financial_transaction_type: attrs[:financial_transaction_type],
                billet_barcode: attrs[:billet_barcode]
              )
     end
@@ -96,7 +96,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.UpdateTest do
         amount: 300_00,
         description: "Updated description",
         note: "Updated note",
-        method: :billet,
+        financial_transaction_type: :billet,
         billet_barcode: random_string_number()
       }
 
@@ -111,7 +111,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.UpdateTest do
                amount: attrs[:amount],
                description: attrs[:description],
                note: attrs[:note],
-               method: attrs[:method],
+               financial_transaction_type: attrs[:financial_transaction_type],
                billet_barcode: attrs[:billet_barcode]
              )
 
@@ -172,7 +172,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.UpdateTest do
         amount: 100_00,
         description: "Updated description",
         note: "Updated note",
-        method: :billet,
+        financial_transaction_type: :billet,
         billet_barcode: random_string_number()
       }
 
@@ -187,7 +187,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.UpdateTest do
                amount: attrs[:amount],
                description: attrs[:description],
                note: attrs[:note],
-               method: attrs[:method],
+               financial_transaction_type: attrs[:financial_transaction_type],
                billet_barcode: attrs[:billet_barcode]
              )
 
@@ -245,7 +245,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.UpdateTest do
         amount: 50_00,
         description: "Updated description",
         note: "Updated note",
-        method: :billet,
+        financial_transaction_type: :billet,
         billet_barcode: random_string_number()
       }
 
@@ -292,7 +292,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.UpdateTest do
         amount: 50_00,
         description: "Updated description",
         note: "Updated note",
-        method: :billet,
+        financial_transaction_type: :billet,
         billet_barcode: random_string_number()
       }
 
@@ -339,7 +339,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.UpdateTest do
         amount: 50_00,
         description: "Updated description",
         note: "Updated note",
-        method: :billet,
+        financial_transaction_type: :billet,
         billet_barcode: random_string_number()
       }
 
@@ -391,7 +391,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.UpdateTest do
         amount: 50_00,
         description: "Updated description",
         note: "Updated note",
-        method: :billet,
+        financial_transaction_type: :billet,
         billet_barcode: random_string_number()
       }
 
@@ -438,7 +438,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.UpdateTest do
         amount: 200_00,
         description: "Updated description",
         note: "Updated note",
-        method: :billet,
+        financial_transaction_type: :billet,
         billet_barcode: random_string_number()
       }
 
@@ -457,7 +457,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.UpdateTest do
                amount: attrs[:amount],
                description: attrs[:description],
                note: attrs[:note],
-               method: attrs[:method],
+               financial_transaction_type: attrs[:financial_transaction_type],
                billet_barcode: attrs[:billet_barcode]
              )
 
@@ -524,7 +524,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.UpdateTest do
         amount: 50_00,
         description: "Updated description",
         note: "Updated note",
-        method: :billet,
+        financial_transaction_type: :billet,
         billet_barcode: random_string_number()
       }
 
@@ -538,7 +538,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.UpdateTest do
                reference_date: attrs[:reference_date],
                description: attrs[:description],
                note: attrs[:note],
-               method: attrs[:method],
+               financial_transaction_type: attrs[:financial_transaction_type],
                billet_barcode: attrs[:billet_barcode],
                amount: attrs[:amount]
              )

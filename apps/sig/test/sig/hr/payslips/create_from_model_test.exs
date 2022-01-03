@@ -411,7 +411,7 @@ defmodule Sig.HR.Payslips.CreateFromModelTest do
                  amount: 400_00,
                  due_date: ~D[2021-01-20],
                  reference_date: Date.beginning_of_month(payslip.start_date),
-                 method: :bank_transfer,
+                 financial_transaction_type: :bank_transfer,
                  credit_bank_account_id: bank_account.id
                )
 
@@ -430,7 +430,7 @@ defmodule Sig.HR.Payslips.CreateFromModelTest do
                  amount: 500_00,
                  due_date: ~D[2021-02-05],
                  reference_date: Date.beginning_of_month(payslip.start_date),
-                 method: :bank_transfer,
+                 financial_transaction_type: :bank_transfer,
                  credit_bank_account_id: bank_account.id
                )
 

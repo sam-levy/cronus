@@ -31,7 +31,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.Create do
     |> build_changeset()
     |> validate_amount()
     |> validate_credit_bank_account()
-    |> validate_check_bank_account()
+    |> validate_check_debit_bank_account()
     |> create_multi()
     |> handle_return()
   end
@@ -94,12 +94,12 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.Create do
     end
   end
 
-  defp validate_check_bank_account(%{status: :halt} = context), do: context
+  defp validate_check_debit_bank_account(%{status: :halt} = context), do: context
 
-  defp validate_check_bank_account(context) do
+  defp validate_check_debit_bank_account(context) do
     %{payslip: payslip, changeset: changeset} = context
 
-    case PayablesForPayslip.validate_check_bank_account(changeset, payslip) do
+    case PayablesForPayslip.validate_check_debit_bank_account(changeset, payslip) do
       {:ok, _} -> context
       {:error, changeset} -> put_error(context, changeset)
     end

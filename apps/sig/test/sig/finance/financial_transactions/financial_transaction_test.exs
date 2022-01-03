@@ -6,7 +6,7 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransactionTest do
   describe "financial_transactions table constraints" do
     test "`org_id` not_null_violation" do
       transaction = %FinancialTransaction{
-        type: :bank,
+        type: :bank_transfer,
         placement_date: Date.utc_today(),
         clearing_date: Date.utc_today(),
         amount: 1,
@@ -22,7 +22,7 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransactionTest do
     test "`org_id` foreign_key_constraint" do
       transaction = %FinancialTransaction{
         org_id: UUID.generate(),
-        type: :bank,
+        type: :bank_transfer,
         placement_date: Date.utc_today(),
         clearing_date: Date.utc_today(),
         amount: 1,
@@ -66,7 +66,7 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransactionTest do
       }
 
       assert_raise Ecto.ChangeError,
-                   ~r/\Value `:invalid` is not a valid enum for `Sig.Finance.FinancialTransactions.FinancialTransaction.FinancialTransactionType`/,
+                   ~r/\Value `:invalid` is not a valid enum for `Sig.FinancialTransactionType`/,
                    fn -> Repo.insert(transaction) end
     end
 
@@ -93,7 +93,7 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransactionTest do
 
       transaction = %FinancialTransaction{
         org_id: org.id,
-        type: :bank,
+        type: :bank_transfer,
         clearing_date: Date.utc_today(),
         amount: 1,
         entry_type: :credit,
@@ -110,7 +110,7 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransactionTest do
 
       transaction = %FinancialTransaction{
         org_id: org.id,
-        type: :bank,
+        type: :bank_transfer,
         placement_date: Date.utc_today(),
         clearing_date: Date.utc_today(),
         entry_type: :credit,
@@ -127,7 +127,7 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransactionTest do
 
       transaction = %FinancialTransaction{
         org_id: org.id,
-        type: :bank,
+        type: :bank_transfer,
         placement_date: Date.utc_today(),
         clearing_date: Date.utc_today(),
         amount: 1,
@@ -144,7 +144,7 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransactionTest do
 
       transaction = %FinancialTransaction{
         org_id: org.id,
-        type: :bank,
+        type: :bank_transfer,
         placement_date: Date.utc_today(),
         clearing_date: Date.utc_today(),
         amount: 1,
@@ -161,7 +161,7 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransactionTest do
 
       transaction = %FinancialTransaction{
         org_id: org.id,
-        type: :bank,
+        type: :bank_transfer,
         placement_date: Date.utc_today(),
         clearing_date: Date.utc_today(),
         amount: -1,
@@ -179,7 +179,7 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransactionTest do
 
       transaction = %FinancialTransaction{
         org_id: org.id,
-        type: :bank,
+        type: :bank_transfer,
         placement_date: Date.utc_today(),
         clearing_date: Date.utc_today(),
         amount: 1,
@@ -199,7 +199,7 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransactionTest do
 
       transaction = %FinancialTransaction{
         org_id: org.id,
-        type: :bank,
+        type: :bank_transfer,
         placement_date: Date.utc_today(),
         clearing_date: Date.utc_today(),
         amount: 1,

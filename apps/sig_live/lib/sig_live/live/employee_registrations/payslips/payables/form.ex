@@ -28,7 +28,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.Form do
   prop form_state, :atom, required: true, values!: @form_states
   prop payable_id, :string, default: nil
 
-  data check_bank_account_options, :list, default: []
+  data check_debit_bank_account_options, :list, default: []
   data message, :string, default: nil
 
   @impl true
@@ -44,7 +44,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.Form do
       |> assign(
         payable: payable,
         is_automatic_amount: set_is_automatic_amount(payable),
-        selected_method: set_selected_method(payable),
+        selected_financial_transaction_type: set_selected_financial_transaction_type(payable),
         changeset: set_changeset(payable),
         credit_bank_account_options:
           build_credit_bank_account_options(indexed_credit_bank_accounts),
@@ -61,16 +61,16 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.Form do
   end
 
   @impl true
-  def handle_event("select_method", %{"method" => method}, socket) do
+  def handle_event("select_financial_transaction_type", %{"financial_transaction_type" => financial_transaction_type}, socket) do
     %{assigns: %{changeset: changeset}} = socket
 
-    method = String.to_existing_atom(method)
+    financial_transaction_type = String.to_existing_atom(financial_transaction_type)
 
     socket =
       socket
       |> assign(
-        selected_method: method,
-        changeset: Finance.set_payable_changeset_method(changeset, method)
+        selected_financial_transaction_type: financial_transaction_type,
+        changeset: Finance.set_payable_changeset_financial_transaction_type(changeset, financial_transaction_type)
       )
       |> assign_select_options()
 
@@ -78,18 +78,18 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.Form do
   end
 
   defp assign_select_options(
-         %{assigns: %{selected_method: :check, check_bank_account_options: []}} = socket
+         %{assigns: %{selected_financial_transaction_type: :check, check_debit_bank_account_options: []}} = socket
        ) do
-    check_bank_account_options =
+    check_debit_bank_account_options =
       socket.assigns.registration
       |> company_bank_accounts()
-      |> build_check_bank_account_options()
+      |> build_check_debit_bank_account_options()
 
-    assign(socket, check_bank_account_options: check_bank_account_options)
+    assign(socket, check_debit_bank_account_options: check_debit_bank_account_options)
   end
 
   defp assign_select_options(
-         %{assigns: %{selected_method: :bank_transfer, credit_bank_account_options: []}} = socket
+         %{assigns: %{selected_financial_transaction_type: :bank_transfer, credit_bank_account_options: []}} = socket
        ) do
     credit_bank_account_options =
       socket.assigns.registration
@@ -158,29 +158,29 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.Form do
 
         <div class="my-5 flex flex-row justify-between space-x-2 rounded-md">
           <div
-            :on-click={unless @form_state == :show_mode, do: "select_method"}
-            phx-value-method="bank_transfer"
-            class={tab_classes_for(:bank_transfer, @selected_method, @form_state)}
+            :on-click={unless @form_state == :show_mode, do: "select_financial_transaction_type"}
+            phx-value-financial_transaction_type="bank_transfer"
+            class={tab_classes_for(:bank_transfer, @selected_financial_transaction_type, @form_state)}
           >
             Transferência
           </div>
           <div
-            :on-click={unless @form_state == :show_mode, do: "select_method"}
-            phx-value-method="check"
-            class={tab_classes_for(:check, @selected_method, @form_state)}
-          >
-            Cheque
-          </div>
-          <div
-            :on-click={unless @form_state == :show_mode, do: "select_method"}
-            phx-value-method="cash"
-            class={tab_classes_for(:cash, @selected_method, @form_state)}
+            :on-click={unless @form_state == :show_mode, do: "select_financial_transaction_type"}
+            phx-value-financial_transaction_type="cash"
+            class={tab_classes_for(:cash, @selected_financial_transaction_type, @form_state)}
           >
             Dinheiro
           </div>
+          <div
+            :on-click={unless @form_state == :show_mode, do: "select_financial_transaction_type"}
+            phx-value-financial_transaction_type="check"
+            class={tab_classes_for(:check, @selected_financial_transaction_type, @form_state)}
+          >
+            Cheque
+          </div>
         </div>
 
-        <div :show={@selected_method == :bank_transfer}>
+        <div :show={@selected_financial_transaction_type == :bank_transfer}>
           <Field name={:credit_bank_account_id} class="form-field">
             <Label class="form-label">Conta Bancária</Label>
             <Select
@@ -192,19 +192,19 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.Form do
           </Field>
         </div>
 
-        <div :show={@selected_method == :check}>
+        <div :show={@selected_financial_transaction_type == :check}>
           <Field name={:check_number} class="form-field">
             <Label class="form-label">Número do Cheque</Label>
             <TextInput {...props_for(:check_number, @form_state)}/>
             <ErrorTag class="form-error-tag"/>
           </Field>
 
-          <Field name={:check_bank_account_id} class="form-field">
+          <Field name={:check_debit_bank_account_id} class="form-field">
             <Label class="form-label">Conta do Cheque</Label>
             <Select
               prompt=""
-              options={@check_bank_account_options}
-              {...props_for(:check_bank_account_id, @form_state)}
+              options={@check_debit_bank_account_options}
+              {...props_for(:check_debit_bank_account_id, @form_state)}
             />
             <ErrorTag class="form-error-tag"/>
           </Field>
@@ -237,23 +237,23 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.Form do
   defp set_is_automatic_amount(nil), do: false
   defp set_is_automatic_amount(payable), do: payable.payslip_payable.is_auto_adjustable_amount
 
-  defp set_selected_method(nil), do: :bank_transfer
-  defp set_selected_method(payable), do: payable.method
+  defp set_selected_financial_transaction_type(nil), do: :bank_transfer
+  defp set_selected_financial_transaction_type(payable), do: payable.financial_transaction_type
 
   defp set_changeset(nil) do
-    Finance.create_payable_for_payslip_change(%{method: :bank_transfer})
+    Finance.create_payable_for_payslip_change(%{financial_transaction_type: :bank_transfer})
   end
 
   defp set_changeset(payable), do: Finance.update_payable_for_payslip_change(payable)
 
   defp validate_params(%{form_state: :new_mode} = context) do
-    %{payslip: payslip, selected_method: selected_method} = context.socket.assigns
+    %{payslip: payslip, selected_financial_transaction_type: selected_financial_transaction_type} = context.socket.assigns
 
     changeset =
       context.params
       |> Map.put("org_id", "org_id")
       |> Map.put("target", :payslip)
-      |> Map.put("method", selected_method)
+      |> Map.put("financial_transaction_type", selected_financial_transaction_type)
       |> Map.put("reference_date", Date.beginning_of_month(payslip.start_date))
       |> Finance.create_payable_for_payslip_change()
 
@@ -264,9 +264,9 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.Form do
   end
 
   defp validate_params(%{form_state: :edit_mode} = context) do
-    %{payable: payable, selected_method: selected_method} = context.socket.assigns
+    %{payable: payable, selected_financial_transaction_type: selected_financial_transaction_type} = context.socket.assigns
 
-    params = Map.put(context.params, "method", selected_method)
+    params = Map.put(context.params, "financial_transaction_type", selected_financial_transaction_type)
     changeset = Finance.update_payable_for_payslip_change(payable, params)
 
     case apply_action(changeset, :update) do
@@ -389,23 +389,23 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.Form do
     owned_accounts ++ third_party_accounts
   end
 
-  defp build_check_bank_account_options(bank_accounts) do
+  defp build_check_debit_bank_account_options(bank_accounts) do
     Map.new(bank_accounts, &build_option/1)
   end
 
-  defp tab_classes_for(method, method, :show_mode) do
+  defp tab_classes_for(financial_transaction_type, financial_transaction_type, :show_mode) do
     ~w(bg-gray-100 text-gray-600 font-medium) ++ tab_base_classes()
   end
 
-  defp tab_classes_for(method, method, _form_state) do
+  defp tab_classes_for(financial_transaction_type, financial_transaction_type, _form_state) do
     ~w(text-yellow-700 bg-yellow-100 font-medium) ++ tab_base_classes()
   end
 
-  defp tab_classes_for(_method, _active_method, :show_mode) do
+  defp tab_classes_for(_financial_transaction_type, _active_financial_transaction_type, :show_mode) do
     tab_base_classes()
   end
 
-  defp tab_classes_for(_method, _active_method, _form_state) do
+  defp tab_classes_for(_financial_transaction_type, _active_financial_transaction_type, _form_state) do
     ~w(cursor-pointer hover:bg-gray-100 hover:text-gray-700) ++
       tab_base_classes()
   end

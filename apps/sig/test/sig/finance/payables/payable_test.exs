@@ -11,7 +11,7 @@ defmodule Sig.Finance.Payables.PayableTest do
         reference_date: Date.utc_today() |> Date.beginning_of_month(),
         amount: 1,
         description: Faker.Lorem.sentence(),
-        method: :cash
+        financial_transaction_type: :cash
       }
 
       assert_raise Postgrex.Error,
@@ -27,7 +27,7 @@ defmodule Sig.Finance.Payables.PayableTest do
         reference_date: Date.utc_today() |> Date.beginning_of_month(),
         amount: 1,
         description: Faker.Lorem.sentence(),
-        method: :cash
+        financial_transaction_type: :cash
       }
 
       assert_raise Ecto.ConstraintError,
@@ -46,7 +46,7 @@ defmodule Sig.Finance.Payables.PayableTest do
         reference_date: Date.utc_today() |> Date.beginning_of_month(),
         amount: -1,
         description: Faker.Lorem.sentence(),
-        method: :cash
+        financial_transaction_type: :cash
       }
 
       assert_raise Ecto.ConstraintError,
@@ -65,7 +65,7 @@ defmodule Sig.Finance.Payables.PayableTest do
         reference_date: ~D[2021-01-15],
         amount: 1,
         description: Faker.Lorem.sentence(),
-        method: :cash
+        financial_transaction_type: :cash
       }
 
       assert_raise Ecto.ConstraintError,
@@ -75,7 +75,7 @@ defmodule Sig.Finance.Payables.PayableTest do
   end
 
   describe "payables table financial_transaction_id_conditional constraints" do
-    test "method is null" do
+    test "financial_transaction_type is null" do
       org = insert(:org)
       user = insert(:user, org: org)
       financial_transaction = insert(:financial_transaction, org: org)
@@ -110,7 +110,7 @@ defmodule Sig.Finance.Payables.PayableTest do
         amount: 1,
         description: Faker.Lorem.sentence(),
         financial_transaction_id: financial_transaction.id,
-        method: :cash
+        financial_transaction_type: :cash
       }
 
       assert_raise Ecto.ConstraintError,
@@ -132,7 +132,7 @@ defmodule Sig.Finance.Payables.PayableTest do
         amount: 1,
         description: Faker.Lorem.sentence(),
         financial_transaction_id: financial_transaction.id,
-        method: :cash,
+        financial_transaction_type: :cash,
         authorized_by_id: user.id
       }
 
@@ -140,7 +140,7 @@ defmodule Sig.Finance.Payables.PayableTest do
     end
   end
 
-  describe "payables table payables_method_conditional constraints when 'check'" do
+  describe "payables table payables_financial_transaction_type_conditional constraints when 'check'" do
     test "check_number is nil" do
       org = insert(:org)
       account = insert(:bank_account, org: org)
@@ -153,16 +153,16 @@ defmodule Sig.Finance.Payables.PayableTest do
         reference_date: Date.utc_today() |> Date.beginning_of_month(),
         amount: 1,
         description: Faker.Lorem.sentence(),
-        method: :check,
-        check_bank_account_id: account.id
+        financial_transaction_type: :check,
+        check_debit_bank_account_id: account.id
       }
 
       assert_raise Ecto.ConstraintError,
-                   ~r/payables_method_conditional \(check_constraint\)/,
+                   ~r/payables_financial_transaction_type_conditional \(check_constraint\)/,
                    fn -> Repo.insert(payable) end
     end
 
-    test "check_bank_account_id is nil" do
+    test "check_debit_bank_account_id is nil" do
       org = insert(:org)
 
       payable = %Payable{
@@ -173,16 +173,16 @@ defmodule Sig.Finance.Payables.PayableTest do
         reference_date: Date.utc_today() |> Date.beginning_of_month(),
         amount: 1,
         description: Faker.Lorem.sentence(),
-        method: :check,
+        financial_transaction_type: :check,
         check_number: random_string_number()
       }
 
       assert_raise Ecto.ConstraintError,
-                   ~r/payables_method_conditional \(check_constraint\)/,
+                   ~r/payables_financial_transaction_type_conditional \(check_constraint\)/,
                    fn -> Repo.insert(payable) end
     end
 
-    test "check_bank_account_id foreign_key_constraint" do
+    test "check_debit_bank_account_id foreign_key_constraint" do
       org = insert(:org)
 
       payable = %Payable{
@@ -193,13 +193,13 @@ defmodule Sig.Finance.Payables.PayableTest do
         reference_date: Date.utc_today() |> Date.beginning_of_month(),
         amount: 1,
         description: Faker.Lorem.sentence(),
-        method: :check,
+        financial_transaction_type: :check,
         check_number: random_string_number(),
-        check_bank_account_id: UUID.generate()
+        check_debit_bank_account_id: UUID.generate()
       }
 
       assert_raise Ecto.ConstraintError,
-                   ~r/payables_check_bank_account_id_fkey \(foreign_key_constraint\)/,
+                   ~r/payables_check_debit_bank_account_id_fkey \(foreign_key_constraint\)/,
                    fn -> Repo.insert(payable) end
     end
 
@@ -215,16 +215,16 @@ defmodule Sig.Finance.Payables.PayableTest do
         reference_date: Date.utc_today() |> Date.beginning_of_month(),
         amount: 1,
         description: Faker.Lorem.sentence(),
-        method: :check,
+        financial_transaction_type: :check,
         check_number: random_string_number(),
-        check_bank_account_id: account.id
+        check_debit_bank_account_id: account.id
       }
 
       assert %Payable{} = Repo.insert!(payable)
     end
   end
 
-  describe "payables table payables_method_conditional constraints when 'billet'" do
+  describe "payables table payables_financial_transaction_type_conditional constraints when 'billet'" do
     test "billet_barcode is nil" do
       org = insert(:org)
 
@@ -236,11 +236,11 @@ defmodule Sig.Finance.Payables.PayableTest do
         reference_date: Date.utc_today() |> Date.beginning_of_month(),
         amount: 1,
         description: Faker.Lorem.sentence(),
-        method: :billet
+        financial_transaction_type: :billet
       }
 
       assert_raise Ecto.ConstraintError,
-                   ~r/payables_method_conditional \(check_constraint\)/,
+                   ~r/payables_financial_transaction_type_conditional \(check_constraint\)/,
                    fn -> Repo.insert(payable) end
     end
 
@@ -255,7 +255,7 @@ defmodule Sig.Finance.Payables.PayableTest do
         reference_date: Date.utc_today() |> Date.beginning_of_month(),
         amount: 1,
         description: Faker.Lorem.sentence(),
-        method: :billet,
+        financial_transaction_type: :billet,
         billet_barcode: random_string_number()
       }
 
@@ -263,7 +263,7 @@ defmodule Sig.Finance.Payables.PayableTest do
     end
   end
 
-  describe "payables table payables_method_conditional constraints when 'bank_transfer'" do
+  describe "payables table payables_financial_transaction_type_conditional constraints when 'bank_transfer'" do
     test "credit_bank_account_id is nil" do
       org = insert(:org)
 
@@ -275,11 +275,11 @@ defmodule Sig.Finance.Payables.PayableTest do
         reference_date: Date.utc_today() |> Date.beginning_of_month(),
         amount: 1,
         description: Faker.Lorem.sentence(),
-        method: :bank_transfer
+        financial_transaction_type: :bank_transfer
       }
 
       assert_raise Ecto.ConstraintError,
-                   ~r/payables_method_conditional \(check_constraint\)/,
+                   ~r/payables_financial_transaction_type_conditional \(check_constraint\)/,
                    fn -> Repo.insert(payable) end
     end
 
@@ -294,7 +294,7 @@ defmodule Sig.Finance.Payables.PayableTest do
         reference_date: Date.utc_today() |> Date.beginning_of_month(),
         amount: 1,
         description: Faker.Lorem.sentence(),
-        method: :bank_transfer,
+        financial_transaction_type: :bank_transfer,
         credit_bank_account_id: UUID.generate()
       }
 
@@ -315,7 +315,7 @@ defmodule Sig.Finance.Payables.PayableTest do
         reference_date: Date.utc_today() |> Date.beginning_of_month(),
         amount: 1,
         description: Faker.Lorem.sentence(),
-        method: :bank_transfer,
+        financial_transaction_type: :bank_transfer,
         credit_bank_account_id: account.id
       }
 
@@ -468,9 +468,9 @@ defmodule Sig.Finance.Payables.PayableTest do
         amount: 1,
         description: Faker.Lorem.sentence(),
         note: Faker.Lorem.sentence(),
-        method: :check,
+        financial_transaction_type: :check,
         check_number: random_string_number(),
-        check_bank_account_id: UUID.generate()
+        check_debit_bank_account_id: UUID.generate()
       }
 
       assert changeset = Payable.create_changeset(attrs)
@@ -485,9 +485,9 @@ defmodule Sig.Finance.Payables.PayableTest do
                amount: %Money{amount: attrs[:amount], currency: :BRL},
                description: attrs[:description],
                note: attrs[:note],
-               method: attrs[:method],
+               financial_transaction_type: attrs[:financial_transaction_type],
                check_number: attrs[:check_number],
-               check_bank_account_id: attrs[:check_bank_account_id]
+               check_debit_bank_account_id: attrs[:check_debit_bank_account_id]
              }
     end
 
@@ -500,9 +500,9 @@ defmodule Sig.Finance.Payables.PayableTest do
         amount: 1,
         description: Faker.Lorem.sentence(),
         note: Faker.Lorem.sentence(),
-        method: :check,
+        financial_transaction_type: :check,
         check_number: :invalid,
-        check_bank_account_id: :invalid
+        check_debit_bank_account_id: :invalid
       }
 
       assert changeset = Payable.create_changeset(attrs)
@@ -511,7 +511,7 @@ defmodule Sig.Finance.Payables.PayableTest do
 
       assert errors_on(changeset) == %{
                check_number: ["is invalid"],
-               check_bank_account_id: ["is invalid"]
+               check_debit_bank_account_id: ["is invalid"]
              }
     end
 
@@ -524,7 +524,7 @@ defmodule Sig.Finance.Payables.PayableTest do
         amount: 1,
         description: Faker.Lorem.sentence(),
         note: Faker.Lorem.sentence(),
-        method: :check
+        financial_transaction_type: :check
       }
 
       assert changeset = Payable.create_changeset(attrs)
@@ -533,11 +533,11 @@ defmodule Sig.Finance.Payables.PayableTest do
 
       assert errors_on(changeset) == %{
                check_number: ["can't be blank"],
-               check_bank_account_id: ["can't be blank"]
+               check_debit_bank_account_id: ["can't be blank"]
              }
     end
 
-    test "check_bank_account assoc constraint" do
+    test "check_debit_bank_account assoc constraint" do
       org = insert(:org)
 
       attrs = %{
@@ -548,9 +548,9 @@ defmodule Sig.Finance.Payables.PayableTest do
         amount: 1,
         description: Faker.Lorem.sentence(),
         note: Faker.Lorem.sentence(),
-        method: :check,
+        financial_transaction_type: :check,
         check_number: random_string_number(),
-        check_bank_account_id: UUID.generate()
+        check_debit_bank_account_id: UUID.generate()
       }
 
       assert {:error, changeset} = attrs |> Payable.create_changeset() |> Repo.insert()
@@ -558,7 +558,7 @@ defmodule Sig.Finance.Payables.PayableTest do
       refute changeset.valid?
 
       assert errors_on(changeset) == %{
-               check_bank_account: ["does not exist"]
+               check_debit_bank_account: ["does not exist"]
              }
     end
 
@@ -571,9 +571,9 @@ defmodule Sig.Finance.Payables.PayableTest do
         amount: 1,
         description: Faker.Lorem.sentence(),
         note: Faker.Lorem.sentence(),
-        method: :check,
+        financial_transaction_type: :check,
         check_number: String.duplicate("a", 256),
-        check_bank_account_id: UUID.generate()
+        check_debit_bank_account_id: UUID.generate()
       }
 
       assert changeset = Payable.create_changeset(attrs)
@@ -596,7 +596,7 @@ defmodule Sig.Finance.Payables.PayableTest do
         amount: 1,
         description: Faker.Lorem.sentence(),
         note: Faker.Lorem.sentence(),
-        method: :billet,
+        financial_transaction_type: :billet,
         billet_barcode: random_string_number()
       }
 
@@ -612,7 +612,7 @@ defmodule Sig.Finance.Payables.PayableTest do
                amount: %Money{amount: attrs[:amount], currency: :BRL},
                description: attrs[:description],
                note: attrs[:note],
-               method: attrs[:method],
+               financial_transaction_type: attrs[:financial_transaction_type],
                billet_barcode: attrs[:billet_barcode]
              }
     end
@@ -626,7 +626,7 @@ defmodule Sig.Finance.Payables.PayableTest do
         amount: 1,
         description: Faker.Lorem.sentence(),
         note: Faker.Lorem.sentence(),
-        method: :billet,
+        financial_transaction_type: :billet,
         billet_barcode: :invalid
       }
 
@@ -648,7 +648,7 @@ defmodule Sig.Finance.Payables.PayableTest do
         amount: 1,
         description: Faker.Lorem.sentence(),
         note: Faker.Lorem.sentence(),
-        method: :billet
+        financial_transaction_type: :billet
       }
 
       assert changeset = Payable.create_changeset(attrs)
@@ -669,7 +669,7 @@ defmodule Sig.Finance.Payables.PayableTest do
         amount: 1,
         description: Faker.Lorem.sentence(),
         note: Faker.Lorem.sentence(),
-        method: :billet,
+        financial_transaction_type: :billet,
         billet_barcode: String.duplicate("a", 256)
       }
 
@@ -693,7 +693,7 @@ defmodule Sig.Finance.Payables.PayableTest do
         amount: 1,
         description: Faker.Lorem.sentence(),
         note: Faker.Lorem.sentence(),
-        method: :bank_transfer,
+        financial_transaction_type: :bank_transfer,
         credit_bank_account_id: UUID.generate()
       }
 
@@ -709,7 +709,7 @@ defmodule Sig.Finance.Payables.PayableTest do
                amount: %Money{amount: attrs[:amount], currency: :BRL},
                description: attrs[:description],
                note: attrs[:note],
-               method: attrs[:method],
+               financial_transaction_type: attrs[:financial_transaction_type],
                credit_bank_account_id: attrs[:credit_bank_account_id]
              }
     end
@@ -723,7 +723,7 @@ defmodule Sig.Finance.Payables.PayableTest do
         amount: 1,
         description: Faker.Lorem.sentence(),
         note: Faker.Lorem.sentence(),
-        method: :bank_transfer,
+        financial_transaction_type: :bank_transfer,
         credit_bank_account_id: :invalid
       }
 
@@ -745,7 +745,7 @@ defmodule Sig.Finance.Payables.PayableTest do
         amount: 1,
         description: Faker.Lorem.sentence(),
         note: Faker.Lorem.sentence(),
-        method: :bank_transfer
+        financial_transaction_type: :bank_transfer
       }
 
       assert changeset = Payable.create_changeset(attrs)
@@ -768,7 +768,7 @@ defmodule Sig.Finance.Payables.PayableTest do
         amount: 1,
         description: Faker.Lorem.sentence(),
         note: Faker.Lorem.sentence(),
-        method: :bank_transfer,
+        financial_transaction_type: :bank_transfer,
         credit_bank_account_id: UUID.generate()
       }
 
@@ -792,7 +792,7 @@ defmodule Sig.Finance.Payables.PayableTest do
         amount: 50_00,
         description: "Updated description",
         note: "Updated note",
-        method: :cash
+        financial_transaction_type: :cash
       }
 
       assert changeset = Payable.update_changeset(payable, attrs)
@@ -805,7 +805,7 @@ defmodule Sig.Finance.Payables.PayableTest do
                amount: %Money{amount: attrs[:amount], currency: :BRL},
                description: attrs[:description],
                note: attrs[:note],
-               method: attrs[:method]
+               financial_transaction_type: attrs[:financial_transaction_type]
              }
     end
 
@@ -818,12 +818,12 @@ defmodule Sig.Finance.Payables.PayableTest do
         due_date: ~D[2021-01-15],
         reference_date: ~D[2021-01-01],
         amount: 50_00,
-        method: :check,
+        financial_transaction_type: :check,
         description: "Updated description",
         check_number: random_string_number(),
         billet_barcode: random_string_number(),
         note: Faker.Lorem.sentence(),
-        check_bank_account_id: UUID.generate(),
+        check_debit_bank_account_id: UUID.generate(),
         credit_bank_account_id: UUID.generate(),
         authorized_by_id: UUID.generate(),
         financial_transaction_id: UUID.generate()
@@ -839,9 +839,9 @@ defmodule Sig.Finance.Payables.PayableTest do
                amount: %Money{amount: attrs[:amount], currency: :BRL},
                description: attrs[:description],
                note: attrs[:note],
-               method: attrs[:method],
+               financial_transaction_type: attrs[:financial_transaction_type],
                billet_barcode: attrs[:billet_barcode],
-               check_bank_account_id: attrs[:check_bank_account_id],
+               check_debit_bank_account_id: attrs[:check_debit_bank_account_id],
                check_number: attrs[:check_number],
                credit_bank_account_id: attrs[:credit_bank_account_id]
              }
@@ -856,7 +856,7 @@ defmodule Sig.Finance.Payables.PayableTest do
         reference_date: ~D[2021-01-01],
         description: "Updated description",
         note: "Updated note",
-        method: :billet,
+        financial_transaction_type: :billet,
         billet_barcode: random_string_number(),
         amount: 200_00
       }
@@ -870,7 +870,7 @@ defmodule Sig.Finance.Payables.PayableTest do
                reference_date: attrs[:reference_date],
                description: attrs[:description],
                note: attrs[:note],
-               method: attrs[:method],
+               financial_transaction_type: attrs[:financial_transaction_type],
                billet_barcode: attrs[:billet_barcode],
                amount: %Money{amount: attrs[:amount], currency: :BRL}
              }
@@ -913,12 +913,12 @@ defmodule Sig.Finance.Payables.PayableTest do
         due_date: Date.utc_today(),
         reference_date: Date.utc_today() |> Date.beginning_of_month(),
         amount: 1,
-        method: :cash,
+        financial_transaction_type: :cash,
         description: Faker.Lorem.sentence(),
         check_number: random_string_number(),
         billet_barcode: random_string_number(),
         note: Faker.Lorem.sentence(),
-        check_bank_account_id: UUID.generate(),
+        check_debit_bank_account_id: UUID.generate(),
         credit_bank_account_id: UUID.generate(),
         authorized_by_id: UUID.generate(),
         financial_transaction_id: UUID.generate()
@@ -1053,7 +1053,7 @@ defmodule Sig.Finance.Payables.PayableTest do
         amount: 601_00,
         description: "Updated description",
         note: "Updated note",
-        method: :cash
+        financial_transaction_type: :cash
       }
 
       assert_raise Postgrex.Error,
@@ -1098,7 +1098,7 @@ defmodule Sig.Finance.Payables.PayableTest do
         amount: 1000_00,
         description: "Updated description",
         note: "Updated note",
-        method: :cash
+        financial_transaction_type: :cash
       }
 
       assert_raise Postgrex.Error,
@@ -1153,7 +1153,7 @@ defmodule Sig.Finance.Payables.PayableTest do
         amount: 600_00,
         description: "Updated description",
         note: "Updated note",
-        method: :cash
+        financial_transaction_type: :cash
       }
 
       assert salary_payable |> Payable.update_changeset(attrs) |> Repo.update!()

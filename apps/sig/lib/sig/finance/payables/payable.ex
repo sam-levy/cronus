@@ -16,14 +16,14 @@ defmodule Sig.Finance.Payables.Payable do
     field :due_date, :date
     field :reference_date, :date
     field :amount, Money.Ecto.Amount.Type
-    field :method, Sig.PaymentMethod
+    field :financial_transaction_type, Sig.FinancialTransactionType
     field :description, :string
     field :check_number, :string
     field :billet_barcode, :string
     field :note, :string
 
     belongs_to :authorized_by, User
-    belongs_to :check_bank_account, Account
+    belongs_to :check_debit_bank_account, Account
     belongs_to :credit_bank_account, Account
     belongs_to :financial_transaction, FinancialTransaction
 
@@ -36,12 +36,12 @@ defmodule Sig.Finance.Payables.Payable do
 
   @optional_fields [
     :amount,
-    :method,
+    :financial_transaction_type,
     :description,
     :check_number,
     :billet_barcode,
     :note,
-    :check_bank_account_id,
+    :check_debit_bank_account_id,
     :credit_bank_account_id
   ]
 
@@ -77,19 +77,21 @@ defmodule Sig.Finance.Payables.Payable do
 
   defp validate_fields(changeset) do
     changeset
-    |> validate_required_if(:method, :check, [:check_number, :check_bank_account_id])
-    |> validate_required_if(:method, :billet, :billet_barcode)
-    |> validate_required_if(:method, :bank_transfer, :credit_bank_account_id)
+    |> validate_required_if(:financial_transaction_type, :check, [
+      :check_number,
+      :check_debit_bank_account_id
+    ])
+    |> validate_required_if(:financial_transaction_type, :billet, :billet_barcode)
+    |> validate_required_if(:financial_transaction_type, :bank_transfer, :credit_bank_account_id)
     |> validate_money(:amount, [:gt, :eq], 0)
     |> validate_length(:description, max: 255)
     |> validate_length(:check_number, max: 255)
     |> validate_length(:billet_barcode, max: 255)
     |> validate_length(:note, max: 255)
-    |> assoc_constraint(:check_bank_account)
+    |> assoc_constraint(:check_debit_bank_account)
     |> assoc_constraint(:credit_bank_account)
     |> assoc_constraint(:financial_transaction)
   end
 
-  # TODO: Add procedure to ensure payable is not fulfilled before delete or udpate amount
-  # TODO: Add procedure to ensure payable amount is not changed when is fulfilled
+  # TODO: Add procedure to ensure authorized_by_id is NULL before update and delete
 end

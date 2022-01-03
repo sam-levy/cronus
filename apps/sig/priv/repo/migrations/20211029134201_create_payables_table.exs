@@ -12,14 +12,14 @@ defmodule Sig.Repo.Migrations.CreatePayablesTable do
       add :due_date, :date, null: false
       add :reference_date, :date, null: false
       add :amount, :integer, null: false, default: 0
-      add :method, :payment_method
+      add :financial_transaction_type, :financial_transaction_type
       add :description, :string
       add :check_number, :string
       add :billet_barcode, :string
       add :note, :string
 
       add :authorized_by_id, references(:users)
-      add :check_bank_account_id, references(:bank_accounts, with: [org_id: :org_id])
+      add :check_debit_bank_account_id, references(:bank_accounts, with: [org_id: :org_id])
       add :credit_bank_account_id, references(:bank_accounts, with: [org_id: :org_id])
       add :financial_transaction_id, references(:financial_transactions, with: [org_id: :org_id])
 
@@ -43,7 +43,7 @@ defmodule Sig.Repo.Migrations.CreatePayablesTable do
              :financial_transaction_id_conditional,
              check: """
                CASE WHEN financial_transaction_id IS NOT NULL THEN
-                 method IS NOT NULL AND
+                 financial_transaction_type IS NOT NULL AND
                  authorized_by_id IS NOT NULL
                END
              """
@@ -51,23 +51,23 @@ defmodule Sig.Repo.Migrations.CreatePayablesTable do
 
     create constraint(
              :payables,
-             :payables_method_conditional,
+             :payables_financial_transaction_type_conditional,
              check: """
                CASE
-                 WHEN method = 'check' THEN
+                 WHEN financial_transaction_type = 'check' THEN
                    check_number IS NOT NULL AND
-                   check_bank_account_id IS NOT NULL
+                   check_debit_bank_account_id IS NOT NULL
 
-                 WHEN method = 'billet' THEN
+                 WHEN financial_transaction_type = 'billet' THEN
                    billet_barcode IS NOT NULL
 
-                 WHEN method = 'bank_transfer' THEN
+                 WHEN financial_transaction_type = 'bank_transfer' THEN
                    credit_bank_account_id IS NOT NULL
                END
              """
            )
 
     # TODO: Add procedure to ensure a payable always have
-    # a payslip or a bill.
+    # a payslip_payable or an invoice_payable.
   end
 end

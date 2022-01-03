@@ -152,8 +152,8 @@ defmodule Sig.Finance.Payables.PayablesForPayslip do
 
   def validate_credit_bank_account(_changeset, _payslip), do: {:ok, nil}
 
-  def validate_check_bank_account(
-        %Ecto.Changeset{changes: %{check_bank_account_id: account_id}} = changeset,
+  def validate_check_debit_bank_account(
+        %Ecto.Changeset{changes: %{check_debit_bank_account_id: account_id}} = changeset,
         payslip
       )
       when is_binary(account_id) do
@@ -173,14 +173,14 @@ defmodule Sig.Finance.Payables.PayablesForPayslip do
       |> Banks.list_active_bank_accounts_by_entity()
       |> Enum.map(& &1.id)
 
-    if changeset.changes.check_bank_account_id in valid_account_ids do
+    if changeset.changes.check_debit_bank_account_id in valid_account_ids do
       {:ok, nil}
     else
-      {:error, add_error(changeset, :check_bank_account_id, "isn't related to the company")}
+      {:error, add_error(changeset, :check_debit_bank_account_id, "isn't related to the company")}
     end
   end
 
-  def validate_check_bank_account(_changeset, _payslip), do: {:ok, nil}
+  def validate_check_debit_bank_account(_changeset, _payslip), do: {:ok, nil}
 
   def query_by_payslip(%Payslip{} = payslip) do
     from(payable in Payable, as: :payable)

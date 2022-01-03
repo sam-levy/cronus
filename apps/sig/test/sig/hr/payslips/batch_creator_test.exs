@@ -327,7 +327,7 @@ defmodule Sig.HR.Payslips.BatchCreatorTest do
                  due_date: ~D[2021-01-20],
                  reference_date: ~D[2021-01-01],
                  amount: 100_00,
-                 method: :cash,
+                 financial_transaction_type: :cash,
                  description: "Adiantamento de Salário"
                )
 
@@ -347,7 +347,7 @@ defmodule Sig.HR.Payslips.BatchCreatorTest do
                  due_date: ~D[2021-02-07],
                  reference_date: ~D[2021-01-01],
                  amount: 200_00,
-                 method: :cash,
+                 financial_transaction_type: :cash,
                  description: "Salário"
                )
       end)
@@ -596,7 +596,7 @@ defmodule Sig.HR.Payslips.BatchCreatorTest do
                  due_date: ~D[2021-01-20],
                  reference_date: date,
                  amount: 100_00,
-                 method: :cash,
+                 financial_transaction_type: :cash,
                  description: "Adiantamento de Salário"
                )
 
@@ -616,7 +616,7 @@ defmodule Sig.HR.Payslips.BatchCreatorTest do
                  due_date: ~D[2021-02-07],
                  reference_date: date,
                  amount: 200_00,
-                 method: :cash,
+                 financial_transaction_type: :cash,
                  description: "Salário"
                )
       end)
@@ -975,7 +975,7 @@ defmodule Sig.HR.Payslips.BatchCreatorTest do
                  due_date: ~D[2021-02-07],
                  reference_date: ~D[2021-01-01],
                  amount: 0,
-                 method: :cash,
+                 financial_transaction_type: :cash,
                  description: "Salário"
                )
       end)

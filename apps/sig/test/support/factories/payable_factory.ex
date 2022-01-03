@@ -20,7 +20,7 @@ defmodule Sig.Factories.PayableFactory do
       def factory(:payable_cash, attrs) do
         payable = build(:payable, attrs)
 
-        %Payable{payable | method: :cash}
+        %Payable{payable | financial_transaction_type: :cash}
       end
 
       def factory(:payable_check, attrs) do
@@ -29,9 +29,9 @@ defmodule Sig.Factories.PayableFactory do
 
         %Payable{
           payable
-          | method: :check,
+          | financial_transaction_type: :check,
             check_number: random_string_number(),
-            check_bank_account: build(:bank_account, org: org)
+            check_debit_bank_account: build(:bank_account, org: org)
         }
       end
 
@@ -40,7 +40,7 @@ defmodule Sig.Factories.PayableFactory do
 
         %Payable{
           payable
-          | method: :billet,
+          | financial_transaction_type: :billet,
             billet_barcode: random_string_number()
         }
       end
@@ -51,7 +51,7 @@ defmodule Sig.Factories.PayableFactory do
 
         %Payable{
           payable
-          | method: :bank_transfer,
+          | financial_transaction_type: :bank_transfer,
             credit_bank_account: build(:bank_account, org: org)
         }
       end
