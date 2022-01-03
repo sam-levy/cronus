@@ -14,9 +14,8 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransaction do
     field :amount, Money.Ecto.Amount.Type
     field :entry_type, Sig.EntryType
     field :description, :string
-    field :is_internal_transfer, :boolean
 
-    belongs_to :counterparty, __MODULE__
+    belongs_to :transfer_counterparty, __MODULE__
 
     timestamps()
   end

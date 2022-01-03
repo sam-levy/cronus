@@ -14,8 +14,7 @@ defmodule Sig.Factories.FinancialTransactionFactory do
           clearing_date: placement_date,
           amount: Enum.random(100_00..5_000_00) |> Money.new(),
           entry_type: random_enum_value(:entry_type),
-          description: Faker.Lorem.sentence(),
-          is_internal_transfer: false
+          description: Faker.Lorem.sentence()
         }
       end
 

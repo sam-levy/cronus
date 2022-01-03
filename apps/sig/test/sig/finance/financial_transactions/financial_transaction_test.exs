@@ -174,25 +174,7 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransactionTest do
                    fn -> Repo.insert(transaction) end
     end
 
-    test "`is_internal_transfer` defaults to `false`" do
-      org = insert(:org)
-
-      transaction = %FinancialTransaction{
-        org_id: org.id,
-        type: :bank,
-        placement_date: Date.utc_today(),
-        clearing_date: Date.utc_today(),
-        amount: 1,
-        entry_type: :debit,
-        description: Faker.Lorem.sentence()
-      }
-
-      assert {:ok, %{id: id}} = Repo.insert(transaction)
-
-      assert Repo.get_by(FinancialTransaction, org_id: org.id, id: id, is_internal_transfer: false)
-    end
-
-    test "`counterparty_id` foreign_key_constraint" do
+    test "`transfer_counterparty_id` foreign_key_constraint" do
       org = insert(:org)
 
       transaction = %FinancialTransaction{
@@ -203,33 +185,11 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransactionTest do
         amount: 1,
         entry_type: :credit,
         description: Faker.Lorem.sentence(),
-        is_internal_transfer: true,
-        counterparty_id: UUID.generate()
+        transfer_counterparty_id: UUID.generate()
       }
 
       assert_raise Ecto.ConstraintError,
-                   ~r/financial_transactions_counterparty_id_fkey \(foreign_key_constraint\)/,
-                   fn -> Repo.insert(transaction) end
-    end
-
-    test "`counterparty_id` conditional constraint" do
-      org = insert(:org)
-      counterparty = insert(:financial_transaction, org: org)
-
-      transaction = %FinancialTransaction{
-        org_id: org.id,
-        type: :bank,
-        placement_date: Date.utc_today(),
-        clearing_date: Date.utc_today(),
-        amount: 1,
-        entry_type: :credit,
-        description: Faker.Lorem.sentence(),
-        is_internal_transfer: false,
-        counterparty_id: counterparty.id
-      }
-
-      assert_raise Ecto.ConstraintError,
-                   ~r/financial_transactions_counterparty_id \(check_constraint\)/,
+                   ~r/financial_transactions_transfer_counterparty_id_fkey \(foreign_key_constraint\)/,
                    fn -> Repo.insert(transaction) end
     end
 
@@ -245,8 +205,7 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransactionTest do
         amount: 1,
         entry_type: :credit,
         description: Faker.Lorem.sentence(),
-        is_internal_transfer: true,
-        counterparty_id: counterparty.id
+        transfer_counterparty_id: counterparty.id
       }
 
       assert {:ok, %FinancialTransaction{id: id}} = Repo.insert(transaction)
@@ -260,8 +219,7 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransactionTest do
                amount: transaction.amount,
                entry_type: transaction.entry_type,
                description: transaction.description,
-               is_internal_transfer: true,
-               counterparty_id: counterparty.id
+               transfer_counterparty_id: counterparty.id
              )
     end
   end

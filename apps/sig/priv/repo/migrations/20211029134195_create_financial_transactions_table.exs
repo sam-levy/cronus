@@ -14,9 +14,8 @@ defmodule Sig.Repo.Migrations.CreateFinancialTransactionsTable do
       add :amount, :integer, null: false
       add :entry_type, :entry_type, null: false
       add :description, :string, null: false
-      add :is_internal_transfer, :boolean, null: false, default: false
 
-      add :counterparty_id, references(:financial_transactions, with: [org_id: :org_id])
+      add :transfer_counterparty_id, references(:financial_transactions, with: [org_id: :org_id])
 
       timestamps()
     end
@@ -25,16 +24,6 @@ defmodule Sig.Repo.Migrations.CreateFinancialTransactionsTable do
              :financial_transactions,
              :financial_transactions_amount_positive,
              check: "amount >= 0"
-           )
-
-    create constraint(
-             :financial_transactions,
-             :financial_transactions_counterparty_id,
-             check: """
-               CASE WHEN counterparty_id IS NOT NULL THEN
-                 is_internal_transfer = true
-               END
-             """
            )
   end
 end
