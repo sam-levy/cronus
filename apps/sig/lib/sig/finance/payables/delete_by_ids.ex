@@ -28,7 +28,7 @@ defmodule Sig.Finance.Payables.DeleteByIds do
   end
 
   defp list_payables(%{org: org, payable_ids: payable_ids} = context) do
-    case Payables.list_by_ids(org, payable_ids, preload: [:payslip_payable]) do
+    case Payables.list(org, payable_ids: payable_ids, preload: [:payslip_payable]) do
       [] -> halt(context)
       payables -> %{context | payables: payables}
     end

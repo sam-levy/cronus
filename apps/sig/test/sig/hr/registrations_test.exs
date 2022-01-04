@@ -373,12 +373,44 @@ defmodule Sig.HR.RegistrationsTest do
   end
 
   describe "get/2" do
-    test "gets a registration" do
+    test "gets a registration from an individual" do
       org = insert(:org)
       individual = insert(:individual, org: org)
       %{id: id} = insert(:employee_registration, org: org, individual: individual)
 
       assert %Registration{id: ^id} = Registrations.get(individual, id)
+    end
+
+    test "registration from other individual" do
+      org = insert(:org)
+      individual_1 = insert(:individual, org: org)
+      individual_2 = insert(:individual, org: org)
+
+      registration = insert(:employee_registration, org: org, individual: individual_1)
+
+      assert Registrations.get(individual_2, registration.id) == nil
+    end
+
+    test "registration doesn't exist" do
+      individual = insert(:individual)
+
+      assert Registrations.get(individual, UUID.generate()) == nil
+    end
+
+    test "gets a registration by org" do
+      org = insert(:org)
+      %{id: id} = insert(:employee_registration, org: org)
+
+      assert %Registration{id: ^id} = Registrations.get(org, id)
+    end
+
+    test "registration from other org" do
+      org_1 = insert(:org)
+      org_2 = insert(:org)
+
+      registration = insert(:employee_registration, org: org_1)
+
+      assert Registrations.get(org_2, registration.id) == nil
     end
 
     test "preloads" do
@@ -400,22 +432,6 @@ defmodule Sig.HR.RegistrationsTest do
 
       assert %Registration{salaries: [%Salary{}, %Salary{}], org: %Org{id: ^org_id}} =
                Registrations.get(individual, registration.id)
-    end
-
-    test "registration from other individual" do
-      org = insert(:org)
-      individual_1 = insert(:individual, org: org)
-      individual_2 = insert(:individual, org: org)
-
-      registration = insert(:employee_registration, org: org, individual: individual_1)
-
-      assert Registrations.get(individual_2, registration.id) == nil
-    end
-
-    test "registration doesn't exist" do
-      individual = insert(:individual)
-
-      assert Registrations.get(individual, UUID.generate()) == nil
     end
   end
 

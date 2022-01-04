@@ -52,9 +52,6 @@ defmodule Sig.Finance do
   defdelegate entities_relationships(entity_1, entity_2), to: EntityBankAccounts
   defdelegate subscribe_to_entity_bank_accounts(entity), to: EntityBankAccounts
 
-  defdelegate authorize_payable_for_payslip(payslip, payable, user), to: Payables
-  defdelegate unauthorize_payable_for_payslip(payable), to: Payables
-
   defdelegate set_payable_changeset_financial_transaction_type(
                 changeset,
                 financial_transaction_type
@@ -62,9 +59,12 @@ defmodule Sig.Finance do
               to: Payables,
               as: :set_changeset_financial_transaction_type
 
+  defdelegate list_payables(org, opts \\ []), to: Payables, as: :list
+
+  defdelegate authorize_payable_for_payslip(payslip, payable, user), to: Payables
+  defdelegate unauthorize_payable_for_payslip(payable), to: Payables
   defdelegate create_payable_for_payslip(payslip, attrs, opts \\ []), to: Payables
   defdelegate create_payables_for_payslip(registration, payslip, items, opts \\ []), to: Payables
-
   defdelegate update_payable_for_payslip(payslip, payable, attrs), to: Payables
   defdelegate delete_payable_for_payslip(payslip, payable), to: Payables
   defdelegate create_payable_for_payslip_change(attrs \\ %{}), to: Payables

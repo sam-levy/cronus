@@ -20,15 +20,15 @@ defmodule SigLive.EmployeeRegistrations.Show do
   }
 
   @impl true
-  def mount(%{"entity_id" => entity_id, "id" => id}, _session, socket) do
+  def mount(%{"registration_id" => registration_id}, _session, socket) do
     %{org: org} = socket.assigns
-    individual = Entities.get_individual(org, entity_id)
+    registration = HR.get_registration(org, registration_id)
 
     socket =
       assign(
         socket,
-        individual: individual,
-        registration: HR.get_registration(individual, id),
+        individual: Entities.get_individual(org, registration.individual_id),
+        registration: registration,
         assigns_built_for: [],
         payslips: [],
         selected_payslip: nil,
@@ -50,20 +50,17 @@ defmodule SigLive.EmployeeRegistrations.Show do
   end
 
   @impl true
-  def handle_params(_params, _url, socket) do
+  def handle_params(params, _url, socket) do
     %{live_action: screen, assigns_built_for: assigns_built_for} = socket.assigns
 
     if screen in assigns_built_for do
       {:noreply, assign(socket, :active_screen, screen)}
     else
-      {:noreply,
-       socket
-       |> build_assigns_for(screen)
-       |> assign(:active_screen, screen)}
+      {:noreply, build_assigns_for(socket, screen, params)}
     end
   end
 
-  defp build_assigns_for(socket, :registration_show) do
+  defp build_assigns_for(socket, :registration_show, _params) do
     %{registration: registration, assigns_built_for: assigns_built_for} = socket.assigns
 
     if connected?(socket) do
@@ -85,15 +82,27 @@ defmodule SigLive.EmployeeRegistrations.Show do
       suspensions: HR.list_suspensions_by_registration(registration),
       leave_periods: HR.list_leave_periods_by_registration(registration),
       recurring_payslip_items: HR.list_recurring_payslip_items_by_registration(registration),
-      assigns_built_for: [:registration_show | assigns_built_for]
+      assigns_built_for: [:registration_show | assigns_built_for],
+      active_screen: :registration_show
     )
   end
 
-  defp build_assigns_for(socket, :payslips) do
-    %{registration: registration, assigns_built_for: assigns_built_for} = socket.assigns
-
-    payslips = HR.list_payslips_by(registration)
+  defp build_assigns_for(socket, :payslips, _params) do
+    payslips = HR.list_payslips_by(socket.assigns.registration)
     selected_payslip = List.first(payslips)
+
+    handle_payslips_assigns(socket, payslips, selected_payslip)
+  end
+
+  defp build_assigns_for(socket, :payslip, %{"payslip_id" => id}) do
+    payslips = HR.list_payslips_by(socket.assigns.registration)
+    selected_payslip = Enum.find(payslips, &(&1.id == id))
+
+    handle_payslips_assigns(socket, payslips, selected_payslip)
+  end
+
+  defp handle_payslips_assigns(socket, payslips, selected_payslip) do
+    %{registration: registration, assigns_built_for: assigns_built_for} = socket.assigns
 
     if connected?(socket) do
       HR.subscribe_to_payslips(registration)
@@ -104,7 +113,10 @@ defmodule SigLive.EmployeeRegistrations.Show do
     socket
     |> assign(:payslips, payslips)
     |> assign_selected_payslip(selected_payslip)
-    |> assign(:assigns_built_for, [:payslips | assigns_built_for])
+    |> assign(
+      assigns_built_for: [:payslips | assigns_built_for],
+      active_screen: :payslips
+    )
   end
 
   @impl true
@@ -168,14 +180,14 @@ defmodule SigLive.EmployeeRegistrations.Show do
 
         <div class="flex flex-row justify-end space-x-4">
           <LivePatch
-            to={Routes.sig_employee_registrations_show_path(@socket, :registration_show, @individual.org_id, @individual.entity_id, @registration)}
+            to={Routes.sig_employee_registrations_show_path(@socket, :registration_show, @org, @registration)}
             class={tab_classes_for(:registration_show, @active_screen)}
           >
             Cadastro
           </LivePatch>
 
           <LivePatch
-            to={Routes.sig_employee_registrations_show_path(@socket, :payslips, @individual.org_id, @individual.entity_id, @registration)}
+            to={Routes.sig_employee_registrations_show_path(@socket, :payslips, @org, @registration)}
             class={tab_classes_for(:payslips, @active_screen)}
           >
             Holerites
@@ -193,7 +205,7 @@ defmodule SigLive.EmployeeRegistrations.Show do
         <LeavePeriods.List id="leave_period_list" {=@registration} {=@leave_periods}/>
       </div>
 
-      <div :show={@active_screen == :payslips} class="mt-4">
+      <div :show={@active_screen in [:payslip, :payslips]} class="mt-4">
         <Payslips
           id="payslips"
           select_payslip="select_payslip"

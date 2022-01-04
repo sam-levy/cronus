@@ -28,6 +28,8 @@ defmodule Sig.Finance.Payables.Payable do
     belongs_to :financial_transaction, FinancialTransaction
 
     has_one :payslip_payable, PayslipPayable
+    has_one :payslip, through: [:payslip_payable, :payslip]
+    has_one :individual, through: [:payslip, :registration, :individual]
 
     timestamps()
   end
