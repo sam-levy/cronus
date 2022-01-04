@@ -1,5 +1,12 @@
 defmodule Sig.Finance.Payables do
-  use Sig.Preloader, payable: [:payslip_payable]
+  use Sig.Preloader,
+    payable: [
+      :payslip_payable,
+      :financial_transaction,
+      :authorized_by,
+      :check_debit_bank_account,
+      :credit_bank_account
+    ]
 
   import Ecto.Changeset, only: [put_change: 3]
 
@@ -56,14 +63,6 @@ defmodule Sig.Finance.Payables do
 
   defdelegate list_payslip_payables_by_payslip(payslip), to: PayablesForPayslip
 
-  def list_by_ids(%Org{} = org, payable_ids, opts \\ []) when is_list(payable_ids) do
-    from(p in Payable, as: :payable)
-    |> where([payable: p], p.org_id == ^org.id)
-    |> where([payable: p], p.id in ^payable_ids)
-    |> shallow_preload(opts)
-    |> Repo.all()
-  end
-
   def get_by(attrs), do: Repo.get_by(Payable, attrs)
 
   def set_changeset_financial_transaction_type(
@@ -72,5 +71,65 @@ defmodule Sig.Finance.Payables do
       )
       when is_atom(financial_transaction_type) do
     put_change(changeset, :financial_transaction_type, financial_transaction_type)
+  end
+
+  def list(%Org{} = org, opts \\ []) do
+    org
+    |> query_by()
+    |> shallow_preload(opts)
+    |> preload_underlying(opts)
+    |> filter_by_due_date(opts)
+    |> filter_by_payable_ids(opts)
+    |> filter_authorized(opts)
+    |> order()
+    |> Repo.all()
+  end
+
+  defp query_by(%Org{} = org) do
+    init_query() |> where(org_id: ^org.id)
+  end
+
+  defp init_query, do: from(p in Payable, as: :payable)
+
+  defp filter_by_due_date(queryable, opts) do
+    case Keyword.get(opts, :due_date, nil) do
+      nil ->
+        queryable
+
+      [period_start: period_start, period_end: period_end] ->
+        where(queryable, [payable: p], p.due_date >= ^period_start and p.due_date <= ^period_end)
+    end
+  end
+
+  defp filter_by_payable_ids(queryable, opts) do
+    case Keyword.get(opts, :payable_ids, nil) do
+      nil ->
+        queryable
+
+      payable_ids when is_list(payable_ids) ->
+        where(queryable, [payable: p], p.id in ^payable_ids)
+    end
+  end
+
+  defp filter_authorized(queryable, opts) do
+    if Keyword.get(opts, :authorized_by, false) do
+      where(queryable, [payable: p], not is_nil(p.authorized_by_id))
+    else
+      queryable
+    end
+  end
+
+  defp preload_underlying(queryable, opts) do
+    if Keyword.get(opts, :preload_underlying, false) do
+      queryable
+      |> join(:left, [payable: p], payable in assoc(p, :payslip), as: :payslip)
+      |> preload([payslip: payslip], payslip: payslip)
+    else
+      queryable
+    end
+  end
+
+  defp order(queryable) do
+    order_by(queryable, [:due_date, :target, :description])
   end
 end
