@@ -28,6 +28,7 @@ defmodule SigLive.Router do
 
     live_session :default, on_mount: SigLive.InitAssigns do
       live "/", Organizations.Show, :organizations
+      live "/accounts_payable", AccountsPayable.Index, :accounts_payable
       live "/benefit_models", BenefitModels.Index, :benefit_models
       live "/payslip_categories", PayslipCategories.Index, :payslip_categories
       live "/payslip_templates", PayslipTemplates.Index, :payslip_templates
@@ -37,8 +38,9 @@ defmodule SigLive.Router do
       live "/payslip_groups/:id", PayslipGroups.Show, :payslip_groups
       live "/individuals", Individuals.Index
       live "/individuals/:id", Individuals.Show, :show
-      live "/individuals/:entity_id/registrations/:id", EmployeeRegistrations.Show, :registration_show
-      live "/individuals/:entity_id/registrations/:id/payslips", EmployeeRegistrations.Show, :payslips
+      live "/registrations/:registration_id", EmployeeRegistrations.Show, :registration_show
+      live "/registrations/:registration_id/payslips", EmployeeRegistrations.Show, :payslips
+      live "/registrations/:registration_id/payslips/:payslip_id", EmployeeRegistrations.Show, :payslip
     end
   end
 
