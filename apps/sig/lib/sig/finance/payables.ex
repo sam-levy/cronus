@@ -1,6 +1,7 @@
 defmodule Sig.Finance.Payables do
   use Sig.Preloader,
     payable: [
+      :payslip,
       :payslip_payable,
       :financial_transaction,
       :authorized_by,
@@ -77,7 +78,6 @@ defmodule Sig.Finance.Payables do
     org
     |> query_by()
     |> shallow_preload(opts)
-    |> preload_underlying(opts)
     |> filter_by_due_date(opts)
     |> filter_by_payable_ids(opts)
     |> filter_authorized(opts)
@@ -114,16 +114,6 @@ defmodule Sig.Finance.Payables do
   defp filter_authorized(queryable, opts) do
     if Keyword.get(opts, :authorized_by, false) do
       where(queryable, [payable: p], not is_nil(p.authorized_by_id))
-    else
-      queryable
-    end
-  end
-
-  defp preload_underlying(queryable, opts) do
-    if Keyword.get(opts, :preload_underlying, false) do
-      queryable
-      |> join(:left, [payable: p], payable in assoc(p, :payslip), as: :payslip)
-      |> preload([payslip: payslip], payslip: payslip)
     else
       queryable
     end

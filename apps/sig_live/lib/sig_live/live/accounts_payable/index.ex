@@ -78,7 +78,7 @@ defmodule SigLive.AccountsPayable.Index do
     payables =
       Finance.list_payables(org,
         authorized_by: true,
-        preload_underlying: true,
+        preload: :payslip,
         due_date: [period_start: start_date, period_end: end_date]
       )
 

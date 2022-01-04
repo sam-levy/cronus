@@ -145,7 +145,8 @@ defmodule Sig.Finance.PayablesTest do
           :authorized_by,
           :check_debit_bank_account,
           :credit_bank_account,
-          :payslip_payable
+          :payslip_payable,
+          :payslip
         ]
       ]
 
@@ -154,34 +155,16 @@ defmodule Sig.Finance.PayablesTest do
                  financial_transaction: %FinancialTransaction{},
                  authorized_by: %User{},
                  check_debit_bank_account: %Account{},
-                 payslip_payable: %PayslipPayable{}
+                 payslip_payable: %PayslipPayable{},
+                 payslip: %Payslip{}
                },
                %Payable{
                  financial_transaction: %FinancialTransaction{},
                  authorized_by: %User{},
                  credit_bank_account: %Account{},
-                 payslip_payable: %PayslipPayable{}
+                 payslip_payable: %PayslipPayable{},
+                 payslip: %Payslip{}
                }
-             ] = Payables.list(org, opts)
-    end
-
-    test "preloads underlying" do
-      org = insert(:org)
-
-      payable_for_payslip = insert(:payable,
-        org: org,
-        target: :payslip,
-        due_date: ~D[2022-01-01],
-        description: "Payable for payslip",
-        amount: 0
-      )
-
-      %{payslip: %{id: payslip_id}} = insert(:payslip_payable, org: org, payable: payable_for_payslip)
-
-      opts = [preload_underlying: true]
-
-      assert [
-               %Payable{description: "Payable for payslip", payslip: %Payslip{id: ^payslip_id}}
              ] = Payables.list(org, opts)
     end
   end
