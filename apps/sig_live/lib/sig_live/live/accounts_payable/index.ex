@@ -26,7 +26,11 @@ defmodule SigLive.AccountsPayable.Index do
       ) do
     with {:ok, start_date} <- Date.from_iso8601(start_date),
          {:ok, end_date} <- Date.from_iso8601(end_date) do
-      {:noreply, assign_due_date_period(socket, start_date, end_date)}
+
+      case Date.compare(start_date, end_date) do
+        :gt -> {:noreply, assign_due_date_period(socket, start_date, start_date)}
+        _ -> {:noreply, assign_due_date_period(socket, start_date, end_date)}
+      end
     else
       _ ->
         {:noreply, assign_due_date_period(socket)}
