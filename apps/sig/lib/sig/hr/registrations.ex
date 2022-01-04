@@ -76,6 +76,14 @@ defmodule Sig.HR.Registrations do
     |> Repo.one()
   end
 
+  def get(%Org{} = org, id) when is_binary(id) do
+    org
+    |> query_by()
+    |> where(id: ^id)
+    |> shallow_preload([:org, :salaries])
+    |> Repo.one()
+  end
+
   def get_by(attrs, opts \\ []) when is_list(attrs) do
     init_query()
     |> where(^attrs)
