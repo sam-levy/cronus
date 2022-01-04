@@ -36,8 +36,8 @@ defmodule SigLive.AccountsPayable.List do
             <th class="py-3 px-6 text-left">Vencimento</th>
             <th class="py-3 px-3 text-left">Descrição</th>
             <th class="py-3 px-3 text-left">Destinatário</th>
-            <th class="py-3 px-2 text-left">Valor</th>
             <th class="py-3 px-3 text-left">Tipo</th>
+            <th class="py-3 px-2 text-left">Valor</th>
             <th class="py-3 text-left"></th>
           </tr>
         </thead>
@@ -60,11 +60,11 @@ defmodule SigLive.AccountsPayable.List do
               </td>
 
               <td class="py-3 px-3 text-left">
-                {payable.amount}
+                {capitalize_type(payable.financial_transaction_type)}
               </td>
 
               <td class="py-3 px-3 text-left">
-                {capitalize_type(payable.financial_transaction_type)}
+                {payable.amount}
               </td>
 
               <td class="pr-5 text-right">
