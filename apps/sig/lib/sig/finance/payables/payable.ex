@@ -29,6 +29,7 @@ defmodule Sig.Finance.Payables.Payable do
 
     has_one :payslip_payable, PayslipPayable
     has_one :payslip, through: [:payslip_payable, :payslip]
+    has_one :individual, through: [:payslip, :registration, :individual]
 
     timestamps()
   end

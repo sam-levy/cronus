@@ -2,6 +2,7 @@ defmodule Sig.Finance.PayablesTest do
   use Sig.DataCase
 
   alias Sig.Accounts.User
+  alias Sig.Entities.Individuals.Individual
   alias Sig.Finance.Banks.Accounts.Account
   alias Sig.Finance.FinancialTransactions.FinancialTransaction
   alias Sig.Finance.Payables
@@ -146,7 +147,8 @@ defmodule Sig.Finance.PayablesTest do
           :check_debit_bank_account,
           :credit_bank_account,
           :payslip_payable,
-          :payslip
+          :payslip,
+          :individual
         ]
       ]
 
@@ -156,14 +158,16 @@ defmodule Sig.Finance.PayablesTest do
                  authorized_by: %User{},
                  check_debit_bank_account: %Account{},
                  payslip_payable: %PayslipPayable{},
-                 payslip: %Payslip{}
+                 payslip: %Payslip{},
+                 individual: %Individual{}
                },
                %Payable{
                  financial_transaction: %FinancialTransaction{},
                  authorized_by: %User{},
                  credit_bank_account: %Account{},
                  payslip_payable: %PayslipPayable{},
-                 payslip: %Payslip{}
+                 payslip: %Payslip{},
+                 individual: %Individual{}
                }
              ] = Payables.list(org, opts)
     end

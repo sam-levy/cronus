@@ -35,6 +35,7 @@ defmodule SigLive.AccountsPayable.List do
           >
             <th class="py-3 px-6 text-left">Vencimento</th>
             <th class="py-3 px-3 text-left">Descrição</th>
+            <th class="py-3 px-3 text-left">Destinatário</th>
             <th class="py-3 px-2 text-left">Valor</th>
             <th class="py-3 px-3 text-left">Tipo</th>
             <th class="py-3 text-left"></th>
@@ -49,13 +50,13 @@ defmodule SigLive.AccountsPayable.List do
               </td>
 
               <td class="py-3 px-3 text-left">
-                <span
-                  :on-click="open_show_payable_form"
-                  phx-value-payable_id={payable.id}
-                  class="cursor-pointer hover:underline"
-                >
-                  {payable.description}
-                </span>
+                {payable.description}
+              </td>
+
+              <td class="py-3 px-3 text-left">
+                {#if payable.target == :payslip}
+                  {payable.individual.name}
+                {/if}
               </td>
 
               <td class="py-3 px-3 text-left">
