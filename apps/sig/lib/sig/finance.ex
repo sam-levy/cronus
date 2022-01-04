@@ -55,9 +55,12 @@ defmodule Sig.Finance do
   defdelegate authorize_payable_for_payslip(payslip, payable, user), to: Payables
   defdelegate unauthorize_payable_for_payslip(payable), to: Payables
 
-  defdelegate set_payable_changeset_method(changeset, method),
-    to: Payables,
-    as: :set_changeset_method
+  defdelegate set_payable_changeset_financial_transaction_type(
+                changeset,
+                financial_transaction_type
+              ),
+              to: Payables,
+              as: :set_changeset_financial_transaction_type
 
   defdelegate create_payable_for_payslip(payslip, attrs, opts \\ []), to: Payables
   defdelegate create_payables_for_payslip(registration, payslip, items, opts \\ []), to: Payables

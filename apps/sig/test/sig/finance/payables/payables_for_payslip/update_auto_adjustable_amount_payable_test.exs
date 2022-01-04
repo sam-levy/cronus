@@ -142,14 +142,15 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.UpdateAutoAdjustableAmountPaya
       Repo.update!(change(payslip, amount: 500_00))
 
       user = insert(:user, org: org)
+      financial_transaction = insert(:financial_transaction, org: org)
 
       auto_adjustable_payable =
         insert(:payable_cash,
           org: org,
           target: :payslip,
           amount: 200_00,
-          is_fulfilled: true,
-          authorized_by: user
+          authorized_by: user,
+          financial_transaction: financial_transaction
         )
 
       insert(:payslip_payable,
@@ -175,8 +176,8 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.UpdateAutoAdjustableAmountPaya
                org_id: org.id,
                id: auto_adjustable_payable.id,
                amount: 200_00,
-               is_fulfilled: true,
-               authorized_by_id: user.id
+               authorized_by_id: user.id,
+               financial_transaction_id: financial_transaction.id
              )
 
       assert Repo.get_by(PayslipPayable,

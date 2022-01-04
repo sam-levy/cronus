@@ -172,7 +172,6 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.DeleteTest do
           org: org,
           target: :payslip,
           amount: 100_00,
-          is_fulfilled: false,
           authorized_by_id: user.id
         )
 
@@ -233,6 +232,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.DeleteTest do
       org = insert(:org)
       user = insert(:user, org: org)
       payslip = insert(:payslip, org: org)
+      financial_transaction = insert(:financial_transaction, org: org)
 
       insert(:payslip_outside_item,
         org: org,
@@ -250,8 +250,8 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.DeleteTest do
           org: org,
           target: :payslip,
           amount: 100_00,
-          is_fulfilled: true,
-          authorized_by_id: user.id
+          authorized_by: user,
+          financial_transaction: financial_transaction
         )
 
       insert(:payslip_payable, org: org, payslip: payslip, payable: payable)
@@ -270,6 +270,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.DeleteTest do
     test "when payable is fulfilled after is loaded" do
       org = insert(:org)
       payslip = insert(:payslip, org: org)
+      financial_transaction = insert(:financial_transaction, org: org)
 
       insert(:payslip_outside_item,
         org: org,
@@ -294,7 +295,12 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.DeleteTest do
       user = insert(:user, org: org)
 
       # Fulfill payable
-      Repo.update!(change(payable, is_fulfilled: true, authorized_by_id: user.id))
+      Repo.update!(
+        change(payable,
+          authorized_by_id: user.id,
+          financial_transaction_id: financial_transaction.id
+        )
+      )
 
       assert Delete.call(payslip, payable) == {:error, "can't delete a fulfilled payable"}
 

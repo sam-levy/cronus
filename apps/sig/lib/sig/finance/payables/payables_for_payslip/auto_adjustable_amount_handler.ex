@@ -7,7 +7,8 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.AutoAdjustableAmountHandler do
   alias Sig.HR.Payslips.Payslip
   alias Sig.Repo
 
-  def set_as_auto_adjustable_amount(_payslip, %Payable{is_fulfilled: true}) do
+  def set_as_auto_adjustable_amount(_payslip, %Payable{financial_transaction_id: ft_id})
+      when is_binary(ft_id) do
     {:error, "can't modify a fulfilled payable"}
   end
 

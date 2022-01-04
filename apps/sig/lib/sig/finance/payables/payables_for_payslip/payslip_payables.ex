@@ -44,7 +44,8 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.PayslipPayables do
     end
   end
 
-  def set_as_auto_adjustable_amount(_payslip, %Payable{is_fulfilled: true}) do
+  def set_as_auto_adjustable_amount(_payslip, %Payable{financial_transaction_id: ft_id})
+      when is_binary(ft_id) do
     {:error, @fulfilled_payable_message}
   end
 
@@ -87,7 +88,8 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.PayslipPayables do
     end
   end
 
-  def unset_as_auto_adjustable_amount(_payslip, %Payable{is_fulfilled: true}) do
+  def unset_as_auto_adjustable_amount(_payslip, %Payable{financial_transaction_id: ft_id})
+      when is_binary(ft_id) do
     {:error, @fulfilled_payable_message}
   end
 

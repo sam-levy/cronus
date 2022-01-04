@@ -26,7 +26,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateTest do
         amount: 600_00,
         description: Faker.Lorem.sentence(),
         note: Faker.Lorem.sentence(),
-        method: :cash
+        financial_transaction_type: :cash
       }
 
       assert {:error, changeset} = Create.call(payslip, attrs, is_auto_adjustable_amount: false)
@@ -56,7 +56,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateTest do
         amount: 600_00,
         description: Faker.Lorem.sentence(),
         note: Faker.Lorem.sentence(),
-        method: :cash
+        financial_transaction_type: :cash
       }
 
       assert {:ok, %Payable{} = return} =
@@ -70,7 +70,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateTest do
                reference_date: attrs[:reference_date],
                description: attrs[:description],
                note: attrs[:note],
-               method: attrs[:method],
+               financial_transaction_type: attrs[:financial_transaction_type],
                amount: 500_00
              )
 
@@ -101,7 +101,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateTest do
         reference_date: Date.utc_today() |> Date.beginning_of_month(),
         description: Faker.Lorem.sentence(),
         note: Faker.Lorem.sentence(),
-        method: :cash
+        financial_transaction_type: :cash
       }
 
       assert {:ok, %Payable{} = return} =
@@ -115,7 +115,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateTest do
                reference_date: attrs[:reference_date],
                description: attrs[:description],
                note: attrs[:note],
-               method: attrs[:method],
+               financial_transaction_type: attrs[:financial_transaction_type],
                amount: 0
              )
 
@@ -167,7 +167,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateTest do
         amount: 500_00,
         description: Faker.Lorem.sentence(),
         note: Faker.Lorem.sentence(),
-        method: :cash
+        financial_transaction_type: :cash
       }
 
       assert {:error, changeset} = Create.call(payslip, attrs, is_auto_adjustable_amount: false)
@@ -217,7 +217,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateTest do
         amount: 400_00,
         description: Faker.Lorem.sentence(),
         note: Faker.Lorem.sentence(),
-        method: :cash
+        financial_transaction_type: :cash
       }
 
       assert {:ok, %Payable{} = return} = Create.call(payslip, attrs)
@@ -231,7 +231,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateTest do
                amount: attrs[:amount],
                description: attrs[:description],
                note: attrs[:note],
-               method: attrs[:method]
+               financial_transaction_type: attrs[:financial_transaction_type]
              )
 
       assert Repo.get_by(PayslipPayable,
@@ -280,7 +280,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateTest do
         amount: 100_00,
         description: Faker.Lorem.sentence(),
         note: Faker.Lorem.sentence(),
-        method: :cash
+        financial_transaction_type: :cash
       }
 
       assert {:ok, %Payable{} = return} = Create.call(payslip, attrs)
@@ -294,7 +294,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateTest do
                amount: attrs[:amount],
                description: attrs[:description],
                note: attrs[:note],
-               method: attrs[:method]
+               financial_transaction_type: attrs[:financial_transaction_type]
              )
 
       assert Repo.get_by(PayslipPayable,
@@ -345,7 +345,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateTest do
         amount: 400_00,
         description: Faker.Lorem.sentence(),
         note: Faker.Lorem.sentence(),
-        method: :cash
+        financial_transaction_type: :cash
       }
 
       assert {:ok, %Payable{} = return} = Create.call(payslip, attrs)
@@ -359,7 +359,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateTest do
                amount: attrs[:amount],
                description: attrs[:description],
                note: attrs[:note],
-               method: attrs[:method]
+               financial_transaction_type: attrs[:financial_transaction_type]
              )
 
       assert Repo.get_by(PayslipPayable,
@@ -428,7 +428,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateTest do
         amount: 400_00,
         description: Faker.Lorem.sentence(),
         note: Faker.Lorem.sentence(),
-        method: :cash
+        financial_transaction_type: :cash
       }
 
       assert {:ok, %Payable{} = return} = Create.call(payslip, attrs)
@@ -442,7 +442,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateTest do
                amount: attrs[:amount],
                description: attrs[:description],
                note: attrs[:note],
-               method: attrs[:method]
+               financial_transaction_type: attrs[:financial_transaction_type]
              )
 
       assert Repo.get_by(PayslipPayable,
@@ -490,7 +490,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateTest do
         reference_date: Date.utc_today() |> Date.beginning_of_month(),
         description: Faker.Lorem.sentence(),
         note: Faker.Lorem.sentence(),
-        method: :cash,
+        financial_transaction_type: :cash,
         # Amount should be ignored when auto adjustable
         amount: 1_000_00
       }
@@ -506,7 +506,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateTest do
                reference_date: attrs[:reference_date],
                description: attrs[:description],
                note: attrs[:note],
-               method: attrs[:method],
+               financial_transaction_type: attrs[:financial_transaction_type],
                amount: 100_00
              )
 
@@ -547,7 +547,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateTest do
         reference_date: Date.utc_today() |> Date.beginning_of_month(),
         description: Faker.Lorem.sentence(),
         note: Faker.Lorem.sentence(),
-        method: :cash,
+        financial_transaction_type: :cash,
         # Amount should be ignored when auto adjustable
         amount: 1_000_00
       }
@@ -563,7 +563,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateTest do
                reference_date: attrs[:reference_date],
                description: attrs[:description],
                note: attrs[:note],
-               method: attrs[:method],
+               financial_transaction_type: attrs[:financial_transaction_type],
                amount: 0
              )
 
@@ -611,7 +611,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateTest do
         reference_date: Date.utc_today() |> Date.beginning_of_month(),
         description: Faker.Lorem.sentence(),
         note: Faker.Lorem.sentence(),
-        method: :cash
+        financial_transaction_type: :cash
       }
 
       assert {:ok, %Payable{} = return} =
@@ -625,7 +625,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateTest do
                reference_date: attrs[:reference_date],
                description: attrs[:description],
                note: attrs[:note],
-               method: attrs[:method],
+               financial_transaction_type: attrs[:financial_transaction_type],
                amount: 400_00
              )
 
@@ -670,7 +670,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateTest do
         reference_date: Date.utc_today() |> Date.beginning_of_month(),
         description: Faker.Lorem.sentence(),
         note: Faker.Lorem.sentence(),
-        method: :bank_transfer,
+        financial_transaction_type: :bank_transfer,
         credit_bank_account_id: wrong_bank_account.id,
         amount: 100_00
       }
@@ -704,7 +704,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateTest do
         reference_date: Date.utc_today() |> Date.beginning_of_month(),
         description: Faker.Lorem.sentence(),
         note: Faker.Lorem.sentence(),
-        method: :bank_transfer,
+        financial_transaction_type: :bank_transfer,
         credit_bank_account_id: bank_account.id,
         amount: 100_00
       }
@@ -719,7 +719,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateTest do
                reference_date: attrs[:reference_date],
                description: attrs[:description],
                note: attrs[:note],
-               method: attrs[:method],
+               financial_transaction_type: attrs[:financial_transaction_type],
                credit_bank_account_id: attrs[:credit_bank_account_id],
                amount: 100_00
              )
@@ -756,7 +756,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateTest do
         reference_date: Date.utc_today() |> Date.beginning_of_month(),
         description: Faker.Lorem.sentence(),
         note: Faker.Lorem.sentence(),
-        method: :bank_transfer,
+        financial_transaction_type: :bank_transfer,
         credit_bank_account_id: bank_account.id,
         amount: 100_00
       }
@@ -771,7 +771,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateTest do
                reference_date: attrs[:reference_date],
                description: attrs[:description],
                note: attrs[:note],
-               method: attrs[:method],
+               financial_transaction_type: attrs[:financial_transaction_type],
                credit_bank_account_id: attrs[:credit_bank_account_id],
                amount: 100_00
              )
@@ -806,16 +806,16 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateTest do
         reference_date: Date.utc_today() |> Date.beginning_of_month(),
         description: Faker.Lorem.sentence(),
         note: Faker.Lorem.sentence(),
-        method: :check,
+        financial_transaction_type: :check,
         check_number: random_string_number(),
-        check_bank_account_id: wrong_bank_account.id,
+        check_debit_bank_account_id: wrong_bank_account.id,
         amount: 100_00
       }
 
       assert {:error, changeset} = Create.call(payslip, attrs)
 
       assert errors_on(changeset) == %{
-               check_bank_account_id: ["isn't related to the company"]
+               check_debit_bank_account_id: ["isn't related to the company"]
              }
     end
 
@@ -841,9 +841,9 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateTest do
         reference_date: Date.utc_today() |> Date.beginning_of_month(),
         description: Faker.Lorem.sentence(),
         note: Faker.Lorem.sentence(),
-        method: :check,
+        financial_transaction_type: :check,
         check_number: random_string_number(),
-        check_bank_account_id: bank_account.id,
+        check_debit_bank_account_id: bank_account.id,
         amount: 100_00
       }
 
@@ -857,9 +857,9 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateTest do
                reference_date: attrs[:reference_date],
                description: attrs[:description],
                note: attrs[:note],
-               method: attrs[:method],
+               financial_transaction_type: attrs[:financial_transaction_type],
                check_number: attrs[:check_number],
-               check_bank_account_id: attrs[:check_bank_account_id],
+               check_debit_bank_account_id: attrs[:check_debit_bank_account_id],
                amount: 100_00
              )
 
@@ -894,9 +894,9 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateTest do
         reference_date: Date.utc_today() |> Date.beginning_of_month(),
         description: Faker.Lorem.sentence(),
         note: Faker.Lorem.sentence(),
-        method: :check,
+        financial_transaction_type: :check,
         check_number: random_string_number(),
-        check_bank_account_id: bank_account.id,
+        check_debit_bank_account_id: bank_account.id,
         amount: 100_00
       }
 
@@ -910,9 +910,9 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateTest do
                reference_date: attrs[:reference_date],
                description: attrs[:description],
                note: attrs[:note],
-               method: attrs[:method],
+               financial_transaction_type: attrs[:financial_transaction_type],
                check_number: attrs[:check_number],
-               check_bank_account_id: attrs[:check_bank_account_id],
+               check_debit_bank_account_id: attrs[:check_debit_bank_account_id],
                amount: 100_00
              )
 

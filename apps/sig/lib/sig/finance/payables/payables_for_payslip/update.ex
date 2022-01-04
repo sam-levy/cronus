@@ -25,7 +25,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.Update do
               is_auto_adjustable_amount: nil
   end
 
-  def call(%Payslip{}, %Payable{is_fulfilled: true}, %{}) do
+  def call(%Payslip{}, %Payable{financial_transaction_id: ft_id}, %{}) when is_binary(ft_id) do
     {:error, @fulfilled_payable_message}
   end
 
@@ -43,7 +43,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.Update do
     |> build_changeset()
     |> validate_amount()
     |> validate_credit_bank_account()
-    |> validate_check_bank_account()
+    |> validate_check_debit_bank_account()
     |> update_multi()
     |> handle_return()
   end
@@ -121,12 +121,12 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.Update do
     end
   end
 
-  defp validate_check_bank_account(%{status: :halt} = context), do: context
+  defp validate_check_debit_bank_account(%{status: :halt} = context), do: context
 
-  defp validate_check_bank_account(context) do
+  defp validate_check_debit_bank_account(context) do
     %{payslip: payslip, changeset: changeset} = context
 
-    case PayablesForPayslip.validate_check_bank_account(changeset, payslip) do
+    case PayablesForPayslip.validate_check_debit_bank_account(changeset, payslip) do
       {:ok, _} -> context
       {:error, changeset} -> put_error(context, changeset)
     end
@@ -153,9 +153,14 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.Update do
 
   defp ensure_valid_payable_to_update(%Payable{org_id: org_id, id: id}) do
     case Payables.get_by(id: id, org_id: org_id) do
-      %Payable{is_fulfilled: true} -> {:error, @fulfilled_payable_message}
-      %Payable{authorized_by_id: id} when is_binary(id) -> {:error, @authorized_payable_message}
-      %Payable{} = payable -> {:ok, payable}
+      %Payable{financial_transaction_id: ft_id} when is_binary(ft_id) ->
+        {:error, @fulfilled_payable_message}
+
+      %Payable{authorized_by_id: ab_id} when is_binary(ab_id) ->
+        {:error, @authorized_payable_message}
+
+      %Payable{} = payable ->
+        {:ok, payable}
     end
   end
 

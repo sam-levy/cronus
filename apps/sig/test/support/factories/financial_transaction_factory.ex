@@ -2,7 +2,7 @@ defmodule Sig.Factories.FinancialTransactionFactory do
   defmacro __using__(_opts \\ []) do
     quote do
       alias Sig.Finance.FinancialTransactions.FinancialTransaction
-      alias Sig.Finance.FinancialTransactions.FinancialTransaction.FinancialTransactionType
+      alias Sig.FinancialTransactionType
 
       def factory(:financial_transaction, attrs) do
         placement_date = Keyword.get(attrs, :placement_date) || Date.utc_today()

@@ -10,13 +10,13 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateStandardPayables do
 
   defmodule Context do
     defstruct status: :ok,
-              method: nil,
               return: nil,
               payslip: nil,
               due_dates: nil,
               registration: nil,
               bank_account: nil,
-              payslip_items: nil
+              payslip_items: nil,
+              financial_transaction_type: nil
   end
 
   def call(%Registration{} = registration, %Payslip{} = payslip, payslip_items, %{} = due_dates)
@@ -30,7 +30,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateStandardPayables do
     |> validate_payslip_items()
     |> validate_due_dates()
     |> get_bank_account()
-    |> set_method()
+    |> set_financial_transaction_type()
     |> create_multi()
     |> handle_return()
   end
@@ -68,9 +68,13 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateStandardPayables do
     end
   end
 
-  defp set_method(%{status: :halted} = context), do: context
-  defp set_method(%{bank_account: :not_found} = context), do: %{context | method: :cash}
-  defp set_method(context), do: %{context | method: :bank_transfer}
+  defp set_financial_transaction_type(%{status: :halted} = context), do: context
+
+  defp set_financial_transaction_type(%{bank_account: :not_found} = context),
+    do: %{context | financial_transaction_type: :cash}
+
+  defp set_financial_transaction_type(context),
+    do: %{context | financial_transaction_type: :bank_transfer}
 
   defp create_multi(%{status: :halted} = context), do: context
 
@@ -95,7 +99,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateStandardPayables do
           %{
             amount: amount,
             due_date: context.due_dates.payment_advance_date,
-            method: context.method,
+            financial_transaction_type: context.financial_transaction_type,
             description: "Adiantamento de Salário"
           }
           |> handle_bank_account(context.bank_account)
@@ -115,7 +119,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateStandardPayables do
     attrs =
       %{
         due_date: context.due_dates.salary_date,
-        method: context.method,
+        financial_transaction_type: context.financial_transaction_type,
         description: "Salário"
       }
       |> handle_bank_account(context.bank_account)
@@ -123,9 +127,9 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateStandardPayables do
     PayablesForPayslip.create(context.payslip, attrs, is_auto_adjustable_amount: true)
   end
 
-  defp handle_bank_account(%{method: :cash} = attrs, _account), do: attrs
+  defp handle_bank_account(%{financial_transaction_type: :cash} = attrs, _account), do: attrs
 
-  defp handle_bank_account(%{method: :bank_transfer} = attrs, account) do
+  defp handle_bank_account(%{financial_transaction_type: :bank_transfer} = attrs, account) do
     Map.put(attrs, :credit_bank_account_id, account.id)
   end
 

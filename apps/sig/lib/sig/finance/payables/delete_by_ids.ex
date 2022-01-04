@@ -38,8 +38,8 @@ defmodule Sig.Finance.Payables.DeleteByIds do
 
   defp ensure_can_be_deleted(context) do
     if Enum.any?(context.payables, fn
-         %{is_fulfilled: true} -> true
-         %{authorized_by_id: id} when is_binary(id) -> true
+         %{financial_transaction_id: ft_id} when is_binary(ft_id) -> true
+         %{authorized_by_id: ab_id} when is_binary(ab_id) -> true
          _ -> false
        end) do
       error(context, "existem pagamentos autorizados ou pagos")

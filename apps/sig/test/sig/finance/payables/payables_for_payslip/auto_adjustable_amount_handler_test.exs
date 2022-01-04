@@ -94,6 +94,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.AutoAdjustableAmountHandlerTes
     test "when payable is fulfilled" do
       org = insert(:org)
       payslip = insert(:payslip, org: org)
+      financial_transaction = insert(:financial_transaction, org: org)
 
       insert(:payslip_outside_item,
         org: org,
@@ -112,7 +113,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.AutoAdjustableAmountHandlerTes
           org: org,
           target: :payslip,
           amount: 100_00,
-          is_fulfilled: true,
+          financial_transaction: financial_transaction,
           authorized_by_id: user.id
         )
 

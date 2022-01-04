@@ -66,8 +66,11 @@ defmodule Sig.Finance.Payables do
 
   def get_by(attrs), do: Repo.get_by(Payable, attrs)
 
-  def set_changeset_method(%Ecto.Changeset{data: %Payable{}} = changeset, method)
-      when is_atom(method) do
-    put_change(changeset, :method, method)
+  def set_changeset_financial_transaction_type(
+        %Ecto.Changeset{data: %Payable{}} = changeset,
+        financial_transaction_type
+      )
+      when is_atom(financial_transaction_type) do
+    put_change(changeset, :financial_transaction_type, financial_transaction_type)
   end
 end

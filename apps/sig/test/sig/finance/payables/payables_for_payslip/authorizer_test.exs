@@ -95,14 +95,25 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.AuthorizerTest do
     test "when payable is fulfilled" do
       org = insert(:org)
       user = insert(:user, org: org)
+      financial_transaction = insert(:financial_transaction, org: org)
 
       %{id: id} =
-        payable = insert(:payable_cash, org: org, authorized_by_id: user.id, is_fulfilled: true)
+        payable =
+        insert(:payable_cash,
+          org: org,
+          authorized_by: user,
+          financial_transaction: financial_transaction
+        )
 
       assert Authorizer.unauthorize(payable) ==
                {:error, "can't modify a fulfilled payable"}
 
-      assert Repo.get_by(Payable, id: id, org_id: org.id, authorized_by_id: user.id)
+      assert Repo.get_by(Payable,
+               id: id,
+               org_id: org.id,
+               authorized_by_id: user.id,
+               financial_transaction_id: financial_transaction.id
+             )
     end
 
     test "when authorized_by_id is already nil" do
