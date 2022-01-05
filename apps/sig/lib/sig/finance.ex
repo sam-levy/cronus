@@ -67,11 +67,11 @@ defmodule Sig.Finance do
   defdelegate list_payslip_payables_by_payslip(payslip), to: Payables
   defdelegate get_payable_by_payslip(payslip, id), to: Payables, as: :get_by_payslip
   defdelegate fetch_payable_by_payslip(payslip, id), to: Payables, as: :fetch_by_payslip
-  defdelegate subscribe_to_payables_for_payslip(payslip), to: Payables
   defdelegate set_payable_for_payslip_as_auto_adjustable(payslip, payable), to: Payables
   defdelegate unset_payable_for_payslip_as_auto_adjustable(payslip, payable), to: Payables
-  defdelegate unsubscribe_from_payables_for_payslip(payslip), to: Payables
-  defdelegate broadcast_payables_for_payslip(payslip), to: Payables
+  defdelegate subscribe_to_payables(schema), to: Payables
+  defdelegate unsubscribe_from_payables(schema), to: Payables
+  defdelegate broadcast_payables(schema), to: Payables
 
   def broadcast_accounts_and_relations(%Entity{} = entity) do
     Accounts.broadcast_bank_accounts(entity)

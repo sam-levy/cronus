@@ -293,7 +293,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.Form do
   defp handle_return(%{return: {:ok, _item}, socket: socket}) do
     %{payslip: payslip, form_state: form_state, close_fun: close_fun} = socket.assigns
 
-    Finance.broadcast_payables_for_payslip(payslip)
+    Finance.broadcast_payables(payslip)
     handle_flash(form_state)
     close_fun.()
 

@@ -119,18 +119,18 @@ defmodule SigLive.PayslipsState do
       end
 
       @impl true
-      def handle_info({:updated_payables_for_payslip, payables}, socket) do
+      def handle_info({:updated_payables, payables}, socket) do
         {:noreply, assign(socket, selected_payslip_payables: payables)}
       end
 
       defp subscribe_to_payslip_subscriptions(payslip) do
         HR.subscribe_to_payslip_items(payslip)
-        Finance.subscribe_to_payables_for_payslip(payslip)
+        Finance.subscribe_to_payables(payslip)
       end
 
       defp unsubscribe_from_payslip_subscriptions(payslip) do
         HR.unsubscribe_from_payslip_items(payslip)
-        Finance.unsubscribe_from_payables_for_payslip(payslip)
+        Finance.unsubscribe_from_payables(payslip)
       end
 
       defp assign_selected_payslip(socket, payslip) do

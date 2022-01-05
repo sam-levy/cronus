@@ -47,7 +47,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.List do
 
     with {:ok, payable} <- Finance.fetch_payable_by_payslip(payslip, id),
          {:ok, _payable} <- Finance.set_payable_for_payslip_as_auto_adjustable(payslip, payable) do
-      Finance.broadcast_payables_for_payslip(payslip)
+      Finance.broadcast_payables(payslip)
 
       {:noreply, socket}
     else
@@ -64,7 +64,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.List do
 
     with {:ok, payable} <- Finance.fetch_payable_by_payslip(payslip, id),
          {:ok, _payable} <- Finance.unset_payable_for_payslip_as_auto_adjustable(payslip, payable) do
-      Finance.broadcast_payables_for_payslip(payslip)
+      Finance.broadcast_payables(payslip)
 
       {:noreply, socket}
     else
@@ -86,7 +86,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.List do
 
     with {:ok, payable} <- Finance.fetch_payable_by_payslip(payslip, payable_id),
          {:ok, _payable} <- Finance.delete_payable_for_payslip(payslip, payable) do
-      Finance.broadcast_payables_for_payslip(payslip)
+      Finance.broadcast_payables(payslip)
       send(self(), {:flash, :info, "Pagamento removido"})
 
       {:noreply, assign(socket, closed_state())}
@@ -107,7 +107,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.List do
 
     with {:ok, payable} <- Finance.fetch_payable_by_payslip(payslip, id),
          {:ok, _payable} <- Finance.authorize_payable_for_payslip(payslip, payable, current_user) do
-      Finance.broadcast_payables_for_payslip(payslip)
+      Finance.broadcast_payables(payslip)
       send(self(), {:flash, :info, "Pagamento autorizado"})
 
       {:noreply, assign(socket, closed_state())}
@@ -125,7 +125,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.List do
 
     with {:ok, payable} <- Finance.fetch_payable_by_payslip(payslip, id),
          {:ok, _payable} <- Finance.unauthorize_payable_for_payslip(payable) do
-      Finance.broadcast_payables_for_payslip(payslip)
+      Finance.broadcast_payables(payslip)
       send(self(), {:flash, :info, "Pagamento desautorizado"})
 
       {:noreply, assign(socket, closed_state())}

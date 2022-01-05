@@ -112,7 +112,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
          {:ok, _item} <- HR.delete_payslip_item(payslip, item) do
       HR.broadcast_updated_payslip(payslip, nil, refetch: true, preload_registration: true)
       HR.broadcast_payslip_items(payslip)
-      Finance.broadcast_payables_for_payslip(payslip)
+      Finance.broadcast_payables(payslip)
       send(self(), {:flash, :info, "Item removido"})
 
       {:noreply, assign(socket, closed_state())}

@@ -13,11 +13,16 @@ defmodule Sig.Finance.Payables do
 
   import Ecto.Changeset, only: [put_change: 3]
 
+  alias Sig.Finance.Payables.Broadcaster
+  alias Sig.Finance.Payables.DeleteByIds
   alias Sig.Finance.Payables.Payable
   alias Sig.Finance.Payables.PayablesForPayslip
-  alias Sig.Finance.Payables.DeleteByIds
   alias Sig.Organizations.Org
   alias Sig.Repo
+
+  defdelegate subscribe_to_payables(schema), to: Broadcaster
+  defdelegate unsubscribe_from_payables(schema), to: Broadcaster
+  defdelegate broadcast_payables(schema), to: Broadcaster
 
   defdelegate delete_by_ids(org, ids), to: DeleteByIds, as: :call
 
@@ -54,9 +59,6 @@ defmodule Sig.Finance.Payables do
   defdelegate list_by_payslip(payslip), to: PayablesForPayslip
   defdelegate get_by_payslip(payslip, id), to: PayablesForPayslip
   defdelegate fetch_by_payslip(payslip, id), to: PayablesForPayslip
-  defdelegate subscribe_to_payables_for_payslip(payslip), to: PayablesForPayslip
-  defdelegate unsubscribe_from_payables_for_payslip(payslip), to: PayablesForPayslip
-  defdelegate broadcast_payables_for_payslip(payslip), to: PayablesForPayslip
 
   defdelegate authorize_payable_for_payslip(payslip, payable, user),
     to: PayablesForPayslip,

@@ -78,24 +78,6 @@ defmodule Sig.Finance.Payables.PayablesForPayslip do
     end
   end
 
-  def subscribe_to_payables_for_payslip(%Payslip{} = payslip) do
-    Phoenix.PubSub.subscribe(Sig.PubSub, topic(payslip))
-  end
-
-  def unsubscribe_from_payables_for_payslip(%Payslip{} = payslip) do
-    Phoenix.PubSub.unsubscribe(Sig.PubSub, topic(payslip))
-  end
-
-  def broadcast_payables_for_payslip(%Payslip{} = payslip) do
-    Phoenix.PubSub.broadcast(
-      Sig.PubSub,
-      topic(payslip),
-      {:updated_payables_for_payslip, list_by_payslip(payslip)}
-    )
-  end
-
-  defp topic(%Payslip{} = payslip), do: "payslip_id:" <> payslip.id <> ":payables"
-
   def sum_non_adjustable_payables_amounts(%Payslip{} = payslip) do
     payslip
     |> query_by_payslip()
