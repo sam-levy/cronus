@@ -183,7 +183,7 @@ defmodule SigLive.EmployeeRegistrations.Show do
             to={Routes.sig_employee_registrations_show_path(@socket, :registration_show, @org, @registration)}
             class={tab_classes_for(:registration_show, @active_screen)}
           >
-            Cadastro
+            Registro
           </LivePatch>
 
           <LivePatch
