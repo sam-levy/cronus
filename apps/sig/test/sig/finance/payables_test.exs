@@ -148,7 +148,7 @@ defmodule Sig.Finance.PayablesTest do
           :credit_bank_account,
           :payslip_payable,
           :payslip,
-          :individual
+          :employee
         ]
       ]
 
@@ -159,7 +159,7 @@ defmodule Sig.Finance.PayablesTest do
                  check_debit_bank_account: %Account{},
                  payslip_payable: %PayslipPayable{},
                  payslip: %Payslip{},
-                 individual: %Individual{}
+                 employee: %Individual{}
                },
                %Payable{
                  financial_transaction: %FinancialTransaction{},
@@ -167,7 +167,7 @@ defmodule Sig.Finance.PayablesTest do
                  credit_bank_account: %Account{},
                  payslip_payable: %PayslipPayable{},
                  payslip: %Payslip{},
-                 individual: %Individual{}
+                 employee: %Individual{}
                }
              ] = Payables.list(org, opts)
     end
