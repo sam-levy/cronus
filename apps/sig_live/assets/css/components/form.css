@@ -41,7 +41,7 @@
 }
 
 .form-checkbox-disabled {
-  @apply  text-gray-400 border border-gray-300 bg-gray-100 rounded mr-2
+  @apply  text-gray-400 border border-gray-300 bg-gray-200 rounded mr-2
 }
 
 .form-radio {

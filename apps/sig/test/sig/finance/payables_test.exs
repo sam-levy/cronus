@@ -89,7 +89,7 @@ defmodule Sig.Finance.PayablesTest do
 
       assert [
                %Payable{description: "A"},
-               %Payable{description: "B"},
+               %Payable{description: "B"}
              ] = Payables.list(org, opts)
     end
 
@@ -99,15 +99,29 @@ defmodule Sig.Finance.PayablesTest do
 
       date = ~D[2022-01-01]
 
-      insert(:payable, org: org, due_date: date, target: :invoice, description: "A", authorized_by: user)
-      insert(:payable, org: org, due_date: date, target: :invoice, description: "B", authorized_by: user)
+      insert(:payable,
+        org: org,
+        due_date: date,
+        target: :invoice,
+        description: "A",
+        authorized_by: user
+      )
+
+      insert(:payable,
+        org: org,
+        due_date: date,
+        target: :invoice,
+        description: "B",
+        authorized_by: user
+      )
+
       _payable_to_ignore = insert(:payable, org: org)
 
       opts = [authorized_by: true]
 
       assert [
                %Payable{description: "A"},
-               %Payable{description: "B"},
+               %Payable{description: "B"}
              ] = Payables.list(org, opts)
     end
 
@@ -116,27 +130,29 @@ defmodule Sig.Finance.PayablesTest do
       user = insert(:user, org: org)
       financial_transaction = insert(:financial_transaction, org: org)
 
-      payable_a = insert(:payable_check,
-        org: org,
-        target: :payslip,
-        due_date: ~D[2022-01-01],
-        authorized_by: user,
-        financial_transaction: financial_transaction,
-        description: "A",
-        amount: 0
-      )
+      payable_a =
+        insert(:payable_check,
+          org: org,
+          target: :payslip,
+          due_date: ~D[2022-01-01],
+          authorized_by: user,
+          financial_transaction: financial_transaction,
+          description: "A",
+          amount: 0
+        )
 
       insert(:payslip_payable, org: org, payable: payable_a)
 
-      payable_b = insert(:payable_bank_transfer,
-        org: org,
-        target: :payslip,
-        due_date: ~D[2022-01-01],
-        authorized_by: user,
-        financial_transaction: financial_transaction,
-        description: "B",
-        amount: 0
-      )
+      payable_b =
+        insert(:payable_bank_transfer,
+          org: org,
+          target: :payslip,
+          due_date: ~D[2022-01-01],
+          authorized_by: user,
+          financial_transaction: financial_transaction,
+          description: "B",
+          amount: 0
+        )
 
       insert(:payslip_payable, org: org, payable: payable_b)
 
@@ -148,7 +164,7 @@ defmodule Sig.Finance.PayablesTest do
           :credit_bank_account,
           :payslip_payable,
           :payslip,
-          :individual
+          :employee
         ]
       ]
 
@@ -159,7 +175,7 @@ defmodule Sig.Finance.PayablesTest do
                  check_debit_bank_account: %Account{},
                  payslip_payable: %PayslipPayable{},
                  payslip: %Payslip{},
-                 individual: %Individual{}
+                 employee: %Individual{}
                },
                %Payable{
                  financial_transaction: %FinancialTransaction{},
@@ -167,7 +183,7 @@ defmodule Sig.Finance.PayablesTest do
                  credit_bank_account: %Account{},
                  payslip_payable: %PayslipPayable{},
                  payslip: %Payslip{},
-                 individual: %Individual{}
+                 employee: %Individual{}
                }
              ] = Payables.list(org, opts)
     end

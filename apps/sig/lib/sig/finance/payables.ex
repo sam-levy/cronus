@@ -1,7 +1,8 @@
 defmodule Sig.Finance.Payables do
   use Sig.Preloader,
     payable: [
-      :individual,
+      :employee,
+      :employee_registration_company,
       :payslip,
       :payslip_payable,
       :financial_transaction,

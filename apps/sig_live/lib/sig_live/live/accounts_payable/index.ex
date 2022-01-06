@@ -8,7 +8,9 @@ defmodule SigLive.AccountsPayable.Index do
 
   @impl true
   def mount(_params, _session, socket) do
-    socket = assign_due_date_period(socket)
+    socket =
+      socket
+      |> assign_due_date_period()
 
     {:ok, socket}
   end
@@ -26,7 +28,6 @@ defmodule SigLive.AccountsPayable.Index do
       ) do
     with {:ok, start_date} <- Date.from_iso8601(start_date),
          {:ok, end_date} <- Date.from_iso8601(end_date) do
-
       case Date.compare(start_date, end_date) do
         :gt -> {:noreply, assign_due_date_period(socket, start_date, start_date)}
         _ -> {:noreply, assign_due_date_period(socket, start_date, end_date)}
@@ -82,7 +83,7 @@ defmodule SigLive.AccountsPayable.Index do
     payables =
       Finance.list_payables(org,
         authorized_by: true,
-        preload: [:payslip, :individual],
+        preload: [:payslip, :employee, :employee_registration_company],
         due_date: [period_start: start_date, period_end: end_date]
       )
 
