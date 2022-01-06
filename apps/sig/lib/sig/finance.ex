@@ -13,11 +13,6 @@ defmodule Sig.Finance do
   defdelegate create_account_change(attrs), to: Accounts, as: :create_change
   defdelegate update_account_change(bank_account, attrs \\ %{}), to: Accounts, as: :update_change
   defdelegate fetch_account(entity, id), to: Accounts, as: :fetch
-
-  defdelegate fetch_account_in_org_with_entity(org, id),
-    to: Accounts,
-    as: :fetch_in_org_with_entity
-
   defdelegate create_account(entity, attrs), to: Accounts, as: :create
   defdelegate update_account(account, attrs), to: Accounts, as: :update
   defdelegate list_accounts_by(entity, opts \\ []), to: Accounts, as: :list_by

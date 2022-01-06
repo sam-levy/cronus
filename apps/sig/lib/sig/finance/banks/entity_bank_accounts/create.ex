@@ -26,7 +26,7 @@ defmodule Sig.Finance.Banks.EntityBankAccounts.Create do
   defp fetch_account_and_validate(%{id: entity_id} = entity, attrs) do
     %{org: org} = Repo.preload(entity, :org)
 
-    case Accounts.fetch_in_org_with_entity(org, attrs.bank_account_id) do
+    case Accounts.fetch(org, attrs.bank_account_id, preload: :entity) do
       {:error, :not_found} ->
         {:error, "account doesn't exist"}
 

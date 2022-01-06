@@ -1,4 +1,6 @@
 defmodule Sig.Finance.Banks.Accounts do
+  use Sig.Preloader, bank_account: [:entity]
+
   import Ecto.Query
   import Sig.Broadcaster
 
@@ -32,16 +34,17 @@ defmodule Sig.Finance.Banks.Accounts do
     |> Repo.all()
   end
 
-  defp apply_where(queryable, opts) do
-    case Keyword.get(opts, :where) do
-      nil ->
-        queryable
+  def fetch(schema, id, opts \\ [])
+  def fetch(%Org{} = schema, id, opts), do: do_fetch(schema, id, opts)
+  def fetch(%Entity{} = schema, id, opts), do: do_fetch(schema, id, opts)
 
-      clauses ->
-        Enum.reduce(clauses, queryable, fn clause, acc ->
-          where(acc, ^[clause])
-        end)
-    end
+  defp do_fetch(schema, id, opts) when is_binary(id) do
+    schema
+    |> query_by()
+    |> where(id: ^id)
+    |> shallow_preload(opts)
+    |> Repo.one()
+    |> handle_return()
   end
 
   def fetch_entity_primary(%Entity{} = entity) do
@@ -62,32 +65,28 @@ defmodule Sig.Finance.Banks.Accounts do
     |> handle_return()
   end
 
-  def fetch_in_org_with_entity(%Org{} = org, id) when is_binary(id) do
-    Account
-    |> where(org_id: ^org.id)
-    |> where(id: ^id)
-    |> join(:left, [account], entity in assoc(account, :entity))
-    |> preload([_account, entity], entity: entity)
-    |> Repo.one()
-    |> handle_return()
-  end
-
-  def fetch(%Entity{} = entity, id) when is_binary(id) do
-    entity
-    |> query_by()
-    |> where(id: ^id)
-    |> Repo.one()
-    |> handle_return()
-  end
+  defp init_query, do: from(a in Account, as: :bank_account)
 
   defp query_by(%Entity{} = entity) do
-    Account
+    init_query()
     |> where(org_id: ^entity.org_id)
     |> where(entity_id: ^entity.id)
   end
 
   defp query_by(%Org{} = org) do
-    Account |> where(org_id: ^org.id)
+    init_query() |> where(org_id: ^org.id)
+  end
+
+  defp apply_where(queryable, opts) do
+    case Keyword.get(opts, :where) do
+      nil ->
+        queryable
+
+      clauses ->
+        Enum.reduce(clauses, queryable, fn clause, acc ->
+          where(acc, ^[clause])
+        end)
+    end
   end
 
   defp handle_return(%Account{} = account), do: {:ok, account}

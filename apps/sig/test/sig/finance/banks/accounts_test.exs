@@ -115,39 +115,31 @@ defmodule Sig.Finance.Banks.AccountsTest do
     end
   end
 
-  describe "fetch_in_org_with_entity/2" do
+  describe "fetch/3" do
     test "fetches a bank account from an org preloaded with the entity" do
       %{id: id, org: org, org_id: org_id} = insert(:bank_account)
 
       assert {:ok, %Account{id: ^id, org_id: ^org_id, entity: %Entity{}}} =
-               Accounts.fetch_in_org_with_entity(org, id)
+               Accounts.fetch(org, id, preload: :entity)
     end
 
     test "when bank account belongs to another org" do
       %{id: id} = insert(:bank_account)
       another_org = insert(:org)
 
-      assert Accounts.fetch_in_org_with_entity(another_org, id) == {:error, :not_found}
+      assert Accounts.fetch(another_org, id, preload: :entity) == {:error, :not_found}
     end
 
     test "when bank account doesn't exist" do
       org = insert(:org)
 
-      assert Accounts.fetch_in_org_with_entity(org, UUID.generate()) == {:error, :not_found}
+      assert Accounts.fetch(org, UUID.generate(), preload: :entity) == {:error, :not_found}
     end
-  end
 
-  describe "fetch/2" do
-    test "fetches a bank account" do
+    test "fetches a bank account by entity" do
       %{id: id, entity: entity, entity_id: entity_id} = insert(:bank_account)
 
       assert {:ok, %Account{id: ^id, entity_id: ^entity_id}} = Accounts.fetch(entity, id)
-    end
-
-    test "when bank account doesn't exist" do
-      entity = insert(:entity)
-
-      assert Accounts.fetch(entity, UUID.generate()) == {:error, :not_found}
     end
   end
 
