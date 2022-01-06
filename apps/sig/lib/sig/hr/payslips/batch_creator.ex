@@ -262,9 +262,14 @@ defmodule Sig.HR.Payslips.BatchCreator do
 
       Multi.run(multi, {:payables_for_payslip, payslip.id}, fn _, _ ->
         case Finance.create_payables_for_payslip(registration, payslip, payslip_items, opts) do
-          {:ok, payables} -> {:ok, payables}
-          {:error, message} when is_binary(message) -> raise(ArgumentError, message)
-          {:error, changeset} when is_struct(changeset) -> raise(ArgumentError, Sig.Changeset.errors_to_string(changeset))
+          {:ok, payables} ->
+            {:ok, payables}
+
+          {:error, message} when is_binary(message) ->
+            raise(ArgumentError, message)
+
+          {:error, changeset} when is_struct(changeset) ->
+            raise(ArgumentError, Sig.Changeset.errors_to_string(changeset))
         end
       end)
     end)

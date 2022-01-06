@@ -92,5 +92,4 @@ defmodule Sig.Finance.Payables.BroadcasterTest do
       @endpoint.unsubscribe(topic)
     end
   end
-
 end
