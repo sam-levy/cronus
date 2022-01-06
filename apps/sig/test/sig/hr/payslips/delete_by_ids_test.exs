@@ -31,7 +31,7 @@ defmodule Sig.HR.Payslips.DeleteByIdsTest do
 
       payslip_ids = Enum.map(payslips, & &1.id)
 
-      assert {:ok, [%Payslip{}, %Payslip{}]} = DeleteByIds.call(org, payslip_ids)
+      assert {:ok, %{payslips: [%Payslip{}, %Payslip{}], payables: [%Payable{}, %Payable{}, %Payable{}, %Payable{}]}} = DeleteByIds.call(org, payslip_ids)
 
       Enum.each(payslips, fn payslip ->
         refute Repo.get_by(Item, org_id: org.id, payslip_id: payslip.id)
@@ -48,7 +48,7 @@ defmodule Sig.HR.Payslips.DeleteByIdsTest do
 
       payslip_ids = Enum.map(payslips, & &1.id)
 
-      assert {:ok, [%Payslip{}, %Payslip{}]} = DeleteByIds.call(org, payslip_ids)
+      assert {:ok, %{payslips: [%Payslip{}, %Payslip{}], payables: nil}} = DeleteByIds.call(org, payslip_ids)
 
       Enum.each(payslips, fn payslip ->
         refute Repo.get_by(Payslip, org_id: org.id, id: payslip.id)

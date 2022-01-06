@@ -208,7 +208,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.Form do
   def states, do: @form_states
 
   defp get_payable(_payslip, nil), do: nil
-  defp get_payable(payslip, payable_id), do: Finance.get_payable_by_payslip(payslip, payable_id)
+  defp get_payable(payslip, payable_id), do: Finance.get_payable(payslip, payable_id, preload: :authorized_by)
 
   defp set_is_automatic_amount(nil), do: false
   defp set_is_automatic_amount(payable), do: payable.payslip_payable.is_auto_adjustable_amount
@@ -290,10 +290,10 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.Form do
     {:noreply, assign(socket, message: nil, changeset: changeset)}
   end
 
-  defp handle_return(%{return: {:ok, _item}, socket: socket}) do
+  defp handle_return(%{return: {:ok, payable}, socket: socket}) do
     %{payslip: payslip, form_state: form_state, close_fun: close_fun} = socket.assigns
 
-    Finance.broadcast_payables(payslip)
+    handle_broadcast(form_state, payslip, payable)
     handle_flash(form_state)
     close_fun.()
 
@@ -302,6 +302,15 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.Form do
 
   defp handle_flash(:new_mode), do: send(self(), {:flash, :info, "Pagamento adicionado"})
   defp handle_flash(:edit_mode), do: send(self(), {:flash, :info, "Pagamento atualizado"})
+
+  defp handle_broadcast(:new_mode, payslip, payable) do
+    Finance.broadcast_new_payable(payable)
+    Finance.broadcast_updated_payables(payslip)
+  end
+
+  defp handle_broadcast(:edit_mode, payslip, _payable) do
+    Finance.broadcast_updated_payables(payslip)
+  end
 
   defp bank_accounts_by_owner_name(entity) do
     owned_accounts =

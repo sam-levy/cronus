@@ -33,7 +33,7 @@ defmodule Sig.Finance.Payables.BroadcasterTest do
     end
   end
 
-  describe "broadcast_payables/1" do
+  describe "broadcast_updated_payables/1" do
     test "broadcasts payables from a payslip" do
       org = insert(:org)
       payslip = insert(:payslip, org: org)
@@ -78,7 +78,7 @@ defmodule Sig.Finance.Payables.BroadcasterTest do
 
       @endpoint.subscribe(topic)
 
-      assert Broadcaster.broadcast_payables(payslip) == :ok
+      assert Broadcaster.broadcast_updated_payables(payslip) == :ok
 
       assert_receive {:updated_payables, received_payables_for_payslip}
 

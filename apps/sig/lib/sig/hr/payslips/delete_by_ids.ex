@@ -85,8 +85,11 @@ defmodule Sig.HR.Payslips.DeleteByIds do
     )
     |> Repo.transaction()
     |> case do
-      {:ok, %{payslips: {_, payslips}}} -> %{context | return: payslips}
-      {:error, _operation, reason, _changes} -> error(context, reason)
+      {:ok, %{payslips: {_, payslips}, payables: payables}} ->
+        %{context | return: %{payslips: payslips, payables: payables}}
+
+      {:error, _operation, reason, _changes} ->
+        error(context, reason)
     end
   end
 

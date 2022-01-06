@@ -839,46 +839,15 @@ defmodule Sig.HR.Payslips.BatchCreatorTest do
         sectors_ids: [kitchen_sector.id, cleaning_sector.id]
       }
 
-      assert {:ok, [%Payslip{}, %Payslip{}]} =
-               BatchCreator.create(org, attrs, payables_attrs: :invalid)
+      assert_raise ArgumentError,
+                   ~r/invalid payables attrs/,
+                   fn -> BatchCreator.create(org, attrs, payables_attrs: :invalid) end
 
-      assert group = Repo.get_by(Group, org_id: org.id, date: ~D[2021-01-01], type: :regular)
-
-      Enum.each(registrations, fn registration ->
-        assert payslip =
-                 Repo.get_by(Payslip,
-                   org_id: org.id,
-                   type: :regular,
-                   start_date: ~D[2021-01-01],
-                   end_date: ~D[2021-01-31],
-                   amount: 200_00,
-                   is_closed: false,
-                   group_id: group.id,
-                   registration_id: registration.id
-                 )
-
-        assert Repo.get_by(Item,
-                 org_id: org.id,
-                 amount: 300_00,
-                 entry_type: :credit,
-                 type: :outside_item,
-                 is_payment_advance: false,
-                 payslip_id: payslip.id
-               )
-
-        assert Repo.get_by(Item,
-                 org_id: org.id,
-                 amount: 100_00,
-                 entry_type: :debit,
-                 type: :outside_item,
-                 is_payment_advance: true,
-                 payslip_id: payslip.id
-               )
-
-        refute Repo.get_by(PayslipPayable, org_id: org.id, payslip_id: payslip.id)
-
-        refute Repo.get_by(Payable, org_id: org.id)
-      end)
+      refute Repo.get_by(Group, org_id: org.id)
+      refute Repo.get_by(Payslip, org_id: org.id)
+      refute Repo.get_by(Item, org_id: org.id)
+      refute Repo.get_by(PayslipPayable, org_id: org.id)
+      refute Repo.get_by(Payable, org_id: org.id)
     end
 
     test "org has no registrations" do

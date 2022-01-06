@@ -2,6 +2,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Form do
   use SigLive, :surface_live_component
 
   alias Sig.HR
+  alias Sig.Finance
 
   alias Surface.Components.Form
 
@@ -338,6 +339,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Form do
 
   defp handle_broadcast(:new_mode, payslip, _socket) do
     HR.broadcast_new_payslip(payslip, refetch: true, preload_registration: true)
+    Finance.broadcast_new_payables(payslip)
   end
 
   defp handle_broadcast(:edit_mode, payslip, socket) do

@@ -1,6 +1,6 @@
 defmodule Sig.Finance.Payables.PayablesForPayslip.UpdateAutoAdjustableAmountPayable do
+  alias Sig.Finance.Payables
   alias Sig.Finance.Payables.Payable
-  alias Sig.Finance.Payables.PayablesForPayslip
   alias Sig.Finance.Payables.PayablesForPayslip.PayslipPayables.PayslipPayable
   alias Sig.HR.Payslips
   alias Sig.HR.Payslips.Items
@@ -27,7 +27,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.UpdateAutoAdjustableAmountPaya
   end
 
   defp list_payables(context) do
-    case PayablesForPayslip.list_by_payslip(context.payslip) do
+    case Payables.list_by(context.payslip) do
       [] -> halt(context)
       payables -> %{context | payables: payables}
     end

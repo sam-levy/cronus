@@ -5,6 +5,7 @@ defmodule Sig.HR.Payslips.BatchCreator do
   alias Ecto.UUID
 
   alias Sig.Finance
+  alias Sig.Finance.Payables
   alias Sig.HR.Payslips
   alias Sig.HR.Payslips.BatchCreator.Attrs
   alias Sig.HR.Payslips.Groups
@@ -259,10 +260,12 @@ defmodule Sig.HR.Payslips.BatchCreator do
       registration = Map.get(indexed_registrations, payslip.registration_id)
       payslip_items = Map.get(indexed_payslip_items, payslip.id, [])
 
-      Multi.run(multi, {:payables, UUID.generate()}, fn _, _ ->
-        Finance.create_payables_for_payslip(registration, payslip, payslip_items, opts)
-
-        {:ok, nil}
+      Multi.run(multi, {:payables_for_payslip, payslip.id}, fn _, _ ->
+        case Finance.create_payables_for_payslip(registration, payslip, payslip_items, opts) do
+          {:ok, payables} -> {:ok, payables}
+          {:error, message} when is_binary(message) -> raise(ArgumentError, message)
+          {:error, changeset} when is_struct(changeset) -> raise(ArgumentError, Sig.Changeset.errors_to_string(changeset))
+        end
       end)
     end)
   end
@@ -283,18 +286,28 @@ defmodule Sig.HR.Payslips.BatchCreator do
 
   defp handle_create_return({:error, _operation, reason, _changes}), do: {:error, reason}
 
-  defp handle_create_return({:ok, %{group: {:existing, _}, payslips: {_, payslips}}}) do
-    Task.start(fn -> Enum.each(payslips, &Payslips.broadcast_new_payslip/1) end)
+  defp handle_create_return({:ok, %{group: {:existing, _}, payslips: {_, payslips}} = changes}) do
+    Task.start(fn -> broadcast_payslips(changes) end)
 
     {:ok, payslips}
   end
 
-  defp handle_create_return({:ok, %{group: {:new, group}, payslips: {_, payslips}}}) do
+  defp handle_create_return({:ok, %{group: {:new, group}, payslips: {_, payslips}} = changes}) do
     Task.start(fn ->
       Groups.broadcast_new_group(group)
-      Enum.each(payslips, &Payslips.broadcast_new_payslip/1)
+      broadcast_payslips(changes)
     end)
 
     {:ok, payslips}
+  end
+
+  defp broadcast_payslips(%{payslips: {_, payslips}} = changes) do
+    Enum.each(payslips, fn payslip ->
+      Payslips.broadcast_new_payslip(payslip)
+
+      changes
+      |> Map.get({:payables_for_payslip, payslip.id}, [])
+      |> Enum.each(&Payables.broadcast_new_payable/1)
+    end)
   end
 end

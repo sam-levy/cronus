@@ -45,9 +45,9 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.List do
   def handle_event("set_as_auto_adjustable_amount", %{"payable_id" => id}, socket) do
     %{payslip: payslip} = socket.assigns
 
-    with {:ok, payable} <- Finance.fetch_payable_by_payslip(payslip, id),
+    with {:ok, payable} <- Finance.fetch_payable(payslip, id),
          {:ok, _payable} <- Finance.set_payable_for_payslip_as_auto_adjustable(payslip, payable) do
-      Finance.broadcast_payables(payslip)
+      Finance.broadcast_updated_payables(payslip)
 
       {:noreply, socket}
     else
@@ -62,9 +62,9 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.List do
   def handle_event("unset_as_auto_adjustable_amount", %{"payable_id" => id}, socket) do
     %{payslip: payslip} = socket.assigns
 
-    with {:ok, payable} <- Finance.fetch_payable_by_payslip(payslip, id),
+    with {:ok, payable} <- Finance.fetch_payable(payslip, id),
          {:ok, _payable} <- Finance.unset_payable_for_payslip_as_auto_adjustable(payslip, payable) do
-      Finance.broadcast_payables(payslip)
+      Finance.broadcast_updated_payables(payslip)
 
       {:noreply, socket}
     else
@@ -84,9 +84,10 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.List do
   def handle_event("delete_payable", _, socket) do
     %{payslip: payslip, payable_id: payable_id} = socket.assigns
 
-    with {:ok, payable} <- Finance.fetch_payable_by_payslip(payslip, payable_id),
-         {:ok, _payable} <- Finance.delete_payable_for_payslip(payslip, payable) do
-      Finance.broadcast_payables(payslip)
+    with {:ok, payable} <- Finance.fetch_payable(payslip, payable_id),
+         {:ok, payable} <- Finance.delete_payable_for_payslip(payslip, payable) do
+      Finance.broadcast_deleted_payable(payable)
+      Finance.broadcast_updated_payables(payslip)
       send(self(), {:flash, :info, "Pagamento removido"})
 
       {:noreply, assign(socket, closed_state())}
@@ -105,9 +106,9 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.List do
   def handle_event("authorize_payable", %{"payable_id" => id}, socket) do
     %{payslip: payslip, current_user: current_user} = socket.assigns
 
-    with {:ok, payable} <- Finance.fetch_payable_by_payslip(payslip, id),
+    with {:ok, payable} <- Finance.fetch_payable(payslip, id),
          {:ok, _payable} <- Finance.authorize_payable_for_payslip(payslip, payable, current_user) do
-      Finance.broadcast_payables(payslip)
+      Finance.broadcast_updated_payables(payslip)
       send(self(), {:flash, :info, "Pagamento autorizado"})
 
       {:noreply, assign(socket, closed_state())}
@@ -123,9 +124,9 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.List do
   def handle_event("unauthorize_payable", %{"payable_id" => id}, socket) do
     %{payslip: payslip} = socket.assigns
 
-    with {:ok, payable} <- Finance.fetch_payable_by_payslip(payslip, id),
+    with {:ok, payable} <- Finance.fetch_payable(payslip, id),
          {:ok, _payable} <- Finance.unauthorize_payable_for_payslip(payable) do
-      Finance.broadcast_payables(payslip)
+      Finance.broadcast_updated_payables(payslip)
       send(self(), {:flash, :info, "Pagamento desautorizado"})
 
       {:noreply, assign(socket, closed_state())}
@@ -212,8 +213,6 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.List do
               <td class="py-3 px-6 text-left">
                 <div class="flex items-center">
                   {payable.description}
-
-                  <span :if={payable.authorized_by_id} class="label-green ml-3">autorizado</span>
                 </div>
               </td>
 
@@ -225,6 +224,8 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.List do
                   >
                     automático
                   </span>
+
+                  <span :if={payable.authorized_by_id} class="label-green mr-3">autorizado</span>
 
                   {format_amount(payable.amount)}
                 </div>

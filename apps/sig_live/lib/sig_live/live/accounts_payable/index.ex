@@ -8,11 +8,33 @@ defmodule SigLive.AccountsPayable.Index do
 
   @impl true
   def mount(_params, _session, socket) do
-    socket =
-      socket
-      |> assign_due_date_period()
+    {:ok, assign_due_date_period(socket)}
+  end
 
-    {:ok, socket}
+  @impl true
+  def handle_info({:new_payable, payable}, socket) do
+    payables = [payable | socket.assigns.payables]
+
+    {:noreply, assign(socket, payables: payables)}
+  end
+
+  @impl true
+  def handle_info({:updated_payable, %{id: id} = updated_payable}, socket) do
+    updated_payables =
+      socket.assigns.payables
+      |> Enum.map(fn
+        %{id: ^id} -> updated_payable
+        payable -> payable
+      end)
+
+    {:noreply, assign(socket, payables: updated_payables)}
+  end
+
+  @impl true
+  def handle_info({:deleted_payable, payable}, socket) do
+    payables = Enum.reject(socket.assigns.payables, &(&1.id == payable.id))
+
+    {:noreply, assign(socket, payables: payables)}
   end
 
   @impl true
@@ -80,9 +102,10 @@ defmodule SigLive.AccountsPayable.Index do
   defp assign_due_date_period(socket, start_date, end_date) do
     %{org: org} = socket.assigns
 
+    handle_payables_subscription(socket, start_date, end_date)
+
     payables =
-      Finance.list_payables(org,
-        authorized_by: true,
+      Finance.list_payables_by(org,
         preload: [:payslip, :employee, :employee_registration_company],
         due_date: [period_start: start_date, period_end: end_date]
       )
@@ -93,4 +116,17 @@ defmodule SigLive.AccountsPayable.Index do
       due_date_end: end_date
     )
   end
+
+  defp handle_payables_subscription(socket, due_date_start, due_date_end) do
+    if connected?(socket) do
+      unsubscribe_from_payables(socket)
+      Finance.subscribe_to_payables(socket.assigns.org, due_date_start, due_date_end)
+    end
+  end
+
+  defp unsubscribe_from_payables(%{assigns: %{org: org, due_date_start: start, due_date_end: finish}}) do
+    Finance.unsubscribe_from_payables(org, start, finish)
+  end
+
+  defp unsubscribe_from_payables(_socket), do: :ok
 end

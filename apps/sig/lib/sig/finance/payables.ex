@@ -17,12 +17,18 @@ defmodule Sig.Finance.Payables do
   alias Sig.Finance.Payables.DeleteByIds
   alias Sig.Finance.Payables.Payable
   alias Sig.Finance.Payables.PayablesForPayslip
+  alias Sig.HR.Payslips.Payslip
   alias Sig.Organizations.Org
   alias Sig.Repo
 
   defdelegate subscribe_to_payables(schema), to: Broadcaster
+  defdelegate subscribe_to_payables(org, due_date_start, due_date_end), to: Broadcaster
   defdelegate unsubscribe_from_payables(schema), to: Broadcaster
-  defdelegate broadcast_payables(schema), to: Broadcaster
+  defdelegate unsubscribe_from_payables(org, due_date_start, due_date_end), to: Broadcaster
+  defdelegate broadcast_new_payables(payslip), to: Broadcaster
+  defdelegate broadcast_new_payable(payable), to: Broadcaster
+  defdelegate broadcast_updated_payables(schema), to: Broadcaster
+  defdelegate broadcast_deleted_payable(payable), to: Broadcaster
 
   defdelegate delete_by_ids(org, ids), to: DeleteByIds, as: :call
 
@@ -56,19 +62,11 @@ defmodule Sig.Finance.Payables do
     to: PayablesForPayslip,
     as: :unset_as_auto_adjustable_amount
 
-  defdelegate list_by_payslip(payslip), to: PayablesForPayslip
-  defdelegate get_by_payslip(payslip, id), to: PayablesForPayslip
-  defdelegate fetch_by_payslip(payslip, id), to: PayablesForPayslip
-
   defdelegate authorize_payable_for_payslip(payslip, payable, user),
     to: PayablesForPayslip,
     as: :authorize
 
   defdelegate unauthorize_payable_for_payslip(payable), to: PayablesForPayslip, as: :unauthorize
-
-  defdelegate list_payslip_payables_by_payslip(payslip), to: PayablesForPayslip
-
-  def get_by(attrs), do: Repo.get_by(Payable, attrs)
 
   def set_changeset_financial_transaction_type(
         %Ecto.Changeset{data: %Payable{}} = changeset,
@@ -78,8 +76,34 @@ defmodule Sig.Finance.Payables do
     put_change(changeset, :financial_transaction_type, financial_transaction_type)
   end
 
-  def list(%Org{} = org, opts \\ []) do
-    org
+  def get(%Payslip{} = payslip, id, opts \\ []) when is_binary(id) do
+    payslip
+    |> query_by()
+    |> where(id: ^id)
+    |> shallow_preload(opts)
+    |> Repo.one()
+  end
+
+  def fetch(%Payslip{} = payslip, id, opts \\ []) when is_binary(id) do
+    case get(payslip, id, opts) do
+      %Payable{} = payable -> {:ok, payable}
+      nil -> {:error, :not_found}
+    end
+  end
+
+  def get_by(attrs, opts \\ []) do
+    init_query()
+    |> where(^attrs)
+    |> shallow_preload(opts)
+    |> Repo.one()
+  end
+
+  def list_by(schema, opts \\ [])
+  def list_by(%Org{} = schema, opts), do: do_list_by(schema, opts)
+  def list_by(%Payslip{} = schema, opts), do: do_list_by(schema, opts)
+
+  defp do_list_by(schema, opts) do
+    schema
     |> query_by()
     |> shallow_preload(opts)
     |> filter_by_due_date(opts)
@@ -91,6 +115,10 @@ defmodule Sig.Finance.Payables do
 
   defp query_by(%Org{} = org) do
     init_query() |> where(org_id: ^org.id)
+  end
+
+  defp query_by(%Payslip{} = payslip) do
+    PayablesForPayslip.query_by_payslip(payslip)
   end
 
   defp init_query, do: from(p in Payable, as: :payable)
@@ -124,6 +152,6 @@ defmodule Sig.Finance.Payables do
   end
 
   defp order(queryable) do
-    order_by(queryable, [:due_date, :target, :description])
+    order_by(queryable, [:due_date, :target, :financial_transaction_type, :description])
   end
 end

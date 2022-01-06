@@ -4,6 +4,7 @@ defmodule Sig.HR.Payslips.Groups do
 
   alias Ecto.Multi
 
+  alias Sig.Finance.Payables
   alias Sig.HR.Payslips
   alias Sig.HR.Payslips.Groups.Group
   alias Sig.Organizations.Org
@@ -72,19 +73,20 @@ defmodule Sig.HR.Payslips.Groups do
     payslip_ids = group |> Payslips.list_by() |> Enum.map(& &1.id)
 
     Multi.new()
-    |> Multi.run(:payslips, fn _, _ -> Payslips.delete_by_ids(org, payslip_ids) end)
+    |> Multi.run(:delete_payslips, fn _, _ -> Payslips.delete_by_ids(org, payslip_ids) end)
     |> Multi.run(:group, fn _, _ -> delete(group) end)
     |> Repo.transaction()
     |> case do
-      {:ok, %{group: group, payslips: payslips}} when is_list(payslips) ->
+      {:ok, %{group: group, delete_payslips: %{payslips: payslips, payables: payables}}} when is_list(payslips) ->
         Task.start(fn ->
           broadcast_deleted_group(group)
           Enum.each(payslips, &Payslips.broadcast_deleted_payslip/1)
+          if payables, do: Enum.each(payables, &Payables.broadcast_deleted_payable/1)
         end)
 
         {:ok, group}
 
-      {:ok, %{group: group, payslips: nil}} ->
+      {:ok, %{group: group, delete_payslips: nil}} ->
         broadcast_deleted_group(group)
 
         {:ok, group}
