@@ -1,5 +1,6 @@
 defmodule Sig.Finance.Banks.Accounts do
   import Ecto.Query
+  import Sig.Broadcaster
 
   alias Sig.Entities.Entity
   alias Sig.Finance.Banks.Accounts.Account
@@ -19,24 +20,33 @@ defmodule Sig.Finance.Banks.Accounts do
     Account.update_changeset(account, attrs)
   end
 
-  def list_by_entity(%Entity{} = entity) do
-    entity
-    |> query_by_entity()
+  def list_by(schema, opts \\ [])
+  def list_by(%Org{} = schema, opts), do: do_list_by(schema, opts)
+  def list_by(%Entity{} = schema, opts), do: do_list_by(schema, opts)
+
+  defp do_list_by(schema, opts) do
+    schema
+    |> query_by()
+    |> apply_where(opts)
     |> order_by(:routing_number)
     |> Repo.all()
   end
 
-  def list_active_by_entity(%Entity{} = entity) do
-    entity
-    |> query_by_entity()
-    |> where(is_active: true)
-    |> order_by(:routing_number)
-    |> Repo.all()
+  defp apply_where(queryable, opts) do
+    case Keyword.get(opts, :where) do
+      nil ->
+        queryable
+
+      clauses ->
+        Enum.reduce(clauses, queryable, fn clause, acc ->
+          where(acc, ^[clause])
+        end)
+    end
   end
 
   def fetch_entity_primary(%Entity{} = entity) do
     entity
-    |> query_by_entity()
+    |> query_by()
     |> where(is_primary: true)
     |> Repo.one()
     |> handle_return()
@@ -64,32 +74,30 @@ defmodule Sig.Finance.Banks.Accounts do
 
   def fetch(%Entity{} = entity, id) when is_binary(id) do
     entity
-    |> query_by_entity()
+    |> query_by()
     |> where(id: ^id)
     |> Repo.one()
     |> handle_return()
   end
 
-  def subscribe_to_bank_accounts(%Entity{} = entity) do
-    Phoenix.PubSub.subscribe(Sig.PubSub, topic(entity))
-  end
-
-  def broadcast_bank_accounts(%Entity{} = entity) do
-    Phoenix.PubSub.broadcast(
-      Sig.PubSub,
-      topic(entity),
-      {:updated_bank_accounts, list_by_entity(entity)}
-    )
-  end
-
-  defp topic(%Entity{} = entity), do: "entity_id:" <> entity.id <> ":bank_accounts"
-
-  defp query_by_entity(entity) do
+  defp query_by(%Entity{} = entity) do
     Account
     |> where(org_id: ^entity.org_id)
     |> where(entity_id: ^entity.id)
   end
 
+  defp query_by(%Org{} = org) do
+    Account |> where(org_id: ^org.id)
+  end
+
   defp handle_return(%Account{} = account), do: {:ok, account}
   defp handle_return(nil), do: {:error, :not_found}
+
+  def subscribe_to_bank_accounts(%Entity{} = entity), do: subscribe(topic(entity))
+
+  def broadcast_bank_accounts(%Entity{} = entity) do
+    broadcast(topic(entity), {:updated_bank_accounts, list_by(entity)})
+  end
+
+  defp topic(%Entity{} = entity), do: "entity_id:" <> entity.id <> ":bank_accounts"
 end

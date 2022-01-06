@@ -20,7 +20,7 @@ defmodule Sig.Finance.Banks.AccountsTest do
     end
   end
 
-  describe "list_by_entity/1" do
+  describe "list_by/2" do
     test "lists bank accounts by entity ordered by routing_number" do
       %{id: org_id} = org = insert(:org)
       %{id: entity_id} = entity = insert(:entity, org: org)
@@ -42,17 +42,15 @@ defmodule Sig.Finance.Banks.AccountsTest do
                  org_id: ^org_id,
                  entity_id: ^entity_id
                }
-             ] = Accounts.list_by_entity(entity)
+             ] = Accounts.list_by(entity)
     end
 
     test "entity has no bank account" do
       entity = insert(:entity)
 
-      assert Accounts.list_by_entity(entity) == []
+      assert Accounts.list_by(entity) == []
     end
-  end
 
-  describe "list_active_by_entity/1" do
     test "lists active bank accounts by entity ordered by routing_number" do
       %{id: org_id} = org = insert(:org)
       %{id: entity_id} = entity = insert(:entity, org: org)
@@ -78,13 +76,13 @@ defmodule Sig.Finance.Banks.AccountsTest do
                  org_id: ^org_id,
                  entity_id: ^entity_id
                }
-             ] = Accounts.list_active_by_entity(entity)
+             ] = Accounts.list_by(entity, where: [is_active: true])
     end
 
     test "entity has no active bank account" do
       %{entity: entity} = insert(:bank_account, is_active: false)
 
-      assert Accounts.list_active_by_entity(entity) == []
+      assert Accounts.list_by(entity, where: [is_active: true]) == []
     end
   end
 

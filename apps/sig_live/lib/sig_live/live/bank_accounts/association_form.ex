@@ -287,7 +287,7 @@ defmodule SigLive.BankAccounts.AssociationForm do
   defp handle_list_accounts(account_holder_entity, name, document, socket) do
     %{entity: entity} = socket.assigns
 
-    case Finance.list_active_accounts_by_entity(account_holder_entity) do
+    case Finance.list_accounts_by(account_holder_entity, where: [is_active: true]) do
       [] ->
         message = "#{name} não possui contas bancárias ativas."
         {:noreply, assign(socket, document: document, message: message)}

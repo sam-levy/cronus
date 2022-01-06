@@ -329,7 +329,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.Form do
   defp bank_accounts_by_owner_name(entity) do
     owned_accounts =
       entity
-      |> Finance.list_active_accounts_by_entity()
+      |> Finance.list_accounts_by(where: [is_active: true])
       |> Enum.map(&{nil, {&1, &1.is_primary}})
 
     third_party_accounts =
@@ -379,7 +379,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.Form do
 
   defp company_bank_accounts(registration) do
     company = Entities.get_company_by_registration_with_entity(registration)
-    owned_accounts = Finance.list_active_accounts_by_entity(company.entity)
+    owned_accounts = Finance.list_accounts_by(company.entity, where: [is_active: true])
 
     third_party_accounts =
       company.entity

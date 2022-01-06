@@ -20,8 +20,7 @@ defmodule Sig.Finance do
 
   defdelegate create_account(entity, attrs), to: Accounts, as: :create
   defdelegate update_account(account, attrs), to: Accounts, as: :update
-  defdelegate list_accounts_by_entity(entity), to: Accounts, as: :list_by_entity
-  defdelegate list_active_accounts_by_entity(entity), to: Accounts, as: :list_active_by_entity
+  defdelegate list_accounts_by(entity, opts \\ []), to: Accounts, as: :list_by
   defdelegate subscribe_to_bank_accounts(entity), to: Accounts
 
   defdelegate create_entity_bank_account_change(attrs), to: EntityBankAccounts, as: :create_change
