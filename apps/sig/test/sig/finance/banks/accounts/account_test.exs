@@ -187,7 +187,8 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
         other_info: %{"OP" => "001"},
         pix_key: "pix_key",
         is_primary: true,
-        is_joint_account: false
+        is_joint_account: false,
+        is_managed: true
       }
 
       assert changeset = Account.create_changeset(attrs)
@@ -224,7 +225,8 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
         other_info: :invalid,
         pix_key: :invalid,
         is_primary: :invalid,
-        is_joint_account: :invalid
+        is_joint_account: :invalid,
+        is_managed: :invalid
       }
 
       assert changeset = Account.create_changeset(attrs)
@@ -241,7 +243,8 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
                other_info: ["is invalid"],
                pix_key: ["is invalid"],
                is_primary: ["is invalid"],
-               is_joint_account: ["is invalid"]
+               is_joint_account: ["is invalid"],
+               is_managed: ["is invalid"]
              }
     end
 
@@ -499,7 +502,8 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
         other_info: %{"OP" => "001"},
         is_active: true,
         is_primary: true,
-        is_joint_account: true
+        is_joint_account: true,
+        is_managed: true
       }
 
       assert changeset = Account.update_changeset(account, attrs)

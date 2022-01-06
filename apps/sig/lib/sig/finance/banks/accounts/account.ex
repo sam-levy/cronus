@@ -22,6 +22,7 @@ defmodule Sig.Finance.Banks.Accounts.Account do
     field :is_active, :boolean
     field :is_primary, :boolean
     field :is_joint_account, :boolean
+    field :is_managed, :boolean
 
     belongs_to :entity, Entity
 
@@ -39,7 +40,7 @@ defmodule Sig.Finance.Banks.Accounts.Account do
     :entity_id
   ]
 
-  @create_fields @create_required_fields ++ [:pix_key, :other_info]
+  @create_fields @create_required_fields ++ [:pix_key, :other_info, :is_managed]
 
   def create_changeset(attrs) do
     %__MODULE__{}

@@ -13,10 +13,11 @@ defmodule Sig.Repo.Migrations.CreateBankAccountsTable do
       add :branch_number, :citext, null: false
       add :number, :citext, null: false
       add :other_info, :map, null: false, default: %{}
+      add :pix_key, :citext
       add :is_active, :boolean, null: false
       add :is_primary, :boolean, null: false
       add :is_joint_account, :boolean, null: false
-      add :pix_key, :citext
+      add :is_managed, :boolean, null: false, default: false
 
       add :entity_id, references(:entities, with: [org_id: :org_id]), null: false
 
