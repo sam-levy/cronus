@@ -79,13 +79,8 @@ defmodule Sig.Finance.Banks.Accounts do
 
   defp apply_where(queryable, opts) do
     case Keyword.get(opts, :where) do
-      nil ->
-        queryable
-
-      clauses ->
-        Enum.reduce(clauses, queryable, fn clause, acc ->
-          where(acc, ^[clause])
-        end)
+      nil -> queryable
+      clauses -> Enum.reduce(clauses, queryable, &where(&2, ^[&1]))
     end
   end
 

@@ -21,6 +21,23 @@ defmodule Sig.Finance.Banks.AccountsTest do
   end
 
   describe "list_by/2" do
+    test "lists active managed bank accounts by org ordered by routing_number" do
+      org = insert(:org)
+
+      insert(:bank_account, org: org, is_active: true, is_managed: true, routing_number: "104")
+      insert(:bank_account, org: org, is_active: true, is_managed: true, routing_number: "001")
+
+      # To ignore
+      insert(:bank_account, org: org, is_active: false, is_managed: true)
+      insert(:bank_account, org: org, is_active: true, is_managed: false)
+      insert(:bank_account, is_active: true, is_managed: true)
+
+      assert [
+               %Account{routing_number: "001"},
+               %Account{routing_number: "104"}
+             ] = Accounts.list_by(org, where: [is_active: true, is_managed: true])
+    end
+
     test "lists bank accounts by entity ordered by routing_number" do
       %{id: org_id} = org = insert(:org)
       %{id: entity_id} = entity = insert(:entity, org: org)
