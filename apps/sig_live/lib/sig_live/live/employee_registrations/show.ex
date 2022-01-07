@@ -210,6 +210,7 @@ defmodule SigLive.EmployeeRegistrations.Show do
           id="payslips"
           select_payslip="select_payslip"
           entity={@individual.entity}
+          {=@org}
           {=@current_user}
           {=@registration}
           {=@payslips}

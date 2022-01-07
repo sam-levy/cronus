@@ -20,6 +20,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.Form do
 
   @form_states [:new_mode, :edit_mode, :show_mode, :closed]
 
+  prop org, :struct, required: true
   prop registration, :struct, required: true
   prop payslip, :struct, required: true
   prop entity, :struct, required: true
@@ -46,8 +47,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.Form do
         is_automatic_amount: set_is_automatic_amount(payable),
         selected_financial_transaction_type: set_selected_financial_transaction_type(payable),
         changeset: set_changeset(payable),
-        credit_bank_account_options:
-          build_credit_bank_account_options(indexed_credit_bank_accounts),
+        credit_bank_account_options: Map.new(indexed_credit_bank_accounts, &build_option/1),
         selected_credit_bank_account_id: get_primary_account_id(indexed_credit_bank_accounts)
       )
       |> assign_select_options()
@@ -76,30 +76,6 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.Form do
 
     {:noreply, socket}
   end
-
-  defp assign_select_options(
-         %{assigns: %{selected_financial_transaction_type: :check, check_debit_bank_account_options: []}} = socket
-       ) do
-    check_debit_bank_account_options =
-      socket.assigns.registration
-      |> company_bank_accounts()
-      |> build_check_debit_bank_account_options()
-
-    assign(socket, check_debit_bank_account_options: check_debit_bank_account_options)
-  end
-
-  defp assign_select_options(
-         %{assigns: %{selected_financial_transaction_type: :bank_transfer, credit_bank_account_options: []}} = socket
-       ) do
-    credit_bank_account_options =
-      socket.assigns.registration
-      |> company_bank_accounts()
-      |> build_credit_bank_account_options()
-
-    assign(socket, credit_bank_account_options: credit_bank_account_options)
-  end
-
-  defp assign_select_options(socket), do: socket
 
   @impl true
   def handle_event("save", %{"payable" => params}, socket) do
@@ -310,6 +286,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.Form do
   end
 
   defp handle_return(%{return: {:error, changeset}, socket: socket}) when is_struct(changeset) do
+    IO.inspect(changeset)
     {:noreply, assign(socket, message: nil, changeset: changeset)}
   end
 
@@ -340,9 +317,18 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.Form do
     owned_accounts ++ third_party_accounts
   end
 
-  defp build_credit_bank_account_options(indexed_accounts) do
-    Map.new(indexed_accounts, &build_option/1)
+  defp assign_select_options(
+    %{assigns: %{selected_financial_transaction_type: :check, check_debit_bank_account_options: []}} = socket
+  ) do
+    options =
+      socket.assigns.org
+      |> Finance.list_accounts_by(where: [is_active: true, is_managed: true])
+      |> Map.new(&build_option/1)
+
+    assign(socket, check_debit_bank_account_options: options)
   end
+
+  defp assign_select_options(socket), do: socket
 
   defp build_option({nil, {account, _}}) do
     option =
@@ -375,22 +361,6 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.Form do
       end)
 
     primary_account.id
-  end
-
-  defp company_bank_accounts(registration) do
-    company = Entities.get_company_by_registration_with_entity(registration)
-    owned_accounts = Finance.list_accounts_by(company.entity, where: [is_active: true])
-
-    third_party_accounts =
-      company.entity
-      |> Finance.list_active_entity_bank_accounts_by_entity_with_account()
-      |> Enum.map(& &1.bank_account)
-
-    owned_accounts ++ third_party_accounts
-  end
-
-  defp build_check_debit_bank_account_options(bank_accounts) do
-    Map.new(bank_accounts, &build_option/1)
   end
 
   defp tab_classes_for(financial_transaction_type, financial_transaction_type, :show_mode) do

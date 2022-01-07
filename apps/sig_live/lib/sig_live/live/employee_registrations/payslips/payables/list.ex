@@ -8,6 +8,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.List do
   alias SigLive.Components.DropdownOpts
   alias SigLive.EmployeeRegistrations.Payslips.Payables.Form
 
+  prop org, :struct, required: true
   prop current_user, :struct, required: true
   prop registration, :struct, required: true
   prop payslip, :struct, required: true
@@ -163,6 +164,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.List do
         close_event="close_modals"
         close_fun={fn -> close_modals(@id) end}
         {=@form_state}
+        {=@org}
         {=@entity}
         {=@registration}
         {=@payslip}
