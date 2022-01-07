@@ -53,7 +53,15 @@ defmodule Sig.Finance do
               to: Payables,
               as: :set_changeset_financial_transaction_type
 
-  defdelegate list_payables(org, opts \\ []), to: Payables, as: :list
+  defdelegate list_payables_by(schema, opts \\ []), to: Payables, as: :list_by
+  defdelegate subscribe_to_payables(schema), to: Payables
+  defdelegate subscribe_to_payables(org, due_date_start, due_date_end), to: Payables
+  defdelegate unsubscribe_from_payables(schema), to: Payables
+  defdelegate unsubscribe_from_payables(org, due_date_start, due_date_end), to: Payables
+  defdelegate broadcast_new_payables(payslip), to: Payables
+  defdelegate broadcast_new_payable(payable), to: Payables
+  defdelegate broadcast_updated_payables(schema), to: Payables
+  defdelegate broadcast_deleted_payable(payable), to: Payables
 
   defdelegate authorize_payable_for_payslip(payslip, payable, user), to: Payables
   defdelegate unauthorize_payable_for_payslip(payable), to: Payables
@@ -63,15 +71,10 @@ defmodule Sig.Finance do
   defdelegate delete_payable_for_payslip(payslip, payable), to: Payables
   defdelegate create_payable_for_payslip_change(attrs \\ %{}), to: Payables
   defdelegate update_payable_for_payslip_change(payable, attrs \\ %{}), to: Payables
-  defdelegate list_payables_by_payslip(payslip), to: Payables, as: :list_by_payslip
-  defdelegate list_payslip_payables_by_payslip(payslip), to: Payables
-  defdelegate get_payable_by_payslip(payslip, id), to: Payables, as: :get_by_payslip
-  defdelegate fetch_payable_by_payslip(payslip, id), to: Payables, as: :fetch_by_payslip
-  defdelegate subscribe_to_payables_for_payslip(payslip), to: Payables
+  defdelegate get_payable(payslip, id, opts \\ []), to: Payables, as: :get
+  defdelegate fetch_payable(payslip, id, opts \\ []), to: Payables, as: :fetch
   defdelegate set_payable_for_payslip_as_auto_adjustable(payslip, payable), to: Payables
   defdelegate unset_payable_for_payslip_as_auto_adjustable(payslip, payable), to: Payables
-  defdelegate unsubscribe_from_payables_for_payslip(payslip), to: Payables
-  defdelegate broadcast_payables_for_payslip(payslip), to: Payables
 
   def broadcast_accounts_and_relations(%Entity{} = entity) do
     Accounts.broadcast_bank_accounts(entity)

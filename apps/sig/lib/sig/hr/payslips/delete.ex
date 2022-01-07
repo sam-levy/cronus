@@ -1,6 +1,7 @@
 defmodule Sig.HR.Payslips.Delete do
   alias Ecto.Multi
 
+  alias Sig.Finance.Payables
   alias Sig.HR.Payslips
   alias Sig.HR.Payslips.Groups
   alias Sig.HR.Payslips.Payslip
@@ -28,8 +29,11 @@ defmodule Sig.HR.Payslips.Delete do
 
   defp handle_return({:error, _operation, reason, _changes}), do: {:error, reason}
 
-  defp handle_return({:ok, %{delete_group: group, delete_payslip: [payslip]}}) do
+  defp handle_return(
+         {:ok, %{delete_group: group, delete_payslip: %{payslips: [payslip], payables: payables}}}
+       ) do
     Payslips.broadcast_deleted_payslip(payslip)
+    if payables, do: Enum.each(payables, &Payables.broadcast_deleted_payable/1)
     broadcast_deleted_group(group)
 
     {:ok, payslip}

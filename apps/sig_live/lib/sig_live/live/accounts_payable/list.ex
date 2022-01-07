@@ -17,6 +17,39 @@ defmodule SigLive.AccountsPayable.List do
   data selected_amount_sum, :struct, default: Money.new(0)
 
   @impl true
+  def update(assigns, socket) do
+    if socket.assigns.selected_payables == %{} do
+      {:ok, assign(socket, assigns)}
+    else
+      {:ok,
+       socket
+       |> assign(assigns)
+       |> refresh_selected_payables()}
+    end
+  end
+
+  defp refresh_selected_payables(socket) do
+    %{payables: payables, selected_payables: selected_payables} = socket.assigns
+
+    indexed_payables = Map.new(payables, &{&1.id, &1})
+
+    acc = %{selected_payables: %{}, selected_amount_sum: Money.new(0)}
+
+    assigns =
+      Enum.reduce(selected_payables, acc, fn {id, _}, acc ->
+        payable = Map.get(indexed_payables, id)
+
+        add_payable(acc, payable)
+      end)
+
+    if assigns.selected_payables == %{} do
+      clear_selected_payables(socket)
+    else
+      assign_selected_payables(socket, assigns)
+    end
+  end
+
+  @impl true
   def handle_event("clear_selected_payables", _params, socket) do
     {:noreply, clear_selected_payables(socket)}
   end
@@ -25,36 +58,34 @@ defmodule SigLive.AccountsPayable.List do
   def handle_event("select_payable", %{"selected_payable_ids" => payable_ids}, socket) do
     acc = %{selected_payables: %{}, selected_method: nil, selected_amount_sum: Money.new(0)}
 
-    payable_ids
-    |> Enum.reduce_while(acc, fn
-      {payable_id, "true"}, acc ->
-        payable = get_payable(socket, payable_id)
+    assigns =
+      Enum.reduce_while(payable_ids, acc, fn
+        {payable_id, "true"}, acc ->
+          payable = get_payable(socket, payable_id)
 
-        case Map.get(acc, :selected_method) do
-          nil ->
-            {:cont,
-             acc
-             |> Map.put(:selected_method, payable.financial_transaction_type)
-             |> add_payable(payable)}
+          case Map.get(acc, :selected_method) do
+            nil ->
+              {:cont,
+               acc
+               |> Map.put(:selected_method, payable.financial_transaction_type)
+               |> add_payable(payable)}
 
-          :check ->
-            {:halt, "Não é possivel fazer pagamentos em lote de contas em cheque."}
+            :check ->
+              {:halt, "Não é possivel fazer pagamentos em lote de contas em cheque."}
 
-          method ->
-            if method == payable.financial_transaction_type do
-              {:cont, add_payable(acc, payable)}
-            else
-              {:halt, "As contas selecionadas devem possuir a mesma forma de pagamento."}
-            end
-        end
+            method ->
+              if method == payable.financial_transaction_type do
+                {:cont, add_payable(acc, payable)}
+              else
+                {:halt, "As contas selecionadas devem possuir a mesma forma de pagamento."}
+              end
+          end
 
-      {_payable_id, "false"}, acc ->
-        {:cont, acc}
-    end)
-    |> case do
-      %{} = acc -> {:noreply, socket |> assign(acc) |> assign(:message, nil)}
-      message -> {:noreply, assign(socket, :message, message)}
-    end
+        {_payable_id, "false"}, acc ->
+          {:cont, acc}
+      end)
+
+    {:noreply, assign_selected_payables(socket, assigns)}
   end
 
   @impl true
@@ -73,6 +104,8 @@ defmodule SigLive.AccountsPayable.List do
     end
   end
 
+  defp add_payable(acc, %{authorized_by_id: nil}), do: acc
+
   defp add_payable(acc, payable) do
     sum = acc |> Map.get(:selected_amount_sum) |> Money.add(payable.amount)
     payables = acc |> Map.get(:selected_payables) |> Map.put(payable.id, payable)
@@ -80,6 +113,14 @@ defmodule SigLive.AccountsPayable.List do
     acc
     |> Map.put(:selected_amount_sum, sum)
     |> Map.put(:selected_payables, payables)
+  end
+
+  defp assign_selected_payables(socket, %{selected_payables: selected_payables} = assigns) do
+    socket |> assign(assigns) |> assign(:message, nil)
+  end
+
+  defp assign_selected_payables(socket, error) when is_binary(error) do
+    assign(socket, :message, error)
   end
 
   defp clear_selected_payables(socket) do
@@ -117,14 +158,14 @@ defmodule SigLive.AccountsPayable.List do
               <th class="px-3 text-left">Descrição</th>
               <th class="px-3 text-left">Destinatário</th>
               <th class="px-3 text-left">Forma</th>
-              <th class="px-2 text-left">Valor</th>
+              <th class="px-3 text-right">Valor</th>
               <th class="text-left"></th>
             </tr>
           </thead>
 
           <tbody class="text-gray-600 text-sm font-light">
             {#for payable <- @payables}
-              <tr class={tr_class(@selected_payables, payable.id)}>
+              <tr class={tr_class(@selected_payables, payable)}>
                 <td class="py-3 pl-6 pr-3 text-left">
                   <Field name={payable.id}>
                     <Checkbox {...checkbox_attrs(@selected_payables, @selected_method, payable)}/>
@@ -155,7 +196,11 @@ defmodule SigLive.AccountsPayable.List do
                   {capitalize_type(payable.financial_transaction_type)}
                 </td>
 
-                <td class="px-3 text-left">
+                <td class="px-3 text-right">
+                  <span class="label-gray not-italic mr-2" :if={payable.authorized_by_id == nil}>
+                    bloqueado
+                  </span>
+
                   {payable.amount}
                 </td>
 
@@ -165,7 +210,7 @@ defmodule SigLive.AccountsPayable.List do
                       :if={payable.target == :payslip}
                       href={Routes.sig_employee_registrations_show_path(@socket, :payslip, @org, payable.payslip.registration_id, payable.payslip)}
                       target="_blank"
-                      class="dropdown-item"
+                      class="dropdown-item not-italic"
                     >
                       Visualizar holerite
                     </a>
@@ -189,8 +234,12 @@ defmodule SigLive.AccountsPayable.List do
     """
   end
 
-  defp tr_class(selected_payables, payable_id) do
-    if Map.get(selected_payables, payable_id, false) do
+  defp tr_class(_selected_payables, %{authorized_by_id: nil}) do
+    "border-b border-gray-200 hover:bg-gray-50 text-gray-400 italic"
+  end
+
+  defp tr_class(selected_payables, payable) do
+    if Map.get(selected_payables, payable.id, false) do
       "outline-blue-300 outline-1 outline-offset-2 bg-blue-100"
     else
       "border-b border-gray-200 hover:bg-gray-50"
@@ -204,6 +253,10 @@ defmodule SigLive.AccountsPayable.List do
     []
     |> disable(selected_method, selected_payables, payable)
     |> check(selected_payables, payable.id)
+  end
+
+  defp disable(attrs, _selected_method, _selected_payables, %{authorized_by_id: nil}) do
+    do_disable(attrs)
   end
 
   defp disable(attrs, nil, _selected_payables, _payable) do

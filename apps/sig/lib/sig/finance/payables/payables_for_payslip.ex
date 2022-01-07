@@ -20,21 +20,6 @@ defmodule Sig.Finance.Payables.PayablesForPayslip do
   alias Sig.Repo
 
   defdelegate create(payslip, attrs, opts \\ []), to: Create, as: :call
-
-  def create_payables(%Registration{} = registration, %Payslip{} = payslip, items, opts \\ [])
-      when is_list(items) do
-    case Keyword.get(opts, :payables_attrs) do
-      %{type: :standard, due_dates: due_dates} ->
-        CreateStandardPayables.call(registration, payslip, items, due_dates)
-
-      nil ->
-        {:ok, nil}
-
-      _ ->
-        {:error, "invalid payables attrs"}
-    end
-  end
-
   defdelegate delete(payslip, payable), to: Delete, as: :call
   defdelegate update(payslip, payable, attrs), to: Update, as: :call
   defdelegate set_as_auto_adjustable_amount(payslip, payable), to: AutoAdjustableAmountHandler
@@ -46,8 +31,6 @@ defmodule Sig.Finance.Payables.PayablesForPayslip do
     to: UpdateAutoAdjustableAmountPayable,
     as: :call
 
-  defdelegate list_payslip_payables_by_payslip(payslip), to: PayslipPayables, as: :list_by_payslip
-
   def create_change(%{} = attrs \\ %{}) do
     Payable.create_changeset(attrs)
   end
@@ -56,45 +39,31 @@ defmodule Sig.Finance.Payables.PayablesForPayslip do
     Payable.update_changeset(payable, attrs)
   end
 
-  def list_by_payslip(%Payslip{} = payslip) do
-    payslip
-    |> query_by_payslip()
-    |> order_by(:due_date)
-    |> Repo.all()
-  end
+  def create_payables(%Registration{} = registration, %Payslip{} = payslip, items, opts \\ [])
+      when is_list(items) do
+    case Keyword.get(opts, :payables_attrs) do
+      %{type: :standard, due_dates: due_dates} ->
+        create_standard_paybles(registration, payslip, items, due_dates)
 
-  def get_by_payslip(%Payslip{} = payslip, id) when is_binary(id) do
-    payslip
-    |> query_by_payslip()
-    |> preload_authorized_by()
-    |> where(id: ^id)
-    |> Repo.one()
-  end
+      nil ->
+        {:ok, []}
 
-  def fetch_by_payslip(%Payslip{} = payslip, id) when is_binary(id) do
-    case get_by_payslip(payslip, id) do
-      %Payable{} = payable -> {:ok, payable}
-      nil -> {:error, :not_found}
+      _ ->
+        {:error, "invalid payables attrs"}
     end
   end
 
-  def subscribe_to_payables_for_payslip(%Payslip{} = payslip) do
-    Phoenix.PubSub.subscribe(Sig.PubSub, topic(payslip))
-  end
+  defp create_standard_paybles(registration, payslip, items, due_dates) do
+    case CreateStandardPayables.call(registration, payslip, items, due_dates) do
+      {:ok, %{payment_advance: payment_advance_payable, salary: salary_payable}} ->
+        payables = Enum.reject([payment_advance_payable, salary_payable], &is_nil/1)
 
-  def unsubscribe_from_payables_for_payslip(%Payslip{} = payslip) do
-    Phoenix.PubSub.unsubscribe(Sig.PubSub, topic(payslip))
-  end
+        {:ok, payables}
 
-  def broadcast_payables_for_payslip(%Payslip{} = payslip) do
-    Phoenix.PubSub.broadcast(
-      Sig.PubSub,
-      topic(payslip),
-      {:updated_payables_for_payslip, list_by_payslip(payslip)}
-    )
+      {:error, _} = error ->
+        error
+    end
   end
-
-  defp topic(%Payslip{} = payslip), do: "payslip_id:" <> payslip.id <> ":payables"
 
   def sum_non_adjustable_payables_amounts(%Payslip{} = payslip) do
     payslip
@@ -189,13 +158,5 @@ defmodule Sig.Finance.Payables.PayablesForPayslip do
     |> where([payslip_payable: payslip_payable], payslip_payable.payslip_id == ^payslip.id)
     |> where(org_id: ^payslip.org_id)
     |> where(target: :payslip)
-  end
-
-  defp preload_authorized_by(queryable) do
-    queryable
-    |> join(:left, [payable: payable], authorized_by in assoc(payable, :authorized_by),
-      as: :authorized_by
-    )
-    |> preload([authorized_by: authorized_by], authorized_by: authorized_by)
   end
 end
