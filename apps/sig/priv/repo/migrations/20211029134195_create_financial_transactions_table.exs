@@ -1,6 +1,5 @@
 defmodule Sig.Repo.Migrations.CreateFinancialTransactionsTable do
   use Ecto.Migration
-  import EctoEnumMigration
 
   def change do
     create table(:financial_transactions) do
