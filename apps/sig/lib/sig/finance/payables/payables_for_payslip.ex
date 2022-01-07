@@ -4,6 +4,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip do
 
   alias Sig.Entities.Entity
   alias Sig.Finance.Banks
+  alias Sig.Finance.Banks.Accounts
   alias Sig.Finance.Payables.Payable
   alias Sig.Finance.Payables.PayablesForPayslip.Authorizer
   alias Sig.Finance.Payables.PayablesForPayslip.Create
@@ -157,26 +158,22 @@ defmodule Sig.Finance.Payables.PayablesForPayslip do
         payslip
       )
       when is_binary(account_id) do
-    entity =
-      from(entity in Entity, as: :entity)
-      |> join(:left, [entity: e], r in Registration,
-        on: r.registered_at_id == e.id,
-        as: :registration
-      )
-      |> join(:left, [registration: r], p in Payslip, on: p.registration_id == r.id, as: :payslip)
-      |> where([payslip: p], p.id == ^payslip.id)
-      |> where([entity: e], e.org_id == ^payslip.org_id)
-      |> Repo.one()
+    payslip = Repo.preload(payslip, :org)
 
     valid_account_ids =
-      entity
-      |> Banks.list_active_bank_accounts_by_entity()
+      payslip.org
+      |> Accounts.list_by(where: [is_active: true, is_managed: true])
       |> Enum.map(& &1.id)
 
     if changeset.changes.check_debit_bank_account_id in valid_account_ids do
       {:ok, nil}
     else
-      {:error, add_error(changeset, :check_debit_bank_account_id, "isn't related to the company")}
+      {:error,
+       add_error(
+         changeset,
+         :check_debit_bank_account_id,
+         "is inactive or isn't related to the org"
+       )}
     end
   end
 
