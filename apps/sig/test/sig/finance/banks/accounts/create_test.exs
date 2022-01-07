@@ -18,7 +18,8 @@ defmodule Sig.Finance.Banks.Accounts.CreateTest do
         pix_key: "pix_key",
         is_active: true,
         is_primary: true,
-        is_joint_account: false
+        is_joint_account: false,
+        is_managed: true
       }
 
       assert {:ok, %Account{} = return} = Create.call(entity, attrs)

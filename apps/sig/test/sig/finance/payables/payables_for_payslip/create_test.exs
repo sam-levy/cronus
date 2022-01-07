@@ -783,13 +783,13 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateTest do
              )
     end
 
-    test "when check bank account is NOT related to company" do
+    test "when check bank account is NOT related to org" do
       org = insert(:org)
       company = insert(:company, org: org)
       registration = insert(:employee_registration, org: org, registered_at: company)
       payslip = insert(:payslip, org: org, registration: registration)
 
-      wrong_bank_account = insert(:bank_account, org: org)
+      wrong_bank_account = insert(:bank_account, is_active: true, is_managed: true)
 
       insert(:payslip_outside_item,
         org: org,
@@ -815,16 +815,17 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateTest do
       assert {:error, changeset} = Create.call(payslip, attrs)
 
       assert errors_on(changeset) == %{
-               check_debit_bank_account_id: ["isn't related to the company"]
+               check_debit_bank_account_id: ["is inactive or isn't related to the org"]
              }
     end
 
-    test "when check bank account belongs to company" do
+    test "when check bank account is inactive" do
       org = insert(:org)
       company = insert(:company, org: org)
       registration = insert(:employee_registration, org: org, registered_at: company)
       payslip = insert(:payslip, org: org, registration: registration)
-      bank_account = insert(:bank_account, org: org, entity: company.entity)
+
+      wrong_bank_account = insert(:bank_account, org: org, is_active: false, is_managed: true)
 
       insert(:payslip_outside_item,
         org: org,
@@ -843,41 +844,60 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateTest do
         note: Faker.Lorem.sentence(),
         financial_transaction_type: :check,
         check_number: random_string_number(),
-        check_debit_bank_account_id: bank_account.id,
+        check_debit_bank_account_id: wrong_bank_account.id,
         amount: 100_00
       }
 
-      assert {:ok, %Payable{} = return} = Create.call(payslip, attrs)
+      assert {:error, changeset} = Create.call(payslip, attrs)
 
-      assert Repo.get_by(Payable,
-               org_id: org.id,
-               id: return.id,
-               target: :payslip,
-               due_date: attrs[:due_date],
-               reference_date: attrs[:reference_date],
-               description: attrs[:description],
-               note: attrs[:note],
-               financial_transaction_type: attrs[:financial_transaction_type],
-               check_number: attrs[:check_number],
-               check_debit_bank_account_id: attrs[:check_debit_bank_account_id],
-               amount: 100_00
-             )
-
-      assert Repo.get_by(PayslipPayable,
-               org_id: org.id,
-               payslip_id: payslip.id,
-               payable_id: return.id
-             )
+      assert errors_on(changeset) == %{
+               check_debit_bank_account_id: ["is inactive or isn't related to the org"]
+             }
     end
 
-    test "when check bank account is associated to company" do
+    test "when check bank account is not managed by the org" do
       org = insert(:org)
       company = insert(:company, org: org)
       registration = insert(:employee_registration, org: org, registered_at: company)
       payslip = insert(:payslip, org: org, registration: registration)
 
-      bank_account = insert(:bank_account, org: org)
-      insert(:entity_bank_account, org: org, entity: company.entity, bank_account: bank_account)
+      wrong_bank_account = insert(:bank_account, org: org, is_active: true, is_managed: false)
+
+      insert(:payslip_outside_item,
+        org: org,
+        payslip: payslip,
+        entry_type: :credit,
+        amount: 100_00
+      )
+
+      # Update payslip amount
+      Repo.update!(change(payslip, amount: 100_00))
+
+      attrs = %{
+        due_date: Date.utc_today(),
+        reference_date: Date.utc_today() |> Date.beginning_of_month(),
+        description: Faker.Lorem.sentence(),
+        note: Faker.Lorem.sentence(),
+        financial_transaction_type: :check,
+        check_number: random_string_number(),
+        check_debit_bank_account_id: wrong_bank_account.id,
+        amount: 100_00
+      }
+
+      assert {:error, changeset} = Create.call(payslip, attrs)
+
+      assert errors_on(changeset) == %{
+               check_debit_bank_account_id: ["is inactive or isn't related to the org"]
+             }
+    end
+
+    test "when check bank account `is_active`, `is_managed` and belongs to org" do
+      org = insert(:org)
+      company = insert(:company, org: org)
+      registration = insert(:employee_registration, org: org, registered_at: company)
+      payslip = insert(:payslip, org: org, registration: registration)
+
+      bank_account = insert(:bank_account, org: org, is_active: true, is_managed: true)
 
       insert(:payslip_outside_item,
         org: org,

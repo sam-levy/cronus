@@ -145,7 +145,8 @@ Repo.insert!(%Account{
   number: "1468-0",
   is_active: true,
   is_primary: true,
-  is_joint_account: false
+  is_joint_account: false,
+  is_managed: true
 })
 
 Repo.insert!(%Account{
@@ -158,7 +159,8 @@ Repo.insert!(%Account{
   number: "41-3",
   is_active: true,
   is_primary: false,
-  is_joint_account: false
+  is_joint_account: false,
+  is_managed: true
 })
 
 # Org Sectors

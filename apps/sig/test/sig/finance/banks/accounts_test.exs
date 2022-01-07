@@ -20,7 +20,24 @@ defmodule Sig.Finance.Banks.AccountsTest do
     end
   end
 
-  describe "list_by_entity/1" do
+  describe "list_by/2" do
+    test "lists active managed bank accounts by org ordered by routing_number" do
+      org = insert(:org)
+
+      insert(:bank_account, org: org, is_active: true, is_managed: true, routing_number: "104")
+      insert(:bank_account, org: org, is_active: true, is_managed: true, routing_number: "001")
+
+      # To ignore
+      insert(:bank_account, org: org, is_active: false, is_managed: true)
+      insert(:bank_account, org: org, is_active: true, is_managed: false)
+      insert(:bank_account, is_active: true, is_managed: true)
+
+      assert [
+               %Account{routing_number: "001"},
+               %Account{routing_number: "104"}
+             ] = Accounts.list_by(org, where: [is_active: true, is_managed: true])
+    end
+
     test "lists bank accounts by entity ordered by routing_number" do
       %{id: org_id} = org = insert(:org)
       %{id: entity_id} = entity = insert(:entity, org: org)
@@ -42,17 +59,15 @@ defmodule Sig.Finance.Banks.AccountsTest do
                  org_id: ^org_id,
                  entity_id: ^entity_id
                }
-             ] = Accounts.list_by_entity(entity)
+             ] = Accounts.list_by(entity)
     end
 
     test "entity has no bank account" do
       entity = insert(:entity)
 
-      assert Accounts.list_by_entity(entity) == []
+      assert Accounts.list_by(entity) == []
     end
-  end
 
-  describe "list_active_by_entity/1" do
     test "lists active bank accounts by entity ordered by routing_number" do
       %{id: org_id} = org = insert(:org)
       %{id: entity_id} = entity = insert(:entity, org: org)
@@ -78,13 +93,13 @@ defmodule Sig.Finance.Banks.AccountsTest do
                  org_id: ^org_id,
                  entity_id: ^entity_id
                }
-             ] = Accounts.list_active_by_entity(entity)
+             ] = Accounts.list_by(entity, where: [is_active: true])
     end
 
     test "entity has no active bank account" do
       %{entity: entity} = insert(:bank_account, is_active: false)
 
-      assert Accounts.list_active_by_entity(entity) == []
+      assert Accounts.list_by(entity, where: [is_active: true]) == []
     end
   end
 
@@ -117,39 +132,31 @@ defmodule Sig.Finance.Banks.AccountsTest do
     end
   end
 
-  describe "fetch_in_org_with_entity/2" do
+  describe "fetch/3" do
     test "fetches a bank account from an org preloaded with the entity" do
       %{id: id, org: org, org_id: org_id} = insert(:bank_account)
 
       assert {:ok, %Account{id: ^id, org_id: ^org_id, entity: %Entity{}}} =
-               Accounts.fetch_in_org_with_entity(org, id)
+               Accounts.fetch(org, id, preload: :entity)
     end
 
     test "when bank account belongs to another org" do
       %{id: id} = insert(:bank_account)
       another_org = insert(:org)
 
-      assert Accounts.fetch_in_org_with_entity(another_org, id) == {:error, :not_found}
+      assert Accounts.fetch(another_org, id, preload: :entity) == {:error, :not_found}
     end
 
     test "when bank account doesn't exist" do
       org = insert(:org)
 
-      assert Accounts.fetch_in_org_with_entity(org, UUID.generate()) == {:error, :not_found}
+      assert Accounts.fetch(org, UUID.generate(), preload: :entity) == {:error, :not_found}
     end
-  end
 
-  describe "fetch/2" do
-    test "fetches a bank account" do
+    test "fetches a bank account by entity" do
       %{id: id, entity: entity, entity_id: entity_id} = insert(:bank_account)
 
       assert {:ok, %Account{id: ^id, entity_id: ^entity_id}} = Accounts.fetch(entity, id)
-    end
-
-    test "when bank account doesn't exist" do
-      entity = insert(:entity)
-
-      assert Accounts.fetch(entity, UUID.generate()) == {:error, :not_found}
     end
   end
 

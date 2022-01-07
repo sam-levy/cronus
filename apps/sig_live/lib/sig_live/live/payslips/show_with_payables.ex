@@ -4,6 +4,7 @@ defmodule SigLive.Payslips.ShowWithPayables do
   alias SigLive.EmployeeRegistrations.Payslips.Show
   alias SigLive.EmployeeRegistrations.Payslips.Payables
 
+  prop org, :struct, required: true
   prop current_user, :struct, required: true
   prop registration, :struct, required: true
   prop entity, :struct, required: true
@@ -41,6 +42,7 @@ defmodule SigLive.Payslips.ShowWithPayables do
 
       <Payables.List
         id="payables_list"
+        {=@org}
         {=@payslip}
         {=@payslip_payables}
         {=@payment_difference}
