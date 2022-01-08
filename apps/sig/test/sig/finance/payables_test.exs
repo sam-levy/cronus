@@ -159,14 +159,40 @@ defmodule Sig.Finance.PayablesTest do
         authorized_by: user
       )
 
-      _payable_to_ignore = insert(:payable, org: org)
-
-      opts = [authorized_by: true]
+      _ignore = insert(:payable, org: org)
 
       assert [
                %Payable{description: "A"},
                %Payable{description: "B"}
-             ] = Payables.list_by(org, opts)
+             ] = Payables.list_by(org, authorized: true)
+    end
+
+    test "filters non authorized payables" do
+      org = insert(:org)
+      user = insert(:user, org: org)
+
+      date = ~D[2022-01-01]
+
+      insert(:payable,
+        org: org,
+        due_date: date,
+        target: :invoice,
+        description: "A"
+      )
+
+      insert(:payable,
+        org: org,
+        due_date: date,
+        target: :invoice,
+        description: "B"
+      )
+
+      _ignore = insert(:payable, org: org, authorized_by: user)
+
+      assert [
+               %Payable{description: "A"},
+               %Payable{description: "B"}
+             ] = Payables.list_by(org, authorized: false)
     end
 
     test "shallow preloads" do
