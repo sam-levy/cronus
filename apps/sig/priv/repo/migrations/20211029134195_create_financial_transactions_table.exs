@@ -19,8 +19,14 @@ defmodule Sig.Repo.Migrations.CreateFinancialTransactionsTable do
 
     create constraint(
              :financial_transactions,
-             :financial_transactions_amount_positive,
-             check: "amount >= 0"
+             :financial_transactions_amount_greater_than_zero,
+             check: "amount > 0"
+           )
+
+    create constraint(
+             :financial_transactions,
+             :financial_transactions_placement_date_lt_or_eq_clearing_date,
+             check: "placement_date <= clearing_date"
            )
   end
 end
