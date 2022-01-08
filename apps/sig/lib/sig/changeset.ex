@@ -1,4 +1,11 @@
 defmodule Sig.Changeset do
+  defmacro __using__(_) do
+    quote do
+      import Ecto.Changeset
+      import Sig.Changeset
+    end
+  end
+
   import Ecto.Changeset
 
   alias Sig.Finance.Banks
@@ -24,10 +31,12 @@ defmodule Sig.Changeset do
         fields_to_validate
       ) do
     case fetch_change(changeset, conditional_field) do
-      {:ok, value} when value == conditional_field_value ->
-        fields_to_validate = List.wrap(fields_to_validate)
-
-        validate_required(changeset, fields_to_validate)
+      {:ok, value} ->
+        if value in List.wrap(conditional_field_value) do
+          validate_required(changeset, List.wrap(fields_to_validate))
+        else
+          changeset
+        end
 
       _ ->
         changeset
@@ -185,6 +194,13 @@ defmodule Sig.Changeset do
 
       _ ->
         changeset
+    end
+  end
+
+  def validate_non_empty_list(changeset, field) do
+    case fetch_change(changeset, field) do
+      {:ok, []} -> add_error(changeset, field, "list can't be empty")
+      _ -> changeset
     end
   end
 

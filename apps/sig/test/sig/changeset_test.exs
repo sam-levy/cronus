@@ -46,6 +46,21 @@ defmodule Sig.ChangesetTest do
       assert changeset.valid?
     end
 
+    test "when meets condition in a list and fields are present" do
+      data = %{}
+      types = %{pokemon: :string, relationship_with_holder: :string}
+      params = %{pokemon: "snorlex", relationship_with_holder: "child"}
+
+      changeset =
+        {data, types}
+        |> Ecto.Changeset.cast(params, Map.keys(types))
+        |> Sig.Changeset.validate_required_if(:pokemon, ["snorlex", "blastoise"], [
+          :relationship_with_holder
+        ])
+
+      assert changeset.valid?
+    end
+
     test "when meets condition and fields are not present" do
       data = %{}
       types = %{is_joint_account_holder: :boolean, relationship_with_holder: :string}
@@ -55,6 +70,22 @@ defmodule Sig.ChangesetTest do
         {data, types}
         |> Ecto.Changeset.cast(params, Map.keys(types))
         |> Sig.Changeset.validate_required_if(:is_joint_account_holder, false, [
+          :relationship_with_holder
+        ])
+
+      refute changeset.valid?
+      assert errors_on(changeset) == %{relationship_with_holder: ["can't be blank"]}
+    end
+
+    test "when meets condition in a list and fields are not present" do
+      data = %{}
+      types = %{pokemon: :string, relationship_with_holder: :string}
+      params = %{pokemon: "snorlex"}
+
+      changeset =
+        {data, types}
+        |> Ecto.Changeset.cast(params, Map.keys(types))
+        |> Sig.Changeset.validate_required_if(:pokemon, ["snorlex", "blastoise"], [
           :relationship_with_holder
         ])
 
@@ -77,7 +108,22 @@ defmodule Sig.ChangesetTest do
       assert changeset.valid?
     end
 
-    test "accepts an atom field" do
+    test "ignores if condition is not met when list" do
+      data = %{}
+      types = %{pokemon: :string, relationship_with_holder: :string}
+      params = %{pokemon: "charmander"}
+
+      changeset =
+        {data, types}
+        |> Ecto.Changeset.cast(params, Map.keys(types))
+        |> Sig.Changeset.validate_required_if(:pokemon, ["snorlex", "blastoise"], [
+          :relationship_with_holder
+        ])
+
+      assert changeset.valid?
+    end
+
+    test "accepts an atom as field to validate" do
       data = %{}
       types = %{is_joint_account_holder: :boolean, relationship_with_holder: :string}
       params = %{is_joint_account_holder: false, relationship_with_holder: "child"}
@@ -785,6 +831,36 @@ defmodule Sig.ChangesetTest do
                entry_type: ["must be debit when is_payment_advance is true"],
                other_field: ["must be valid when is_payment_advance is true"]
              }
+    end
+  end
+
+  describe "validate_non_empty_list/1" do
+    test "when list is empty" do
+      data = %{entry_type: :debit}
+      types = %{payable_ids: {:array, UUID}}
+      params = %{payable_ids: []}
+
+      changeset =
+        {data, types}
+        |> Ecto.Changeset.cast(params, Map.keys(types))
+        |> Sig.Changeset.validate_non_empty_list(:payable_ids)
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{payable_ids: ["list can't be empty"]}
+    end
+
+    test "when list is not empty" do
+      data = %{entry_type: :debit}
+      types = %{payable_ids: {:array, UUID}}
+      params = %{payable_ids: [UUID.generate()]}
+
+      changeset =
+        {data, types}
+        |> Ecto.Changeset.cast(params, Map.keys(types))
+        |> Sig.Changeset.validate_non_empty_list(:payable_ids)
+
+      assert changeset.valid?
     end
   end
 
