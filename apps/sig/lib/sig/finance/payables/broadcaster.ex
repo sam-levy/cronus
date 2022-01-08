@@ -42,6 +42,12 @@ defmodule Sig.Finance.Payables.Broadcaster do
     Enum.each(payables, &broadcast(topic(&1), {:updated_payable, &1}))
   end
 
+  def broadcast_updated_payables(%Org{} = org, payable_ids) when is_list(payable_ids) do
+    payables = Payables.list_by(org, payable_ids: payable_ids, preload: @preloads)
+
+    Enum.each(payables, &broadcast(topic(&1), {:updated_payable, &1}))
+  end
+
   def broadcast_deleted_payable(%Payable{} = payable) do
     broadcast(topic(payable), {:deleted_payable, payable})
   end
