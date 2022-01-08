@@ -16,7 +16,7 @@ defmodule Sig.Finance.Payables.Payable do
     field :due_date, :date
     field :reference_date, :date
     field :amount, Money.Ecto.Amount.Type
-    field :financial_transaction_type, Sig.FinancialTransactionType
+    field :financial_transaction_type, Sig.Enums.FinancialTransaction.Type
     field :description, :string
     field :check_number, :string
     field :billet_barcode, :string
