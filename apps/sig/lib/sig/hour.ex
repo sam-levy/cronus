@@ -52,8 +52,8 @@ defmodule Sig.Hour do
     @spec validate_hours(%Ecto.Changeset{}, atom()) :: %Ecto.Changeset{}
     def validate_hours(%Ecto.Changeset{} = changeset, field) when is_atom(field) do
       with {:ok, hours} <- fetch_change(changeset, field),
-          hours <- String.trim(hours),
-          true <- String.match?(hours, @format) do
+           hours <- String.trim(hours),
+           true <- String.match?(hours, @format) do
         put_change(changeset, field, hours)
       else
         false -> validate_format(changeset, field, @format)

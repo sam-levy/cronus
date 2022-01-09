@@ -60,8 +60,8 @@ defmodule Sig.HourTest do
       refute changeset.valid?
 
       assert errors_on(changeset) == %{
-        hours_amount: ["has invalid format"]
-      }
+               hours_amount: ["has invalid format"]
+             }
     end
 
     test "valid format" do
@@ -90,8 +90,8 @@ defmodule Sig.HourTest do
       assert changeset.valid?
 
       assert changeset.changes == %{
-        hours_amount: "01:30"
-      }
+               hours_amount: "01:30"
+             }
     end
   end
 end
