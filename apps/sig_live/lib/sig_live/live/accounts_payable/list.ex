@@ -2,13 +2,13 @@ defmodule SigLive.AccountsPayable.List do
   use SigLive, :surface_live_component
 
   alias Surface.Components.Form
-  alias Surface.Components.Form.Checkbox
-  alias Surface.Components.Form.Field
+  alias Surface.Components.Form.{Checkbox, Field, Label}
 
   alias SigLive.AccountsPayable.PayFooter
   alias SigLive.Components.DropdownOpts
 
   prop org, :struct, required: true
+  prop org_bank_accounts, :list, required: true
   prop payables, :list, required: true
 
   data message, :string, default: nil
@@ -32,20 +32,18 @@ defmodule SigLive.AccountsPayable.List do
     %{payables: payables, selected_payables: selected_payables} = socket.assigns
 
     indexed_payables = Map.new(payables, &{&1.id, &1})
+    assigns = %{selected_payables: %{}, selected_amount_sum: Money.new(0)}
 
-    acc = %{selected_payables: %{}, selected_amount_sum: Money.new(0)}
-
-    assigns =
-      Enum.reduce(selected_payables, acc, fn {id, _}, acc ->
-        payable = Map.get(indexed_payables, id)
-
-        add_payable(acc, payable)
-      end)
-
-    if assigns.selected_payables == %{} do
-      clear_selected_payables(socket)
-    else
-      assign_selected_payables(socket, assigns)
+    selected_payables
+    |> Enum.reduce_while(assigns, fn {id, _}, acc ->
+      case Map.get(indexed_payables, id) do
+        nil -> {:halt, :payable_not_found}
+        payable -> {:cont, add_payable(acc, payable)}
+      end
+    end)
+    |> case do
+      :payable_not_found -> clear_selected_payables(socket)
+      assigns -> assign_selected_payables(socket, assigns)
     end
   end
 
@@ -115,7 +113,7 @@ defmodule SigLive.AccountsPayable.List do
     |> Map.put(:selected_payables, payables)
   end
 
-  defp assign_selected_payables(socket, %{selected_payables: selected_payables} = assigns) do
+  defp assign_selected_payables(socket, %{selected_payables: _} = assigns) do
     socket |> assign(assigns) |> assign(:message, nil)
   end
 
@@ -124,11 +122,7 @@ defmodule SigLive.AccountsPayable.List do
   end
 
   defp clear_selected_payables(socket) do
-    assign(socket,
-      selected_payables: %{},
-      selected_method: nil,
-      selected_amount_sum: Money.new(0)
-    )
+    assign(socket, cleared_payables())
   end
 
   @impl true
@@ -153,7 +147,7 @@ defmodule SigLive.AccountsPayable.List do
               class="bg-gray-100 uppercase text-xs font-medium text-gray-500 tracking-wider"
             >
               <th class="pl-6 pr-3 text-left"></th>
-              <th class="py-3 px-3 text-left">Vencimento</th>
+              <th class="py-3 pr-3 text-left">Vencimento</th>
               <th class="px-3 text-left">Empresa</th>
               <th class="px-3 text-left">Descrição</th>
               <th class="px-3 text-left">Destinatário</th>
@@ -166,13 +160,19 @@ defmodule SigLive.AccountsPayable.List do
           <tbody class="text-gray-600 text-sm font-light">
             {#for payable <- @payables}
               <tr class={tr_class(@selected_payables, payable)}>
-                <td class="py-3 pl-6 pr-3 text-left">
-                  <Field name={payable.id}>
-                    <Checkbox {...checkbox_attrs(@selected_payables, @selected_method, payable)}/>
-                  </Field>
+                <td class="py-3 text-left">
+                  {#if payable.financial_transaction_id == nil}
+                    <Field name={payable.id} class="h-6">
+                      <Label class="py-3 pl-6 pr-3">
+                        <Checkbox {...checkbox_attrs(@selected_payables, @selected_method, payable)}/>
+                      </Label>
+                    </Field>
+                  {#else}
+                    <div class="h-6"></div>
+                  {/if}
                 </td>
 
-                <td class="pl-3 text-left">
+                <td class="pr-3 text-left">
                   {format_date(payable.due_date)}
                 </td>
 
@@ -197,9 +197,21 @@ defmodule SigLive.AccountsPayable.List do
                 </td>
 
                 <td class="px-3 text-right">
-                  <span class="label-gray not-italic mr-2" :if={payable.authorized_by_id == nil}>
-                    bloqueado
-                  </span>
+                  {#case payable}
+                    {#match %{authorized_by_id: nil}}
+                      <span class="label-gray not-italic mr-2">
+                        bloqueado
+                      </span>
+                    {#match %{financial_transaction: %{clearing_date: nil}}}
+                      <span class="label-yellow not-italic mr-2">
+                        liq pendente
+                      </span>
+                    {#match %{financial_transaction: %{}}}
+                      <span class="label-blue not-italic mr-2">
+                        pago
+                      </span>
+                    {#match _}
+                  {/case}
 
                   {payable.amount}
                 </td>
@@ -225,14 +237,30 @@ defmodule SigLive.AccountsPayable.List do
       <PayFooter
         :if={@selected_payables != %{}}
         id="pay_footer"
+        close_event="clear_selected_payables"
+        close_fun={fn -> close_form(@id) end}
+        {=@org_bank_accounts}
+        {=@org}
         {=@message}
+        {=@selected_method}
         {=@selected_payables}
         {=@selected_amount_sum}
-        clear="clear_selected_payables"
       />
     </div>
     """
   end
+
+  def close_form(id), do: send_update(__MODULE__, cleared_payables(id))
+
+  defp cleared_payables do
+    [
+      selected_payables: %{},
+      selected_method: nil,
+      selected_amount_sum: Money.new(0)
+    ]
+  end
+
+  defp cleared_payables(id), do: cleared_payables() ++ [id: id]
 
   defp tr_class(_selected_payables, %{authorized_by_id: nil}) do
     "border-b border-gray-200 hover:bg-gray-50 text-gray-400 italic"
