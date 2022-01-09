@@ -5,6 +5,7 @@ defmodule SigLive.ViewHelpers do
   alias Sig.Entities.Companies.Company
   alias Sig.Finance
   alias Sig.Finance.Banks.Bank
+  alias Sig.Finance.Banks.Accounts.Account
   alias Sig.HR.Payslips.Categories.Category
 
   def bank_name(routing_number) when is_binary(routing_number) do
@@ -35,12 +36,11 @@ defmodule SigLive.ViewHelpers do
   end
 
   def bank_accounts_for_select(accounts) when is_list(accounts) do
-    Map.new(accounts, fn account ->
-      option =
-        "#{bank_name_with_number(account.routing_number)} - Ag: #{account.branch_number} - Conta: #{account.number}"
+    Map.new(accounts, &{format_bank_account(&1), &1.id})
+  end
 
-      {option, account.id}
-    end)
+  def format_bank_account(%Account{} = account) do
+    "#{bank_name_with_number(account.routing_number)} - Ag: #{account.branch_number} - Conta: #{account.number}"
   end
 
   def enum_for_select(enum) do
