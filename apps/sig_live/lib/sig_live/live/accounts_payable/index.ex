@@ -8,7 +8,15 @@ defmodule SigLive.AccountsPayable.Index do
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, assign_due_date_period(socket)}
+    org = socket.assigns.org
+
+    {:ok,
+     socket
+     |> assign_due_date_period()
+     |> assign(
+       org_bank_accounts:
+         Finance.list_accounts_by(org, where: [is_active: true, is_managed: true])
+     )}
   end
 
   @impl true
@@ -88,6 +96,7 @@ defmodule SigLive.AccountsPayable.Index do
 
       <AccountsPayable.List
         id="accounts_payable_list"
+        {=@org_bank_accounts}
         {=@payables}
         {=@org}
       />
@@ -106,7 +115,7 @@ defmodule SigLive.AccountsPayable.Index do
 
     payables =
       Finance.list_payables_by(org,
-        preload: [:payslip, :employee, :employee_registration_company],
+        preload: Finance.default_payable_preloads(),
         due_date: [period_start: start_date, period_end: end_date]
       )
 
@@ -124,7 +133,9 @@ defmodule SigLive.AccountsPayable.Index do
     end
   end
 
-  defp unsubscribe_from_payables(%{assigns: %{org: org, due_date_start: start, due_date_end: finish}}) do
+  defp unsubscribe_from_payables(%{
+         assigns: %{org: org, due_date_start: start, due_date_end: finish}
+       }) do
     Finance.unsubscribe_from_payables(org, start, finish)
   end
 
