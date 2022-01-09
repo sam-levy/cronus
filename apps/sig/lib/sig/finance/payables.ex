@@ -21,6 +21,14 @@ defmodule Sig.Finance.Payables do
   alias Sig.Organizations.Org
   alias Sig.Repo
 
+  @default_preloads [
+    :payslip,
+    :employee,
+    :credit_bank_account,
+    :financial_transaction,
+    :employee_registration_company
+  ]
+
   defdelegate subscribe_to_payables(schema), to: Broadcaster
   defdelegate subscribe_to_payables(org, due_date_start, due_date_end), to: Broadcaster
   defdelegate unsubscribe_from_payables(schema), to: Broadcaster
@@ -68,6 +76,8 @@ defmodule Sig.Finance.Payables do
     as: :authorize
 
   defdelegate unauthorize_payable_for_payslip(payable), to: PayablesForPayslip, as: :unauthorize
+
+  def default_preloads, do: @default_preloads
 
   def set_changeset_financial_transaction_type(
         %Ecto.Changeset{data: %Payable{}} = changeset,

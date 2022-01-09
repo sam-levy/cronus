@@ -6,8 +6,6 @@ defmodule Sig.Finance.Payables.Broadcaster do
   alias Sig.HR.Payslips.Payslip
   alias Sig.Organizations.Org
 
-  @preloads [:payslip, :employee, :employee_registration_company]
-
   # Add missing tests
 
   def subscribe_to_payables(schema), do: subscribe(topic(schema))
@@ -23,19 +21,22 @@ defmodule Sig.Finance.Payables.Broadcaster do
   end
 
   def broadcast_new_payables(%Payslip{} = payslip) do
-    payables = Payables.list_by(payslip, preload: @preloads)
+    payables = Payables.list_by(payslip, preload: Payables.default_preloads())
 
     Enum.each(payables, &broadcast(topic(&1), {:new_payable, &1}))
   end
 
   def broadcast_new_payable(%Payable{} = payable) do
-    payable = Payables.get_by([id: payable.id, org_id: payable.org_id], preload: @preloads)
+    payable =
+      Payables.get_by([id: payable.id, org_id: payable.org_id],
+        preload: Payables.default_preloads()
+      )
 
     broadcast(topic(payable), {:new_payable, payable})
   end
 
   def broadcast_updated_payables(%Payslip{} = payslip) do
-    payables = Payables.list_by(payslip, preload: @preloads)
+    payables = Payables.list_by(payslip, preload: Payables.default_preloads())
 
     broadcast(topic(payslip), {:updated_payables, payables})
 
@@ -43,7 +44,8 @@ defmodule Sig.Finance.Payables.Broadcaster do
   end
 
   def broadcast_updated_payables(%Org{} = org, payable_ids) when is_list(payable_ids) do
-    payables = Payables.list_by(org, payable_ids: payable_ids, preload: @preloads)
+    payables =
+      Payables.list_by(org, payable_ids: payable_ids, preload: Payables.default_preloads())
 
     Enum.each(payables, &broadcast(topic(&1), {:updated_payable, &1}))
   end

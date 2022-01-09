@@ -54,6 +54,7 @@ defmodule Sig.Finance do
               to: Payables,
               as: :set_changeset_financial_transaction_type
 
+  defdelegate default_payable_preloads, to: Payables, as: :default_preloads
   defdelegate list_payables_by(schema, opts \\ []), to: Payables, as: :list_by
   defdelegate subscribe_to_payables(schema), to: Payables
   defdelegate subscribe_to_payables(org, due_date_start, due_date_end), to: Payables
