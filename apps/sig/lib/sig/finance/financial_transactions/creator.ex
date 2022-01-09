@@ -131,7 +131,7 @@ defmodule Sig.Finance.FinancialTransactions.Creator do
 
   defp validate_bank_account(%{status: :halted} = context), do: context
 
-  defp validate_bank_account(context) do
+  defp validate_bank_account(%{attrs: %{type: type}} = context) when is_bank_type(type) do
     %{org: org, attrs: %{bank_account_id: id}} = context
 
     case Accounts.fetch(org, id) do
@@ -140,6 +140,8 @@ defmodule Sig.Finance.FinancialTransactions.Creator do
       {:error, :not_found} -> put_error(context, "Conta não encontrada")
     end
   end
+
+  defp validate_bank_account(context), do: context
 
   defp build_changeset(%{status: :halted} = context), do: context
 
