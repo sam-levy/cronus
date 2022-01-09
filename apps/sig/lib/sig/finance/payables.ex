@@ -28,6 +28,7 @@ defmodule Sig.Finance.Payables do
   defdelegate broadcast_new_payables(payslip), to: Broadcaster
   defdelegate broadcast_new_payable(payable), to: Broadcaster
   defdelegate broadcast_updated_payables(schema), to: Broadcaster
+  defdelegate broadcast_updated_payables(org, payable_ids), to: Broadcaster
   defdelegate broadcast_deleted_payable(payable), to: Broadcaster
 
   defdelegate delete_by_ids(org, ids), to: DeleteByIds, as: :call
@@ -144,10 +145,10 @@ defmodule Sig.Finance.Payables do
   end
 
   defp filter_authorized(queryable, opts) do
-    if Keyword.get(opts, :authorized_by, false) do
-      where(queryable, [payable: p], not is_nil(p.authorized_by_id))
-    else
-      queryable
+    case Keyword.get(opts, :authorized) do
+      true -> where(queryable, [payable: p], not is_nil(p.authorized_by_id))
+      false -> where(queryable, [payable: p], is_nil(p.authorized_by_id))
+      nil -> queryable
     end
   end
 

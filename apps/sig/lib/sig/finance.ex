@@ -4,6 +4,7 @@ defmodule Sig.Finance do
   alias Sig.Finance.Banks.Accounts
   alias Sig.Finance.Banks.EntityBankAccounts
   alias Sig.Finance.Payables
+  alias Sig.Finance.FinancialTransactions
 
   defdelegate list_banks, to: Banks
   defdelegate fetch_bank(routing_number), to: Banks
@@ -75,6 +76,9 @@ defmodule Sig.Finance do
   defdelegate fetch_payable(payslip, id, opts \\ []), to: Payables, as: :fetch
   defdelegate set_payable_for_payslip_as_auto_adjustable(payslip, payable), to: Payables
   defdelegate unset_payable_for_payslip_as_auto_adjustable(payslip, payable), to: Payables
+
+  defdelegate pay_payables_change(params \\ %{}), to: FinancialTransactions
+  defdelegate pay_payables(org, attrs \\ %{}), to: FinancialTransactions
 
   def broadcast_accounts_and_relations(%Entity{} = entity) do
     Accounts.broadcast_bank_accounts(entity)

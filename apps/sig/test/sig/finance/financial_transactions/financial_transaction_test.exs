@@ -66,7 +66,7 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransactionTest do
       }
 
       assert_raise Ecto.ChangeError,
-                   ~r/\Value `:invalid` is not a valid enum for `Sig.FinancialTransactionType`/,
+                   ~r/\Value `:invalid` is not a valid enum for `Sig.Enums.FinancialTransaction.Type`/,
                    fn -> Repo.insert(transaction) end
     end
 
@@ -139,7 +139,7 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransactionTest do
                    fn -> Repo.insert(transaction) end
     end
 
-    test "missing description" do
+    test "missing `description`" do
       org = insert(:org)
 
       transaction = %FinancialTransaction{
@@ -156,7 +156,7 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransactionTest do
                    fn -> Repo.insert(transaction) end
     end
 
-    test "`financial_transactions_amount_positive` constraint" do
+    test "`financial_transactions_amount_greater_than_zero` constraint when negative" do
       org = insert(:org)
 
       transaction = %FinancialTransaction{
@@ -170,7 +170,43 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransactionTest do
       }
 
       assert_raise Ecto.ConstraintError,
-                   ~r/financial_transactions_amount_positive \(check_constraint\)/,
+                   ~r/financial_transactions_amount_greater_than_zero \(check_constraint\)/,
+                   fn -> Repo.insert(transaction) end
+    end
+
+    test "`financial_transactions_amount_greater_than_zero` constraint when zero" do
+      org = insert(:org)
+
+      transaction = %FinancialTransaction{
+        org_id: org.id,
+        type: :bank_transfer,
+        placement_date: Date.utc_today(),
+        clearing_date: Date.utc_today(),
+        amount: 0,
+        entry_type: :debit,
+        description: Faker.Lorem.sentence()
+      }
+
+      assert_raise Ecto.ConstraintError,
+                   ~r/financial_transactions_amount_greater_than_zero \(check_constraint\)/,
+                   fn -> Repo.insert(transaction) end
+    end
+
+    test "`financial_transactions_placement_date_lt_or_eq_clearing_date` constraint" do
+      org = insert(:org)
+
+      transaction = %FinancialTransaction{
+        org_id: org.id,
+        type: :bank_transfer,
+        placement_date: ~D[2022-01-02],
+        clearing_date: ~D[2022-01-01],
+        amount: 1,
+        entry_type: :debit,
+        description: Faker.Lorem.sentence()
+      }
+
+      assert_raise Ecto.ConstraintError,
+                   ~r/financial_transactions_placement_date_lt_or_eq_clearing_date \(check_constraint\)/,
                    fn -> Repo.insert(transaction) end
     end
 
@@ -221,6 +257,175 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransactionTest do
                description: transaction.description,
                transfer_counterparty_id: counterparty.id
              )
+    end
+  end
+
+  describe "create_changeset/1" do
+    test "valid attrs" do
+      attrs = %{
+        org_id: UUID.generate(),
+        description: "Description",
+        type: :bank_transfer,
+        placement_date: ~D[2021-01-01],
+        clearing_date: ~D[2021-01-01],
+        amount: 100_00,
+        entry_type: :debit
+      }
+
+      assert changeset = FinancialTransaction.create_changeset(attrs)
+
+      assert changeset.valid?
+
+      assert changeset.changes == %{
+               org_id: attrs[:org_id],
+               description: attrs[:description],
+               amount: %Money{amount: attrs[:amount], currency: :BRL},
+               clearing_date: attrs[:clearing_date],
+               entry_type: attrs[:entry_type],
+               placement_date: attrs[:placement_date],
+               type: attrs[:type]
+             }
+    end
+
+    test "invalid attrs" do
+      attrs = %{
+        org_id: "invalid",
+        description: :invalid,
+        type: "invalid",
+        placement_date: :invalid,
+        clearing_date: :invalid,
+        amount: :invalid,
+        entry_type: "invalid"
+      }
+
+      assert changeset = FinancialTransaction.create_changeset(attrs)
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+               clearing_date: ["is invalid"],
+               description: ["is invalid"],
+               placement_date: ["is invalid"],
+               type: ["is invalid"],
+               amount: ["is invalid"],
+               entry_type: ["is invalid"]
+             }
+    end
+
+    test "missing required attrs" do
+      assert changeset = FinancialTransaction.create_changeset(%{})
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+               amount: ["can't be blank"],
+               description: ["can't be blank"],
+               entry_type: ["can't be blank"],
+               org_id: ["can't be blank"],
+               placement_date: ["can't be blank"],
+               type: ["can't be blank"]
+             }
+    end
+
+    test "string fields length greater than 255 chars" do
+      attrs = %{
+        org_id: UUID.generate(),
+        description: String.duplicate("a", 256),
+        type: :bank_transfer,
+        placement_date: ~D[2021-01-01],
+        amount: 100_00,
+        entry_type: :debit
+      }
+
+      assert changeset = FinancialTransaction.create_changeset(attrs)
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+               description: ["should be at most 255 character(s)"]
+             }
+    end
+
+    test "clearing_date before placement_date" do
+      attrs = %{
+        org_id: UUID.generate(),
+        description: "Description",
+        type: :bank_transfer,
+        placement_date: ~D[2021-01-02],
+        clearing_date: ~D[2021-01-01],
+        amount: 100_00,
+        entry_type: :debit
+      }
+
+      assert changeset = FinancialTransaction.create_changeset(attrs)
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+               clearing_date: ["must be after or equal to placement_date"]
+             }
+    end
+
+    test "negative amount" do
+      attrs = %{
+        org_id: UUID.generate(),
+        description: "Description",
+        type: :bank_transfer,
+        placement_date: ~D[2021-01-01],
+        amount: -1,
+        entry_type: :debit
+      }
+
+      assert changeset = FinancialTransaction.create_changeset(attrs)
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+               amount: ["must be greater than 0,00"]
+             }
+    end
+
+    test "amount is zero" do
+      attrs = %{
+        org_id: UUID.generate(),
+        description: "Description",
+        type: :bank_transfer,
+        placement_date: ~D[2021-01-01],
+        amount: 0,
+        entry_type: :debit
+      }
+
+      assert changeset = FinancialTransaction.create_changeset(attrs)
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+               amount: ["must be greater than 0,00"]
+             }
+    end
+
+    test "transfer_counterparty assoc constraint" do
+      org = insert(:org)
+
+      attrs = %{
+        org_id: org.id,
+        description: "Description",
+        type: :bank_transfer,
+        placement_date: ~D[2021-01-01],
+        clearing_date: ~D[2021-01-01],
+        amount: 100_00,
+        entry_type: :debit,
+        transfer_counterparty_id: UUID.generate()
+      }
+
+      assert {:error, changeset} =
+               attrs
+               |> FinancialTransaction.create_changeset()
+               |> Repo.insert()
+
+      assert errors_on(changeset) == %{
+               transfer_counterparty: ["does not exist"]
+             }
     end
   end
 end

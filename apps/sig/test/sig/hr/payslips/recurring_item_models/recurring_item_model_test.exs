@@ -645,7 +645,7 @@ defmodule Sig.HR.Payslips.RecurringItemModels.RecurringItemModelTest do
     end
 
     test "valid attrs for percentage of employee salary" do
-      rim = insert({:payslip_recurring_item_model, :percentage})
+      rim = insert({:payslip_recurring_item_model, :percentage}, percentage: 10)
 
       attrs = %{
         description: Faker.Lorem.sentence(),
