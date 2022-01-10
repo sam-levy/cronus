@@ -1,8 +1,6 @@
 defmodule SigLive.PayslipCategories.List do
   use SigLive, :surface_live_component
 
-  alias Surface.Components.LiveRedirect
-
   alias Sig.HR
 
   alias SigLive.Components.ButtonPlus
