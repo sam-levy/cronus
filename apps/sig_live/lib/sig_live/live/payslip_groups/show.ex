@@ -104,6 +104,7 @@ defmodule SigLive.PayslipGroups.Show do
             payslip_payables={@selected_payslip_payables}
             registration={@selected_payslip.registration}
             entity={@selected_payslip.registration.individual.entity}
+            {=@org}
             {=@current_user}
           />
         </div>
