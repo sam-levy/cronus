@@ -27,9 +27,9 @@ defmodule SigLive.EmployeeRegistrations.Show do
     socket =
       assign(
         socket,
+        assigns_built_for: MapSet.new(),
         individual: Entities.get_individual(org, registration.individual_id),
         registration: registration,
-        assigns_built_for: [],
         payslips: [],
         selected_payslip: nil,
         overtimes: [],
@@ -53,7 +53,7 @@ defmodule SigLive.EmployeeRegistrations.Show do
   def handle_params(params, _url, socket) do
     %{live_action: screen, assigns_built_for: assigns_built_for} = socket.assigns
 
-    if screen in assigns_built_for do
+    if MapSet.member?(assigns_built_for, screen) do
       {:noreply, assign(socket, :active_screen, screen)}
     else
       {:noreply, build_assigns_for(socket, screen, params)}
@@ -82,7 +82,7 @@ defmodule SigLive.EmployeeRegistrations.Show do
       suspensions: HR.list_suspensions_by_registration(registration),
       leave_periods: HR.list_leave_periods_by_registration(registration),
       recurring_payslip_items: HR.list_recurring_payslip_items_by_registration(registration),
-      assigns_built_for: [:registration_show | assigns_built_for],
+      assigns_built_for: MapSet.put(assigns_built_for, :registration_show),
       active_screen: :registration_show
     )
   end
@@ -114,7 +114,7 @@ defmodule SigLive.EmployeeRegistrations.Show do
     |> assign(:payslips, payslips)
     |> assign_selected_payslip(selected_payslip)
     |> assign(
-      assigns_built_for: [:payslips | assigns_built_for],
+      assigns_built_for: MapSet.put(assigns_built_for, :payslips),
       active_screen: :payslips
     )
   end
