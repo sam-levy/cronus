@@ -9,7 +9,9 @@ defmodule Sig.Finance.Payables.BroadcasterTest do
     test "subscribes to payables for payslip topic" do
       payslip = insert(:payslip)
 
-      payslip_payables_topic = "org_id:" <> payslip.org_id <> ":payslip_id:" <> payslip.id <> ":payables"
+      payslip_payables_topic =
+        "org_id:" <> payslip.org_id <> ":payslip_id:" <> payslip.id <> ":payables"
+
       org_payables_topic = "org_id:" <> payslip.org_id <> ":payables"
 
       assert Broadcaster.subscribe_to_payables(payslip) == :ok
@@ -39,7 +41,9 @@ defmodule Sig.Finance.Payables.BroadcasterTest do
     test "unsubscribes from payables for payslip topic" do
       payslip = insert(:payslip)
 
-      payslip_payables_topic = "org_id:" <> payslip.org_id <> ":payslip_id:" <> payslip.id <> ":payables"
+      payslip_payables_topic =
+        "org_id:" <> payslip.org_id <> ":payslip_id:" <> payslip.id <> ":payables"
+
       org_payables_topic = "org_id:" <> payslip.org_id <> ":payables"
 
       ####### payslip_payables_topic #######
@@ -115,7 +119,9 @@ defmodule Sig.Finance.Payables.BroadcasterTest do
 
       insert(:payslip_payable, org: from_another_org.org, payable: from_another_org)
 
-      payslip_payables_topic = "org_id:" <> payslip.org_id <> ":payslip_id:" <> payslip.id <> ":payables"
+      payslip_payables_topic =
+        "org_id:" <> payslip.org_id <> ":payslip_id:" <> payslip.id <> ":payables"
+
       org_payables_topic = "org_id:" <> payslip.org_id <> ":payables"
 
       ####### payslip_payables_topic #######
@@ -123,7 +129,8 @@ defmodule Sig.Finance.Payables.BroadcasterTest do
 
       assert Broadcaster.broadcast_payables_for(payslip) == :ok
 
-      assert_receive {:updated_payables, {:by_payslip, ^payslip_id}, received_payables_for_payslip}
+      assert_receive {:updated_payables, {:by_payslip, ^payslip_id},
+                      received_payables_for_payslip}
 
       assert Enum.count(received_payables_for_payslip) == 2
 
@@ -139,7 +146,8 @@ defmodule Sig.Finance.Payables.BroadcasterTest do
 
       assert Broadcaster.broadcast_payables_for(payslip) == :ok
 
-      assert_receive {:updated_payables, {:by_payslip, ^payslip_id}, received_payables_for_payslip}
+      assert_receive {:updated_payables, {:by_payslip, ^payslip_id},
+                      received_payables_for_payslip}
 
       assert Enum.count(received_payables_for_payslip) == 2
 
@@ -191,13 +199,20 @@ defmodule Sig.Finance.Payables.BroadcasterTest do
       payable_from_another_org =
         insert(:payable_cash, target: :payslip, due_date: ~D[2021-09-01], amount: 0)
 
-      insert(:payslip_payable, org: payable_from_another_org.org, payable: payable_from_another_org)
+      insert(:payslip_payable,
+        org: payable_from_another_org.org,
+        payable: payable_from_another_org
+      )
 
       org_payables_topic = "org_id:" <> payslip.org_id <> ":payables"
 
       @endpoint.subscribe(org_payables_topic)
 
-      assert Broadcaster.broadcast_payables(org, [payable_billet.id, payable_cash.id, payable_from_another_org.id]) == :ok
+      assert Broadcaster.broadcast_payables(org, [
+               payable_billet.id,
+               payable_cash.id,
+               payable_from_another_org.id
+             ]) == :ok
 
       assert_receive {:updated_payables, :by_org, received_payables_for_payslip}
 

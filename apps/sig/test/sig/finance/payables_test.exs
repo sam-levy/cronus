@@ -27,7 +27,9 @@ defmodule Sig.Finance.PayablesTest do
     test "when payable is paid" do
       org = insert(:org)
       user = insert(:user, org: org)
-      financial_transaction = insert(:financial_transaction, org: org, entry_type: :debit, type: :billet)
+
+      financial_transaction =
+        insert(:financial_transaction, org: org, entry_type: :debit, type: :billet)
 
       payable =
         insert(:payable_billet,
@@ -104,7 +106,7 @@ defmodule Sig.Finance.PayablesTest do
                %Payable{due_date: ^first_date, description: "A"},
                %Payable{due_date: ^first_date, description: "B"},
                %Payable{due_date: ^second_date, description: "A"},
-               %Payable{due_date: ^second_date, description: "B"},
+               %Payable{due_date: ^second_date, description: "B"}
              ] = Payables.list_by(org)
     end
 
@@ -121,9 +123,10 @@ defmodule Sig.Finance.PayablesTest do
                %Payable{due_date: ~D[2022-01-02]},
                %Payable{due_date: ~D[2022-01-03]},
                %Payable{due_date: ~D[2022-01-04]}
-             ] = Payables.list_by(org,
-              due_date: [period_start: ~D[2022-01-02], period_end: ~D[2022-01-04]]
-             )
+             ] =
+               Payables.list_by(org,
+                 due_date: [period_start: ~D[2022-01-02], period_end: ~D[2022-01-04]]
+               )
     end
 
     test "filters by `due_date` and `overdue_at`" do
@@ -140,9 +143,14 @@ defmodule Sig.Finance.PayablesTest do
                %Payable{due_date: ~D[2022-01-02]},
                %Payable{due_date: ~D[2022-01-03]},
                %Payable{due_date: ~D[2022-01-04]}
-             ] = Payables.list_by(org,
-              due_date: [period_start: ~D[2022-01-02], period_end: ~D[2022-01-04], overdue_at: ~D[2022-01-03]]
-             )
+             ] =
+               Payables.list_by(org,
+                 due_date: [
+                   period_start: ~D[2022-01-02],
+                   period_end: ~D[2022-01-04],
+                   overdue_at: ~D[2022-01-03]
+                 ]
+               )
     end
 
     test "filters by `payable_ids`" do
