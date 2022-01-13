@@ -1,4 +1,6 @@
 defmodule Sig.Hour do
+  import Ecto.Changeset, only: [fetch_change: 2, put_change: 3, validate_format: 3]
+
   def new, do: "00:00"
 
   def add(first, second) when is_binary(first) and is_binary(second) do
@@ -43,4 +45,20 @@ defmodule Sig.Hour do
   defp stringify({hours, minuts}), do: stringify(hours) <> ":" <> stringify(minuts)
   defp stringify(value) when value > 9, do: to_string(value)
   defp stringify(value), do: "0" <> to_string(value)
+
+  defmodule Changeset do
+    @format ~r/^[0-9]+:[0-5][0-9]$/
+
+    @spec validate_hours(%Ecto.Changeset{}, atom()) :: %Ecto.Changeset{}
+    def validate_hours(%Ecto.Changeset{} = changeset, field) when is_atom(field) do
+      with {:ok, hours} <- fetch_change(changeset, field),
+           hours <- String.trim(hours),
+           true <- String.match?(hours, @format) do
+        put_change(changeset, field, hours)
+      else
+        false -> validate_format(changeset, field, @format)
+        _ -> changeset
+      end
+    end
+  end
 end

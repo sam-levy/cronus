@@ -23,7 +23,7 @@ defmodule Sig.HR.Registrations.Overtimes.Overtime do
     %__MODULE__{}
     |> cast(attrs, @create_required_fields ++ [:payslip_id])
     |> validate_required(@create_required_fields)
-    |> validate_hours(:hours_amount)
+    |> Sig.Hour.Changeset.validate_hours(:hours_amount)
     |> validate_beginning_of_month(:date)
   end
 
@@ -31,7 +31,7 @@ defmodule Sig.HR.Registrations.Overtimes.Overtime do
     target
     |> cast(attrs, [:date, :hours_amount])
     |> validate_required([:date, :hours_amount])
-    |> validate_hours(:hours_amount)
+    |> Sig.Hour.Changeset.validate_hours(:hours_amount)
     |> validate_beginning_of_month(:date)
   end
 
@@ -46,9 +46,5 @@ defmodule Sig.HR.Registrations.Overtimes.Overtime do
     target
     |> cast(%{}, [])
     |> put_change(:payslip_id, nil)
-  end
-
-  defp validate_hours(changeset, field) do
-    validate_format(changeset, field, ~r/^[0-9]+:[0-5][0-9]$/)
   end
 end

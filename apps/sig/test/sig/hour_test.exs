@@ -45,4 +45,53 @@ defmodule Sig.HourTest do
                    fn -> Hour.sum(["01:35", "invalid", "01:35"]) end
     end
   end
+
+  describe "Changeset.validate_hours/2" do
+    test "invalid format" do
+      data = %{}
+      types = %{hours_amount: :string}
+      params = %{hours_amount: "invalid"}
+
+      changeset =
+        {data, types}
+        |> Ecto.Changeset.cast(params, Map.keys(types))
+        |> Hour.Changeset.validate_hours(:hours_amount)
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+               hours_amount: ["has invalid format"]
+             }
+    end
+
+    test "valid format" do
+      data = %{}
+      types = %{hours_amount: :string}
+      params = %{hours_amount: "01:30"}
+
+      changeset =
+        {data, types}
+        |> Ecto.Changeset.cast(params, Map.keys(types))
+        |> Hour.Changeset.validate_hours(:hours_amount)
+
+      assert changeset.valid?
+    end
+
+    test "trims trailing spaces" do
+      data = %{}
+      types = %{hours_amount: :string}
+      params = %{hours_amount: "  01:30  "}
+
+      changeset =
+        {data, types}
+        |> Ecto.Changeset.cast(params, Map.keys(types))
+        |> Hour.Changeset.validate_hours(:hours_amount)
+
+      assert changeset.valid?
+
+      assert changeset.changes == %{
+               hours_amount: "01:30"
+             }
+    end
+  end
 end

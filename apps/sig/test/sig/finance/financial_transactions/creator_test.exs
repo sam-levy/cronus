@@ -167,6 +167,70 @@ defmodule Sig.Finance.FinancialTransactions.CreatorTest do
     end
   end
 
+  describe "pay_payables/2 with cash" do
+    test "creates a financial transaction for a single payable for payslip" do
+      org = insert(:org)
+      user = insert(:user, org: org)
+
+      payslip = insert(:payslip, org: org)
+
+      insert(:payslip_outside_item,
+        org: org,
+        payslip: payslip,
+        entry_type: :credit,
+        amount: 1_000_00
+      )
+
+      # Update payslip amount
+      Repo.update!(change(payslip, amount: 1_000_00))
+
+      payable =
+        insert(:payable_cash,
+          org: org,
+          target: :payslip,
+          authorized_by: user,
+          amount: 1_000_00
+        )
+
+      insert(:payslip_payable, org: org, payslip: payslip, payable: payable)
+
+      attrs = %{
+        description: "Pagamento Fulano",
+        type: :cash,
+        placement_date: ~D[2022-01-01],
+        clearing_date: ~D[2022-01-01],
+        payable_ids: [payable.id]
+      }
+
+      assert {:ok, %FinancialTransaction{id: id}} = Creator.pay_payables(org, attrs)
+
+      assert financial_transaction =
+               Repo.get_by(FinancialTransaction,
+                 id: id,
+                 org_id: org.id,
+                 entry_type: :debit,
+                 amount: 1_000_00,
+                 type: attrs[:type],
+                 description: attrs[:description],
+                 placement_date: attrs[:placement_date],
+                 clearing_date: attrs[:clearing_date]
+               )
+
+      assert financial_transaction.transfer_counterparty_id == nil
+
+      refute Repo.get_by(BankTransaction,
+               org_id: org.id,
+               financial_transaction_id: financial_transaction.id
+             )
+
+      assert Repo.get_by(Payable,
+               id: payable.id,
+               org_id: org.id,
+               financial_transaction_id: financial_transaction.id
+             )
+    end
+  end
+
   describe "pay_payables/2 with bank transaction" do
     test "creates a financial transaction for a single payable for payslip" do
       org = insert(:org)

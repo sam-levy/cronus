@@ -225,7 +225,17 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.List do
                     automático
                   </span>
 
-                  <span :if={payable.authorized_by_id} class="label-green mr-3">autorizado</span>
+                  {#case payable}
+                    {#match %{authorized_by_id: id, financial_transaction_id: nil} when is_binary(id)}
+                      <span class="label-green mr-3">
+                        autorizado
+                      </span>
+                    {#match %{financial_transaction_id: id} when is_binary(id)}
+                      <span class="label-blue mr-3">
+                        pago
+                      </span>
+                    {#match _}
+                  {/case}
 
                   {format_amount(payable.amount)}
                 </div>
