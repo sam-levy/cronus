@@ -75,6 +75,30 @@ defmodule SigLive.AccountsPayable.PayFooter do
      |> assign(:bank_account_id, params["bank_account_id"])}
   end
 
+  @impl true
+  def handle_event("save", %{"attrs" => params}, socket) do
+    %{org: org, selected_method: selected_method, selected_payables: selected_payables} =
+      socket.assigns
+
+    params =
+      params
+      |> Map.put("type", selected_method)
+      |> Map.put("payable_ids", Map.keys(selected_payables))
+
+    with changeset <- Finance.pay_payables_change(params),
+         {:ok, _attrs} <- apply_action(changeset, :insert),
+         {:ok, financial_transaction} <- Finance.pay_payables(org, changeset.changes) do
+      Finance.broadcast_new_financial_transaction(financial_transaction)
+      send(self(), {:flash, :info, "Pagamento efetuado"})
+      socket.assigns.close_fun.()
+
+      {:noreply, socket}
+    else
+      {:error, changeset} ->
+        {:noreply, assign(socket, changeset: changeset)}
+    end
+  end
+
   defp handle_clearing_date(socket, %{"not_cleared" => "true"} = params) do
     changeset =
       params
@@ -103,29 +127,6 @@ defmodule SigLive.AccountsPayable.PayFooter do
     else
       {:error, _} -> previous_placement_date
       false -> params["placement_date"]
-    end
-  end
-
-  @impl true
-  def handle_event("save", %{"attrs" => params}, socket) do
-    %{org: org, selected_method: selected_method, selected_payables: selected_payables} =
-      socket.assigns
-
-    params =
-      params
-      |> Map.put("type", selected_method)
-      |> Map.put("payable_ids", Map.keys(selected_payables))
-
-    with changeset <- Finance.pay_payables_change(params),
-         {:ok, _attrs} <- apply_action(changeset, :insert),
-         {:ok, financial_transaction} <- Finance.pay_payables(org, changeset.changes) do
-      send(self(), {:flash, :info, "Pagamento efetuado"})
-      socket.assigns.close_fun.()
-
-      {:noreply, socket}
-    else
-      {:error, changeset} ->
-        {:noreply, assign(socket, changeset: changeset)}
     end
   end
 
