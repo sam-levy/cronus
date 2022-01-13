@@ -5,13 +5,14 @@ defmodule Sig.Factories.FinancialTransactionFactory do
       alias Sig.Enums.FinancialTransaction.Type, as: FinancialTransactionType
 
       def factory(:financial_transaction, attrs) do
-        placement_date = Keyword.get(attrs, :placement_date) || Date.utc_today()
+        clearing_date = Keyword.get(attrs, :clearing_date) || Date.utc_today()
+        placement_date = Keyword.get(attrs, :placement_date) || clearing_date
 
         %FinancialTransaction{
           org: build(:org),
           type: random_enum_value(:financial_transaction_type),
           placement_date: placement_date,
-          clearing_date: placement_date,
+          clearing_date: clearing_date,
           amount: Enum.random(100_00..5_000_00) |> Money.new(),
           entry_type: random_enum_value(:entry_type),
           description: Faker.Lorem.sentence()
