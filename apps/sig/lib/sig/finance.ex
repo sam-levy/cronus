@@ -54,17 +54,15 @@ defmodule Sig.Finance do
               to: Payables,
               as: :set_changeset_financial_transaction_type
 
-  defdelegate default_payable_preloads, to: Payables, as: :default_preloads
-  defdelegate list_payables_by(schema, opts \\ []), to: Payables, as: :list_by
   defdelegate subscribe_to_payables(schema), to: Payables
-  defdelegate subscribe_to_payables(org, due_date_start, due_date_end), to: Payables
   defdelegate unsubscribe_from_payables(schema), to: Payables
-  defdelegate unsubscribe_from_payables(org, due_date_start, due_date_end), to: Payables
-  defdelegate broadcast_new_payables(payslip), to: Payables
-  defdelegate broadcast_new_payable(payable), to: Payables
-  defdelegate broadcast_updated_payables(schema), to: Payables
+  defdelegate broadcast_payables(org, payable_ids), to: Payables
+  defdelegate broadcast_payables_for(schema), to: Payables
   defdelegate broadcast_deleted_payable(payable), to: Payables
 
+  defdelegate payable_overdue?(payable, overdue_at), to: Payables
+  defdelegate default_payable_preloads, to: Payables, as: :default_preloads
+  defdelegate list_payables_by(schema, opts \\ []), to: Payables, as: :list_by
   defdelegate authorize_payable_for_payslip(payslip, payable, user), to: Payables
   defdelegate unauthorize_payable_for_payslip(payable), to: Payables
   defdelegate create_payable_for_payslip(payslip, attrs, opts \\ []), to: Payables
@@ -80,6 +78,20 @@ defmodule Sig.Finance do
 
   defdelegate pay_payables_change(params \\ %{}), to: FinancialTransactions
   defdelegate pay_payables(org, attrs \\ %{}), to: FinancialTransactions
+
+  defdelegate list_financial_transactions_by(org, opts \\ []),
+    to: FinancialTransactions,
+    as: :list_by
+
+  defdelegate delete_financial_transaction(financial_transaction),
+    to: FinancialTransactions,
+    as: :delete
+
+  defdelegate subscribe_to_financial_transactions(ft), to: FinancialTransactions
+  defdelegate unsubscribe_from_financial_transactions(org), to: FinancialTransactions
+  defdelegate broadcast_new_financial_transaction(ft), to: FinancialTransactions
+  defdelegate broadcast_updated_financial_transaction(ft), to: FinancialTransactions
+  defdelegate broadcast_deleted_financial_transaction(ft), to: FinancialTransactions
 
   def broadcast_accounts_and_relations(%Entity{} = entity) do
     Accounts.broadcast_bank_accounts(entity)
