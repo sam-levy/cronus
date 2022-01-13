@@ -5,6 +5,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip do
   alias Sig.Entities.Entity
   alias Sig.Finance.Banks
   alias Sig.Finance.Banks.Accounts
+  alias Sig.Finance.Payables
   alias Sig.Finance.Payables.Payable
   alias Sig.Finance.Payables.PayablesForPayslip.Authorizer
   alias Sig.Finance.Payables.PayablesForPayslip.Create
@@ -13,7 +14,6 @@ defmodule Sig.Finance.Payables.PayablesForPayslip do
   alias Sig.Finance.Payables.PayablesForPayslip.Update
   alias Sig.Finance.Payables.PayablesForPayslip.AutoAdjustableAmountHandler
   alias Sig.Finance.Payables.PayablesForPayslip.PayslipPayables
-  alias Sig.Finance.Payables.PayablesForPayslip.PayslipPayables.PayslipPayable
   alias Sig.Finance.Payables.PayablesForPayslip.UpdateAutoAdjustableAmountPayable
   alias Sig.HR.Payslips.Payslip
   alias Sig.HR.Registrations.Registration
@@ -149,14 +149,9 @@ defmodule Sig.Finance.Payables.PayablesForPayslip do
   def validate_check_debit_bank_account(_changeset, _payslip), do: {:ok, nil}
 
   def query_by_payslip(%Payslip{} = payslip) do
-    from(payable in Payable, as: :payable)
-    |> join(:left, [payable: payable], payslip_payable in PayslipPayable,
-      on: payslip_payable.payable_id == payable.id and payslip_payable.org_id == ^payslip.org_id,
-      as: :payslip_payable
-    )
-    |> preload([payslip_payable: payslip_payable], payslip_payable: payslip_payable)
+    Payables.init_query()
+    |> Payables.shallow_preload(:payslip_payable)
     |> where([payslip_payable: payslip_payable], payslip_payable.payslip_id == ^payslip.id)
     |> where(org_id: ^payslip.org_id)
-    |> where(target: :payslip)
   end
 end
