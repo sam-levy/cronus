@@ -128,6 +128,9 @@ defmodule SigLive do
     quote do
       import Ecto.Changeset, only: [apply_action: 2]
 
+      # Import custom LiveView helpers
+      import SigLive.LiveViewHelpers
+
       alias Ecto.UUID
     end
   end
