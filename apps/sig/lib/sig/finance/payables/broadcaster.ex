@@ -6,67 +6,47 @@ defmodule Sig.Finance.Payables.Broadcaster do
   alias Sig.HR.Payslips.Payslip
   alias Sig.Organizations.Org
 
-  # Add missing tests
+  def subscribe_to_payables(schema), do: subscribe(topics_for(schema))
 
-  def subscribe_to_payables(schema), do: subscribe(topic(schema))
+  def unsubscribe_from_payables(schema), do: unsubscribe(topics_for(schema))
 
-  def subscribe_to_payables(%Org{} = org, due_date_start, due_date_end) do
-    subscribe(topic(org, due_date_start, due_date_end))
-  end
-
-  def unsubscribe_from_payables(schema), do: unsubscribe(topic(schema))
-
-  def unsubscribe_from_payables(%Org{} = org, due_date_start, due_date_end) do
-    unsubscribe(topic(org, due_date_start, due_date_end))
-  end
-
-  def broadcast_new_payables(%Payslip{} = payslip) do
-    payables = Payables.list_by(payslip, preload: Payables.default_preloads())
-
-    Enum.each(payables, &broadcast(topic(&1), {:new_payable, &1}))
-  end
-
-  def broadcast_new_payable(%Payable{} = payable) do
-    payable =
-      Payables.get_by([id: payable.id, org_id: payable.org_id],
-        preload: Payables.default_preloads()
-      )
-
-    broadcast(topic(payable), {:new_payable, payable})
-  end
-
-  def broadcast_updated_payables(%Payslip{} = payslip) do
-    payables = Payables.list_by(payslip, preload: Payables.default_preloads())
-
-    broadcast(topic(payslip), {:updated_payables, payables})
-
-    Enum.each(payables, &broadcast(topic(&1), {:updated_payable, &1}))
-  end
-
-  def broadcast_updated_payables(%Org{} = org, payable_ids) when is_list(payable_ids) do
+  def broadcast_payables(%Org{} = org, payable_ids) when is_list(payable_ids) do
     payables =
       Payables.list_by(org, payable_ids: payable_ids, preload: Payables.default_preloads())
 
-    Enum.each(payables, &broadcast(topic(&1), {:updated_payable, &1}))
+    broadcast(topics_for(org), {:updated_payables, :by_org, payables})
+  end
+
+  def broadcast_payables_for(%Payslip{} = payslip) do
+    payables = Payables.list_by(payslip, preload: Payables.default_preloads())
+
+    broadcast(topics_for(payslip), {:updated_payables, {:by_payslip, payslip.id}, payables})
   end
 
   def broadcast_deleted_payable(%Payable{} = payable) do
-    broadcast(topic(payable), {:deleted_payable, payable})
+    broadcast(topics_for(payable), {:deleted_payable, payable})
   end
 
-  defp topic(%Payslip{} = payslip), do: "payslip_id:" <> payslip.id <> ":payables"
-
-  defp topic(%Payable{} = payable) do
-    org_due_date_topic(payable.org_id, Date.to_iso8601(payable.due_date))
+  defp topics_for(%Org{} = org) do
+    org_payables_topic(org.id)
   end
 
-  defp topic(%Org{} = org, due_date_start, due_date_end) do
-    due_date_start
-    |> Date.range(due_date_end)
-    |> Enum.map(&org_due_date_topic(org.id, Date.to_iso8601(&1)))
+  defp topics_for(%Payable{} = payable) do
+    org_payables_topic(payable.org_id)
   end
 
-  defp org_due_date_topic(org_id, due_date) do
-    "org_id:" <> org_id <> ":due_date:" <> due_date <> ":payables"
+  defp topics_for(%Payslip{} = payslip) do
+    [
+      org_payables_topic(payslip.org_id),
+      payslip_payables_topic(payslip.org_id, payslip.id)
+    ]
+  end
+
+  defp payslip_payables_topic(org_id, payslip_id) do
+    "org_id:" <> org_id <> ":payslip_id:" <> payslip_id <> ":payables"
+  end
+
+  defp org_payables_topic(org_id) do
+    "org_id:" <> org_id <> ":payables"
   end
 end

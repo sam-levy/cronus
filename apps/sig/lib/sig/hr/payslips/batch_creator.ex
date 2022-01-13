@@ -291,28 +291,25 @@ defmodule Sig.HR.Payslips.BatchCreator do
 
   defp handle_create_return({:error, _operation, reason, _changes}), do: {:error, reason}
 
-  defp handle_create_return({:ok, %{group: {:existing, _}, payslips: {_, payslips}} = changes}) do
-    Task.start(fn -> broadcast_payslips(changes) end)
+  defp handle_create_return({:ok, %{group: {:existing, _}, payslips: {_, payslips}}}) do
+    Task.start(fn -> handle_payslip_broadcasts(payslips) end)
 
     {:ok, payslips}
   end
 
-  defp handle_create_return({:ok, %{group: {:new, group}, payslips: {_, payslips}} = changes}) do
+  defp handle_create_return({:ok, %{group: {:new, group}, payslips: {_, payslips}}}) do
     Task.start(fn ->
       Groups.broadcast_new_group(group)
-      broadcast_payslips(changes)
+      handle_payslip_broadcasts(payslips)
     end)
 
     {:ok, payslips}
   end
 
-  defp broadcast_payslips(%{payslips: {_, payslips}} = changes) do
+  defp handle_payslip_broadcasts(payslips) do
     Enum.each(payslips, fn payslip ->
       Payslips.broadcast_new_payslip(payslip)
-
-      changes
-      |> Map.get({:payables_for_payslip, payslip.id}, [])
-      |> Enum.each(&Payables.broadcast_new_payable/1)
+      Payables.broadcast_payables_for(payslip)
     end)
   end
 end
