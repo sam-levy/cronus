@@ -45,11 +45,6 @@ defmodule SigLive.PayslipGroups.List do
   end
 
   @impl true
-  def handle_info({:flash, type, message}, socket) do
-    {:noreply, put_flash(socket, type, message)}
-  end
-
-  @impl true
   def handle_info("close_modals", socket) do
     {:noreply, assign(socket, closed_state())}
   end

@@ -55,11 +55,6 @@ defmodule SigLive.PayslipCategories.Index do
   end
 
   @impl true
-  def handle_info({:flash, type, message}, socket) do
-    {:noreply, put_flash(socket, type, message)}
-  end
-
-  @impl true
   def render(assigns) do
     ~F"""
     <div>
