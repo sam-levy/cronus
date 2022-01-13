@@ -10,7 +10,7 @@ defmodule Sig.Finance.FinancialTransactions do
 
   defdelegate pay_payables_change(params \\ %{}), to: Creator
   defdelegate pay_payables(org, attrs \\ %{}), to: Creator
-  defdelegate delete(financial_transaction), to: Deleter
+  defdelegate delete(financial_transaction), to: Deleter, as: :call
 
   defdelegate subscribe_to_financial_transactions(org), to: Broadcaster
   defdelegate unsubscribe_from_financial_transactions(org), to: Broadcaster
