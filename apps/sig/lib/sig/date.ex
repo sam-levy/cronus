@@ -102,4 +102,13 @@ defmodule Sig.Date do
       _ -> date
     end
   end
+
+  def in_range?(date, start_date, end_date) do
+    with return when return in [:eq, :gt] <- Date.compare(date, start_date),
+         return when return in [:eq, :lt] <- Date.compare(date, end_date) do
+      true
+    else
+      _ -> false
+    end
+  end
 end

@@ -126,4 +126,17 @@ defmodule Sig.DateTest do
       assert Sig.Date.adjust_for_workday(~D[2021-10-30]) == ~D[2021-11-01]
     end
   end
+
+  describe "in_range?/3" do
+    test "when date is in range" do
+      assert Sig.Date.in_range?(~D[2021-01-02], ~D[2021-01-01], ~D[2021-01-03]) == true
+      assert Sig.Date.in_range?(~D[2021-01-01], ~D[2021-01-01], ~D[2021-01-03]) == true
+      assert Sig.Date.in_range?(~D[2021-01-03], ~D[2021-01-01], ~D[2021-01-03]) == true
+    end
+
+    test "when date is not in range" do
+      assert Sig.Date.in_range?(~D[2020-12-31], ~D[2021-01-01], ~D[2021-01-03]) == false
+      assert Sig.Date.in_range?(~D[2021-01-04], ~D[2021-01-01], ~D[2021-01-03]) == false
+    end
+  end
 end
