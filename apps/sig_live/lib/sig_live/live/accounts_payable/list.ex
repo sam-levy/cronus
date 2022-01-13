@@ -4,12 +4,15 @@ defmodule SigLive.AccountsPayable.List do
   alias Surface.Components.Form
   alias Surface.Components.Form.{Checkbox, Field, Label}
 
+  alias Sig.Finance
+
   alias SigLive.AccountsPayable.PayFooter
   alias SigLive.Components.DropdownOpts
 
   prop org, :struct, required: true
   prop org_bank_accounts, :list, required: true
   prop payables, :list, required: true
+  prop overdue_at, :date, required: true
 
   data message, :string, default: nil
   data selected_payables, :map, default: %{}
@@ -174,6 +177,10 @@ defmodule SigLive.AccountsPayable.List do
 
                 <td class="pr-3 text-left">
                   {format_date(payable.due_date)}
+
+                  <span :if={Finance.payable_overdue?(payable, @overdue_at)} class="label-red not-italic ml-2">
+                    vencido
+                  </span>
                 </td>
 
                 <td class="px-3 text-left">
@@ -199,16 +206,16 @@ defmodule SigLive.AccountsPayable.List do
                 <td class="px-3 text-right">
                   {#case payable}
                     {#match %{authorized_by_id: nil}}
-                      <span class="label-gray not-italic mr-2">
+                      <span class="label-gray not-italic mr-1">
                         bloqueado
                       </span>
                     {#match %{financial_transaction: %{clearing_date: nil}}}
-                      <span class="label-yellow not-italic mr-2">
+                      <span class="label-yellow not-italic mr-1">
                         liq pendente
                       </span>
-                    {#match %{financial_transaction: %{}}}
-                      <span class="label-blue not-italic mr-2">
-                        pago
+                    {#match %{financial_transaction: %{clearing_date: clearing_date}}}
+                      <span class="label-blue not-italic mr-1">
+                        pago {format_date(clearing_date)}
                       </span>
                     {#match _}
                   {/case}
