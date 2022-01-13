@@ -136,8 +136,8 @@ defmodule SigLive.EmployeeRegistrations.Warnings.Form do
     {:noreply, socket}
   end
 
-  defp handle_flash(:new_mode), do: send(self(), {:flash, :info, "Advertência criada"})
-  defp handle_flash(:edit_mode), do: send(self(), {:flash, :info, "Advertência alterada"})
+  defp handle_flash(:new_mode), do: flash_info("Advertência criada")
+  defp handle_flash(:edit_mode), do: flash_info("Advertência alterada")
 
   defp handle_title(:new_mode), do: "Nova Advertência"
   defp handle_title(:edit_mode), do: "Editar Advertência"

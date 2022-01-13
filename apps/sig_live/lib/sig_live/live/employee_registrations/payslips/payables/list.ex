@@ -88,7 +88,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.List do
          {:ok, payable} <- Finance.delete_payable_for_payslip(payslip, payable) do
       Finance.broadcast_deleted_payable(payable)
       Finance.broadcast_payables_for(payslip)
-      send(self(), {:flash, :info, "Pagamento removido"})
+      flash_info("Pagamento removido")
 
       {:noreply, assign(socket, closed_state())}
     else
@@ -109,7 +109,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.List do
     with {:ok, payable} <- Finance.fetch_payable(payslip, id),
          {:ok, _payable} <- Finance.authorize_payable_for_payslip(payslip, payable, current_user) do
       Finance.broadcast_payables_for(payslip)
-      send(self(), {:flash, :info, "Pagamento autorizado"})
+      flash_info("Pagamento autorizado")
 
       {:noreply, assign(socket, closed_state())}
     else
@@ -127,7 +127,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.List do
     with {:ok, payable} <- Finance.fetch_payable(payslip, id),
          {:ok, _payable} <- Finance.unauthorize_payable_for_payslip(payable) do
       Finance.broadcast_payables_for(payslip)
-      send(self(), {:flash, :info, "Pagamento desautorizado"})
+      flash_info("Pagamento desautorizado")
 
       {:noreply, assign(socket, closed_state())}
     else

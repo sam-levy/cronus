@@ -242,8 +242,8 @@ defmodule SigLive.PayslipRecurringItemModels.Form do
     HR.broadcast_updated_payslip_recurring_item_model(item_model, refetch: true)
   end
 
-  defp handle_flash(:new_mode), do: send(self(), {:flash, :info, "Modelo criado"})
-  defp handle_flash(:edit_mode), do: send(self(), {:flash, :info, "Modelo alterado"})
+  defp handle_flash(:new_mode), do: flash_info("Modelo criado")
+  defp handle_flash(:edit_mode), do: flash_info("Modelo alterado")
 
   defp handle_title(:new_mode), do: "Novo Modelo de Item Recorrente de Holerite"
   defp handle_title(:edit_mode), do: "Editar Modelo de Item Recorrente de Holerite"

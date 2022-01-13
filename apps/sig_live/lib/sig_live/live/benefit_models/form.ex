@@ -191,8 +191,8 @@ defmodule SigLive.BenefitModels.Form do
     HR.broadcast_updated_benefit_model(benefit_model)
   end
 
-  defp handle_flash(:new_mode), do: send(self(), {:flash, :info, "Modelo de benefício criado"})
-  defp handle_flash(_), do: send(self(), {:flash, :info, "Modelo de benefício alterado"})
+  defp handle_flash(:new_mode), do: flash_info("Modelo de benefício criado")
+  defp handle_flash(_), do: flash_info("Modelo de benefício alterado")
 
   defp handle_title(:show_mode), do: "Modelo de Benefício"
   defp handle_title(:new_mode), do: "Novo Modelo de Benefício"
