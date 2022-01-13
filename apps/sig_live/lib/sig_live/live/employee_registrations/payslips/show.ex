@@ -98,7 +98,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
         {:noreply, socket}
 
       {:error, _changeset} ->
-        send(self(), {:flash, :error, "Falha ao bloquear o holerite"})
+        flash_error("Falha ao bloquear o holerite")
 
         {:noreply, socket}
     end

@@ -52,7 +52,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.List do
       {:noreply, socket}
     else
       {:error, message} ->
-        send(self(), {:flash, :error, message})
+        flash_error(message)
 
         {:noreply, assign(socket, closed_state())}
     end
@@ -69,7 +69,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.List do
       {:noreply, socket}
     else
       {:error, message} ->
-        send(self(), {:flash, :error, message})
+        flash_error(message)
 
         {:noreply, assign(socket, closed_state())}
     end
@@ -113,8 +113,13 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.List do
 
       {:noreply, assign(socket, closed_state())}
     else
-      {:error, changeset} ->
-        send(self(), {:flash, :error, Sig.Changeset.errors_to_string(changeset)})
+      {:error, changeset} when is_struct(changeset) ->
+        changeset
+        |> Sig.Changeset.errors_to_string()
+        |> flash_error()
+
+      {:error, message} ->
+        flash_error(message)
 
         {:noreply, assign(socket, closed_state())}
     end
@@ -131,8 +136,13 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.List do
 
       {:noreply, assign(socket, closed_state())}
     else
-      {:error, changeset} ->
-        send(self(), {:flash, :error, Sig.Changeset.errors_to_string(changeset)})
+      {:error, changeset} when is_struct(changeset) ->
+        changeset
+        |> Sig.Changeset.errors_to_string()
+        |> flash_error()
+
+      {:error, message} ->
+        flash_error(message)
 
         {:noreply, assign(socket, closed_state())}
     end
