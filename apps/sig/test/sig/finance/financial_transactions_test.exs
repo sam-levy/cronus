@@ -28,11 +28,15 @@ defmodule Sig.Finance.FinancialTransactionsTest do
 
     test "when clearing date is already set" do
       financial_transaction =
-        insert(:financial_transaction, placement_date: ~D[2022-01-01], clearing_date: ~D[2022-01-01])
+        insert(:financial_transaction,
+          placement_date: ~D[2022-01-01],
+          clearing_date: ~D[2022-01-01]
+        )
 
       attrs = %{clearing_date: ~D[2022-01-01]}
 
-      assert {:error, "already cleared"} = FinancialTransactions.clear(financial_transaction, attrs)
+      assert {:error, "already cleared"} =
+               FinancialTransactions.clear(financial_transaction, attrs)
     end
 
     test "returns changeset errors" do
@@ -44,8 +48,8 @@ defmodule Sig.Finance.FinancialTransactionsTest do
       assert {:error, changeset} = FinancialTransactions.clear(financial_transaction, attrs)
 
       assert errors_on(changeset) == %{
-        clearing_date: ["must be after or equal to placement_date"]
-      }
+               clearing_date: ["must be after or equal to placement_date"]
+             }
     end
   end
 
@@ -141,10 +145,14 @@ defmodule Sig.Finance.FinancialTransactionsTest do
 
       financial_transaction = insert(:financial_transaction, org: org)
 
-      insert(:bank_transaction, org: org, bank_account: bank_account, financial_transaction: financial_transaction)
+      insert(:bank_transaction,
+        org: org,
+        bank_account: bank_account,
+        financial_transaction: financial_transaction
+      )
 
       assert [
-               %FinancialTransaction{bank_account: %Account{}},
+               %FinancialTransaction{bank_account: %Account{}}
              ] = FinancialTransactions.list_by(org, preload: [:bank_account])
     end
   end
