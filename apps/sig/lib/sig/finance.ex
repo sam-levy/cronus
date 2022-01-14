@@ -78,6 +78,11 @@ defmodule Sig.Finance do
 
   defdelegate pay_payables_change(params \\ %{}), to: FinancialTransactions
   defdelegate pay_payables(org, attrs \\ %{}), to: FinancialTransactions
+  defdelegate clear_financial_transaction(ft, date), to: FinancialTransactions, as: :clear
+
+  defdelegate financial_transaction_update_change(ft, attrs \\ %{}),
+    to: FinancialTransactions,
+    as: :update_change
 
   defdelegate list_financial_transactions_by(org, opts \\ []),
     to: FinancialTransactions,
