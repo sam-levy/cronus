@@ -1,6 +1,8 @@
 defmodule SigLive.AccountsPayable.FinancialTransactions.Show do
   use SigLive, :surface_live_component
 
+  import Sig.Enums.FinancialTransaction, only: [is_bank_type: 1]
+
   alias Sig.Finance
   alias Sig.Repo
 
@@ -31,18 +33,18 @@ defmodule SigLive.AccountsPayable.FinancialTransactions.Show do
     <Modal title="Transação Financeira" close={@close_event}>
       <div class="space-y-4">
         <div>
-          <div class="text-md text-gray-700">
-            Conta
-          </div>
+          {#case @financial_transaction}
+            {#match %{type: type, bank_account: %Ecto.Association.NotLoaded{}} when is_bank_type(type)}
+              <div class="text-md text-gray-700">Conta</div>
+            {#match %{type: type} when is_bank_type(type)}
+              <div class="text-md text-gray-700">Conta</div>
 
-          <div class="text-sm text-gray-500 trucate">
-            {#case @financial_transaction}
-              {#match %{bank_account: %Ecto.Association.NotLoaded{}}}
-                <span></span>
-              {#match _}
+              <span class="text-sm text-gray-500 trucate">
                 {format_bank_account(@financial_transaction.bank_account)}
-            {/case}
-          </div>
+              </span>
+            {#match _}
+              <div class="text-md text-gray-700">Dinheiro</div>
+          {/case}
         </div>
 
         <div>
@@ -58,7 +60,7 @@ defmodule SigLive.AccountsPayable.FinancialTransactions.Show do
         <ul role="list" class="bg-gray-50 rounded-lg divide-y divide-gray-200">
           {#for payable <- @payables}
             <a
-              class="py-3 px-4 block hover:bg-gray-100"
+              class="py-3 px-4 block hover:bg-gray-100 hover:rounded-lg"
               href={Routes.sig_employee_registrations_show_path(@socket, :payslip, @org, payable.payslip.registration_id, payable.payslip)}
               target="_blank"
             >
