@@ -42,7 +42,7 @@ defmodule SigLive.PayslipGroups.Form do
         changeset: HR.batch_create_payslips_change(%{start_date: selected_date, type: :regular}),
         dates_for_select: build_dates_for_select(selected_date),
         sectors: Organizations.list_org_sectors(assigns.org),
-        selected_date: selected_date,
+        selected_date: selected_date
       )
 
     {:ok, socket}
@@ -108,17 +108,30 @@ defmodule SigLive.PayslipGroups.Form do
       socket
       |> assign(changeset: HR.batch_create_payslips_change(params))
       |> assign(message: nil)
-      |> assign_payables_due_dates(start_date)
+      |> maybe_assign_payables_due_dates(socket.assigns.changeset, start_date)
       |> assign_verify_return(nil)
 
     {:noreply, socket}
   end
 
+  defp maybe_assign_payables_due_dates(
+         %{assigns: %{changeset: %{changes: %{start_date: date}}}} = socket,
+         %{changes: %{start_date: date}} = _previous_changeset,
+         _start_date
+       ) do
+    socket
+  end
+
+  defp maybe_assign_payables_due_dates(socket, _previous_changeset, start_date) do
+    assign_payables_due_dates(socket, start_date)
+  end
+
   defp handle_sector_params(%{"sectors_ids" => sectors_ids} = params) do
-    sectors_ids = Enum.reduce(sectors_ids, [], fn
-      {sector, "on"}, acc -> [sector | acc]
-      _, acc -> acc
-    end)
+    sectors_ids =
+      Enum.reduce(sectors_ids, [], fn
+        {sector, "on"}, acc -> [sector | acc]
+        _, acc -> acc
+      end)
 
     %{params | "sectors_ids" => sectors_ids}
   end
@@ -248,7 +261,7 @@ defmodule SigLive.PayslipGroups.Form do
 
     dates = prior ++ [selected_date] ++ next
 
-    Enum.map(dates, & {format_month(&1), Date.to_iso8601(&1)})
+    Enum.map(dates, &{format_month(&1), Date.to_iso8601(&1)})
   end
 
   defp assign_payables_due_dates(socket, date) do
@@ -320,9 +333,9 @@ defmodule SigLive.PayslipGroups.Form do
 
   defp handle_verify_return(%{return: {:ok, verified_registrations}} = context) do
     {:noreply,
-      context.socket
-      |> assign(message: nil)
-      |> assign_verify_return(verified_registrations)}
+     context.socket
+     |> assign(message: nil)
+     |> assign_verify_return(verified_registrations)}
   end
 
   defp create(%{validation: {:error, _}} = context), do: context
@@ -340,11 +353,13 @@ defmodule SigLive.PayslipGroups.Form do
   defp handle_create_return(%{return: {:error, message}} = context) when is_binary(message) do
     {_, changeset} = context.validation
 
-    {:noreply, assign(context.socket, verified_registrations: nil, message: message, changeset: changeset)}
+    {:noreply,
+     assign(context.socket, verified_registrations: nil, message: message, changeset: changeset)}
   end
 
   defp handle_create_return(%{return: {:error, changeset}} = context) when is_struct(changeset) do
-    {:noreply, assign(context.socket, message: nil, verified_registrations: nil, changeset: changeset)}
+    {:noreply,
+     assign(context.socket, message: nil, verified_registrations: nil, changeset: changeset)}
   end
 
   defp handle_create_return(%{return: {:ok, payslips}, socket: socket}) do
