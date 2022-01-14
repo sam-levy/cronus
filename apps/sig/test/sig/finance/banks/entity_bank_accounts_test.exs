@@ -149,6 +149,37 @@ defmodule Sig.Finance.Banks.EntityBankAccountsTest do
     end
   end
 
+  describe "fetch_entity_primary/2" do
+    test "gets the entity primary EntityBankAccount by org_id and entity_id" do
+      org = insert(:org)
+      entity = insert(:entity, org: org)
+
+      %{bank_account_id: primary_eba_account_id} =
+        insert(:entity_bank_account, org: org, entity: entity, is_primary: true)
+
+      insert(:entity_bank_account, org: org, entity: entity, is_primary: false)
+
+      assert {:ok, %EntityBankAccount{bank_account_id: ^primary_eba_account_id}} =
+               EntityBankAccounts.fetch_entity_primary(org.id, entity.id)
+    end
+
+    test "when entity doesn't have a primary EntityBankAccount" do
+      org = insert(:org)
+      entity = insert(:entity, org: org)
+
+      insert(:entity_bank_account, org: org, entity: entity, is_primary: false)
+
+      assert EntityBankAccounts.fetch_entity_primary(org.id, entity.id) == {:error, :not_found}
+    end
+
+    test "when entity doesn't have any EntityBankAccount" do
+      entity = insert(:entity)
+
+      assert EntityBankAccounts.fetch_entity_primary(entity.org_id, entity.id) ==
+               {:error, :not_found}
+    end
+  end
+
   describe "entities_relationships/2" do
     test "returns the possible relationships for two entities" do
       assert EntityBankAccounts.entities_relationships(

@@ -132,6 +132,36 @@ defmodule Sig.Finance.Banks.AccountsTest do
     end
   end
 
+  describe "fetch_entity_primary/2" do
+    test "fetches the entity primary account by org_id and entity_id" do
+      org = insert(:org)
+      entity = insert(:entity, org: org)
+
+      %{id: primary_account_id} =
+        insert(:bank_account, org: org, entity: entity, is_primary: true)
+
+      insert(:bank_account, org: org, entity: entity, is_primary: false)
+
+      assert {:ok, %Account{id: ^primary_account_id}} =
+               Accounts.fetch_entity_primary(org.id, entity.id)
+    end
+
+    test "when entity doesn't have a primary account" do
+      org = insert(:org)
+      entity = insert(:entity, org: org)
+
+      insert(:bank_account, org: org, entity: entity, is_primary: false)
+
+      assert Accounts.fetch_entity_primary(org.id, entity.id) == {:error, :not_found}
+    end
+
+    test "when entity doesn't have any account" do
+      entity = insert(:entity)
+
+      assert Accounts.fetch_entity_primary(entity.org_id, entity.id) == {:error, :not_found}
+    end
+  end
+
   describe "fetch/3" do
     test "fetches a bank account from an org preloaded with the entity" do
       %{id: id, org: org, org_id: org_id} = insert(:bank_account)

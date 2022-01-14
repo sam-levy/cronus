@@ -47,7 +47,9 @@ defmodule Sig.Finance.FinancialTransactions.DeleterTest do
       user = insert(:user, org: org)
       bank_account = insert(:bank_account, org: org)
 
-      %{id: ft_id} = ft = insert(:financial_transaction, org: org, amount: 100_00)
+      %{id: ft_id} =
+        ft = insert(:financial_transaction, type: :bank_transfer, org: org, amount: 100_00)
+
       insert(:bank_transaction, org: org, bank_account: bank_account, financial_transaction: ft)
 
       %{id: payable_1_id} =

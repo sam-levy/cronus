@@ -100,4 +100,77 @@ defmodule Sig.Finance.BanksTest do
       assert Banks.list_active_bank_accounts_by_entity(entity) == []
     end
   end
+
+  describe "fetch_entity_active_primary_bank_account/2" do
+    test "fetches primary active bank account when `Account`" do
+      org = insert(:org)
+      entity = insert(:entity, org: org)
+
+      %{id: bank_account_id} =
+        insert(:bank_account, org: org, entity: entity, is_active: true, is_primary: true)
+
+      _to_ignore =
+        insert(:bank_account, org: org, entity: entity, is_active: true, is_primary: false)
+
+      _to_ignore = insert(:entity_bank_account, org: org, entity: entity, is_primary: false)
+
+      assert {:ok, %Account{id: ^bank_account_id}} =
+               Banks.fetch_entity_active_primary_bank_account(org.id, entity.id)
+    end
+
+    test "fetches primary active bank account when `EntityBankAccount`" do
+      org = insert(:org)
+      entity = insert(:entity, org: org)
+
+      _to_ignore =
+        insert(:bank_account, org: org, entity: entity, is_active: true, is_primary: false)
+
+      %{bank_account_id: bank_account_id} =
+        insert(:entity_bank_account, org: org, entity: entity, is_primary: true)
+
+      assert {:ok, %Account{id: ^bank_account_id}} =
+               Banks.fetch_entity_active_primary_bank_account(org.id, entity.id)
+    end
+
+    test "when primary bank account is not active" do
+      org = insert(:org)
+      entity = insert(:entity, org: org)
+
+      insert(:bank_account, org: org, entity: entity, is_active: false, is_primary: true)
+
+      assert {:error, :not_found} =
+               Banks.fetch_entity_active_primary_bank_account(org.id, entity.id)
+    end
+
+    test "when there is no active account" do
+      org = insert(:org)
+      entity = insert(:entity, org: org)
+
+      insert(:bank_account, org: org, entity: entity, is_active: true, is_primary: false)
+
+      insert(:entity_bank_account, org: org, entity: entity, is_primary: false)
+
+      assert {:error, :not_found} =
+               Banks.fetch_entity_active_primary_bank_account(org.id, entity.id)
+    end
+
+    test "when there is no account" do
+      entity = insert(:entity)
+
+      assert {:error, :not_found} =
+               Banks.fetch_entity_active_primary_bank_account(entity.id, entity.id)
+    end
+
+    test "when entity doesn't belong to org" do
+      org = insert(:org)
+      entity = insert(:entity, org: org)
+
+      insert(:bank_account, org: org, entity: entity, is_active: true, is_primary: true)
+
+      wrong_entity = insert(:entity)
+
+      assert {:error, :not_found} =
+               Banks.fetch_entity_active_primary_bank_account(org.id, wrong_entity.id)
+    end
+  end
 end

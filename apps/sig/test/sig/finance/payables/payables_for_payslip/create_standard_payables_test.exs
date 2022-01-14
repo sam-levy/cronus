@@ -294,6 +294,91 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateStandardPayablesTest do
              )
     end
 
+    test "creates cash payables when individual primary bank account is inactive" do
+      org = insert(:org)
+      individual = insert(:individual, org: org)
+
+      insert(:bank_account,
+        org: org,
+        entity: individual.entity,
+        is_primary: true,
+        is_active: false
+      )
+
+      registration = insert(:employee_registration, org: org, individual: individual)
+      payslip = insert(:payslip, org: org, registration: registration)
+
+      items = [
+        insert(:payslip_outside_item,
+          org: org,
+          payslip: payslip,
+          entry_type: :credit,
+          amount: Money.new(1_000_00),
+          is_payment_advance: false
+        ),
+        insert(:payslip_outside_item,
+          org: org,
+          payslip: payslip,
+          entry_type: :debit,
+          amount: Money.new(100_00),
+          is_payment_advance: false
+        ),
+        insert(:payslip_outside_item,
+          org: org,
+          payslip: payslip,
+          entry_type: :debit,
+          amount: Money.new(400_00),
+          is_payment_advance: true
+        )
+      ]
+
+      # Update payslip amount
+      Repo.update!(change(payslip, amount: 500_00))
+
+      due_dates = %{payment_advance_date: ~D[2021-01-20], salary_date: ~D[2021-02-05]}
+
+      assert {:ok, %{payment_advance: payment_advance_payable, salary: salary_payable}} =
+               CreateStandardPayables.call(registration, payslip, items, due_dates)
+
+      assert %Payable{credit_bank_account_id: nil} =
+               Repo.get_by(Payable,
+                 org_id: org.id,
+                 id: payment_advance_payable.id,
+                 target: :payslip,
+                 description: "Adiantamento de Salário",
+                 amount: 400_00,
+                 due_date: ~D[2021-01-20],
+                 reference_date: Date.beginning_of_month(payslip.start_date),
+                 financial_transaction_type: :cash
+               )
+
+      assert Repo.get_by(PayslipPayable,
+               org_id: org.id,
+               payslip_id: payslip.id,
+               payable_id: payment_advance_payable.id,
+               is_auto_adjustable_amount: false
+             )
+
+      assert %Payable{credit_bank_account_id: nil} =
+               Repo.get_by(Payable,
+                 org_id: org.id,
+                 id: salary_payable.id,
+                 target: :payslip,
+                 description: "Salário",
+                 amount: 500_00,
+                 due_date: ~D[2021-02-05],
+                 reference_date: Date.beginning_of_month(payslip.start_date),
+                 financial_transaction_type: :cash
+               )
+
+      assert Repo.get_by(PayslipPayable,
+               org_id: org.id,
+               payslip_id: payslip.id,
+               payable_id: salary_payable.id,
+               is_auto_adjustable_amount: true
+             )
+    end
+
     test "when payslip has no items" do
       org = insert(:org)
       individual = insert(:individual, org: org)

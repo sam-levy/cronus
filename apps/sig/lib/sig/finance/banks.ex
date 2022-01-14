@@ -49,13 +49,14 @@ defmodule Sig.Finance.Banks do
     |> Repo.all()
   end
 
-  def fetch_entity_active_primary_bank_account(%Entity{} = entity) do
-    case Accounts.fetch_entity_primary(entity) do
+  def fetch_entity_active_primary_bank_account(org_id, entity_id)
+      when is_binary(org_id) and is_binary(entity_id) do
+    case Accounts.fetch_entity_primary(org_id, entity_id) do
       {:ok, account} ->
         if account.is_active, do: {:ok, account}, else: {:error, :not_found}
 
       {:error, :not_found} ->
-        case EntityBankAccounts.fetch_entity_primary(entity) do
+        case EntityBankAccounts.fetch_entity_primary(org_id, entity_id) do
           {:ok, %{bank_account: account}} ->
             if account.is_active, do: {:ok, account}, else: {:error, :not_found}
 
