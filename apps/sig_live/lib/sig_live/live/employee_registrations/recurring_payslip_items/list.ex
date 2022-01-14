@@ -26,10 +26,12 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
 
   @impl true
   def update(%{recurring_payslip_items: items} = assigns, socket) do
+    %{registration: %{admission_date: admission_date}} = assigns
+
     socket =
       socket
       |> assign(assigns)
-      |> assign(target_date: Date.utc_today() |> Date.beginning_of_month())
+      |> assign(target_date: set_initial_target_date(admission_date))
       |> assign_items(items)
       |> assign_totals()
 
@@ -39,6 +41,15 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
   @impl true
   def update(assigns, socket) do
     {:ok, assign(socket, assigns)}
+  end
+
+  defp set_initial_target_date(admission_date) do
+    current_month_start = Date.utc_today() |> Date.beginning_of_month()
+
+    case Date.compare(current_month_start, admission_date) do
+      :lt -> admission_date
+      _gt_or_eq -> current_month_start
+    end
   end
 
   @impl true
