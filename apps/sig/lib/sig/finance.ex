@@ -8,7 +8,6 @@ defmodule Sig.Finance do
 
   defdelegate list_banks, to: Banks
   defdelegate fetch_bank(routing_number), to: Banks
-  defdelegate fetch_entity_active_primary_bank_account(entity), to: Banks
   defdelegate list_active_bank_accounts_by_entity(entity), to: Banks
 
   defdelegate create_account_change(attrs), to: Accounts, as: :create_change
