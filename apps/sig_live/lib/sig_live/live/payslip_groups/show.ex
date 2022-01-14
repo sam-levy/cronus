@@ -60,6 +60,11 @@ defmodule SigLive.PayslipGroups.Show do
   end
 
   @impl true
+  def handle_info(_message, socket) do
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_event("select_payslip", %{"payslip_id" => id}, socket) do
     payslip = HR.get_payslip(socket.assigns.group, id, preload_registration: true)
 
