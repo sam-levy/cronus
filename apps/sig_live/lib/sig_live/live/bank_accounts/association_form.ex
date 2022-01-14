@@ -375,8 +375,8 @@ defmodule SigLive.BankAccounts.AssociationForm do
     {:noreply, socket}
   end
 
-  defp handle_flash(:new_mode), do: send(self(), {:flash, :info, "Associação criada"})
-  defp handle_flash(:edit_mode), do: send(self(), {:flash, :info, "Associação atualizada"})
+  defp handle_flash(:new_mode), do: flash_info("Associação criada")
+  defp handle_flash(:edit_mode), do: flash_info("Associação atualizada")
 
   defp handle_title(:new_mode), do: "Associar Conta Bancária de Outro Titular"
   defp handle_title(:edit_mode), do: "Editar Associação"

@@ -53,7 +53,7 @@ defmodule SigLive.BankAccounts.AccountForm do
     with {:ok, attrs} <- handle_create_params(account_params),
          {:ok, _account} <- Finance.create_account(entity, attrs) do
       Finance.broadcast_accounts_and_relations(entity)
-      send(self(), {:flash, :info, "Conta adicionada"})
+      flash_info("Conta adicionada")
       socket.assigns.close_fun.()
 
       {:noreply, socket}
@@ -71,7 +71,7 @@ defmodule SigLive.BankAccounts.AccountForm do
     with {:ok, attrs} <- handle_update_params(account, account_params),
          {:ok, _account} <- Finance.update_account(account, attrs) do
       Finance.broadcast_accounts_and_relations(entity)
-      send(self(), {:flash, :info, "Conta alterada"})
+      flash_info("Conta alterada")
       socket.assigns.close_fun.()
 
       {:noreply, socket}

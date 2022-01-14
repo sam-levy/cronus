@@ -6,11 +6,15 @@ defmodule Sig.Preloader do
 
       for field_name <- preloadable_fields do
         def shallow_preload(queryable, unquote(field_name)) do
-          queryable
-          |> join(:left, [{unquote(schema), s}], field in assoc(s, unquote(field_name)),
-            as: unquote(field_name)
-          )
-          |> preload([{unquote(field_name), field}], [{unquote(field_name), field}])
+          if has_named_binding?(queryable, unquote(field_name)) do
+            queryable
+          else
+            queryable
+            |> join(:left, [{unquote(schema), s}], field in assoc(s, unquote(field_name)),
+              as: unquote(field_name)
+            )
+            |> preload([{unquote(field_name), field}], [{unquote(field_name), field}])
+          end
         end
       end
 

@@ -10,6 +10,41 @@ defmodule Sig.Finance.PayablesTest do
   alias Sig.Finance.Payables.PayablesForPayslip.PayslipPayables.PayslipPayable
   alias Sig.HR.Payslips.Payslip
 
+  describe "payable_overdue?/2" do
+    test "when payable is overdue" do
+      payable = insert(:payable, due_date: ~D[2021-01-05], financial_transaction: nil)
+
+      assert Payables.payable_overdue?(payable, ~D[2021-01-06]) == true
+    end
+
+    test "when payable is not paid but not overdue" do
+      payable = insert(:payable, due_date: ~D[2021-01-05], financial_transaction: nil)
+
+      assert Payables.payable_overdue?(payable, ~D[2021-01-04]) == false
+      assert Payables.payable_overdue?(payable, ~D[2021-01-05]) == false
+    end
+
+    test "when payable is paid" do
+      org = insert(:org)
+      user = insert(:user, org: org)
+
+      financial_transaction =
+        insert(:financial_transaction, org: org, entry_type: :debit, type: :billet)
+
+      payable =
+        insert(:payable_billet,
+          org: org,
+          due_date: ~D[2021-01-05],
+          authorized_by: user,
+          financial_transaction: financial_transaction
+        )
+
+      assert Payables.payable_overdue?(payable, ~D[2021-01-04]) == false
+      assert Payables.payable_overdue?(payable, ~D[2021-01-05]) == false
+      assert Payables.payable_overdue?(payable, ~D[2021-01-06]) == false
+    end
+  end
+
   describe "get/3" do
     test "returns a payable" do
       org = insert(:org)
@@ -55,70 +90,67 @@ defmodule Sig.Finance.PayablesTest do
   end
 
   describe "list_by/2 Org" do
-    test "lists payables ordered by `due_date`, `target` and `description`" do
+    test "lists payables ordered by `due_date` and `description`" do
       org = insert(:org)
 
       first_date = ~D[2022-01-01]
       second_date = ~D[2022-01-02]
 
-      insert(:payable, org: org, due_date: second_date, target: :payslip, description: "B")
-      insert(:payable, org: org, due_date: first_date, target: :payslip, description: "B")
-      insert(:payable, org: org, due_date: second_date, target: :payslip, description: "A")
-      insert(:payable, org: org, due_date: first_date, target: :payslip, description: "A")
-      _payslip_payable_to_ignore = insert(:payable, target: :payslip)
-
-      insert(:payable, org: org, due_date: second_date, target: :invoice, description: "B")
-      insert(:payable, org: org, due_date: first_date, target: :invoice, description: "B")
-      insert(:payable, org: org, due_date: second_date, target: :invoice, description: "A")
-      insert(:payable, org: org, due_date: first_date, target: :invoice, description: "A")
-      _invoice_payable_to_ignore = insert(:payable, target: :invoice)
+      insert(:payable, org: org, due_date: second_date, description: "B")
+      insert(:payable, org: org, due_date: first_date, description: "B")
+      insert(:payable, org: org, due_date: second_date, description: "A")
+      insert(:payable, org: org, due_date: first_date, description: "A")
+      _payslip_payable_to_ignore = insert(:payable)
 
       assert [
-               %Payable{due_date: ^first_date, target: :invoice, description: "A"},
-               %Payable{due_date: ^first_date, target: :invoice, description: "B"},
-               %Payable{due_date: ^first_date, target: :payslip, description: "A"},
-               %Payable{due_date: ^first_date, target: :payslip, description: "B"},
-               %Payable{due_date: ^second_date, target: :invoice, description: "A"},
-               %Payable{due_date: ^second_date, target: :invoice, description: "B"},
-               %Payable{due_date: ^second_date, target: :payslip, description: "A"},
-               %Payable{due_date: ^second_date, target: :payslip, description: "B"}
+               %Payable{due_date: ^first_date, description: "A"},
+               %Payable{due_date: ^first_date, description: "B"},
+               %Payable{due_date: ^second_date, description: "A"},
+               %Payable{due_date: ^second_date, description: "B"}
              ] = Payables.list_by(org)
     end
 
     test "filters by `due_date`" do
       org = insert(:org)
 
-      first_date = ~D[2022-01-01]
-      second_date = ~D[2022-01-02]
-
-      insert(:payable, org: org, due_date: second_date, target: :payslip, description: "B")
-      insert(:payable, org: org, due_date: first_date, target: :payslip, description: "B")
-      insert(:payable, org: org, due_date: second_date, target: :payslip, description: "A")
-      insert(:payable, org: org, due_date: first_date, target: :payslip, description: "A")
-
-      _payslip_payable_to_ignore =
-        insert(:payable, org: org, due_date: ~D[2022-01-03], target: :payslip)
-
-      insert(:payable, org: org, due_date: second_date, target: :invoice, description: "B")
-      insert(:payable, org: org, due_date: first_date, target: :invoice, description: "B")
-      insert(:payable, org: org, due_date: second_date, target: :invoice, description: "A")
-      insert(:payable, org: org, due_date: first_date, target: :invoice, description: "A")
-
-      _invoice_payable_to_ignore =
-        insert(:payable, org: org, due_date: ~D[2021-12-31], target: :invoice)
-
-      opts = [due_date: [period_start: first_date, period_end: second_date]]
+      insert(:payable, org: org, due_date: ~D[2022-01-01])
+      insert(:payable, org: org, due_date: ~D[2022-01-02])
+      insert(:payable, org: org, due_date: ~D[2022-01-03])
+      insert(:payable, org: org, due_date: ~D[2022-01-04])
+      insert(:payable, org: org, due_date: ~D[2022-01-05])
 
       assert [
-               %Payable{due_date: ^first_date, target: :invoice, description: "A"},
-               %Payable{due_date: ^first_date, target: :invoice, description: "B"},
-               %Payable{due_date: ^first_date, target: :payslip, description: "A"},
-               %Payable{due_date: ^first_date, target: :payslip, description: "B"},
-               %Payable{due_date: ^second_date, target: :invoice, description: "A"},
-               %Payable{due_date: ^second_date, target: :invoice, description: "B"},
-               %Payable{due_date: ^second_date, target: :payslip, description: "A"},
-               %Payable{due_date: ^second_date, target: :payslip, description: "B"}
-             ] = Payables.list_by(org, opts)
+               %Payable{due_date: ~D[2022-01-02]},
+               %Payable{due_date: ~D[2022-01-03]},
+               %Payable{due_date: ~D[2022-01-04]}
+             ] =
+               Payables.list_by(org,
+                 due_date: [period_start: ~D[2022-01-02], period_end: ~D[2022-01-04]]
+               )
+    end
+
+    test "filters by `due_date` and `overdue_at`" do
+      org = insert(:org)
+
+      insert(:payable, org: org, due_date: ~D[2022-01-01])
+      insert(:payable, org: org, due_date: ~D[2022-01-02])
+      insert(:payable, org: org, due_date: ~D[2022-01-03])
+      insert(:payable, org: org, due_date: ~D[2022-01-04])
+      insert(:payable, org: org, due_date: ~D[2022-01-05])
+
+      assert [
+               %Payable{due_date: ~D[2022-01-01]},
+               %Payable{due_date: ~D[2022-01-02]},
+               %Payable{due_date: ~D[2022-01-03]},
+               %Payable{due_date: ~D[2022-01-04]}
+             ] =
+               Payables.list_by(org,
+                 due_date: [
+                   period_start: ~D[2022-01-02],
+                   period_end: ~D[2022-01-04],
+                   overdue_at: ~D[2022-01-03]
+                 ]
+               )
     end
 
     test "filters by `payable_ids`" do
@@ -351,6 +383,49 @@ defmodule Sig.Finance.PayablesTest do
       insert(:payslip_payable, org: org, payable: from_another_payslip)
 
       assert Payables.list_by(payslip) == []
+    end
+  end
+
+  describe "list_by/2 FinancialTransaction" do
+    test "lists payables by financial transaction" do
+      org = insert(:org)
+      user = insert(:user, org: org)
+      financial_transaction = insert(:financial_transaction, org: org, amount: 300_00)
+
+      insert(:payable_billet,
+        org: org,
+        target: :invoice,
+        due_date: ~D[2021-07-05],
+        description: "B",
+        amount: 100_00,
+        authorized_by: user,
+        financial_transaction: financial_transaction
+      )
+
+      insert(:payable_billet,
+        org: org,
+        target: :invoice,
+        due_date: ~D[2021-07-05],
+        description: "A",
+        amount: 200_00,
+        authorized_by: user,
+        financial_transaction: financial_transaction
+      )
+
+      _from_other_financial_transaction =
+        insert(:payable_billet,
+          org: org,
+          target: :invoice,
+          due_date: ~D[2021-08-01],
+          amount: 100,
+          authorized_by: user,
+          financial_transaction: build(:financial_transaction, org: org, amount: 100_00)
+        )
+
+      assert [
+               %Payable{description: "A"},
+               %Payable{description: "B"}
+             ] = Payables.list_by(financial_transaction)
     end
   end
 end

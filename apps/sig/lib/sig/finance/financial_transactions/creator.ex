@@ -177,7 +177,7 @@ defmodule Sig.Finance.FinancialTransactions.Creator do
         put_error(context, reason)
 
       {:ok, %{financial_transaction: transaction}} ->
-        Task.start(fn -> Payables.broadcast_updated_payables(org, payable_ids) end)
+        Task.start(fn -> Payables.broadcast_payables(org, payable_ids) end)
 
         %{context | return: transaction}
     end

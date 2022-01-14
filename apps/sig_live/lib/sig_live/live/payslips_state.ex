@@ -71,8 +71,8 @@ defmodule SigLive.PayslipsState do
           {:noreply,
            socket
            |> assign(payslips: payslips)
-           |> assign_selected_payslip(new_payslip)}
-          |> handle_apply_payslip_filters()
+           |> assign_selected_payslip(new_payslip)
+           |> handle_apply_payslip_filters()}
         end
       end
 
@@ -119,8 +119,64 @@ defmodule SigLive.PayslipsState do
       end
 
       @impl true
-      def handle_info({:updated_payables, payables}, socket) do
-        {:noreply, assign(socket, selected_payslip_payables: payables)}
+      def handle_info({:updated_payables, :by_org, updated_payables}, socket) do
+        %{
+          selected_payslip: selected_payslip,
+          selected_payslip_payables: selected_payslip_payables
+        } = socket.assigns
+
+        indexed_updated_payables = index_payables(updated_payables, selected_payslip.id)
+
+        if indexed_updated_payables == %{} do
+          {:noreply, socket}
+        else
+          updated_payables =
+            Enum.map(selected_payslip_payables, fn payable ->
+              case Map.get(indexed_updated_payables, payable.id) do
+                nil -> payable
+                updated_payable -> updated_payable
+              end
+            end)
+
+          {:noreply, assign(socket, selected_payslip_payables: updated_payables)}
+        end
+      end
+
+      @impl true
+      def handle_info(
+            {:updated_payables, {:by_payslip, payslip_id}, updated_payables},
+            %{assigns: %{selected_payslip: %{id: payslip_id} = selected_payslip}} = socket
+          ) do
+        %{selected_payslip_payables: payables} = socket.assigns
+
+        {:noreply, assign(socket, selected_payslip_payables: sort_payables(updated_payables))}
+      end
+
+      @impl true
+      def handle_info({:updated_payables, _by, _updated_payables}, socket) do
+        {:noreply, socket}
+      end
+
+      @impl true
+      def handle_info({:deleted_payable, _payables}, socket) do
+        {:noreply, socket}
+      end
+
+      defp index_payables(payables, selected_payslip_id) do
+        Enum.reduce(payables, %{}, fn
+          %{payslip: %Ecto.Association.NotLoaded{}}, acc ->
+            acc
+
+          %{payslip: %{id: ^selected_payslip_id}} = payable, acc ->
+            Map.put(acc, payable.id, payable)
+
+          _payable, acc ->
+            acc
+        end)
+      end
+
+      defp sort_payables(payables) do
+        Enum.sort_by(payables, & &1.due_date, {:asc, Date})
       end
 
       defp subscribe_to_payslip_subscriptions(payslip) do

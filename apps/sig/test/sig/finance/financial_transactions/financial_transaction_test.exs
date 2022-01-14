@@ -428,4 +428,121 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransactionTest do
              }
     end
   end
+
+  describe "update_changeset/2" do
+    test "valid attrs" do
+      financial_transaction =
+        insert(:financial_transaction,
+          description: "Description",
+          placement_date: ~D[2021-01-01],
+          clearing_date: ~D[2021-01-01]
+        )
+
+      attrs = %{
+        description: "New Description",
+        placement_date: ~D[2022-01-01],
+        clearing_date: ~D[2022-01-01]
+      }
+
+      assert changeset = FinancialTransaction.update_changeset(financial_transaction, attrs)
+
+      assert changeset.valid?
+
+      assert changeset.changes == %{
+               description: attrs[:description],
+               placement_date: attrs[:placement_date],
+               clearing_date: attrs[:clearing_date]
+             }
+    end
+
+    test "invalid attrs" do
+      financial_transaction = insert(:financial_transaction)
+
+      attrs = %{
+        description: :invalid,
+        placement_date: :invalid,
+        clearing_date: :invalid
+      }
+
+      assert changeset = FinancialTransaction.update_changeset(financial_transaction, attrs)
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+               clearing_date: ["is invalid"],
+               description: ["is invalid"],
+               placement_date: ["is invalid"]
+             }
+    end
+
+    test "ignores non permitted attrs" do
+      financial_transaction =
+        insert(:financial_transaction,
+          description: "Description",
+          placement_date: ~D[2021-01-01],
+          clearing_date: ~D[2021-01-01]
+        )
+
+      attrs = %{
+        org_id: UUID.generate(),
+        description: "New Description",
+        type: :bank_transfer,
+        placement_date: ~D[2022-01-01],
+        clearing_date: ~D[2022-01-01],
+        amount: 100_00,
+        entry_type: :debit
+      }
+
+      assert changeset = FinancialTransaction.update_changeset(financial_transaction, attrs)
+
+      assert changeset.valid?
+
+      assert changeset.changes == %{
+               description: attrs[:description],
+               placement_date: attrs[:placement_date],
+               clearing_date: attrs[:clearing_date]
+             }
+    end
+
+    test "missing required attrs" do
+      financial_transaction = insert(:financial_transaction)
+
+      attrs = %{
+        description: nil,
+        placement_date: nil
+      }
+
+      assert changeset = FinancialTransaction.update_changeset(financial_transaction, attrs)
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+               description: ["can't be blank"],
+               placement_date: ["can't be blank"]
+             }
+    end
+
+    test "clearing_date before placement_date" do
+      financial_transaction =
+        insert(:financial_transaction,
+          description: "Description",
+          placement_date: ~D[2021-01-01],
+          clearing_date: ~D[2021-01-01]
+        )
+
+      attrs = %{
+        description: "New Description",
+        placement_date: ~D[2022-01-02],
+        clearing_date: ~D[2022-01-01]
+      }
+
+      assert changeset = FinancialTransaction.update_changeset(financial_transaction, attrs)
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+               clearing_date: ["must be after or equal to placement_date"]
+             }
+    end
+  end
 end

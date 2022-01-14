@@ -48,11 +48,6 @@ defmodule SigLive.PayslipGroups.Show do
   end
 
   @impl true
-  def handle_info({:flash, type, message}, socket) do
-    {:noreply, put_flash(socket, type, message)}
-  end
-
-  @impl true
   def handle_info({:deleted_payslip_group, group}, socket) do
     if group.id == socket.assigns.group.id do
       {:noreply,
@@ -104,6 +99,7 @@ defmodule SigLive.PayslipGroups.Show do
             payslip_payables={@selected_payslip_payables}
             registration={@selected_payslip.registration}
             entity={@selected_payslip.registration.individual.entity}
+            {=@org}
             {=@current_user}
           />
         </div>

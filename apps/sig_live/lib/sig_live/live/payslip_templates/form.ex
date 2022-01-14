@@ -137,8 +137,8 @@ defmodule SigLive.PayslipTemplates.Form do
     HR.broadcast_updated_payslip_template(payslip_template)
   end
 
-  defp handle_flash(:new_mode), do: send(self(), {:flash, :info, "Modelo de Holerite criado"})
-  defp handle_flash(:edit_mode), do: send(self(), {:flash, :info, "Modelo de Holerite alterado"})
+  defp handle_flash(:new_mode), do: flash_info("Modelo de Holerite criado")
+  defp handle_flash(:edit_mode), do: flash_info("Modelo de Holerite alterado")
 
   defp handle_title(:new_mode), do: "Novo Modelo de Holerite"
   defp handle_title(:edit_mode), do: "Renomear Modelo de Holerite"

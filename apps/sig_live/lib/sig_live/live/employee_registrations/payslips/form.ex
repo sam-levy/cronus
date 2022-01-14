@@ -339,7 +339,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Form do
 
   defp handle_broadcast(:new_mode, payslip, _socket) do
     HR.broadcast_new_payslip(payslip, refetch: true, preload_registration: true)
-    Finance.broadcast_new_payables(payslip)
+    Finance.broadcast_payables_for(payslip)
   end
 
   defp handle_broadcast(:edit_mode, payslip, socket) do
@@ -348,8 +348,8 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Form do
     HR.broadcast_updated_payslip(payslip, old_payslip, refetch: true, preload_registration: true)
   end
 
-  defp handle_flash(:new_mode), do: send(self(), {:flash, :info, "Holerite criado"})
-  defp handle_flash(:edit_mode), do: send(self(), {:flash, :info, "Holerite atualizado"})
+  defp handle_flash(:new_mode), do: flash_info("Holerite criado")
+  defp handle_flash(:edit_mode), do: flash_info("Holerite atualizado")
 
   defp handle_title(:new_mode), do: "Adicionar Holerite"
   defp handle_title(:edit_mode), do: "Editar Holerite"

@@ -17,6 +17,20 @@ defmodule SigLive do
   and import those modules here.
   """
 
+  defmodule LiveView.Callbacks do
+    defmacro __using__(_) do
+      quote do
+        def handle_info({:flash, type, message}, socket) do
+          Process.send_after(self(), :clear_flash, 2000)
+
+          {:noreply, put_flash(socket, type, message)}
+        end
+
+        def handle_info(:clear_flash, socket), do: {:noreply, clear_flash(socket)}
+      end
+    end
+  end
+
   def controller do
     quote do
       use Phoenix.Controller, namespace: SigLive
@@ -47,6 +61,8 @@ defmodule SigLive do
       use Phoenix.LiveView,
         layout: {SigLive.LayoutView, "live.html"}
 
+      use SigLive.LiveView.Callbacks
+
       unquote(view_helpers())
       unquote(live_view_helpers())
     end
@@ -65,6 +81,8 @@ defmodule SigLive do
     quote do
       use Surface.LiveView,
         layout: {SigLive.LayoutView, "live.html"}
+
+      use SigLive.LiveView.Callbacks
 
       unquote(view_helpers())
       unquote(live_view_helpers())
@@ -109,6 +127,9 @@ defmodule SigLive do
   defp live_view_helpers do
     quote do
       import Ecto.Changeset, only: [apply_action: 2]
+
+      # Import custom LiveView helpers
+      import SigLive.LiveViewHelpers
 
       alias Ecto.UUID
     end

@@ -169,8 +169,8 @@ defmodule SigLive.EmployeeRegistrations.Form do
     {:noreply, socket}
   end
 
-  defp handle_flash(:new_mode), do: send(self(), {:flash, :info, "Registro criado"})
-  defp handle_flash(:edit_mode), do: send(self(), {:flash, :info, "Registro atualizado"})
+  defp handle_flash(:new_mode), do: flash_info("Registro criado")
+  defp handle_flash(:edit_mode), do: flash_info("Registro atualizado")
 
   defp handle_title(:new_mode), do: "Adicionar Registro de Trabalho"
   defp handle_title(:edit_mode), do: "Editar Registro de Trabalho"

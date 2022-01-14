@@ -105,7 +105,7 @@ defmodule SigLive.EmployeeRegistrations.Overtimes.AssignPayslipForm do
     %{registration: registration, close_fun: close_fun} = socket.assigns
 
     HR.broadcast_registration_overtimes(registration)
-    send(self(), {:flash, :info, "Holerite atribuido"})
+    flash_info("Holerite atribuido")
     close_fun.()
 
     {:noreply, socket}

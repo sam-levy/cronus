@@ -145,8 +145,8 @@ defmodule SigLive.EmployeeRegistrations.Suspensions.Form do
     {:noreply, socket}
   end
 
-  defp handle_flash(:new_mode), do: send(self(), {:flash, :info, "Suspensão adicionada"})
-  defp handle_flash(:edit_mode), do: send(self(), {:flash, :info, "Suspensão alterada"})
+  defp handle_flash(:new_mode), do: flash_info("Suspensão adicionada")
+  defp handle_flash(:edit_mode), do: flash_info("Suspensão alterada")
 
   defp handle_title(:new_mode), do: "Adicionar Suspensão"
   defp handle_title(:edit_mode), do: "Editar Suspensão"

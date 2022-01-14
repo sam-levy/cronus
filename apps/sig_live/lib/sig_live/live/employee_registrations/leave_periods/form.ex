@@ -150,8 +150,8 @@ defmodule SigLive.EmployeeRegistrations.LeavePeriods.Form do
     {:noreply, socket}
   end
 
-  defp handle_flash(:new_mode), do: send(self(), {:flash, :info, "Licença adicionada"})
-  defp handle_flash(:edit_mode), do: send(self(), {:flash, :info, "Licença alterada"})
+  defp handle_flash(:new_mode), do: flash_info("Licença adicionada")
+  defp handle_flash(:edit_mode), do: flash_info("Licença alterada")
 
   defp handle_title(:new_mode), do: "Adicionar Licença"
   defp handle_title(:edit_mode), do: "Editar Licença"

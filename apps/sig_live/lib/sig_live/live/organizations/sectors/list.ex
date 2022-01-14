@@ -43,7 +43,7 @@ defmodule SigLive.Organizations.Sectors.List do
     with {:ok, org_sector} <- fetch_org_sector(org_sectors, org_sector_id),
          {:ok, org_sector} <- Organizations.delete_org_sector(org_sector) do
       Organizations.broadcast_deleted_org_sector(org_sector)
-      send(self(), {:flash, :info, "Setor removido"})
+      flash_info("Setor removido")
 
       {:noreply, assign(socket, closed_state())}
     else

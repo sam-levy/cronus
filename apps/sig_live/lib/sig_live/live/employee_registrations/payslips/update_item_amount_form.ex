@@ -114,9 +114,9 @@ defmodule SigLive.EmployeeRegistrations.Payslips.UpdateItemAmountForm do
 
     HR.broadcast_updated_payslip(payslip, nil, refetch: true, preload_registration: true)
     HR.broadcast_payslip_items(payslip)
-    Finance.broadcast_updated_payables(payslip)
+    Finance.broadcast_payables_for(payslip)
 
-    send(self(), {:flash, :info, "Valor alterado"})
+    flash_info("Valor alterado")
     close_fun.()
 
     {:noreply, socket}
