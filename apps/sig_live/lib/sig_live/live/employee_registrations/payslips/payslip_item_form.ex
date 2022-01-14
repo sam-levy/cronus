@@ -122,7 +122,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.PayslipItemForm do
     HR.broadcast_payslip_items(payslip)
     Finance.broadcast_payables_for(payslip)
 
-    send(self(), {:flash, :info, "Item adicionado"})
+    flash_info("Item adicionado")
     close_fun.()
 
     {:noreply, socket}

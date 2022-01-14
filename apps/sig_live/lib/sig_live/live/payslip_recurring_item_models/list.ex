@@ -48,7 +48,7 @@ defmodule SigLive.PayslipRecurringItemModels.List do
     with {:ok, item_model} <- fetch_item_model(payslip_recurring_item_models, payslip_recurring_item_model_id),
          {:ok, item_model} <- HR.delete_payslip_recurring_item_model(item_model) do
       HR.broadcast_deleted_payslip_recurring_item_model(item_model)
-      send(self(), {:flash, :info, "Modelo de item removido"})
+      flash_info("Modelo de item removido")
 
       {:noreply, assign(socket, closed_state())}
     else

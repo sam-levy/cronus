@@ -216,9 +216,9 @@ defmodule SigLive.EmployeeRegistrations.Benefits.Form do
   defp format_benefit_amount(%{changes: %{amount: amount}}), do: format_amount(amount)
   defp format_benefit_amount(_), do: ""
 
-  defp handle_flash(:new_mode), do: send(self(), {:flash, :info, "Benefício criado"})
-  defp handle_flash(:finalize_mode), do: send(self(), {:flash, :info, "Benefício finalizado"})
-  defp handle_flash(_), do: send(self(), {:flash, :info, "Benefício atualizado"})
+  defp handle_flash(:new_mode), do: flash_info("Benefício criado")
+  defp handle_flash(:finalize_mode), do: flash_info("Benefício finalizado")
+  defp handle_flash(_), do: flash_info("Benefício atualizado")
 
   defp handle_title(:new_mode), do: "Adicionar Benefício"
   defp handle_title(:show_mode), do: "Benefício"

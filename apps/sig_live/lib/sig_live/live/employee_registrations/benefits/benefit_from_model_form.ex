@@ -170,7 +170,7 @@ defmodule SigLive.EmployeeRegistrations.Benefits.BenefitFromModelForm do
     {:noreply, socket}
   end
 
-  defp handle_flash(:new_mode), do: send(self(), {:flash, :info, "Benefício criado"})
+  defp handle_flash(:new_mode), do: flash_info("Benefício criado")
 
   defp handle_title(:new_mode), do: "Adicionar Benefício de um Modelo"
   defp handle_title(:show_mode), do: "Benefício"

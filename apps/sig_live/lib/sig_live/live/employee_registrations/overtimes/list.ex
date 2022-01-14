@@ -65,7 +65,7 @@ defmodule SigLive.EmployeeRegistrations.Overtimes.List do
     with {:ok, overtime} <- HR.fetch_overtime(registration, id),
          {:ok, _overtime} <- HR.drop_overtime_payslip(overtime) do
       HR.broadcast_registration_overtimes(registration)
-      send(self(), {:flash, :info, "Holerite destribuído"})
+      flash_info("Holerite destribuído")
 
       {:noreply, assign(socket, closed_state())}
     else
@@ -86,7 +86,7 @@ defmodule SigLive.EmployeeRegistrations.Overtimes.List do
     with {:ok, overtime} <- HR.fetch_overtime(registration, id),
          {:ok, _overtime} <- HR.delete_overtime(overtime) do
       HR.broadcast_registration_overtimes(registration)
-      send(self(), {:flash, :info, "Horas extras removidas"})
+      flash_info("Horas extras removidas")
 
       {:noreply, assign(socket, closed_state())}
     else

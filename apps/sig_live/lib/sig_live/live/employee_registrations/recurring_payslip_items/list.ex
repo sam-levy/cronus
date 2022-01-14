@@ -89,12 +89,12 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
     case HR.delete_recurring_payslip_item(registration, item_id) do
       {:ok, _item} ->
         HR.broadcast_registration_recurring_payslip_items(registration)
-        send(self(), {:flash, :info, "Item removido"})
+        flash_info("Item removido")
 
         {:noreply, assign(socket, closed_state())}
 
       {:error, message} ->
-        send(self(), {:flash, :info, "Falha ao remover o item"})
+        flash_info("Falha ao remover o item")
 
       {:noreply, assign(socket, message: message)}
     end

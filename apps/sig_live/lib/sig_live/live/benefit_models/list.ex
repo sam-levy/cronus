@@ -66,7 +66,7 @@ defmodule SigLive.BenefitModels.List do
     with {:ok, benefit_model} <- fetch_benefit_model(benefit_models, id),
          {:ok, benefit_model} <- HR.enable_benefit_model(benefit_model) do
       HR.broadcast_updated_benefit_model(benefit_model)
-      send(self(), {:flash, :info, "Valor alterado"})
+      flash_info("Valor alterado")
 
       {:noreply, assign(socket, closed_state())}
     else
@@ -81,7 +81,7 @@ defmodule SigLive.BenefitModels.List do
     with {:ok, benefit_model} <- fetch_benefit_model(benefit_models, id),
          {:ok, benefit_model} <- HR.delete_benefit_model(benefit_model) do
       HR.broadcast_deleted_benefit_model(benefit_model)
-      send(self(), {:flash, :info, "Modelo de benefício removido"})
+      flash_info("Modelo de benefício removido")
 
       {:noreply, assign(socket, closed_state())}
     else

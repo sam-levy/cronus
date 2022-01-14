@@ -70,7 +70,7 @@ defmodule SigLive.PayslipGroups.List do
 
     with {:ok, group} <- fetch_group(groups, group_id),
          {:ok, _group} <- HR.delete_group_with_payslips(org, group) do
-      send(self(), {:flash, :info, "Grupo removido"})
+      flash_info("Grupo removido")
 
       {:noreply, assign(socket, closed_state())}
     else

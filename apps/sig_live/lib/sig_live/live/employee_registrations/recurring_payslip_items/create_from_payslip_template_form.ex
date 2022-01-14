@@ -30,7 +30,7 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.CreateFromPayslipT
     case HR.create_recurring_payslip_items_from_template(registration, id) do
       {:ok, _} ->
         HR.broadcast_registration_recurring_payslip_items(registration)
-        send(self(), {:flash, :info, "Items criados"})
+        flash_info("Items criados")
         close_fun.()
 
         {:noreply, socket}

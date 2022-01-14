@@ -348,7 +348,7 @@ defmodule SigLive.PayslipGroups.Form do
   end
 
   defp handle_create_return(%{return: {:ok, payslips}, socket: socket}) do
-    send(self(), {:flash, :info, "#{Enum.count(payslips)} holerites gerados"})
+    flash_info("#{Enum.count(payslips)} holerites gerados")
     socket.assigns.close_fun.()
 
     {:noreply, socket}

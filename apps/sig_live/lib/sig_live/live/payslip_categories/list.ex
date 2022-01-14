@@ -43,7 +43,7 @@ defmodule SigLive.PayslipCategories.List do
     with {:ok, payslip_category} <- fetch_payslip_category(payslip_categories, payslip_category_id),
          {:ok, payslip_category} <- HR.delete_payslip_category(payslip_category) do
       HR.broadcast_deleted_payslip_category(payslip_category)
-      send(self(), {:flash, :info, "Categoria removida"})
+      flash_info("Categoria removida")
 
       {:noreply, assign(socket, closed_state())}
     else

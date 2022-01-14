@@ -138,8 +138,8 @@ defmodule SigLive.Organizations.Sectors.Form do
     Organizations.broadcast_updated_org_sector(org_sector)
   end
 
-  defp handle_flash(:new_mode), do: send(self(), {:flash, :info, "Setor criado"})
-  defp handle_flash(:edit_mode), do: send(self(), {:flash, :info, "Setor alterado"})
+  defp handle_flash(:new_mode), do: flash_info("Setor criado")
+  defp handle_flash(:edit_mode), do: flash_info("Setor alterado")
 
   defp handle_title(:new_mode), do: "Novo Setor"
   defp handle_title(:edit_mode), do: "Renomear Setor"

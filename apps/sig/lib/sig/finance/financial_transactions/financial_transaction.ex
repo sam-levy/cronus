@@ -1,6 +1,7 @@
 defmodule Sig.Finance.FinancialTransactions.FinancialTransaction do
   use Sig.Schema
 
+  alias Sig.Finance.FinancialTransactions.BankTransactions.BankTransaction
   alias Sig.Organizations.Org
 
   schema "financial_transactions" do
@@ -14,6 +15,9 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransaction do
     field :description, :string
 
     belongs_to :transfer_counterparty, __MODULE__
+
+    has_one :bank_transaction, BankTransaction
+    has_one :bank_account, through: [:bank_transaction, :bank_account]
 
     timestamps()
   end
@@ -31,5 +35,16 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransaction do
     |> validate_length(:description, max: 255)
     |> validate_dates(:clearing_date, [:gt, :eq], :placement_date)
     |> assoc_constraint(:transfer_counterparty)
+  end
+
+  @update_required_fields [:description, :placement_date]
+  @update_fields @update_required_fields ++ [:clearing_date]
+
+  def update_changeset(%__MODULE__{} = target, attrs) do
+    target
+    |> cast(attrs, @update_fields)
+    |> validate_required(@create_required_fields)
+    |> validate_length(:description, max: 255)
+    |> validate_dates(:clearing_date, [:gt, :eq], :placement_date)
   end
 end

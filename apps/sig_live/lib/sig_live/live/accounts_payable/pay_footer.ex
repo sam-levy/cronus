@@ -89,7 +89,7 @@ defmodule SigLive.AccountsPayable.PayFooter do
          {:ok, _attrs} <- apply_action(changeset, :insert),
          {:ok, financial_transaction} <- Finance.pay_payables(org, changeset.changes) do
       Finance.broadcast_new_financial_transaction(financial_transaction)
-      send(self(), {:flash, :info, "Pagamento efetuado"})
+      flash_info("Pagamento efetuado")
       socket.assigns.close_fun.()
 
       {:noreply, socket}

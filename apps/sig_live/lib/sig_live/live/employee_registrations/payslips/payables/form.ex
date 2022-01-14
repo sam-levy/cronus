@@ -300,8 +300,8 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.Form do
     {:noreply, socket}
   end
 
-  defp handle_flash(:new_mode), do: send(self(), {:flash, :info, "Pagamento adicionado"})
-  defp handle_flash(:edit_mode), do: send(self(), {:flash, :info, "Pagamento atualizado"})
+  defp handle_flash(:new_mode), do: flash_info("Pagamento adicionado")
+  defp handle_flash(:edit_mode), do: flash_info("Pagamento atualizado")
 
   defp bank_accounts_by_owner_name(entity) do
     owned_accounts =

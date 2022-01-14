@@ -102,7 +102,7 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.PayslipItemModelFo
     %{registration: registration, close_fun: close_fun} = socket.assigns
 
     HR.broadcast_registration_recurring_payslip_items(registration)
-    send(self(), {:flash, :info, "Item adicionado"})
+    flash_info("Item adicionado")
     close_fun.()
 
     {:noreply, socket}

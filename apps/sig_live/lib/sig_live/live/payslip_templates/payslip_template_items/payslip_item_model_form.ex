@@ -104,7 +104,7 @@ defmodule SigLive.PayslipTemplates.PayslipTemplateItems.PayslipModelItemForm do
     %{close_fun: close_fun} = socket.assigns
 
     HR.broadcast_new_payslip_template_item(payslip_template_item)
-    send(self(), {:flash, :info, "Item Criado"})
+    flash_info("Item Criado")
     close_fun.()
 
     {:noreply, socket}

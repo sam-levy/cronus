@@ -178,8 +178,8 @@ defmodule SigLive.PayslipCategories.Form do
     HR.broadcast_updated_payslip_category(payslip_category)
   end
 
-  defp handle_flash(:new_mode), do: send(self(), {:flash, :info, "Categoria de Item de Holerite criada"})
-  defp handle_flash(:edit_mode), do: send(self(), {:flash, :info, "Categoria de Item de Holerite alterada"})
+  defp handle_flash(:new_mode), do: flash_info("Categoria de Item de Holerite criada")
+  defp handle_flash(:edit_mode), do: flash_info("Categoria de Item de Holerite alterada")
 
   defp handle_title(:new_mode), do: "Novo Categoria de Item de Holerite"
   defp handle_title(:edit_mode), do: "Renomear Categoria de Item de Holerite"

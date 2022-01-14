@@ -16,6 +16,7 @@ defmodule SigLive.AccountsPayable.Index do
        payables: [],
        payable_ids: MapSet.new(),
        financial_transactions: [],
+       financial_transaction_ids: MapSet.new(),
        assigns_built_for: %{},
        org_bank_accounts:
          Finance.list_accounts_by(socket.assigns.org, where: [is_active: true, is_managed: true])
@@ -164,6 +165,7 @@ defmodule SigLive.AccountsPayable.Index do
 
     financial_transactions =
       Finance.list_financial_transactions_by(org,
+        preload: :bank_account,
         clearing_date: [period_start: start_date, period_end: end_date]
       )
 
@@ -175,6 +177,7 @@ defmodule SigLive.AccountsPayable.Index do
 
     assign(socket,
       financial_transactions: financial_transactions,
+      financial_transaction_ids: MapSet.new(financial_transactions, & &1.id),
       assigns_built_for: assigns_built_for,
       active_screen: :financial_transactions
     )
@@ -213,10 +216,18 @@ defmodule SigLive.AccountsPayable.Index do
   end
 
   @impl true
-  def handle_info({:deleted_payable, payable}, socket) do
-    updated_payables = Enum.reject(socket.assigns.payables, &(&1.id == payable.id))
+  def handle_info({:deleted_payable, deleted_payable}, socket) do
+    if MapSet.member?(socket.assigns.payable_ids, deleted_payable.id) do
+      %{payables: payables, payable_ids: payable_ids} = socket.assigns
 
-    {:noreply, assign(socket, payables: updated_payables)}
+      {:noreply,
+       assign(socket,
+         payables: Enum.reject(payables, &(&1.id == deleted_payable.id)),
+         payable_ids: MapSet.delete(payable_ids, deleted_payable.id)
+       )}
+    else
+      {:noreply, socket}
+    end
   end
 
   @impl true
@@ -226,7 +237,11 @@ defmodule SigLive.AccountsPayable.Index do
     if eligible_financial_transaction?(ft, start_date, end_date) do
       updated_fts = [ft | socket.assigns.financial_transactions]
 
-      {:noreply, assign(socket, financial_transactions: updated_fts)}
+      {:noreply,
+       assign(socket,
+         financial_transactions: updated_fts,
+         financial_transaction_ids: MapSet.new(updated_fts, & &1.id)
+       )}
     else
       {:noreply, socket}
     end
@@ -234,9 +249,11 @@ defmodule SigLive.AccountsPayable.Index do
 
   @impl true
   def handle_info({:updated_financial_transaction, updated_ft}, socket) do
-    %{start_date: start_date, end_date: end_date} = socket.assigns
+    %{financial_transaction_ids: ft_ids, start_date: start_date, end_date: end_date} =
+      socket.assigns
 
-    if eligible_financial_transaction?(updated_ft, start_date, end_date) do
+    if eligible_financial_transaction?(updated_ft, start_date, end_date) or
+         MapSet.member?(ft_ids, updated_ft.id) do
       updated_ft_id = updated_ft.id
 
       updated_fts =
@@ -245,17 +262,30 @@ defmodule SigLive.AccountsPayable.Index do
           ft -> ft
         end)
 
-      {:noreply, assign(socket, financial_transactions: updated_fts)}
+      {:noreply,
+       assign(socket,
+         financial_transactions: updated_fts,
+         financial_transaction_ids: MapSet.new(updated_fts, & &1.id)
+       )}
     else
       {:noreply, socket}
     end
   end
 
   @impl true
-  def handle_info({:deleted_financial_transaction, ft}, socket) do
-    updated_fts = Enum.reject(socket.assigns.financial_transactions, &(&1.id == ft.id))
+  def handle_info({:deleted_financial_transaction, deleted_ft}, socket) do
+    if MapSet.member?(socket.assigns.financial_transaction_ids, deleted_ft.id) do
+      %{financial_transactions: financial_transactions, financial_transaction_ids: ft_ids} =
+        socket.assigns
 
-    {:noreply, assign(socket, financial_transactions: updated_fts)}
+      {:noreply,
+       assign(socket,
+         financial_transactions: Enum.reject(financial_transactions, &(&1.id == deleted_ft.id)),
+         financial_transaction_ids: MapSet.delete(ft_ids, deleted_ft.id)
+       )}
+    else
+      {:noreply, socket}
+    end
   end
 
   defp index_payables(updated_payables, payable_ids, start_date, end_date, overdue_at) do

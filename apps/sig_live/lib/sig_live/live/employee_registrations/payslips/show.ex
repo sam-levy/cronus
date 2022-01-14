@@ -93,12 +93,12 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
 
         message = if payslip.is_closed, do: "Holerite bloqueado", else: "Holerite desbloqueado"
 
-        send(self(), {:flash, :info, message})
+        flash_info(message)
 
         {:noreply, socket}
 
       {:error, _changeset} ->
-        send(self(), {:flash, :error, "Falha ao bloquear o holerite"})
+        flash_error("Falha ao bloquear o holerite")
 
         {:noreply, socket}
     end
@@ -113,7 +113,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
       HR.broadcast_updated_payslip(payslip, nil, refetch: true, preload_registration: true)
       HR.broadcast_payslip_items(payslip)
       Finance.broadcast_payables_for(payslip)
-      send(self(), {:flash, :info, "Item removido"})
+      flash_info("Item removido")
 
       {:noreply, assign(socket, closed_state())}
     else
@@ -133,7 +133,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
 
     case HR.delete_payslip(org, payslip) do
       {:ok, _payslip} ->
-        send(self(), {:flash, :info, "Holerite removido"})
+        flash_info("Holerite removido")
 
         {:noreply, assign(socket, closed_state())}
 

@@ -50,7 +50,7 @@ defmodule SigLive.PayslipTemplates.List do
     with {:ok, payslip_template} <- fetch_payslip_template(payslip_templates, payslip_template_id),
          {:ok, payslip_template} <- HR.delete_payslip_template(payslip_template) do
       HR.broadcast_deleted_payslip_template(payslip_template)
-      send(self(), {:flash, :info, "Modelo de holerite removido"})
+      flash_info("Modelo de holerite removido")
 
       {:noreply, assign(socket, closed_state())}
     else
