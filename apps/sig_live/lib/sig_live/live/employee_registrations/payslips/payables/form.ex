@@ -188,11 +188,33 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.Form do
 
         <div
           class="form-field"
-          :if={@form_state == :show_mode and @changeset.data.authorized_by != nil}
+          :if={@form_state == :show_mode and @payable.authorized_by != nil}
         >
           <label class="form-label">Autorizado Por</label>
 
-          <input type="text" disabled class="form-input-disabled" value={@changeset.data.authorized_by.email}>
+          <input type="text" disabled class="form-input-disabled" value={@payable.authorized_by.email}>
+        </div>
+
+        <div :if={@form_state == :show_mode and @payable.financial_transaction_id != nil}>
+          <div class="form-field flex space-x-4">
+            <div>
+              <label class="form-label">Data de Pagamento</label>
+
+              <input type="text" disabled class="form-input-disabled" value={format_date(@payable.financial_transaction.placement_date)}>
+            </div>
+
+            <div>
+              <label class="form-label">Data de Liquidação</label>
+
+              <input type="text" disabled class="form-input-disabled" value={format_date(@payable.financial_transaction.clearing_date)}>
+            </div>
+          </div>
+
+          <div>
+            <label class="form-label">Descrição do Pagamento</label>
+
+            <input type="text" disabled class="form-input-disabled" value={@payable.financial_transaction.description}>
+          </div>
         </div>
 
         <div :if={@message} class="form-error-tag">{@message}</div>
@@ -208,7 +230,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.Form do
   def states, do: @form_states
 
   defp get_payable(_payslip, nil), do: nil
-  defp get_payable(payslip, payable_id), do: Finance.get_payable(payslip, payable_id, preload: :authorized_by)
+  defp get_payable(payslip, payable_id), do: Finance.get_payable(payslip, payable_id, preload: [:authorized_by, :financial_transaction])
 
   defp set_is_automatic_amount(nil), do: false
   defp set_is_automatic_amount(payable), do: payable.payslip_payable.is_auto_adjustable_amount
