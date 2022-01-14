@@ -66,6 +66,19 @@ defmodule Sig.Finance.Banks.EntityBankAccounts do
     end
   end
 
+  def fetch_entity_primary(org_id, entity_id) when is_binary(org_id) and is_binary(entity_id) do
+    init_query()
+    |> where(org_id: ^org_id)
+    |> where(entity_id: ^entity_id)
+    |> preload_bank_account()
+    |> where([eba: eba], eba.is_primary)
+    |> Repo.one()
+    |> case do
+      %EntityBankAccount{} = eba -> {:ok, eba}
+      nil -> {:error, :not_found}
+    end
+  end
+
   def entities_relationships(%Entity{type: :individual}, %Entity{type: :individual}) do
     EntityBankAccount.individuals_relationships()
   end
@@ -96,8 +109,12 @@ defmodule Sig.Finance.Banks.EntityBankAccounts do
 
   defp topic(%Entity{} = entity), do: "entity_id:" <> entity.id <> ":entity_bank_accounts"
 
-  defp query_by_entity(entity) do
+  defp init_query() do
     from(eba in EntityBankAccount, as: :eba)
+  end
+
+  defp query_by_entity(entity) do
+    init_query()
     |> where([eba: eba], eba.org_id == ^entity.org_id)
     |> where([eba: eba], eba.entity_id == ^entity.id)
   end

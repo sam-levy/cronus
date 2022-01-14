@@ -2,7 +2,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateStandardPayables do
   alias Ecto.Multi
 
   alias Sig.HR.Registrations.Registration
-  alias Sig.Finance.Banks.Accounts
+  alias Sig.Finance.Banks
   alias Sig.Finance.Payables.PayablesForPayslip
   alias Sig.HR.Payslips.Items.Item
   alias Sig.HR.Payslips.Payslip
@@ -62,7 +62,10 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateStandardPayables do
   defp get_bank_account(context) do
     %{registration: registration, payslip: payslip} = context
 
-    case Accounts.fetch_entity_primary(payslip.org_id, registration.individual_id) do
+    case Banks.fetch_entity_active_primary_bank_account(
+           payslip.org_id,
+           registration.individual_id
+         ) do
       {:ok, account} -> %{context | bank_account: account}
       {:error, :not_found} -> %{context | bank_account: :not_found}
     end

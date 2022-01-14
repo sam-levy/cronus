@@ -55,7 +55,6 @@ defmodule Sig.Finance.Banks.Accounts do
     |> handle_return()
   end
 
-  # TODO: Add tests
   def fetch_entity_primary(org_id, entity_id) when is_binary(org_id) and is_binary(entity_id) do
     Account
     |> where(org_id: ^org_id)
