@@ -186,7 +186,6 @@ defmodule Sig.Finance.Payables do
     end
   end
 
-  # Alterar testes
   defp order(queryable) do
     order_by(queryable, [:due_date, :description])
   end

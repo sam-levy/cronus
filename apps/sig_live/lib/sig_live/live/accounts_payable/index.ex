@@ -165,6 +165,7 @@ defmodule SigLive.AccountsPayable.Index do
 
     financial_transactions =
       Finance.list_financial_transactions_by(org,
+        preload: :bank_account,
         clearing_date: [period_start: start_date, period_end: end_date]
       )
 

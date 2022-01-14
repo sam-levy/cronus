@@ -6,16 +6,37 @@ defmodule SigLive.AccountsPayable.FinancialTransactionsList do
   alias SigLive.Components.ConfirmationDialog
   alias SigLive.Components.DropdownOpts
 
+  alias SigLive.AccountsPayable.FinancialTransactions.{Show, ClearForm}
+
   prop org, :struct, required: true
   prop financial_transactions, :list, required: true
 
   data financial_transaction_id, :string, default: nil
+  data selected_financial_transaction, :struct, default: nil
+
   data confirmation_dialog_state, :atom, default: :closed
+  data show_open, :boolean, default: false
+  data clear_form_open, :boolean, default: false
+
   data message, :string, default: nil
 
   @impl true
   def handle_event("close_modals", _, socket) do
     {:noreply, assign(socket, closed_state())}
+  end
+
+  @impl true
+  def handle_event("open_financial_transaction_show", %{"financial_transaction_id" => id}, socket) do
+    ft = Enum.find(socket.assigns.financial_transactions, & &1.id == id)
+
+    {:noreply, assign(socket, selected_financial_transaction: ft, show_open: true)}
+  end
+
+  @impl true
+  def handle_event("open_clear_financial_transaction_form", %{"financial_transaction_id" => id}, socket) do
+    ft = Enum.find(socket.assigns.financial_transactions, & &1.id == id)
+
+    {:noreply, assign(socket, selected_financial_transaction: ft, clear_form_open: true)}
   end
 
   @impl true
@@ -56,6 +77,22 @@ defmodule SigLive.AccountsPayable.FinancialTransactionsList do
   def render(assigns) do
     ~F"""
     <div>
+      <Show
+        :if={@show_open}
+        id="financial_transaction_show"
+        close_event="close_modals"
+        financial_transaction={@selected_financial_transaction}
+        {=@org}
+      />
+
+      <ClearForm
+        :if={@clear_form_open}
+        id="financial_transaction_clear_form"
+        close_event="close_modals"
+        close_fun={fn -> close_modals(@id) end}
+        financial_transaction={@selected_financial_transaction}
+      />
+
       <ConfirmationDialog
         :if={@confirmation_dialog_state != :closed}
         close_event="close_modals"
@@ -84,7 +121,6 @@ defmodule SigLive.AccountsPayable.FinancialTransactionsList do
           >
             <th class="py-3 px-6 text-left">Liquidação</th>
             <th class="px-3 text-left">Descrição</th>
-            <th class="px-3 text-left">Vencimento</th>
             <th class="px-3 text-left">Forma</th>
             <th class="px-3 text-right">Valor</th>
             <th class="text-left"></th>
@@ -109,10 +145,13 @@ defmodule SigLive.AccountsPayable.FinancialTransactionsList do
               </td>
 
               <td class="py-3 px-3 text-left">
-                {transaction.description}
-              </td>
-
-              <td class="py-3 px-3 text-left">
+                <a
+                  :on-click="open_financial_transaction_show"
+                  phx-value-financial_transaction_id={transaction.id}
+                  class="cursor-pointer hover:underline"
+                >
+                  {transaction.description}
+                </a>
               </td>
 
               <td class="px-3 text-left">
@@ -126,6 +165,15 @@ defmodule SigLive.AccountsPayable.FinancialTransactionsList do
 
               <td class="pr-5 text-right">
                 <DropdownOpts>
+                  <a
+                    :if={transaction.clearing_date == nil}
+                    :on-click="open_clear_financial_transaction_form"
+                    phx-value-financial_transaction_id={transaction.id}
+                    class="dropdown-item not-italic"
+                  >
+                    Liquidar
+                  </a>
+
                   <a
                     :on-click="open_delete_confirmation_dialog"
                     phx-value-financial_transaction_id={transaction.id}
@@ -151,7 +199,10 @@ defmodule SigLive.AccountsPayable.FinancialTransactionsList do
     [
       message: nil,
       financial_transaction_id: nil,
-      confirmation_dialog_state: :closed
+      selected_financial_transaction: nil,
+      confirmation_dialog_state: :closed,
+      show_open: false,
+      clear_form_open: false
     ]
   end
 end
