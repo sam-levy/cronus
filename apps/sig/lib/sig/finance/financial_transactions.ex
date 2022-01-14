@@ -1,4 +1,6 @@
 defmodule Sig.Finance.FinancialTransactions do
+  use Sig.Preloader, financial_transaction: [:bank_account]
+
   import Ecto.Query
 
   alias Sig.Finance.FinancialTransactions.Broadcaster
@@ -18,13 +20,26 @@ defmodule Sig.Finance.FinancialTransactions do
   defdelegate broadcast_updated_financial_transaction(ft), to: Broadcaster
   defdelegate broadcast_deleted_financial_transaction(ft), to: Broadcaster
 
+  def update_change(%FinancialTransaction{} = ft, %{} = attrs \\ %{}) do
+    FinancialTransaction.update_changeset(ft, attrs)
+  end
+
   def list_by(%Org{} = org, opts \\ []) do
     org
     |> query_by()
+    |> shallow_preload(opts)
     |> filter_by_clearing_date(opts)
     |> order()
     |> Repo.all()
   end
+
+  def clear(%FinancialTransaction{clearing_date: nil} = ft, %{} = attrs) do
+    ft
+    |> FinancialTransaction.update_changeset(%{clearing_date: attrs.clearing_date})
+    |> Repo.update()
+  end
+
+  def clear(%FinancialTransaction{}, %{}), do: {:error, "already cleared"}
 
   defp init_query, do: from(p in FinancialTransaction, as: :financial_transaction)
 
