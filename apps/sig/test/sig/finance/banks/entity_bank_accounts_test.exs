@@ -175,7 +175,8 @@ defmodule Sig.Finance.Banks.EntityBankAccountsTest do
     test "when entity doesn't have any EntityBankAccount" do
       entity = insert(:entity)
 
-      assert EntityBankAccounts.fetch_entity_primary(entity.org_id, entity.id) == {:error, :not_found}
+      assert EntityBankAccounts.fetch_entity_primary(entity.org_id, entity.id) ==
+               {:error, :not_found}
     end
   end
 

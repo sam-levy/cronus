@@ -142,7 +142,8 @@ defmodule Sig.Finance.Banks.AccountsTest do
 
       insert(:bank_account, org: org, entity: entity, is_primary: false)
 
-      assert {:ok, %Account{id: ^primary_account_id}} = Accounts.fetch_entity_primary(org.id, entity.id)
+      assert {:ok, %Account{id: ^primary_account_id}} =
+               Accounts.fetch_entity_primary(org.id, entity.id)
     end
 
     test "when entity doesn't have a primary account" do
