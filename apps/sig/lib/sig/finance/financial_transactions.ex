@@ -7,6 +7,7 @@ defmodule Sig.Finance.FinancialTransactions do
   alias Sig.Finance.FinancialTransactions.Creator
   alias Sig.Finance.FinancialTransactions.Deleter
   alias Sig.Finance.FinancialTransactions.FinancialTransaction
+  alias Sig.Finance.Payables
   alias Sig.Organizations.Org
   alias Sig.Repo
 
@@ -37,6 +38,14 @@ defmodule Sig.Finance.FinancialTransactions do
     ft
     |> FinancialTransaction.update_changeset(%{clearing_date: attrs.clearing_date})
     |> Repo.update()
+    |> case do
+      {:ok, ft} ->
+        Task.start(fn -> Payables.broadcast_payables_for(ft) end)
+
+        {:ok, ft}
+
+      {:error, _} = error -> error
+    end
   end
 
   def clear(%FinancialTransaction{}, %{}), do: {:error, "already cleared"}
