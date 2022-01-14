@@ -44,7 +44,8 @@ defmodule Sig.Finance.FinancialTransactions do
 
         {:ok, ft}
 
-      {:error, _} = error -> error
+      {:error, _} = error ->
+        error
     end
   end
 
