@@ -8,6 +8,7 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
       entity = insert(:entity)
 
       account = %Account{
+        name: "Account Name",
         org_id: entity.org_id,
         entity_id: entity.id,
         type: random_enum_value(:bank_account_type),
@@ -121,6 +122,27 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
                    fn -> Repo.insert(account) end
     end
 
+    test "[name, org_id] citext unique_constraint" do
+      existing_account = insert(:bank_account, name: "Account Name")
+
+      account = %Account{
+        name: "account name",
+        org_id: existing_account.org_id,
+        entity_id: existing_account.entity_id,
+        type: random_enum_value(:bank_account_type),
+        routing_number: random_string_number(),
+        branch_number: random_string_number(),
+        number: random_string_number(),
+        is_active: true,
+        is_primary: true,
+        is_joint_account: false
+      }
+
+      assert_raise Ecto.ConstraintError,
+                   ~r/bank_accounts_name_org_id_index \(unique_constraint\)/,
+                   fn -> Repo.insert(account) end
+    end
+
     test "[:routing_number, :branch_number, :number, :org_id] citext unique_constraint" do
       existing_account =
         insert(:bank_account,
@@ -180,6 +202,7 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
       attrs = %{
         org_id: UUID.generate(),
         entity_id: UUID.generate(),
+        name: "Account Name",
         type: random_enum_value(:bank_account_type),
         routing_number: random_bank_routing_number(),
         branch_number: random_string_number(),
@@ -218,6 +241,7 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
       attrs = %{
         org_id: :invalid,
         entity_id: :invalid,
+        name: :invalid,
         type: 1,
         routing_number: :invalid,
         branch_number: :invalid,
@@ -236,6 +260,7 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
       assert errors_on(changeset) == %{
                org_id: ["is invalid"],
                entity_id: ["is invalid"],
+               name: ["is invalid"],
                type: ["is invalid"],
                routing_number: ["is invalid"],
                branch_number: ["is invalid"],
@@ -282,6 +307,7 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
         attrs_for(:bank_account,
           org_id: UUID.generate(),
           entity_id: UUID.generate(),
+          name: String.duplicate("a", 256),
           branch_number: String.duplicate("a", 256),
           number: String.duplicate("a", 256),
           pix_key: String.duplicate("a", 256)
@@ -292,6 +318,7 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
       refute changeset.valid?
 
       assert errors_on(changeset) == %{
+               name: ["should be at most 255 character(s)"],
                branch_number: ["should be at most 255 character(s)"],
                number: ["should be at most 255 character(s)"],
                pix_key: ["should be at most 255 character(s)"]
@@ -352,6 +379,26 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
       assert errors_on(changeset) == %{pix_key: ["has already been taken"]}
     end
 
+    test "[name, org_id] unique constraint" do
+      existing_account = insert(:bank_account, name: "Account Name")
+
+      attrs =
+        attrs_for(:bank_account,
+          org_id: existing_account.org_id,
+          entity_id: existing_account.entity_id,
+          name: existing_account.name,
+          is_primary: false
+        )
+
+      assert {:error, changeset} =
+               attrs
+               |> Account.create_changeset()
+               |> Repo.insert()
+
+      refute changeset.valid?
+      assert errors_on(changeset) == %{name: ["has already been taken"]}
+    end
+
     test "[:routing_number, :branch_number, :number, :org_id] unique constraint" do
       existing_account =
         insert(:bank_account,
@@ -389,12 +436,14 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
         insert(:bank_account,
           org: existing_bank_account.org,
           entity: existing_bank_account.entity,
+          name: "Account Name",
           pix_key: "pix_key",
           is_active: false,
           is_primary: false
         )
 
       attrs = %{
+        name: "New Account Name",
         pix_key: "new_pix_key",
         is_active: true,
         is_primary: true
@@ -410,6 +459,7 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
       account = insert(:bank_account)
 
       attrs = %{
+        name: :invalid,
         pix_key: :invalid,
         is_active: :invalid,
         is_primary: :invalid
@@ -420,6 +470,7 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
       refute changeset.valid?
 
       assert errors_on(changeset) == %{
+               name: ["is invalid"],
                pix_key: ["is invalid"],
                is_active: ["is invalid"],
                is_primary: ["is invalid"]
@@ -487,12 +538,14 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
         insert(:bank_account,
           org: existing_bank_account.org,
           entity: existing_bank_account.entity,
+          name: "Account Name",
           pix_key: "pix_key",
           is_active: false,
           is_primary: false
         )
 
       attrs = %{
+        name: "New Account Name",
         pix_key: "new_pix_key",
         org_id: UUID.generate(),
         type: random_enum_value(:bank_account_type),
@@ -511,6 +564,7 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
       assert changeset.valid?
 
       assert changeset.changes == %{
+               name: attrs[:name],
                pix_key: attrs[:pix_key],
                is_active: attrs[:is_active],
                is_primary: attrs[:is_primary]
@@ -534,6 +588,25 @@ defmodule Sig.Finance.Banks.Accounts.AccountTest do
 
       refute changeset.valid?
       assert errors_on(changeset) == %{pix_key: ["has already been taken"]}
+    end
+
+    test "[name, org_id] unique constraint" do
+      org = insert(:org)
+
+      account_1 = insert(:bank_account, org: org, is_active: true)
+      account_2 = insert(:bank_account, org: org, is_active: false, name: "Account 2 Name")
+
+      attrs = %{
+        name: account_2.name
+      }
+
+      assert {:error, changeset} =
+               account_1
+               |> Account.update_changeset(attrs)
+               |> Repo.update()
+
+      refute changeset.valid?
+      assert errors_on(changeset) == %{name: ["has already been taken"]}
     end
   end
 
