@@ -1,5 +1,5 @@
 defmodule Sig.Finance.Banks.EntityBankAccounts.BackUpdaterTest do
-  use Sig.DataCase
+  use Sig.DataCase, async: true
 
   alias Sig.Finance.Banks.EntityBankAccounts.BackUpdater
   alias Sig.Finance.Banks.EntityBankAccounts.EntityBankAccount

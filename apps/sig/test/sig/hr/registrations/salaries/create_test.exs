@@ -1,5 +1,5 @@
 defmodule Sig.HR.Registrations.Salaries.CreateTest do
-  use Sig.DataCase
+  use Sig.DataCase, async: true
 
   alias Sig.HR.Registrations.Salaries.Salary
   alias Sig.HR.Registrations.Salaries.Create

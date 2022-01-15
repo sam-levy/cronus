@@ -1,5 +1,5 @@
 defmodule Sig.Organizations.EctoTypes.OrgUserRolesTest do
-  use Sig.DataCase
+  use Sig.DataCase, async: true
 
   alias Sig.Organizations.EctoTypes.OrgUserRoles
 

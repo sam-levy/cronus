@@ -1,5 +1,5 @@
 defmodule Sig.HR.Registrations.RecurringPayslipItemsTest do
-  use Sig.DataCase
+  use Sig.DataCase, async: true
 
   alias Sig.HR.Registrations.RecurringPayslipItems
   alias Sig.HR.Registrations.RecurringPayslipItems.RecurringPayslipItem

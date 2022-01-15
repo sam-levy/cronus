@@ -1,5 +1,5 @@
 defmodule Sig.MapTest do
-  use Sig.DataCase
+  use Sig.DataCase, async: true
 
   describe "flat_put/3" do
     test "creates a new key" do

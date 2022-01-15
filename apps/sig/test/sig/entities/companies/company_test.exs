@@ -1,5 +1,5 @@
 defmodule Sig.Entities.Companies.CompanyTest do
-  use Sig.DataCase
+  use Sig.DataCase, async: true
 
   alias BrazilianDocuments.Types.CNPJ
 

@@ -1,5 +1,5 @@
 defmodule Sig.HR.PayslipsTest do
-  use Sig.DataCase
+  use Sig.DataCase, async: true
 
   alias Sig.Entities.Companies.Company
   alias Sig.Entities.Entity

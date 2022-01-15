@@ -1,5 +1,5 @@
 defmodule Sig.Entities.CompaniesTest do
-  use Sig.DataCase
+  use Sig.DataCase, async: true
 
   alias Sig.Entities.Companies
   alias Sig.Entities.Companies.Company

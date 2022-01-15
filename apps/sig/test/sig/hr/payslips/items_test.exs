@@ -1,5 +1,5 @@
 defmodule Sig.HR.Payslips.ItemsTest do
-  use Sig.DataCase
+  use Sig.DataCase, async: true
 
   alias Sig.HR.Payslips.Items
   alias Sig.HR.Payslips.Items.Item
