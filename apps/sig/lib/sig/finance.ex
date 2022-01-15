@@ -75,6 +75,10 @@ defmodule Sig.Finance do
   defdelegate set_payable_for_payslip_as_auto_adjustable(payslip, payable), to: Payables
   defdelegate unset_payable_for_payslip_as_auto_adjustable(payslip, payable), to: Payables
 
+  defdelegate default_financial_transaction_preloads,
+    to: FinancialTransactions,
+    as: :default_preloads
+
   defdelegate pay_payables_change(params \\ %{}), to: FinancialTransactions
   defdelegate pay_payables(org, attrs \\ %{}), to: FinancialTransactions
   defdelegate clear_financial_transaction(ft, date), to: FinancialTransactions, as: :clear
