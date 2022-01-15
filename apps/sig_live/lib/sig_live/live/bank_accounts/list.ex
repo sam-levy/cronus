@@ -94,8 +94,8 @@ defmodule SigLive.BankAccounts.List do
             :if={@bank_accounts != [] || @entity_bank_accounts != []}
             class="bg-gray-100 uppercase text-xs font-medium text-gray-500 tracking-wider"
           >
-            <th class="py-3 px-6 text-left">Banco</th>
-            <th></th>
+            <th class="py-3 px-6 text-left">Conta</th>
+            <th class="py-3 px-3 text-left">Banco</th>
             <th class="py-3 px-3 text-left">Chave PIX</th>
             <th class="py-3 px-3 text-left">Agência</th>
             <th class="py-3 px-3 text-left">Conta</th>
@@ -106,19 +106,19 @@ defmodule SigLive.BankAccounts.List do
         <tbody class="text-gray-600 text-sm font-light">
           {#for account <- @bank_accounts}
             <tr class="border-b border-gray-200 hover:bg-gray-50">
+              <td class="px-3 text-left">
+                {account.name}
+
+                <span :if={!account.is_active} class="label-red mx-1">Inativa</span>
+                <span :if={account.is_primary} class="label-green mx-1">Principal</span>
+              </td>
+
               <td
                 :on-click="open_show_account_form"
                 phx-value-account_id={account.id}
                 class="py-3 pl-6 text-left cursor-pointer hover:underline"
               >
                 {bank_name_with_number(account.routing_number)}
-              </td>
-
-              <td class="px-3 text-left">
-                <div class="flex items-center">
-                  <span :if={!account.is_active} class="label-red mr-1">Inativa</span>
-                  <span :if={account.is_primary} class="label-green">Principal</span>
-                </div>
               </td>
 
               <td class="px-3 text-left select-all">

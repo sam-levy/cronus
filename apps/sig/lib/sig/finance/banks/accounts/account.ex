@@ -13,6 +13,7 @@ defmodule Sig.Finance.Banks.Accounts.Account do
   schema "bank_accounts" do
     belongs_to :org, Org, primary_key: true
 
+    field :name, :string
     field :type, BankAccountType
     field :routing_number, :string
     field :branch_number, :string
@@ -40,7 +41,7 @@ defmodule Sig.Finance.Banks.Accounts.Account do
     :entity_id
   ]
 
-  @create_fields @create_required_fields ++ [:pix_key, :other_info, :is_managed]
+  @create_fields @create_required_fields ++ [:name, :pix_key, :other_info, :is_managed]
 
   def create_changeset(attrs) do
     %__MODULE__{}
@@ -50,6 +51,7 @@ defmodule Sig.Finance.Banks.Accounts.Account do
     |> validate_routing_number(:routing_number)
     |> validate_length(:branch_number, max: 255)
     |> validate_length(:number, max: 255)
+    |> validate_name()
     |> validate_pix_key()
     |> assoc_constraint(:entity)
     |> unique_constraint([:number, :branch_number, :routing_number, :org_id],
@@ -59,13 +61,20 @@ defmodule Sig.Finance.Banks.Accounts.Account do
 
   def update_changeset(%__MODULE__{} = target, attrs) do
     target
-    |> cast(attrs, [:pix_key, :is_active, :is_primary])
+    |> cast(attrs, [:name, :pix_key, :is_active, :is_primary])
     |> maybe_set_is_primary(target)
+    |> validate_name()
     |> validate_pix_key()
   end
 
   def is_primary_false_changeset(%__MODULE__{} = target) do
     cast(target, %{is_primary: false}, [:is_primary])
+  end
+
+  defp validate_name(changeset) do
+    changeset
+    |> validate_length(:name, max: 255)
+    |> unique_constraint([:name, :org_id])
   end
 
   defp validate_pix_key(changeset) do

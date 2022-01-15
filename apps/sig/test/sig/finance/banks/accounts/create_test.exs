@@ -10,6 +10,7 @@ defmodule Sig.Finance.Banks.Accounts.CreateTest do
       entity = insert(:entity)
 
       attrs = %{
+        name: "Account Name",
         type: random_enum_value(:bank_account_type),
         routing_number: random_bank_routing_number(),
         branch_number: random_string_number(),

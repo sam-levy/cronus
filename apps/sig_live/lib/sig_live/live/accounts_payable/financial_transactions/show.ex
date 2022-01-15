@@ -33,15 +33,20 @@ defmodule SigLive.AccountsPayable.FinancialTransactions.Show do
     <Modal title="Transação Financeira" close={@close_event}>
       <div class="space-y-4">
         <div>
-          {#if is_bank_type(@financial_transaction.type)}
-            <div class="text-md text-gray-700">Conta</div>
+          {#case @financial_transaction}
+            {#match %{type: type, bank_account: %{name: name}} when is_bank_type(type)}
+              <div class="text-md text-gray-700">{name}</div>
 
-            <span class="text-sm text-gray-500 trucate">
-              {format_bank_account(@financial_transaction.bank_account)}
-            </span>
-          {#else}
-            <div class="text-md text-gray-700">Dinheiro</div>
-          {/if}
+              <div class="text-sm text-gray-500 trucate">
+                {format_bank_account(@financial_transaction.bank_account)}
+              </div>
+
+            {#match %{type: type} when is_bank_type(type)}
+              <div class="text-md text-gray-700">Conta</div>
+
+            {#match _}
+              <div class="text-md text-gray-700">Dinheiro</div>
+          {/case}
         </div>
 
         <div>

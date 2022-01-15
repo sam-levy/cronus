@@ -8,6 +8,7 @@ defmodule Sig.Repo.Migrations.CreateBankAccountsTable do
     create table(:bank_accounts) do
       add :org_id, references(:orgs), primary_key: true
 
+      add :name, :citext
       add :type, :bank_account_type, null: false
       add :routing_number, :citext, null: false
       add :branch_number, :citext, null: false
@@ -24,6 +25,7 @@ defmodule Sig.Repo.Migrations.CreateBankAccountsTable do
       timestamps()
     end
 
+    create unique_index(:bank_accounts, [:name, :org_id])
     create unique_index(:bank_accounts, [:pix_key, :org_id])
 
     create unique_index(
