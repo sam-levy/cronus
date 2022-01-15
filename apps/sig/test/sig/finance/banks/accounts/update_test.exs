@@ -9,12 +9,14 @@ defmodule Sig.Finance.Banks.Accounts.UpdateTest do
     test "updates a bank account" do
       account =
         insert(:bank_account,
+          name: "Account Name",
           pix_key: "pix_key",
           is_active: false,
           is_primary: false
         )
 
       attrs = %{
+        name: "New Account Name",
         pix_key: "new_pix_key",
         is_active: true,
         is_primary: true
@@ -35,6 +37,7 @@ defmodule Sig.Finance.Banks.Accounts.UpdateTest do
     test "only updates allowed fields" do
       account =
         insert(:bank_account,
+          name: "Account Name",
           type: random_enum_value(:bank_account_type),
           routing_number: random_bank_routing_number(),
           branch_number: random_string_number(),
@@ -47,6 +50,7 @@ defmodule Sig.Finance.Banks.Accounts.UpdateTest do
         )
 
       attrs = %{
+        name: "New Account Name",
         pix_key: "new_pix_key",
         is_active: true,
         is_primary: true
@@ -76,6 +80,7 @@ defmodule Sig.Finance.Banks.Accounts.UpdateTest do
       account = insert(:bank_account, is_primary: true)
 
       attrs = %{
+        name: :invalid,
         pix_key: :invalid,
         is_active: :invalid,
         is_primary: :invalid
@@ -88,7 +93,8 @@ defmodule Sig.Finance.Banks.Accounts.UpdateTest do
       assert errors_on(changeset) == %{
                is_active: ["is invalid"],
                is_primary: ["is invalid"],
-               pix_key: ["is invalid"]
+               pix_key: ["is invalid"],
+               name: ["is invalid"]
              }
     end
 
