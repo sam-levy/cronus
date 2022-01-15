@@ -83,7 +83,10 @@ defmodule SigLive.EmployeeRegistrations.Form do
         </Field>
 
         <Field name={:work_at_id} class="form-field">
-          <Label class="form-label">Trabalha em</Label>
+          <Label class="form-label">
+            Trabalha em
+            <span class="form-label-complement">(opcional)</span>
+          </Label>
           <Select options={companies_for_select(@companies)} {...props_for(:work_at_id, @form_state)} />
           <ErrorTag class="form-error-tag"/>
         </Field>
