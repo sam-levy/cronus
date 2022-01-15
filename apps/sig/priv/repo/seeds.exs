@@ -137,6 +137,7 @@ central =
 alias Sig.Finance.Banks.Accounts.Account
 
 Repo.insert!(%Account{
+  name: "Brad MC",
   org_id: main_org.id,
   entity_id: mogi.entity_id,
   type: :checking_account,
@@ -150,6 +151,7 @@ Repo.insert!(%Account{
 })
 
 Repo.insert!(%Account{
+  name: "CEF MC",
   org_id: main_org.id,
   entity_id: mogi.entity_id,
   entity_id: mogi.entity_id,
