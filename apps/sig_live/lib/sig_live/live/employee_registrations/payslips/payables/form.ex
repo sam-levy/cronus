@@ -442,9 +442,9 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.Form do
     ~w(w-full py-2 text-gray-500 text-center text-sm rounded-md select-none)
   end
 
-  defp handle_title(:new_mode, _payable), do: "Adicionar Valor à Pagar"
-  defp handle_title(:edit_mode, _payable), do: "Editar Valor à Pagar"
-  defp handle_title(:show_mode, %{financial_transaction_id: nil}), do: "Valor à Pagar"
+  defp handle_title(:new_mode, _payable), do: "Adicionar Valor a Pagar"
+  defp handle_title(:edit_mode, _payable), do: "Editar Valor a Pagar"
+  defp handle_title(:show_mode, %{financial_transaction_id: nil}), do: "Valor a Pagar"
   defp handle_title(:show_mode, _payable), do: "Valor Pago"
 
   @input_enabled [opts: [disabled: false], class: ["form-input"]]
