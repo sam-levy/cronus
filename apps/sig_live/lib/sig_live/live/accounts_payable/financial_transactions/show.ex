@@ -21,7 +21,7 @@ defmodule SigLive.AccountsPayable.FinancialTransactions.Show do
       |> assign(assigns)
       |> assign(
         payables: Finance.list_payables_by(financial_transaction, preload: [:payslip, :employee]),
-        financial_transaction: Repo.preload(financial_transaction, :bank_account)
+        financial_transaction: Repo.preload(financial_transaction, Finance.default_financial_transaction_preloads())
         )
 
     {:ok, socket}
@@ -33,18 +33,15 @@ defmodule SigLive.AccountsPayable.FinancialTransactions.Show do
     <Modal title="Transação Financeira" close={@close_event}>
       <div class="space-y-4">
         <div>
-          {#case @financial_transaction}
-            {#match %{type: type, bank_account: %Ecto.Association.NotLoaded{}} when is_bank_type(type)}
-              <div class="text-md text-gray-700">Conta</div>
-            {#match %{type: type} when is_bank_type(type)}
-              <div class="text-md text-gray-700">Conta</div>
+          {#if is_bank_type(@financial_transaction.type)}
+            <div class="text-md text-gray-700">Conta</div>
 
-              <span class="text-sm text-gray-500 trucate">
-                {format_bank_account(@financial_transaction.bank_account)}
-              </span>
-            {#match _}
-              <div class="text-md text-gray-700">Dinheiro</div>
-          {/case}
+            <span class="text-sm text-gray-500 trucate">
+              {format_bank_account(@financial_transaction.bank_account)}
+            </span>
+          {#else}
+            <div class="text-md text-gray-700">Dinheiro</div>
+          {/if}
         </div>
 
         <div>
@@ -54,6 +51,16 @@ defmodule SigLive.AccountsPayable.FinancialTransactions.Show do
 
           <div class="text-sm text-gray-500 trucate">
             {format_amount(@financial_transaction.amount)}
+          </div>
+        </div>
+
+        <div>
+          <div class="text-md text-gray-700">
+            Pago por
+          </div>
+
+          <div class="text-sm text-gray-500 trucate">
+            {@financial_transaction.created_by.email}
           </div>
         </div>
 

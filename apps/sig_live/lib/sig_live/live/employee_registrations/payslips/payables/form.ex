@@ -61,7 +61,11 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.Form do
   end
 
   @impl true
-  def handle_event("select_financial_transaction_type", %{"financial_transaction_type" => financial_transaction_type}, socket) do
+  def handle_event(
+        "select_financial_transaction_type",
+        %{"financial_transaction_type" => financial_transaction_type},
+        socket
+      ) do
     %{assigns: %{changeset: changeset}} = socket
 
     financial_transaction_type = String.to_existing_atom(financial_transaction_type)
@@ -70,7 +74,11 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.Form do
       socket
       |> assign(
         selected_financial_transaction_type: financial_transaction_type,
-        changeset: Finance.set_payable_changeset_financial_transaction_type(changeset, financial_transaction_type)
+        changeset:
+          Finance.set_payable_changeset_financial_transaction_type(
+            changeset,
+            financial_transaction_type
+          )
       )
       |> assign_select_options()
 
@@ -102,7 +110,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.Form do
   @impl true
   def render(assigns) do
     ~F"""
-    <Modal title={handle_title(@form_state)} close={@close_event}>
+    <Modal title={handle_title(@form_state, @payable)} close={@close_event}>
       <Form for={@changeset} change="form_change" submit="save" opts={autocomplete: "off"}>
         <Field name={:description} class="form-field">
           <Label class="form-label">Descrição</Label>
@@ -196,6 +204,12 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.Form do
         </div>
 
         <div :if={@form_state == :show_mode and @payable.financial_transaction_id != nil}>
+          <div>
+            <label class="form-label">Pago Por</label>
+
+            <input type="text" disabled class="form-input-disabled" value={@payable.financial_transaction_created_by.email}>
+          </div>
+
           <div class="form-field flex space-x-4">
             <div>
               <label class="form-label">Data de Pagamento</label>
@@ -230,7 +244,12 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.Form do
   def states, do: @form_states
 
   defp get_payable(_payslip, nil), do: nil
-  defp get_payable(payslip, payable_id), do: Finance.get_payable(payslip, payable_id, preload: [:authorized_by, :financial_transaction])
+
+  defp get_payable(payslip, payable_id) do
+    Finance.get_payable(payslip, payable_id,
+      preload: [:authorized_by, :financial_transaction, :financial_transaction_created_by]
+    )
+  end
 
   defp set_is_automatic_amount(nil), do: false
   defp set_is_automatic_amount(payable), do: payable.payslip_payable.is_auto_adjustable_amount
@@ -245,7 +264,8 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.Form do
   defp set_changeset(payable), do: Finance.update_payable_for_payslip_change(payable)
 
   defp validate_params(%{form_state: :new_mode} = context) do
-    %{payslip: payslip, selected_financial_transaction_type: selected_financial_transaction_type} = context.socket.assigns
+    %{payslip: payslip, selected_financial_transaction_type: selected_financial_transaction_type} =
+      context.socket.assigns
 
     changeset =
       context.params
@@ -262,9 +282,12 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.Form do
   end
 
   defp validate_params(%{form_state: :edit_mode} = context) do
-    %{payable: payable, selected_financial_transaction_type: selected_financial_transaction_type} = context.socket.assigns
+    %{payable: payable, selected_financial_transaction_type: selected_financial_transaction_type} =
+      context.socket.assigns
 
-    params = Map.put(context.params, "financial_transaction_type", selected_financial_transaction_type)
+    params =
+      Map.put(context.params, "financial_transaction_type", selected_financial_transaction_type)
+
     changeset = Finance.update_payable_for_payslip_change(payable, params)
 
     case apply_action(changeset, :update) do
@@ -340,8 +363,13 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.Form do
   end
 
   defp assign_select_options(
-    %{assigns: %{selected_financial_transaction_type: :check, check_debit_bank_account_options: []}} = socket
-  ) do
+         %{
+           assigns: %{
+             selected_financial_transaction_type: :check,
+             check_debit_bank_account_options: []
+           }
+         } = socket
+       ) do
     options =
       socket.assigns.org
       |> Finance.list_accounts_by(where: [is_active: true, is_managed: true])
@@ -393,11 +421,19 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.Form do
     ~w(text-yellow-700 bg-yellow-100 font-medium) ++ tab_base_classes()
   end
 
-  defp tab_classes_for(_financial_transaction_type, _active_financial_transaction_type, :show_mode) do
+  defp tab_classes_for(
+         _financial_transaction_type,
+         _active_financial_transaction_type,
+         :show_mode
+       ) do
     tab_base_classes()
   end
 
-  defp tab_classes_for(_financial_transaction_type, _active_financial_transaction_type, _form_state) do
+  defp tab_classes_for(
+         _financial_transaction_type,
+         _active_financial_transaction_type,
+         _form_state
+       ) do
     ~w(cursor-pointer hover:bg-gray-100 hover:text-gray-700) ++
       tab_base_classes()
   end
@@ -406,9 +442,10 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.Form do
     ~w(w-full py-2 text-gray-500 text-center text-sm rounded-md select-none)
   end
 
-  defp handle_title(:new_mode), do: "Adicionar Valor à Pagar"
-  defp handle_title(:edit_mode), do: "Editar Valor à Pagar"
-  defp handle_title(:show_mode), do: "Valor à Pagar"
+  defp handle_title(:new_mode, _payable), do: "Adicionar Valor à Pagar"
+  defp handle_title(:edit_mode, _payable), do: "Editar Valor à Pagar"
+  defp handle_title(:show_mode, %{financial_transaction_id: nil}), do: "Valor à Pagar"
+  defp handle_title(:show_mode, _payable), do: "Valor Pago"
 
   @input_enabled [opts: [disabled: false], class: ["form-input"]]
   @input_disabled [opts: [disabled: true], class: ["form-input-disabled"]]
