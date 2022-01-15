@@ -5,13 +5,16 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransactionTest do
 
   describe "financial_transactions table constraints" do
     test "`org_id` not_null_violation" do
+      user = insert(:user)
+
       transaction = %FinancialTransaction{
         type: :bank_transfer,
         placement_date: Date.utc_today(),
         clearing_date: Date.utc_today(),
         amount: 1,
         entry_type: :credit,
-        description: Faker.Lorem.sentence()
+        description: Faker.Lorem.sentence(),
+        created_by_id: user.id
       }
 
       assert_raise Postgrex.Error,
@@ -20,6 +23,8 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransactionTest do
     end
 
     test "`org_id` foreign_key_constraint" do
+      user = insert(:user)
+
       transaction = %FinancialTransaction{
         org_id: UUID.generate(),
         type: :bank_transfer,
@@ -27,7 +32,8 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransactionTest do
         clearing_date: Date.utc_today(),
         amount: 1,
         entry_type: :credit,
-        description: Faker.Lorem.sentence()
+        description: Faker.Lorem.sentence(),
+        created_by_id: user.id
       }
 
       assert_raise Ecto.ConstraintError,
@@ -37,6 +43,7 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransactionTest do
 
     test "`type` not_null_violation" do
       org = insert(:org)
+      user = insert(:user, org: org)
 
       transaction = %FinancialTransaction{
         org_id: org.id,
@@ -44,7 +51,8 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransactionTest do
         clearing_date: Date.utc_today(),
         amount: 1,
         entry_type: :credit,
-        description: Faker.Lorem.sentence()
+        description: Faker.Lorem.sentence(),
+        created_by_id: user.id
       }
 
       assert_raise Postgrex.Error,
@@ -54,6 +62,7 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransactionTest do
 
     test "invalid `type`" do
       org = insert(:org)
+      user = insert(:user, org: org)
 
       transaction = %FinancialTransaction{
         org_id: org.id,
@@ -62,7 +71,8 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransactionTest do
         clearing_date: Date.utc_today(),
         amount: 1,
         entry_type: :credit,
-        description: Faker.Lorem.sentence()
+        description: Faker.Lorem.sentence(),
+        created_by_id: user.id
       }
 
       assert_raise Ecto.ChangeError,
@@ -72,6 +82,7 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransactionTest do
 
     test "invalid `entry_type`" do
       org = insert(:org)
+      user = insert(:user, org: org)
 
       transaction = %FinancialTransaction{
         org_id: org.id,
@@ -80,7 +91,8 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransactionTest do
         clearing_date: Date.utc_today(),
         amount: 1,
         entry_type: :invalid,
-        description: Faker.Lorem.sentence()
+        description: Faker.Lorem.sentence(),
+        created_by_id: user.id
       }
 
       assert_raise Ecto.ChangeError,
@@ -90,6 +102,7 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransactionTest do
 
     test "missing `placement_date`" do
       org = insert(:org)
+      user = insert(:user, org: org)
 
       transaction = %FinancialTransaction{
         org_id: org.id,
@@ -97,7 +110,8 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransactionTest do
         clearing_date: Date.utc_today(),
         amount: 1,
         entry_type: :credit,
-        description: Faker.Lorem.sentence()
+        description: Faker.Lorem.sentence(),
+        created_by_id: user.id
       }
 
       assert_raise Postgrex.Error,
@@ -107,6 +121,7 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransactionTest do
 
     test "missing `amount`" do
       org = insert(:org)
+      user = insert(:user, org: org)
 
       transaction = %FinancialTransaction{
         org_id: org.id,
@@ -114,7 +129,8 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransactionTest do
         placement_date: Date.utc_today(),
         clearing_date: Date.utc_today(),
         entry_type: :credit,
-        description: Faker.Lorem.sentence()
+        description: Faker.Lorem.sentence(),
+        created_by_id: user.id
       }
 
       assert_raise Postgrex.Error,
@@ -124,6 +140,7 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransactionTest do
 
     test "missing `entry_type`" do
       org = insert(:org)
+      user = insert(:user, org: org)
 
       transaction = %FinancialTransaction{
         org_id: org.id,
@@ -131,7 +148,8 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransactionTest do
         placement_date: Date.utc_today(),
         clearing_date: Date.utc_today(),
         amount: 1,
-        description: Faker.Lorem.sentence()
+        description: Faker.Lorem.sentence(),
+        created_by_id: user.id
       }
 
       assert_raise Postgrex.Error,
@@ -141,6 +159,7 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransactionTest do
 
     test "missing `description`" do
       org = insert(:org)
+      user = insert(:user, org: org)
 
       transaction = %FinancialTransaction{
         org_id: org.id,
@@ -148,7 +167,8 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransactionTest do
         placement_date: Date.utc_today(),
         clearing_date: Date.utc_today(),
         amount: 1,
-        entry_type: :debit
+        entry_type: :debit,
+        created_by_id: user.id
       }
 
       assert_raise Postgrex.Error,
@@ -156,8 +176,27 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransactionTest do
                    fn -> Repo.insert(transaction) end
     end
 
+    test "missing `created_by`" do
+      org = insert(:org)
+
+      transaction = %FinancialTransaction{
+        org_id: org.id,
+        type: :bank_transfer,
+        placement_date: Date.utc_today(),
+        clearing_date: Date.utc_today(),
+        amount: 1,
+        description: Faker.Lorem.sentence(),
+        entry_type: :debit
+      }
+
+      assert_raise Postgrex.Error,
+                   ~r/\(not_null_violation\) null value in column \"created_by_id\" of relation \"financial_transactions\" violates not-null constraint/,
+                   fn -> Repo.insert(transaction) end
+    end
+
     test "`financial_transactions_amount_greater_than_zero` constraint when negative" do
       org = insert(:org)
+      user = insert(:user, org: org)
 
       transaction = %FinancialTransaction{
         org_id: org.id,
@@ -166,7 +205,8 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransactionTest do
         clearing_date: Date.utc_today(),
         amount: -1,
         entry_type: :debit,
-        description: Faker.Lorem.sentence()
+        description: Faker.Lorem.sentence(),
+        created_by_id: user.id
       }
 
       assert_raise Ecto.ConstraintError,
@@ -176,6 +216,7 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransactionTest do
 
     test "`financial_transactions_amount_greater_than_zero` constraint when zero" do
       org = insert(:org)
+      user = insert(:user, org: org)
 
       transaction = %FinancialTransaction{
         org_id: org.id,
@@ -184,7 +225,8 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransactionTest do
         clearing_date: Date.utc_today(),
         amount: 0,
         entry_type: :debit,
-        description: Faker.Lorem.sentence()
+        description: Faker.Lorem.sentence(),
+        created_by_id: user.id
       }
 
       assert_raise Ecto.ConstraintError,
@@ -194,6 +236,7 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransactionTest do
 
     test "`financial_transactions_placement_date_lt_or_eq_clearing_date` constraint" do
       org = insert(:org)
+      user = insert(:user, org: org)
 
       transaction = %FinancialTransaction{
         org_id: org.id,
@@ -202,7 +245,8 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransactionTest do
         clearing_date: ~D[2022-01-01],
         amount: 1,
         entry_type: :debit,
-        description: Faker.Lorem.sentence()
+        description: Faker.Lorem.sentence(),
+        created_by_id: user.id
       }
 
       assert_raise Ecto.ConstraintError,
@@ -212,6 +256,7 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransactionTest do
 
     test "`transfer_counterparty_id` foreign_key_constraint" do
       org = insert(:org)
+      user = insert(:user, org: org)
 
       transaction = %FinancialTransaction{
         org_id: org.id,
@@ -221,7 +266,8 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransactionTest do
         amount: 1,
         entry_type: :credit,
         description: Faker.Lorem.sentence(),
-        transfer_counterparty_id: UUID.generate()
+        transfer_counterparty_id: UUID.generate(),
+        created_by_id: user.id
       }
 
       assert_raise Ecto.ConstraintError,
@@ -229,9 +275,9 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransactionTest do
                    fn -> Repo.insert(transaction) end
     end
 
-    test "success" do
+    test "`created_by_id` foreign_key_constraint" do
       org = insert(:org)
-      counterparty = insert(:financial_transaction, org: org)
+      transfer_counterparty = insert(:financial_transaction, org: org)
 
       transaction = %FinancialTransaction{
         org_id: org.id,
@@ -241,7 +287,30 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransactionTest do
         amount: 1,
         entry_type: :credit,
         description: Faker.Lorem.sentence(),
-        transfer_counterparty_id: counterparty.id
+        transfer_counterparty_id: transfer_counterparty.id,
+        created_by_id: UUID.generate()
+      }
+
+      assert_raise Ecto.ConstraintError,
+                   ~r/financial_transactions_created_by_id_fkey \(foreign_key_constraint\)/,
+                   fn -> Repo.insert(transaction) end
+    end
+
+    test "success" do
+      org = insert(:org)
+      counterparty = insert(:financial_transaction, org: org)
+      user = insert(:user, org: org)
+
+      transaction = %FinancialTransaction{
+        org_id: org.id,
+        type: :bank_transfer,
+        placement_date: Date.utc_today(),
+        clearing_date: Date.utc_today(),
+        amount: 1,
+        entry_type: :credit,
+        description: Faker.Lorem.sentence(),
+        transfer_counterparty_id: counterparty.id,
+        created_by_id: user.id
       }
 
       assert {:ok, %FinancialTransaction{id: id}} = Repo.insert(transaction)
@@ -255,7 +324,8 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransactionTest do
                amount: transaction.amount,
                entry_type: transaction.entry_type,
                description: transaction.description,
-               transfer_counterparty_id: counterparty.id
+               transfer_counterparty_id: counterparty.id,
+               created_by_id: user.id
              )
     end
   end
@@ -269,7 +339,8 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransactionTest do
         placement_date: ~D[2021-01-01],
         clearing_date: ~D[2021-01-01],
         amount: 100_00,
-        entry_type: :debit
+        entry_type: :debit,
+        created_by_id: UUID.generate()
       }
 
       assert changeset = FinancialTransaction.create_changeset(attrs)
@@ -283,19 +354,21 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransactionTest do
                clearing_date: attrs[:clearing_date],
                entry_type: attrs[:entry_type],
                placement_date: attrs[:placement_date],
-               type: attrs[:type]
+               type: attrs[:type],
+               created_by_id: attrs[:created_by_id]
              }
     end
 
     test "invalid attrs" do
       attrs = %{
-        org_id: "invalid",
+        org_id: :invalid,
         description: :invalid,
         type: "invalid",
         placement_date: :invalid,
         clearing_date: :invalid,
         amount: :invalid,
-        entry_type: "invalid"
+        entry_type: "invalid",
+        created_by_id: :invalid
       }
 
       assert changeset = FinancialTransaction.create_changeset(attrs)
@@ -303,12 +376,14 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransactionTest do
       refute changeset.valid?
 
       assert errors_on(changeset) == %{
+               org_id: ["is invalid"],
                clearing_date: ["is invalid"],
                description: ["is invalid"],
                placement_date: ["is invalid"],
                type: ["is invalid"],
                amount: ["is invalid"],
-               entry_type: ["is invalid"]
+               entry_type: ["is invalid"],
+               created_by_id: ["is invalid"]
              }
     end
 
@@ -323,7 +398,8 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransactionTest do
                entry_type: ["can't be blank"],
                org_id: ["can't be blank"],
                placement_date: ["can't be blank"],
-               type: ["can't be blank"]
+               type: ["can't be blank"],
+               created_by_id: ["can't be blank"]
              }
     end
 
@@ -334,7 +410,8 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransactionTest do
         type: :bank_transfer,
         placement_date: ~D[2021-01-01],
         amount: 100_00,
-        entry_type: :debit
+        entry_type: :debit,
+        created_by_id: UUID.generate()
       }
 
       assert changeset = FinancialTransaction.create_changeset(attrs)
@@ -354,7 +431,8 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransactionTest do
         placement_date: ~D[2021-01-02],
         clearing_date: ~D[2021-01-01],
         amount: 100_00,
-        entry_type: :debit
+        entry_type: :debit,
+        created_by_id: UUID.generate()
       }
 
       assert changeset = FinancialTransaction.create_changeset(attrs)
@@ -373,7 +451,8 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransactionTest do
         type: :bank_transfer,
         placement_date: ~D[2021-01-01],
         amount: -1,
-        entry_type: :debit
+        entry_type: :debit,
+        created_by_id: UUID.generate()
       }
 
       assert changeset = FinancialTransaction.create_changeset(attrs)
@@ -392,7 +471,8 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransactionTest do
         type: :bank_transfer,
         placement_date: ~D[2021-01-01],
         amount: 0,
-        entry_type: :debit
+        entry_type: :debit,
+        created_by_id: UUID.generate()
       }
 
       assert changeset = FinancialTransaction.create_changeset(attrs)
@@ -401,30 +481,6 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransactionTest do
 
       assert errors_on(changeset) == %{
                amount: ["must be greater than 0,00"]
-             }
-    end
-
-    test "transfer_counterparty assoc constraint" do
-      org = insert(:org)
-
-      attrs = %{
-        org_id: org.id,
-        description: "Description",
-        type: :bank_transfer,
-        placement_date: ~D[2021-01-01],
-        clearing_date: ~D[2021-01-01],
-        amount: 100_00,
-        entry_type: :debit,
-        transfer_counterparty_id: UUID.generate()
-      }
-
-      assert {:error, changeset} =
-               attrs
-               |> FinancialTransaction.create_changeset()
-               |> Repo.insert()
-
-      assert errors_on(changeset) == %{
-               transfer_counterparty: ["does not exist"]
              }
     end
   end
@@ -490,7 +546,8 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransactionTest do
         placement_date: ~D[2022-01-01],
         clearing_date: ~D[2022-01-01],
         amount: 100_00,
-        entry_type: :debit
+        entry_type: :debit,
+        created_by_id: UUID.generate()
       }
 
       assert changeset = FinancialTransaction.update_changeset(financial_transaction, attrs)
