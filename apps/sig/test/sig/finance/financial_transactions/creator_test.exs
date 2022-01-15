@@ -1,6 +1,6 @@
 defmodule Sig.Finance.FinancialTransactions.CreatorTest do
   defmodule AttrsTest do
-    use Sig.DataCase
+    use Sig.DataCase, async: true
 
     alias Sig.Finance.FinancialTransactions.Creator.Attrs
 
@@ -12,7 +12,8 @@ defmodule Sig.Finance.FinancialTransactions.CreatorTest do
           placement_date: ~D[2021-01-01],
           clearing_date: ~D[2021-01-01],
           payable_ids: [UUID.generate(), UUID.generate()],
-          bank_account_id: UUID.generate()
+          bank_account_id: UUID.generate(),
+          created_by_id: UUID.generate()
         }
 
         assert changeset = Attrs.changeset(attrs)
@@ -25,7 +26,8 @@ defmodule Sig.Finance.FinancialTransactions.CreatorTest do
                  placement_date: attrs[:placement_date],
                  clearing_date: attrs[:clearing_date],
                  payable_ids: attrs[:payable_ids],
-                 bank_account_id: attrs[:bank_account_id]
+                 bank_account_id: attrs[:bank_account_id],
+                 created_by_id: attrs[:created_by_id]
                }
       end
 
@@ -36,7 +38,8 @@ defmodule Sig.Finance.FinancialTransactions.CreatorTest do
           placement_date: :invalid,
           clearing_date: :invalid,
           payable_ids: :invalid,
-          bank_account_id: :invalid
+          bank_account_id: :invalid,
+          created_by_id: :invalid
         }
 
         assert changeset = Attrs.changeset(attrs)
@@ -45,11 +48,12 @@ defmodule Sig.Finance.FinancialTransactions.CreatorTest do
 
         assert errors_on(changeset) == %{
                  type: ["is invalid"],
-                 bank_account_id: ["is invalid"],
                  clearing_date: ["is invalid"],
                  description: ["is invalid"],
                  payable_ids: ["is invalid"],
-                 placement_date: ["is invalid"]
+                 placement_date: ["is invalid"],
+                 bank_account_id: ["is invalid"],
+                 created_by_id: ["is invalid"]
                }
       end
 
@@ -62,7 +66,8 @@ defmodule Sig.Finance.FinancialTransactions.CreatorTest do
                  type: ["can't be blank"],
                  description: ["can't be blank"],
                  payable_ids: ["can't be blank"],
-                 placement_date: ["can't be blank"]
+                 placement_date: ["can't be blank"],
+                 created_by_id: ["can't be blank"]
                }
       end
 
@@ -72,7 +77,8 @@ defmodule Sig.Finance.FinancialTransactions.CreatorTest do
           type: :billet,
           placement_date: ~D[2021-01-01],
           clearing_date: ~D[2021-01-02],
-          payable_ids: [UUID.generate(), UUID.generate()]
+          payable_ids: [UUID.generate(), UUID.generate()],
+          created_by_id: UUID.generate()
         }
 
         assert changeset = Attrs.changeset(attrs)
@@ -90,7 +96,8 @@ defmodule Sig.Finance.FinancialTransactions.CreatorTest do
           type: :cash,
           placement_date: ~D[2021-01-01],
           clearing_date: ~D[2021-01-02],
-          payable_ids: [UUID.generate()]
+          payable_ids: [UUID.generate()],
+          created_by_id: UUID.generate()
         }
 
         assert changeset = Attrs.changeset(attrs)
@@ -104,7 +111,8 @@ defmodule Sig.Finance.FinancialTransactions.CreatorTest do
           type: :cash,
           placement_date: ~D[2021-01-01],
           clearing_date: ~D[2021-01-02],
-          payable_ids: [UUID.generate(), UUID.generate()]
+          payable_ids: [UUID.generate(), UUID.generate()],
+          created_by_id: UUID.generate()
         }
 
         assert changeset = Attrs.changeset(attrs)
@@ -122,7 +130,8 @@ defmodule Sig.Finance.FinancialTransactions.CreatorTest do
           type: :cash,
           placement_date: ~D[2021-01-02],
           clearing_date: ~D[2021-01-01],
-          payable_ids: [UUID.generate(), UUID.generate()]
+          payable_ids: [UUID.generate(), UUID.generate()],
+          created_by_id: UUID.generate()
         }
 
         assert changeset = Attrs.changeset(attrs)
@@ -140,7 +149,8 @@ defmodule Sig.Finance.FinancialTransactions.CreatorTest do
           type: :cash,
           placement_date: ~D[2021-01-01],
           clearing_date: ~D[2021-01-02],
-          payable_ids: []
+          payable_ids: [],
+          created_by_id: UUID.generate()
         }
 
         assert changeset = Attrs.changeset(attrs)
@@ -199,7 +209,8 @@ defmodule Sig.Finance.FinancialTransactions.CreatorTest do
         type: :cash,
         placement_date: ~D[2022-01-01],
         clearing_date: ~D[2022-01-01],
-        payable_ids: [payable.id]
+        payable_ids: [payable.id],
+        created_by_id: user.id
       }
 
       assert {:ok, %FinancialTransaction{id: id}} = Creator.pay_payables(org, attrs)
@@ -213,7 +224,8 @@ defmodule Sig.Finance.FinancialTransactions.CreatorTest do
                  type: attrs[:type],
                  description: attrs[:description],
                  placement_date: attrs[:placement_date],
-                 clearing_date: attrs[:clearing_date]
+                 clearing_date: attrs[:clearing_date],
+                 created_by_id: attrs[:created_by_id]
                )
 
       assert financial_transaction.transfer_counterparty_id == nil
@@ -265,7 +277,8 @@ defmodule Sig.Finance.FinancialTransactions.CreatorTest do
         placement_date: ~D[2022-01-01],
         clearing_date: ~D[2022-01-01],
         payable_ids: [payable.id],
-        bank_account_id: bank_account.id
+        bank_account_id: bank_account.id,
+        created_by_id: user.id
       }
 
       assert {:ok, %FinancialTransaction{id: id}} = Creator.pay_payables(org, attrs)
@@ -279,7 +292,8 @@ defmodule Sig.Finance.FinancialTransactions.CreatorTest do
                  type: attrs[:type],
                  description: attrs[:description],
                  placement_date: attrs[:placement_date],
-                 clearing_date: attrs[:clearing_date]
+                 clearing_date: attrs[:clearing_date],
+                 created_by_id: attrs[:created_by_id]
                )
 
       assert financial_transaction.transfer_counterparty_id == nil
@@ -351,7 +365,8 @@ defmodule Sig.Finance.FinancialTransactions.CreatorTest do
         type: :bank_transfer,
         placement_date: ~D[2022-01-01],
         payable_ids: [payable_for_payslip_1.id, payable_for_payslip_2.id],
-        bank_account_id: bank_account.id
+        bank_account_id: bank_account.id,
+        created_by_id: user.id
       }
 
       assert {:ok, %FinancialTransaction{id: id}} = Creator.pay_payables(org, attrs)
@@ -364,7 +379,8 @@ defmodule Sig.Finance.FinancialTransactions.CreatorTest do
                  amount: 3_000_00,
                  type: attrs[:type],
                  description: attrs[:description],
-                 placement_date: attrs[:placement_date]
+                 placement_date: attrs[:placement_date],
+                 created_by_id: attrs[:created_by_id]
                )
 
       assert financial_transaction.clearing_date == nil
@@ -407,7 +423,8 @@ defmodule Sig.Finance.FinancialTransactions.CreatorTest do
         placement_date: ~D[2022-01-01],
         clearing_date: ~D[2022-01-02],
         payable_ids: [payable_1.id, payable_2.id],
-        bank_account_id: bank_account.id
+        bank_account_id: bank_account.id,
+        created_by_id: user.id
       }
 
       assert {:ok, %FinancialTransaction{id: id}} = Creator.pay_payables(org, attrs)
@@ -421,7 +438,8 @@ defmodule Sig.Finance.FinancialTransactions.CreatorTest do
                  type: attrs[:type],
                  description: attrs[:description],
                  placement_date: attrs[:placement_date],
-                 clearing_date: attrs[:clearing_date]
+                 clearing_date: attrs[:clearing_date],
+                 created_by_id: attrs[:created_by_id]
                )
 
       assert financial_transaction.transfer_counterparty_id == nil
@@ -463,7 +481,8 @@ defmodule Sig.Finance.FinancialTransactions.CreatorTest do
         type: :check,
         placement_date: ~D[2022-01-01],
         payable_ids: [payable.id],
-        bank_account_id: bank_account.id
+        bank_account_id: bank_account.id,
+        created_by_id: user.id
       }
 
       assert {:ok, %FinancialTransaction{id: id}} = Creator.pay_payables(org, attrs)
@@ -476,7 +495,8 @@ defmodule Sig.Finance.FinancialTransactions.CreatorTest do
                  amount: 100_00,
                  type: attrs[:type],
                  description: attrs[:description],
-                 placement_date: attrs[:placement_date]
+                 placement_date: attrs[:placement_date],
+                 created_by_id: attrs[:created_by_id]
                )
 
       assert financial_transaction.clearing_date == nil
@@ -507,7 +527,8 @@ defmodule Sig.Finance.FinancialTransactions.CreatorTest do
         type: :bank_transfer,
         placement_date: ~D[2022-01-01],
         payable_ids: [payable.id, UUID.generate()],
-        bank_account_id: bank_account.id
+        bank_account_id: bank_account.id,
+        created_by_id: user.id
       }
 
       assert {:error, "Existem pagáveis não encontrados"} = Creator.pay_payables(org, attrs)
@@ -517,7 +538,8 @@ defmodule Sig.Finance.FinancialTransactions.CreatorTest do
                entry_type: :debit,
                type: attrs[:type],
                description: attrs[:description],
-               placement_date: attrs[:placement_date]
+               placement_date: attrs[:placement_date],
+               created_by_id: attrs[:created_by_id]
              )
 
       refute Repo.get_by(BankTransaction, org_id: org.id, bank_account_id: bank_account.id)
@@ -538,7 +560,8 @@ defmodule Sig.Finance.FinancialTransactions.CreatorTest do
         type: :check,
         placement_date: ~D[2022-01-01],
         payable_ids: [payable.id],
-        bank_account_id: bank_account.id
+        bank_account_id: bank_account.id,
+        created_by_id: user.id
       }
 
       assert {:error, "A conta bancária deve ser igual a do cheque"} =
@@ -549,7 +572,8 @@ defmodule Sig.Finance.FinancialTransactions.CreatorTest do
                entry_type: :debit,
                type: attrs[:type],
                description: attrs[:description],
-               placement_date: attrs[:placement_date]
+               placement_date: attrs[:placement_date],
+               created_by_id: attrs[:created_by_id]
              )
 
       refute Repo.get_by(BankTransaction, org_id: org.id)
@@ -582,7 +606,8 @@ defmodule Sig.Finance.FinancialTransactions.CreatorTest do
         type: :check,
         placement_date: ~D[2022-01-01],
         payable_ids: [payable_1.id, payable_2.id],
-        bank_account_id: bank_account.id
+        bank_account_id: bank_account.id,
+        created_by_id: user.id
       }
 
       assert {:error, "Não é possivel fazer pagamentos em lote de contas em cheque"} =
@@ -593,7 +618,8 @@ defmodule Sig.Finance.FinancialTransactions.CreatorTest do
                entry_type: :debit,
                type: attrs[:type],
                description: attrs[:description],
-               placement_date: attrs[:placement_date]
+               placement_date: attrs[:placement_date],
+               created_by_id: attrs[:created_by_id]
              )
 
       refute Repo.get_by(BankTransaction, org_id: org.id, bank_account_id: bank_account.id)
@@ -618,7 +644,8 @@ defmodule Sig.Finance.FinancialTransactions.CreatorTest do
         type: :billet,
         placement_date: ~D[2022-01-01],
         payable_ids: [payable_1.id, payable_2.id],
-        bank_account_id: bank_account.id
+        bank_account_id: bank_account.id,
+        created_by_id: user.id
       }
 
       assert {:error, "Existem pagáveis com métodos de pagamento diferentes"} =
@@ -629,7 +656,8 @@ defmodule Sig.Finance.FinancialTransactions.CreatorTest do
                entry_type: :debit,
                type: attrs[:type],
                description: attrs[:description],
-               placement_date: attrs[:placement_date]
+               placement_date: attrs[:placement_date],
+               created_by_id: attrs[:created_by_id]
              )
 
       refute Repo.get_by(BankTransaction, org_id: org.id, bank_account_id: bank_account.id)
@@ -654,7 +682,8 @@ defmodule Sig.Finance.FinancialTransactions.CreatorTest do
         type: :billet,
         placement_date: ~D[2022-01-01],
         payable_ids: [payable_1.id, payable_2.id],
-        bank_account_id: bank_account.id
+        bank_account_id: bank_account.id,
+        created_by_id: user.id
       }
 
       assert {:error, "Existem pagáveis não autorizados"} = Creator.pay_payables(org, attrs)
@@ -664,7 +693,8 @@ defmodule Sig.Finance.FinancialTransactions.CreatorTest do
                entry_type: :debit,
                type: attrs[:type],
                description: attrs[:description],
-               placement_date: attrs[:placement_date]
+               placement_date: attrs[:placement_date],
+               created_by_id: attrs[:created_by_id]
              )
 
       refute Repo.get_by(BankTransaction, org_id: org.id, bank_account_id: bank_account.id)
@@ -699,7 +729,8 @@ defmodule Sig.Finance.FinancialTransactions.CreatorTest do
         type: :billet,
         placement_date: ~D[2022-01-01],
         payable_ids: [payable_1.id, payable_2.id],
-        bank_account_id: bank_account.id
+        bank_account_id: bank_account.id,
+        created_by_id: user.id
       }
 
       assert {:error, "Existem pagáveis que já foram pagos"} = Creator.pay_payables(org, attrs)
@@ -709,7 +740,8 @@ defmodule Sig.Finance.FinancialTransactions.CreatorTest do
                entry_type: :debit,
                type: attrs[:type],
                description: attrs[:description],
-               placement_date: attrs[:placement_date]
+               placement_date: attrs[:placement_date],
+               created_by_id: attrs[:created_by_id]
              )
 
       refute Repo.get_by(BankTransaction, org_id: org.id, bank_account_id: bank_account.id)
@@ -733,7 +765,8 @@ defmodule Sig.Finance.FinancialTransactions.CreatorTest do
         type: :billet,
         placement_date: ~D[2022-01-01],
         payable_ids: [payable.id],
-        bank_account_id: bank_account.id
+        bank_account_id: bank_account.id,
+        created_by_id: user.id
       }
 
       assert {:error, "A conta não é administrada"} = Creator.pay_payables(org, attrs)
@@ -743,7 +776,8 @@ defmodule Sig.Finance.FinancialTransactions.CreatorTest do
                entry_type: :debit,
                type: attrs[:type],
                description: attrs[:description],
-               placement_date: attrs[:placement_date]
+               placement_date: attrs[:placement_date],
+               created_by_id: attrs[:created_by_id]
              )
 
       refute Repo.get_by(BankTransaction, org_id: org.id, bank_account_id: bank_account.id)
@@ -762,7 +796,8 @@ defmodule Sig.Finance.FinancialTransactions.CreatorTest do
         type: :billet,
         placement_date: ~D[2022-01-01],
         payable_ids: [payable.id],
-        bank_account_id: UUID.generate()
+        bank_account_id: UUID.generate(),
+        created_by_id: user.id
       }
 
       assert {:error, "Conta não encontrada"} = Creator.pay_payables(org, attrs)
@@ -772,7 +807,8 @@ defmodule Sig.Finance.FinancialTransactions.CreatorTest do
                entry_type: :debit,
                type: attrs[:type],
                description: attrs[:description],
-               placement_date: attrs[:placement_date]
+               placement_date: attrs[:placement_date],
+               created_by_id: attrs[:created_by_id]
              )
 
       refute Repo.get_by(BankTransaction, org_id: org.id)
@@ -790,7 +826,8 @@ defmodule Sig.Finance.FinancialTransactions.CreatorTest do
         type: "invalid",
         placement_date: :invalid,
         payable_ids: [],
-        bank_account_id: "invalid"
+        bank_account_id: "invalid",
+        created_by_id: "invalid"
       }
 
       assert {:error, changeset} = Creator.pay_payables(org, attrs)
@@ -800,7 +837,8 @@ defmodule Sig.Finance.FinancialTransactions.CreatorTest do
                type: ["is invalid"],
                placement_date: ["is invalid"],
                payable_ids: ["list can't be empty"],
-               bank_account_id: ["is invalid"]
+               bank_account_id: ["is invalid"],
+               created_by_id: ["is invalid"]
              }
 
       refute Repo.get_by(FinancialTransaction, org_id: org.id)

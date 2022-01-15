@@ -11,7 +11,8 @@ defmodule Sig.Finance.FinancialTransactions.Creator do
       placement_date: :date,
       clearing_date: :date,
       payable_ids: {:array, UUID},
-      bank_account_id: UUID
+      bank_account_id: UUID,
+      created_by_id: UUID
     }
 
     @fields Map.keys(@schema)
@@ -21,7 +22,7 @@ defmodule Sig.Finance.FinancialTransactions.Creator do
     def changeset(%{} = params \\ %{}) do
       {%Attrs{}, @schema}
       |> cast(params, @fields)
-      |> validate_required([:description, :type, :placement_date, :payable_ids])
+      |> validate_required([:description, :type, :placement_date, :payable_ids, :created_by_id])
       |> validate_required_if(:type, FinancialTransaction.bank_types(), :bank_account_id)
       |> validate_length(:description, max: 255)
       |> validate_dates(:clearing_date, [:gt, :eq], :placement_date)
@@ -61,7 +62,7 @@ defmodule Sig.Finance.FinancialTransactions.Creator do
     |> list_payables()
     |> validate_payables()
     |> validate_bank_account()
-    |> build_changeset()
+    |> build_financial_transaction_changeset()
     |> create_multi()
     |> handle_return()
   end
@@ -143,9 +144,9 @@ defmodule Sig.Finance.FinancialTransactions.Creator do
 
   defp validate_bank_account(context), do: context
 
-  defp build_changeset(%{status: :halted} = context), do: context
+  defp build_financial_transaction_changeset(%{status: :halted} = context), do: context
 
-  defp build_changeset(context) do
+  defp build_financial_transaction_changeset(context) do
     %{org: org, attrs: attrs, amount: amount} = context
 
     attrs

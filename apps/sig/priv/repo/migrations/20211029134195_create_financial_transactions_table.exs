@@ -12,6 +12,7 @@ defmodule Sig.Repo.Migrations.CreateFinancialTransactionsTable do
       add :entry_type, :entry_type, null: false
       add :description, :string, null: false
 
+      add :created_by_id, references(:users), null: false
       add :transfer_counterparty_id, references(:financial_transactions, with: [org_id: :org_id])
 
       timestamps()

@@ -8,7 +8,8 @@ defmodule Sig.Finance.Payables do
       :financial_transaction,
       :authorized_by,
       :check_debit_bank_account,
-      :credit_bank_account
+      :credit_bank_account,
+      :financial_transaction_created_by
     ]
 
   import Ecto.Changeset, only: [put_change: 3]

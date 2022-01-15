@@ -165,7 +165,7 @@ defmodule SigLive.AccountsPayable.Index do
 
     financial_transactions =
       Finance.list_financial_transactions_by(org,
-        preload: :bank_account,
+        preload: Finance.default_financial_transaction_preloads(),
         clearing_date: [period_start: start_date, period_end: end_date]
       )
 
@@ -373,10 +373,11 @@ defmodule SigLive.AccountsPayable.Index do
       <div :show={@active_screen == :accounts_payable}>
         <AccountsPayable.List
           id="accounts_payable_list"
+          {=@org}
+          {=@current_user}
           {=@org_bank_accounts}
           {=@overdue_at}
           {=@payables}
-          {=@org}
         />
       </div>
 

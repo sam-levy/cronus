@@ -1,5 +1,5 @@
 defmodule Sig.Finance.FinancialTransactions do
-  use Sig.Preloader, financial_transaction: [:bank_account]
+  use Sig.Preloader, financial_transaction: [:bank_account, :created_by]
 
   import Ecto.Query
 
@@ -20,6 +20,8 @@ defmodule Sig.Finance.FinancialTransactions do
   defdelegate broadcast_new_financial_transaction(ft), to: Broadcaster
   defdelegate broadcast_updated_financial_transaction(ft), to: Broadcaster
   defdelegate broadcast_deleted_financial_transaction(ft), to: Broadcaster
+
+  def default_preloads, do: [:bank_account, :created_by]
 
   def update_change(%FinancialTransaction{} = ft, %{} = attrs \\ %{}) do
     FinancialTransaction.update_changeset(ft, attrs)

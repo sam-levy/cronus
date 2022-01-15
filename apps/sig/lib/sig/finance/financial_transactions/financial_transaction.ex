@@ -1,6 +1,7 @@
 defmodule Sig.Finance.FinancialTransactions.FinancialTransaction do
   use Sig.Schema
 
+  alias Sig.Accounts.User
   alias Sig.Finance.FinancialTransactions.BankTransactions.BankTransaction
   alias Sig.Organizations.Org
 
@@ -14,6 +15,7 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransaction do
     field :entry_type, Sig.EntryType
     field :description, :string
 
+    belongs_to :created_by, User
     belongs_to :transfer_counterparty, __MODULE__
 
     has_one :bank_transaction, BankTransaction
@@ -22,7 +24,15 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransaction do
     timestamps()
   end
 
-  @create_required_fields [:org_id, :type, :placement_date, :amount, :entry_type, :description]
+  @create_required_fields [
+    :org_id,
+    :type,
+    :placement_date,
+    :amount,
+    :entry_type,
+    :description,
+    :created_by_id
+  ]
   @create_optional_fields [:clearing_date, :transfer_counterparty_id]
 
   @create_fields @create_required_fields ++ @create_optional_fields
@@ -34,7 +44,6 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransaction do
     |> validate_money(:amount, :gt, 0)
     |> validate_length(:description, max: 255)
     |> validate_dates(:clearing_date, [:gt, :eq], :placement_date)
-    |> assoc_constraint(:transfer_counterparty)
   end
 
   @update_required_fields [:description, :placement_date]
