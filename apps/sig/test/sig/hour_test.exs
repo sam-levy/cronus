@@ -1,5 +1,5 @@
 defmodule Sig.HourTest do
-  use Sig.DataCase
+  use Sig.DataCase, async: true
 
   alias Sig.Hour
 

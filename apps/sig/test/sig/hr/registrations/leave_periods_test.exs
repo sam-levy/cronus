@@ -1,5 +1,5 @@
 defmodule Sig.HR.Registrations.LeavePeriodsTest do
-  use Sig.DataCase
+  use Sig.DataCase, async: true
 
   alias Sig.HR.Registrations.LeavePeriods
   alias Sig.HR.Registrations.LeavePeriods.LeavePeriod

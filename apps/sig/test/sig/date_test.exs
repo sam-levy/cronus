@@ -1,5 +1,5 @@
 defmodule Sig.DateTest do
-  use Sig.DataCase
+  use Sig.DataCase, async: true
 
   describe "list_by_month/3" do
     test "returns a list of next dates by month" do

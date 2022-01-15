@@ -1,5 +1,5 @@
 defmodule Sig.HR.Payslips.CreateFromModelTest do
-  use Sig.DataCase
+  use Sig.DataCase, async: true
 
   alias Sig.Finance.Payables.Payable
   alias Sig.Finance.Payables.PayablesForPayslip.PayslipPayables.PayslipPayable

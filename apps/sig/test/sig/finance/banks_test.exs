@@ -1,5 +1,5 @@
 defmodule Sig.Finance.BanksTest do
-  use Sig.DataCase
+  use Sig.DataCase, async: true
 
   alias Sig.Finance.Banks
   alias Sig.Finance.Banks.Bank

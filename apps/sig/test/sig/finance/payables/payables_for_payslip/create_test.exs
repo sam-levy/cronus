@@ -1,5 +1,5 @@
 defmodule Sig.Finance.Payables.PayablesForPayslip.CreateTest do
-  use Sig.DataCase
+  use Sig.DataCase, async: true
 
   alias Sig.Finance.Payables.PayablesForPayslip.Create
   alias Sig.Finance.Payables.Payable

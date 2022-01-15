@@ -1,5 +1,5 @@
 defmodule Sig.HR.Payslips.Items.MutatorTest do
-  use Sig.DataCase
+  use Sig.DataCase, async: true
 
   alias Sig.HR.Payslips.Items.Item
   alias Sig.HR.Payslips.Payslip

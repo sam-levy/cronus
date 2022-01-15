@@ -1,5 +1,5 @@
 defmodule Sig.Finance.PayablesTest do
-  use Sig.DataCase
+  use Sig.DataCase, async: true
 
   alias Sig.Accounts.User
   alias Sig.Entities.Individuals.Individual

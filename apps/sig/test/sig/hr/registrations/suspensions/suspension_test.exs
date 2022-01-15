@@ -1,5 +1,5 @@
 defmodule Sig.HR.Registrations.Suspensions.SuspensionTest do
-  use Sig.DataCase
+  use Sig.DataCase, async: true
 
   alias Sig.HR.Registrations.Suspensions.Suspension
 

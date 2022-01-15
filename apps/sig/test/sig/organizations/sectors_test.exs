@@ -1,5 +1,5 @@
 defmodule Sig.Organizations.SectorsTest do
-  use Sig.DataCase
+  use Sig.DataCase, async: true
 
   alias Sig.Organizations.Sectors
   alias Sig.Organizations.Sector

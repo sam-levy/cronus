@@ -1,5 +1,5 @@
 defmodule Sig.HR.Payslips.DeleteTest do
-  use Sig.DataCase
+  use Sig.DataCase, async: true
 
   alias Sig.HR.Payslips.Delete
   alias Sig.HR.Payslips.Payslip

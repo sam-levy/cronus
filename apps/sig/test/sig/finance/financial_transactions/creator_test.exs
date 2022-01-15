@@ -1,6 +1,6 @@
 defmodule Sig.Finance.FinancialTransactions.CreatorTest do
   defmodule AttrsTest do
-    use Sig.DataCase
+    use Sig.DataCase, async: true
 
     alias Sig.Finance.FinancialTransactions.Creator.Attrs
 

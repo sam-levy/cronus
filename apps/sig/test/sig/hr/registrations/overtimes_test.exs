@@ -1,5 +1,5 @@
 defmodule Sig.HR.Registrations.OvertimesTest do
-  use Sig.DataCase
+  use Sig.DataCase, async: true
 
   alias Sig.HR.Registrations.Overtimes
   alias Sig.HR.Registrations.Overtimes.Overtime
