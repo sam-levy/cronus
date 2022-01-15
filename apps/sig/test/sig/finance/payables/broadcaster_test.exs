@@ -160,6 +160,49 @@ defmodule Sig.Finance.Payables.BroadcasterTest do
     end
   end
 
+  describe "broadcast_payables_for/1 `%FinancialTransaction{}`" do
+    test "broadcasts payables from a financial transaction" do
+      org = insert(:org)
+      user = insert(:user, org: org)
+
+      financial_transaction = insert(:financial_transaction, org: org, amount: 100_00)
+
+      insert_list(2, :payable_billet,
+        org: org,
+        amount: 50_00,
+        authorized_by: user,
+        financial_transaction: financial_transaction
+      )
+
+      _to_ignore = insert(:payable_billet)
+      _to_ignore = insert(:payable_billet, org: org)
+
+      _to_ignore =
+        insert(:payable_billet,
+          org: org,
+          authorized_by: user,
+          financial_transaction: build(:financial_transaction, org: org)
+        )
+
+      topic = "org_id:" <> org.id <> ":payables"
+
+      @endpoint.subscribe(topic)
+
+      assert Broadcaster.broadcast_payables_for(financial_transaction) == :ok
+
+      assert_receive {:updated_payables, :by_org, received_payables}
+
+      assert Enum.count(received_payables) == 2
+
+      Enum.each(received_payables, fn payable ->
+        assert payable.org_id == org.id
+        assert payable.financial_transaction_id == financial_transaction.id
+      end)
+
+      @endpoint.unsubscribe(topic)
+    end
+  end
+
   describe "broadcast_payables/1" do
     test "broadcasts payables" do
       org = insert(:org)

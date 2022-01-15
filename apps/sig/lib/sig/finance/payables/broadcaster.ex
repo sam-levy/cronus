@@ -1,6 +1,7 @@
 defmodule Sig.Finance.Payables.Broadcaster do
   import Sig.Broadcaster
 
+  alias Sig.Finance.FinancialTransactions.FinancialTransaction
   alias Sig.Finance.Payables
   alias Sig.Finance.Payables.Payable
   alias Sig.HR.Payslips.Payslip
@@ -23,6 +24,12 @@ defmodule Sig.Finance.Payables.Broadcaster do
     broadcast(topics_for(payslip), {:updated_payables, {:by_payslip, payslip.id}, payables})
   end
 
+  def broadcast_payables_for(%FinancialTransaction{} = financial_transaction) do
+    payables = Payables.list_by(financial_transaction, preload: Payables.default_preloads())
+
+    broadcast(topics_for(financial_transaction), {:updated_payables, :by_org, payables})
+  end
+
   def broadcast_deleted_payable(%Payable{} = payable) do
     broadcast(topics_for(payable), {:deleted_payable, payable})
   end
@@ -40,6 +47,10 @@ defmodule Sig.Finance.Payables.Broadcaster do
       org_payables_topic(payslip.org_id),
       payslip_payables_topic(payslip.org_id, payslip.id)
     ]
+  end
+
+  defp topics_for(%FinancialTransaction{} = financial_transaction) do
+    org_payables_topic(financial_transaction.org_id)
   end
 
   defp payslip_payables_topic(org_id, payslip_id) do

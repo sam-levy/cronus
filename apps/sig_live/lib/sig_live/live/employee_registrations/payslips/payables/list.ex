@@ -211,106 +211,116 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.List do
           {#for payable <- @payslip_payables}
             <tr class="border-b hover:bg-gray-50">
               <td class="py-3 px-6 text-left">
+                {format_date(payable.due_date)}
+              </td>
+
+              <td class="py-3 px-6 text-left">
                 <a
                   :on-click="open_show_payable_form"
                   phx-value-payable_id={payable.id}
                   class="cursor-pointer hover:underline"
                 >
-                  {format_date(payable.due_date)}
-                </a>
-              </td>
-
-              <td class="py-3 px-6 text-left">
-                <div class="flex items-center">
                   {payable.description}
-                </div>
+                </a>
               </td>
 
               <td class="py-3 px-6">
                 <div class="flex justify-end items-center">
                   <span
                     :if={!payable.financial_transaction_id and payable.payslip_payable.is_auto_adjustable_amount}
-                    class="label-gray mr-3"
+                    class="label-gray mx-1"
                   >
                     automático
                   </span>
 
                   {#case payable}
                     {#match %{authorized_by_id: id, financial_transaction_id: nil} when is_binary(id)}
-                      <span class="label-green mr-3">
+                      <span class="label-green mx-1">
                         autorizado
                       </span>
-                    {#match %{financial_transaction_id: id} when is_binary(id)}
-                      <span class="label-blue mr-3">
-                        pago
+                    {#match %{financial_transaction: %{clearing_date: nil}}}
+                      <span class="label-yellow not-italic mx-1">
+                        liq pendente
+                      </span>
+                    {#match %{financial_transaction: %{clearing_date: clearing_date}}}
+                      <span class="label-blue not-italic mx-1">
+                        pago {format_date(clearing_date)}
                       </span>
                     {#match _}
                   {/case}
 
-                  {format_amount(payable.amount)}
+                  <span :if={Finance.payable_overdue?(payable, Date.utc_today())} class="label-red not-italic mx-1">
+                    vencido
+                  </span>
+
+                  <span class="ml-1">
+                    {format_amount(payable.amount)}
+                  </span>
                 </div>
               </td>
 
               <td class="pr-5 text-right">
-                <DropdownOpts>
-                  <a
-                    :if={!payable.authorized_by_id}
-                    :on-click="authorize_payable"
-                    phx-value-payable_id={payable.id}
-                    class="dropdown-item"
-                  >
-                    Autorizar pagamento
-                  </a>
+                {#if payable.financial_transaction_id == nil}
+                  <DropdownOpts>
+                    <a
+                      :if={!payable.authorized_by_id}
+                      :on-click="authorize_payable"
+                      phx-value-payable_id={payable.id}
+                      class="dropdown-item"
+                    >
+                      Autorizar pagamento
+                    </a>
 
-                  <a
-                    :if={payable.authorized_by_id}
-                    :on-click="unauthorize_payable"
-                    phx-value-payable_id={payable.id}
-                    class="dropdown-item"
-                  >
-                    Desautorizar pagamento
-                  </a>
+                    <a
+                      :if={payable.authorized_by_id}
+                      :on-click="unauthorize_payable"
+                      phx-value-payable_id={payable.id}
+                      class="dropdown-item"
+                    >
+                      Desautorizar pagamento
+                    </a>
 
-                  <a
-                    :if={
-                      !payable.financial_transaction_id and
-                      !payable.authorized_by_id and
-                      !payable.payslip_payable.is_auto_adjustable_amount
-                    }
-                    :on-click="set_as_auto_adjustable_amount"
-                    phx-value-payable_id={payable.id}
-                    class="dropdown-item"
-                  >
-                    Atribuir valor automático
-                  </a>
+                    <a
+                      :if={
+                        !payable.financial_transaction_id and
+                        !payable.authorized_by_id and
+                        !payable.payslip_payable.is_auto_adjustable_amount
+                      }
+                      :on-click="set_as_auto_adjustable_amount"
+                      phx-value-payable_id={payable.id}
+                      class="dropdown-item"
+                    >
+                      Atribuir valor automático
+                    </a>
 
-                  <a
-                    :if={!payable.financial_transaction_id and payable.payslip_payable.is_auto_adjustable_amount}
-                    :on-click="unset_as_auto_adjustable_amount"
-                    phx-value-payable_id={payable.id}
-                    class="dropdown-item"
-                  >
-                    Remover valor automático
-                  </a>
+                    <a
+                      :if={!payable.financial_transaction_id and payable.payslip_payable.is_auto_adjustable_amount}
+                      :on-click="unset_as_auto_adjustable_amount"
+                      phx-value-payable_id={payable.id}
+                      class="dropdown-item"
+                    >
+                      Remover valor automático
+                    </a>
 
-                  <a
-                    :if={!payable.financial_transaction_id and !payable.authorized_by_id}
-                    :on-click="open_edit_payable_form"
-                    phx-value-payable_id={payable.id}
-                    class="dropdown-item"
-                  >
-                    Editar
-                  </a>
+                    <a
+                      :if={!payable.financial_transaction_id and !payable.authorized_by_id}
+                      :on-click="open_edit_payable_form"
+                      phx-value-payable_id={payable.id}
+                      class="dropdown-item"
+                    >
+                      Editar
+                    </a>
 
-                  <a
-                    :if={!payable.financial_transaction_id and !payable.authorized_by_id}
-                    :on-click="open_delete_confirmation_dialog"
-                    phx-value-payable_id={payable.id}
-                    class="dropdown-item"
-                  >
-                    Remover
-                  </a>
-                </DropdownOpts>
+                    <a
+                      :if={!payable.financial_transaction_id and !payable.authorized_by_id}
+                      :on-click="open_delete_confirmation_dialog"
+                      phx-value-payable_id={payable.id}
+                      class="dropdown-item"
+                    >
+                      Remover
+                    </a>
+                  </DropdownOpts>
+                {/if}
               </td>
             </tr>
           {/for}
