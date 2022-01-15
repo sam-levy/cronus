@@ -139,6 +139,15 @@ defmodule SigLive.BankAccounts.AccountForm do
           <ErrorTag class="form-error-tag"/>
         </Field>
 
+        <Field name={:name} class="form-field">
+          <Label class="form-label">
+            Nome da Conta
+            <span class="form-label-complement">(opcional)</span>
+          </Label>
+          <TextInput {...props_for(:name, @form_state)}/>
+          <ErrorTag class="form-error-tag"/>
+        </Field>
+
         <div :if={@form_state != :show_mode} class="flex justify-end">
           <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Adicionando..."}/>
         </div>
@@ -195,6 +204,9 @@ defmodule SigLive.BankAccounts.AccountForm do
 
   defp props_for(:pix_key, :show_mode), do: @input_disabled
   defp props_for(:pix_key, _form_state), do: @input_enabled
+
+  defp props_for(:name, :show_mode), do: @input_disabled
+  defp props_for(:name, _form_state), do: @input_enabled
 
   defp props_for(_field, :new_mode), do: @input_enabled
   defp props_for(_field, _form_state), do: @input_disabled
