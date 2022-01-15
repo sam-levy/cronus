@@ -11,6 +11,7 @@ defmodule SigLive.AccountsPayable.List do
 
   prop org, :struct, required: true
   prop org_bank_accounts, :list, required: true
+  prop current_user, :struct, required: true
   prop payables, :list, required: true
   prop overdue_at, :date, required: true
 
@@ -246,8 +247,9 @@ defmodule SigLive.AccountsPayable.List do
         id="pay_footer"
         close_event="clear_selected_payables"
         close_fun={fn -> close_form(@id) end}
-        {=@org_bank_accounts}
         {=@org}
+        {=@org_bank_accounts}
+        {=@current_user}
         {=@message}
         {=@selected_method}
         {=@selected_payables}

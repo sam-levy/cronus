@@ -22,6 +22,7 @@ defmodule SigLive.AccountsPayable.PayFooter do
 
   prop org, :struct, required: true
   prop org_bank_accounts, :list, required: true
+  prop current_user, :struct, required: true
   prop message, :string, default: nil
   prop selected_payables, :map, required: true
   prop selected_method, :atom, required: true
@@ -77,13 +78,14 @@ defmodule SigLive.AccountsPayable.PayFooter do
 
   @impl true
   def handle_event("save", %{"attrs" => params}, socket) do
-    %{org: org, selected_method: selected_method, selected_payables: selected_payables} =
+    %{org: org, selected_method: selected_method, selected_payables: selected_payables, current_user: current_user} =
       socket.assigns
 
     params =
       params
       |> Map.put("type", selected_method)
       |> Map.put("payable_ids", Map.keys(selected_payables))
+      |> Map.put("created_by_id", current_user.id)
 
     with changeset <- Finance.pay_payables_change(params),
          {:ok, _attrs} <- apply_action(changeset, :insert),
