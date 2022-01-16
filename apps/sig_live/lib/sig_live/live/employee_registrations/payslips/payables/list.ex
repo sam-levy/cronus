@@ -228,7 +228,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.List do
                 <div class="flex justify-end items-center">
                   <span
                     :if={!payable.financial_transaction_id and payable.payslip_payable.is_auto_adjustable_amount}
-                    class="label-gray mx-1"
+                    class="label-purple mx-1"
                   >
                     automático
                   </span>
