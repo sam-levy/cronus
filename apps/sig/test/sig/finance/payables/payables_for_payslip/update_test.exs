@@ -445,7 +445,9 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.UpdateTest do
       assert {:error, changeset} = Update.call(payslip, payable, attrs)
 
       assert errors_on(changeset) == %{
-               amount: ["can't exceed payslip amount"]
+               amount: [
+                 "o valor total dos pagáveis não pode exceder o valor do holerite mais os adiantamentos"
+               ]
              }
 
       refute Repo.get_by(Payable,
@@ -470,6 +472,72 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.UpdateTest do
       assert Repo.get_by(Payable,
                org_id: org.id,
                id: payable.id,
+               amount: 100_00
+             )
+    end
+
+    test "amount can be decreased when not auto adjustable" do
+      org = insert(:org)
+      payslip = insert(:payslip, org: org)
+
+      insert(:payslip_outside_item,
+        org: org,
+        payslip: payslip,
+        entry_type: :credit,
+        amount: 200_00
+      )
+
+      # Update payslip amount
+      Repo.update!(change(payslip, amount: 200_00))
+
+      non_adjustable_payable =
+        insert(:payable_cash, org: org, target: :payslip, amount: Money.new(100_00))
+
+      insert(:payslip_payable,
+        org: org,
+        payslip: payslip,
+        payable: non_adjustable_payable,
+        is_auto_adjustable_amount: false
+      )
+
+      %{id: id} =
+        payable = insert(:payable_cash, org: org, target: :payslip, amount: Money.new(100_00))
+
+      insert(:payslip_payable,
+        org: org,
+        payslip: payslip,
+        payable: payable,
+        is_auto_adjustable_amount: false
+      )
+
+      attrs = %{
+        due_date: ~D[2021-01-15],
+        reference_date: ~D[2021-01-01],
+        amount: 50_00,
+        description: "Updated description",
+        note: "Updated note",
+        financial_transaction_type: :billet,
+        billet_barcode: random_string_number()
+      }
+
+      assert {:ok, %Payable{id: ^id}} = Update.call(payslip, payable, attrs)
+
+      assert Repo.get_by(Payable,
+               org_id: org.id,
+               id: id,
+               target: payable.target,
+               due_date: attrs[:due_date],
+               reference_date: attrs[:reference_date],
+               amount: attrs[:amount],
+               description: attrs[:description],
+               note: attrs[:note],
+               financial_transaction_type: attrs[:financial_transaction_type],
+               billet_barcode: attrs[:billet_barcode]
+             )
+
+      assert Repo.get_by(Payable,
+               org_id: org.id,
+               id: non_adjustable_payable.id,
                amount: 100_00
              )
     end
