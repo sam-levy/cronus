@@ -3,24 +3,33 @@ defmodule SigLive.AccountsPayable.Index do
 
   alias Surface.Components.LivePatch
 
+  alias Sig.Entities
   alias Sig.Finance
 
   alias SigLive.AccountsPayable
   alias SigLive.Components.DateToggle
 
+  @filters %{company_entity_id: "all"}
+
   @impl true
   def mount(_params, _session, socket) do
-    {:ok,
-     assign(
-       socket,
-       payables: [],
-       payable_ids: MapSet.new(),
-       financial_transactions: [],
-       financial_transaction_ids: MapSet.new(),
-       assigns_built_for: %{},
-       org_bank_accounts:
-         Finance.list_accounts_by(socket.assigns.org, where: [is_active: true, is_managed: true])
-     )}
+    %{org: org} = socket.assigns
+
+    socket =
+      assign(socket,
+        payables: [],
+        indexed_payables: %{},
+        payables_amount_sum: Money.new(0),
+        financial_transactions: [],
+        financial_transaction_ids: MapSet.new(),
+        assigns_built_for: %{},
+        filters: @filters,
+        companies: Entities.list_companies(org, filter: [is_virtual: false]),
+        org_bank_accounts:
+          Finance.list_accounts_by(org, where: [is_active: true, is_managed: true])
+      )
+
+    {:ok, socket, temporary_assigns: [payables: []]}
   end
 
   @impl true
@@ -121,14 +130,17 @@ defmodule SigLive.AccountsPayable.Index do
       assigns_built_for: assigns_built_for,
       start_date: start_date,
       end_date: end_date,
-      overdue_at: overdue_at
+      overdue_at: overdue_at,
+      filters: filters
     } = socket.assigns
 
-    payables =
-      Finance.list_payables_by(org,
+    indexed_payables =
+      org
+      |> Finance.list_payables_by(
         preload: Finance.default_payable_preloads(),
         due_date: [period_start: start_date, period_end: end_date, overdue_at: overdue_at]
       )
+      |> Map.new(&{&1.id, &1})
 
     assigns_built_for =
       Map.put(assigns_built_for, :accounts_payable, %{
@@ -136,9 +148,10 @@ defmodule SigLive.AccountsPayable.Index do
         end_date: end_date
       })
 
-    assign(socket,
-      payables: payables,
-      payable_ids: MapSet.new(payables, & &1.id),
+    socket
+    |> assign_payables(indexed_payables, filters)
+    |> assign(
+      indexed_payables: indexed_payables,
       assigns_built_for: assigns_built_for,
       active_screen: :accounts_payable
     )
@@ -184,47 +197,47 @@ defmodule SigLive.AccountsPayable.Index do
   end
 
   @impl true
-  def handle_info({:updated_payables, _by, updated_payables}, socket) do
+  def handle_info({:updated_payables, _by, incoming_payables}, socket) do
     %{
-      payables: payables,
-      payable_ids: payable_ids,
+      indexed_payables: indexed_payables,
       start_date: start_date,
       end_date: end_date,
-      overdue_at: overdue_at
+      overdue_at: overdue_at,
+      filters: filters
     } = socket.assigns
 
-    indexed_updated_payables =
-      index_payables(updated_payables, payable_ids, start_date, end_date, overdue_at)
+    indexed_incoming_payables =
+      index_incoming_payables(
+        incoming_payables,
+        indexed_payables,
+        start_date,
+        end_date,
+        overdue_at
+      )
 
-    if indexed_updated_payables == %{} do
+    if indexed_incoming_payables == %{} do
       {:noreply, socket}
     else
-      updated_payables =
-        payables
-        |> Map.new(&{&1.id, &1})
-        |> Map.merge(indexed_updated_payables)
-        |> Map.values()
-        |> Enum.sort_by(& &1.description)
-        |> Enum.sort_by(& &1.due_date, Date)
+      updated_indexed_payables = Map.merge(indexed_payables, indexed_incoming_payables)
 
       {:noreply,
-       assign(socket,
-         payables: updated_payables,
-         payable_ids: MapSet.new(updated_payables, & &1.id)
-       )}
+       socket
+       |> assign(indexed_payables: updated_indexed_payables)
+       |> assign_payables(updated_indexed_payables, filters)}
     end
   end
 
   @impl true
   def handle_info({:deleted_payable, deleted_payable}, socket) do
-    if MapSet.member?(socket.assigns.payable_ids, deleted_payable.id) do
-      %{payables: payables, payable_ids: payable_ids} = socket.assigns
+    %{indexed_payables: indexed_payables, filters: filters} = socket.assigns
+
+    if Map.get(indexed_payables, deleted_payable.id, false) do
+      updated_indexed_payables = Map.delete(indexed_payables, deleted_payable.id)
 
       {:noreply,
-       assign(socket,
-         payables: Enum.reject(payables, &(&1.id == deleted_payable.id)),
-         payable_ids: MapSet.delete(payable_ids, deleted_payable.id)
-       )}
+       socket
+       |> assign(indexed_payables: updated_indexed_payables)
+       |> assign_payables(updated_indexed_payables, filters)}
     else
       {:noreply, socket}
     end
@@ -288,11 +301,66 @@ defmodule SigLive.AccountsPayable.Index do
     end
   end
 
-  defp index_payables(updated_payables, payable_ids, start_date, end_date, overdue_at) do
-    Enum.reduce(updated_payables, %{}, fn payable, acc ->
+  @impl true
+  def handle_info({:filter_company, company_entity_id}, socket) do
+    %{filters: filters, indexed_payables: indexed_payables} = socket.assigns
+
+    updated_filters = %{filters | company_entity_id: company_entity_id}
+
+    {:noreply,
+     socket
+     |> assign(filters: updated_filters)
+     |> assign_payables(indexed_payables, updated_filters)}
+  end
+
+  defp assign_payables(socket, indexed_payables, filters) do
+    acc = %{payables: [], payables_amount_sum: Money.new(0)}
+
+    %{payables: payables, payables_amount_sum: payables_amount_sum} =
+      Enum.reduce(indexed_payables, acc, fn {_payable_id, payable}, acc ->
+        filters
+        |> Enum.reduce_while(payable, &apply_filter/2)
+        |> case do
+          :reject ->
+            acc
+
+          _ ->
+            acc
+            |> Sig.Map.flat_put(:payables, payable)
+            |> Map.put(:payables_amount_sum, Money.add(acc.payables_amount_sum, payable.amount))
+        end
+      end)
+
+    payables =
+      payables
+      |> Enum.sort_by(& &1.inserted_at, DateTime)
+      |> Enum.sort_by(& &1.due_date, Date)
+
+    assign(socket, payables: payables, payables_amount_sum: payables_amount_sum)
+  end
+
+  defp apply_filter({:company_entity_id, "all"}, payable), do: {:cont, payable}
+
+  defp apply_filter(
+         {:company_entity_id, id},
+         %{employee_registration_company: %{entity_id: id}} = payable
+       ) do
+    {:cont, payable}
+  end
+
+  defp apply_filter(_filter, _payable), do: {:halt, :reject}
+
+  defp index_incoming_payables(
+         incoming_payables,
+         indexed_payables,
+         start_date,
+         end_date,
+         overdue_at
+       ) do
+    Enum.reduce(incoming_payables, %{}, fn payable, acc ->
       if Sig.Date.in_range?(payable.due_date, start_date, end_date) or
            Finance.payable_overdue?(payable, overdue_at) or
-           MapSet.member?(payable_ids, payable.id) do
+           Map.get(indexed_payables, payable.id, false) do
         Map.put(acc, payable.id, payable)
       else
         acc
@@ -378,6 +446,9 @@ defmodule SigLive.AccountsPayable.Index do
           {=@org_bank_accounts}
           {=@overdue_at}
           {=@payables}
+          {=@payables_amount_sum}
+          {=@companies}
+          {=@filters}
         />
       </div>
 
