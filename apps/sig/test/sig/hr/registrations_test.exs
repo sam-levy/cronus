@@ -41,12 +41,10 @@ defmodule Sig.HR.RegistrationsTest do
 
       sector = insert(:org_sector, org: org)
       position = insert(:org_position, org: org)
-      company = insert(:company, org: org)
 
       attrs = %{
         sector_id: sector.id,
         position_id: position.id,
-        work_at_id: company.entity_id
       }
 
       assert {:ok, return} = Registrations.update(registration, attrs)
@@ -61,26 +59,6 @@ defmodule Sig.HR.RegistrationsTest do
              )
     end
 
-    test "work at company belongs to another org" do
-      org = insert(:org)
-      registration = insert(:employee_registration, org: org)
-
-      sector = insert(:org_sector, org: org)
-      position = insert(:org_position, org: org)
-
-      other_org_company = insert(:company)
-
-      attrs = %{
-        sector_id: sector.id,
-        position_id: position.id,
-        work_at_id: other_org_company.entity_id
-      }
-
-      assert {:error, changeset} = Registrations.update(registration, attrs)
-
-      assert errors_on(changeset) == %{work_at: ["does not exist"]}
-    end
-
     test "returns changeset errors" do
       org = insert(:org)
       registration = insert(:employee_registration, org: org)
@@ -88,7 +66,6 @@ defmodule Sig.HR.RegistrationsTest do
       attrs = %{
         sector_id: :invalid,
         position_id: :invalid,
-        work_at_id: :invalid
       }
 
       assert {:error, changeset} = Registrations.update(registration, attrs)
@@ -96,7 +73,6 @@ defmodule Sig.HR.RegistrationsTest do
       assert errors_on(changeset) == %{
                position_id: ["is invalid"],
                sector_id: ["is invalid"],
-               work_at_id: ["is invalid"]
              }
     end
   end
@@ -164,12 +140,10 @@ defmodule Sig.HR.RegistrationsTest do
       assert [
                %Registration{
                  registered_at: %Company{},
-                 work_at: %Company{},
                  salaries: [%Salary{}, %Salary{}]
                },
                %Registration{
                  registered_at: %Company{},
-                 work_at: %Company{},
                  salaries: [%Salary{}]
                }
              ] = Registrations.list_by(individual)

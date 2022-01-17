@@ -43,7 +43,6 @@ defmodule Sig.HR.Registrations.CreateTest do
         position_id: position.id,
         individual_id: individual.entity_id,
         registered_at_id: company.entity_id,
-        work_at_id: company.entity_id,
         salary_amount: salary_amount
       }
 
@@ -99,7 +98,6 @@ defmodule Sig.HR.Registrations.CreateTest do
         position_id: position.id,
         individual_id: individual.entity_id,
         registered_at_id: UUID.generate(),
-        work_at_id: UUID.generate(),
         salary_amount: Enum.random(1_200_00..4_000_00)
       }
 
@@ -121,7 +119,6 @@ defmodule Sig.HR.Registrations.CreateTest do
         position_id: position.id,
         individual_id: individual.entity_id,
         registered_at_id: company.entity_id,
-        work_at_id: company.entity_id,
         salary_amount: Enum.random(1_200_00..4_000_00)
       }
 
@@ -163,7 +160,6 @@ defmodule Sig.HR.Registrations.CreateTest do
         position_id: position.id,
         individual_id: individual.entity_id,
         registered_at_id: company.entity_id,
-        work_at_id: company.entity_id,
         salary_amount: Enum.random(1_200_00..4_000_00)
       }
 

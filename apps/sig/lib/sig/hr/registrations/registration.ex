@@ -27,14 +27,13 @@ defmodule Sig.HR.Registrations.Registration do
     belongs_to :position, Position
     belongs_to :individual, Individual, references: :entity_id
     belongs_to :registered_at, Company, references: :entity_id
-    belongs_to :work_at, Company, references: :entity_id
 
     has_many :salaries, Salary
 
     timestamps()
   end
 
-  @create_required_fields [
+  @create_fields [
     :org_id,
     :admission_date,
     :sector_id,
@@ -44,17 +43,13 @@ defmodule Sig.HR.Registrations.Registration do
     :salary_amount
   ]
 
-  @create_fields @create_required_fields ++ [:work_at_id]
-
   def create_changeset(attrs) do
     %__MODULE__{}
     |> cast(attrs, @create_fields)
-    |> validate_required(@create_required_fields)
-    |> maybe_put_work_at_id()
+    |> validate_required(@create_fields)
     |> assoc_constraint(:sector)
     |> assoc_constraint(:position)
     |> assoc_constraint(:registered_at)
-    |> assoc_constraint(:work_at)
     |> unique_constraint([:registered_at_id, :individual_id, :org_id],
       name: :employee_registrations_resignation_date_is_null_unique
     )
@@ -62,10 +57,9 @@ defmodule Sig.HR.Registrations.Registration do
 
   def update_changeset(%__MODULE__{} = target, attrs) do
     target
-    |> cast(attrs, [:sector_id, :position_id, :work_at_id])
+    |> cast(attrs, [:sector_id, :position_id])
     |> assoc_constraint(:sector)
     |> assoc_constraint(:position)
-    |> assoc_constraint(:work_at)
   end
 
   def resignation_changeset(%__MODULE__{} = target, attrs) do
@@ -73,15 +67,5 @@ defmodule Sig.HR.Registrations.Registration do
     |> cast(attrs, [:resignation_date, :resignation_type])
     |> validate_required([:resignation_date, :resignation_type])
     |> validate_dates(:admission_date, :lt, :resignation_date)
-  end
-
-  defp maybe_put_work_at_id(changeset) do
-    with true <- changeset.valid?,
-         :error <- fetch_change(changeset, :work_at_id),
-         {:ok, registered_at_id} <- fetch_change(changeset, :registered_at_id) do
-      put_change(changeset, :work_at_id, registered_at_id)
-    else
-      _ -> changeset
-    end
   end
 end
