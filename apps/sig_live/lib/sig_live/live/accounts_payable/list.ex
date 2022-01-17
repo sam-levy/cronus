@@ -13,7 +13,10 @@ defmodule SigLive.AccountsPayable.List do
   prop org_bank_accounts, :list, required: true
   prop current_user, :struct, required: true
   prop payables, :list, required: true
+  prop payables_amount_sum, :struct, required: true
   prop overdue_at, :date, required: true
+  prop companies,:list, required: true
+  prop filters, :map, required: true
 
   data message, :string, default: nil
   data selected_payables, :map, default: %{}
@@ -42,11 +45,13 @@ defmodule SigLive.AccountsPayable.List do
     |> Enum.reduce_while(assigns, fn {id, _}, acc ->
       case Map.get(indexed_payables, id) do
         nil -> {:halt, :payable_not_found}
+        %{authorized_by_id: nil} -> {:halt, :unauthorized_payable}
         payable -> {:cont, add_payable(acc, payable)}
       end
     end)
     |> case do
       :payable_not_found -> clear_selected_payables(socket)
+      :unauthorized_payable -> clear_selected_payables(socket)
       assigns -> assign_selected_payables(socket, assigns)
     end
   end
@@ -57,7 +62,34 @@ defmodule SigLive.AccountsPayable.List do
   end
 
   @impl true
-  def handle_event("select_payable", %{"selected_payable_ids" => payable_ids}, socket) do
+  def handle_event("select_payable", %{"selected_payable_ids" => payable_ids} = params, socket) do
+    %{"selected_company_entity_id" => selected_company_entity_id} = params
+
+    %{filters: %{company_entity_id: filtered_company_entity_id}} = socket.assigns
+
+    if selected_company_entity_id == filtered_company_entity_id do
+      {:noreply, select_payables(socket, payable_ids)}
+    else
+      send(self(), {:filter_company, selected_company_entity_id})
+
+      {:noreply,
+       socket
+       |> clear_selected_payables()
+       |> assign(:message, nil)}
+    end
+  end
+
+  @impl true
+  def handle_event("select_payable", params, socket) do
+    send(self(), {:filter_company, params["selected_company_entity_id"]})
+
+    {:noreply,
+     socket
+     |> clear_selected_payables()
+     |> assign(:message, nil)}
+  end
+
+  defp select_payables(socket, payable_ids) do
     acc = %{selected_payables: %{}, selected_method: nil, selected_amount_sum: Money.new(0)}
 
     assigns =
@@ -87,14 +119,7 @@ defmodule SigLive.AccountsPayable.List do
           {:cont, acc}
       end)
 
-    {:noreply, assign_selected_payables(socket, assigns)}
-  end
-
-  @impl true
-  def handle_event("select_payable", _params, socket) do
-    socket
-    |> clear_selected_payables()
-    |> assign(:message, nil)
+    assign_selected_payables(socket, assigns)
   end
 
   defp get_payable(socket, payable_id) do
@@ -109,12 +134,11 @@ defmodule SigLive.AccountsPayable.List do
   defp add_payable(acc, %{authorized_by_id: nil}), do: acc
 
   defp add_payable(acc, payable) do
-    sum = acc |> Map.get(:selected_amount_sum) |> Money.add(payable.amount)
-    payables = acc |> Map.get(:selected_payables) |> Map.put(payable.id, payable)
-
-    acc
-    |> Map.put(:selected_amount_sum, sum)
-    |> Map.put(:selected_payables, payables)
+    %{
+      acc
+      | selected_payables: Map.put(acc.selected_payables, payable.id, payable),
+        selected_amount_sum: Money.add(acc.selected_amount_sum, payable.amount)
+    }
   end
 
   defp assign_selected_payables(socket, %{selected_payables: _} = assigns) do
@@ -135,13 +159,32 @@ defmodule SigLive.AccountsPayable.List do
     <div>
       <Form for={:selected_payable_ids} change="select_payable">
         <table class="w-full bg-white shadow-lg my-5">
-          <thead class="top-0 z-20">
+          <thead class="top-0 z-10 bg-white sticky">
             <tr class="bg-white">
-              <th colspan="6">
-                <div class="flex justify-between items-center py-3 px-6">
-                  <span class="text-gray-500 font-medium tracking-wider">
-                    Contas a Pagar
-                  </span>
+              <th colspan="8">
+                <div class="flex justify-between items-center py-3 px-6 text-gray-500 font-medium tracking-wider">
+                  <div>Contas a Pagar</div>
+
+                  <div class="flex items-center space-x-4">
+                    <div>
+                      <select name="selected_company_entity_id" class="form-input py-1">
+                        <option value="all" selected={@filters.company_entity_id == "all"}>
+                          Todas as Empresas
+                        </option>
+
+                        {#for company <- @companies}
+                          <option
+                            value={company.entity_id}
+                            selected={company.entity_id == @filters.company_entity_id}
+                          >
+                            {company.trade_name}
+                          </option>
+                        {/for}
+                      </select>
+                    </div>
+
+                    <div>{@payables_amount_sum}</div>
+                  </div>
                 </div>
               </th>
             </tr>
@@ -288,34 +331,39 @@ defmodule SigLive.AccountsPayable.List do
 
   defp checkbox_attrs(selected_payables, selected_method, payable) do
     []
-    |> disable(selected_method, selected_payables, payable)
-    |> check(selected_payables, payable.id)
+    |> handle_classes(selected_method, selected_payables, payable)
+    |> handle_check(selected_payables, payable.id)
   end
 
-  defp disable(attrs, _selected_method, _selected_payables, %{authorized_by_id: nil}) do
-    do_disable(attrs)
+  defp handle_classes(attrs, _selected_method, _selected_payables, %{authorized_by_id: nil}) do
+    add_disabled_classes(attrs)
   end
 
-  defp disable(attrs, nil, _selected_payables, _payable) do
+  defp handle_classes(attrs, nil, _selected_payables, _payable) do
     Keyword.put(attrs, :class, @checkbox_enabled_class)
   end
 
-  defp disable(attrs, :check, selected_payables, %{financial_transaction_type: :check} = payable) do
+  defp handle_classes(
+         attrs,
+         :check,
+         selected_payables,
+         %{financial_transaction_type: :check} = payable
+       ) do
     case Map.get(selected_payables, payable.id) do
       %{} -> Keyword.put(attrs, :class, @checkbox_enabled_class)
-      nil -> do_disable(attrs)
+      nil -> add_disabled_classes(attrs)
     end
   end
 
-  defp disable(attrs, method, _selected_payables, %{financial_transaction_type: method}) do
+  defp handle_classes(attrs, method, _selected_payables, %{financial_transaction_type: method}) do
     Keyword.put(attrs, :class, @checkbox_enabled_class)
   end
 
-  defp disable(attrs, _selected_method, _selected_payables, _payable) do
-    do_disable(attrs)
+  defp handle_classes(attrs, _selected_method, _selected_payables, _payable) do
+    add_disabled_classes(attrs)
   end
 
-  defp do_disable(attrs) do
+  defp add_disabled_classes(attrs) do
     opts =
       attrs
       |> Keyword.get(:opts, [])
@@ -326,7 +374,7 @@ defmodule SigLive.AccountsPayable.List do
     |> Keyword.put(:opts, opts)
   end
 
-  defp check(attrs, selected_payables, payable_id) do
+  defp handle_check(attrs, selected_payables, payable_id) do
     if Map.get(selected_payables, payable_id, false) do
       opts =
         attrs

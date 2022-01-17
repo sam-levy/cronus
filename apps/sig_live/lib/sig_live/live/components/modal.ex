@@ -18,7 +18,7 @@ defmodule SigLive.Components.Modal do
         <span class="hidden inline-block align-middle h-screen" aria-hidden="true">&#8203;</span>
 
         <!-- Modal panel, show/hide based on modal state. -->
-        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all mt-32 align-middle max-w-lg w-full">
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all mt-32 mb-10 align-middle max-w-lg w-full">
           <div class="bg-white px-4 py-5">
             <div class="flex items-start">
               <div class="mx-4 text-left w-full">

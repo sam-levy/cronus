@@ -17,8 +17,8 @@ defmodule SigLive.Components.FooterModal do
   @impl true
   def render(assigns) do
     ~F"""
-    <div style="padding-bottom: 37rem" class="flex justify-center z-50 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-      <div class="fixed bottom-0 flex items-start justify-center pt-4 px-4 text-center">
+    <div style="padding-bottom: 37rem" class="flex justify-center inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+      <div class="fixed bottom-0 z-50 flex items-start justify-center pt-4 px-4 text-center">
         <!-- This element is to trick the browser into centering the modal contents. -->
         <span class="hidden inline-block align-middle" aria-hidden="true">&#8203;</span>
 
