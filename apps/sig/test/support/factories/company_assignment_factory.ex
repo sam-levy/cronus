@@ -6,7 +6,7 @@ defmodule Sig.Factories.CompanyAssignmentFactory do
       def factory(:employee_company_assignment, attrs) do
         org = Keyword.get(attrs, :org) || insert(:org)
 
-        start_date = Keyword.get(attrs, :start_date) || random_past_date() |> Date.beginning_of_month()
+        start_date = Keyword.get(attrs, :start_date) || random_past_date()
 
         registration =
           Keyword.get(attrs, :registration) ||
