@@ -98,7 +98,7 @@ defmodule Sig.HR.Registrations.CompanyAssignments.CompanyAssignmentTest do
         )
 
       assert_raise Postgrex.Error,
-                   ~r/\(integrity_constraint_violation\) a registration must have at least one company assignment/,
+                   ~r/\(integrity_constraint_violation\) a registration must have at least one item in employee_company_assignments/,
                    fn -> Repo.delete(company_assignment) end
     end
 
