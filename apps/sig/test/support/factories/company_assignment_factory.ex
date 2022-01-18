@@ -12,12 +12,12 @@ defmodule Sig.Factories.CompanyAssignmentFactory do
           Keyword.get(attrs, :registration) ||
             insert(:employee_registration, org: org, admission_date: start_date)
 
-        company = Keyword.get(attrs, :company) || registration.registered_at
+        assigned_company = Keyword.get(attrs, :assigned_company) || registration.registered_at
 
         %CompanyAssignment{
           org: org,
           registration: registration,
-          company: company,
+          assigned_company: assigned_company,
           start_date: start_date
         }
       end

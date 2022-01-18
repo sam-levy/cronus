@@ -119,7 +119,7 @@ defmodule Sig.HR.Registrations.Create do
       org_id: registration.org_id,
       registration_id: registration.id,
       start_date: registration.admission_date,
-      company_id: assigned_company_entity_id
+      assigned_company_id: assigned_company_entity_id
     }
   end
 

@@ -11,18 +11,18 @@ defmodule Sig.HR.Registrations.CompanyAssignments.CompanyAssignment do
     field :start_date, :date
 
     belongs_to :registration, Registration
-    belongs_to :company, Company, references: :entity_id
+    belongs_to :assigned_company, Company, references: :entity_id
 
     timestamps()
   end
 
-  @fields [:org_id, :start_date, :registration_id, :company_id]
+  @fields [:org_id, :start_date, :registration_id, :assigned_company_id]
 
   def create_changeset(attrs) do
     %__MODULE__{}
     |> cast(attrs, @fields)
     |> validate_required(@fields)
-    |> assoc_constraint(:company)
+    |> assoc_constraint(:assigned_company)
     |> unique_constraint(:start_date, name: :employee_company_assignments_company_start_date)
   end
 

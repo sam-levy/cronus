@@ -72,7 +72,7 @@ defmodule Sig.HR.Registrations.CreateTest do
       assert Repo.get_by(CompanyAssignment,
                org_id: org.id,
                registration_id: registration.id,
-               company_id: assigned_company.entity_id,
+               assigned_company_id: assigned_company.entity_id,
                start_date: registration.admission_date
              )
     end
@@ -120,7 +120,7 @@ defmodule Sig.HR.Registrations.CreateTest do
       assert Repo.get_by(CompanyAssignment,
                org_id: org.id,
                registration_id: registration.id,
-               company_id: company.entity_id,
+               assigned_company_id: company.entity_id,
                start_date: registration.admission_date
              )
     end
@@ -151,7 +151,7 @@ defmodule Sig.HR.Registrations.CreateTest do
       assert {:error, changeset} = Create.call(org, individual, attrs)
 
       assert errors_on(changeset) == %{
-        company: ["does not exist"]
+        assigned_company: ["does not exist"]
       }
 
       get_by =
@@ -171,7 +171,7 @@ defmodule Sig.HR.Registrations.CreateTest do
 
       refute Repo.get_by(CompanyAssignment,
                org_id: org.id,
-               company_id: company.entity_id
+               assigned_company_id: company.entity_id
              )
     end
 
