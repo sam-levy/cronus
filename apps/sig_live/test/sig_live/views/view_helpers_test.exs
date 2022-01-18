@@ -135,8 +135,8 @@ defmodule SigLive.ViewHelpersTest do
   end
 
   describe "companies_for_select/1" do
-    test "returns a map with companies registration name as keys and entity ids as values" do
-      %{entity_id: acme_id} = acme = insert(:company, registration_name: "Acme LLC")
+    test "returns a map with companies registration or trade name as keys and entity ids as values" do
+      %{entity_id: acme_id} = acme = insert(:virtual_company, trade_name: "Acme LLC")
 
       %{entity_id: dm_id} =
         dunder_mifflin = insert(:company, registration_name: "Dunder Mifflin LLC")

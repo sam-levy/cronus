@@ -82,6 +82,15 @@ defmodule SigLive.EmployeeRegistrations.Form do
           <ErrorTag class="form-error-tag"/>
         </Field>
 
+        <Field name={:assigned_company_entity_id} class="form-field">
+          <Label class="form-label">
+            Empresa onde irá trabalhar
+            <span class="form-label-complement">(opcional)</span>
+          </Label>
+          <Select prompt="" options={companies_for_select(@companies)} {...props_for(:assigned_company_entity_id, @form_state)} />
+          <ErrorTag class="form-error-tag"/>
+        </Field>
+
         <Field name={:sector_id} class="form-field">
           <Label class="form-label">Setor</Label>
           <Select prompt=""  options={id_by_name_for_select(@sectors)} {...props_for(:sector_id, @form_state)}/>
