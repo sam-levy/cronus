@@ -5,7 +5,9 @@ defmodule Sig.Repo.Migrations.CreateEmployeeCompanyAssignmentsTable do
     create table(:employee_company_assignments) do
       add :org_id, references(:orgs), primary_key: true
 
-      add :registration_id, references(:employee_registrations, with: [org_id: :org_id]), null: false
+      add :registration_id, references(:employee_registrations, with: [org_id: :org_id]),
+        null: false
+
       add :assigned_company_id, references(:entities, with: [org_id: :org_id]), null: false
       add :start_date, :date, null: false
 

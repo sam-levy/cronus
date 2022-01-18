@@ -44,7 +44,7 @@ defmodule Sig.HR.RegistrationsTest do
 
       attrs = %{
         sector_id: sector.id,
-        position_id: position.id,
+        position_id: position.id
       }
 
       assert {:ok, return} = Registrations.update(registration, attrs)
@@ -65,14 +65,14 @@ defmodule Sig.HR.RegistrationsTest do
 
       attrs = %{
         sector_id: :invalid,
-        position_id: :invalid,
+        position_id: :invalid
       }
 
       assert {:error, changeset} = Registrations.update(registration, attrs)
 
       assert errors_on(changeset) == %{
                position_id: ["is invalid"],
-               sector_id: ["is invalid"],
+               sector_id: ["is invalid"]
              }
     end
   end

@@ -165,9 +165,18 @@ defmodule Sig.HR do
     to: LeavePeriods,
     as: :list_by_registration
 
-  defdelegate create_company_assignment_change(attrs \\ %{}), to: CompanyAssignments, as: :create_change
-  defdelegate create_company_assignment(registration, attrs \\ %{}), to: CompanyAssignments, as: :create
-  defdelegate list_company_assignments_by(schema, opts \\ []), to: CompanyAssignments, as: :list_by
+  defdelegate create_company_assignment_change(attrs \\ %{}),
+    to: CompanyAssignments,
+    as: :create_change
+
+  defdelegate create_company_assignment(registration, attrs \\ %{}),
+    to: CompanyAssignments,
+    as: :create
+
+  defdelegate list_company_assignments_by(schema, opts \\ []),
+    to: CompanyAssignments,
+    as: :list_by
+
   defdelegate fetch_company_assignment(schema, id, opts \\ []), to: CompanyAssignments, as: :fetch
   defdelegate delete_company_assignment(company_assignment), to: CompanyAssignments, as: :delete
   defdelegate subscribe_to_company_assignments(registration), to: CompanyAssignments

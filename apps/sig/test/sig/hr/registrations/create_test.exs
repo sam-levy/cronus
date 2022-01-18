@@ -151,8 +151,8 @@ defmodule Sig.HR.Registrations.CreateTest do
       assert {:error, changeset} = Create.call(org, individual, attrs)
 
       assert errors_on(changeset) == %{
-        assigned_company: ["does not exist"]
-      }
+               assigned_company: ["does not exist"]
+             }
 
       get_by =
         attrs
