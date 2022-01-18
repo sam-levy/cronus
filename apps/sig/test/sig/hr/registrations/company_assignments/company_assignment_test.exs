@@ -85,6 +85,45 @@ defmodule Sig.HR.Registrations.CompanyAssignments.CompanyAssignmentTest do
     end
   end
 
+  describe "employee_company_assignments delete stored procedure" do
+    test "raises on delete if registration has only one company assignment" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+
+      company_assignment =
+        insert(:employee_company_assignment,
+          org: org,
+          registration: registration,
+          start_date: ~D[2021-06-01]
+        )
+
+      assert_raise Postgrex.Error,
+                   ~r/\(integrity_constraint_violation\) a registration must have at least one company assignment/,
+                   fn -> Repo.delete(company_assignment) end
+    end
+
+    test "successfully deletes if registration has more than one company assignment" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+
+      _company_assignment_1 =
+        insert(:employee_company_assignment,
+          org: org,
+          registration: registration,
+          start_date: ~D[2021-01-01]
+        )
+
+      company_assignment_2 =
+        insert(:employee_company_assignment,
+          org: org,
+          registration: registration,
+          start_date: ~D[2021-06-01]
+        )
+
+      assert {:ok, _} = Repo.delete(company_assignment_2)
+    end
+  end
+
   describe "create_changeset/2" do
     test "valid attrs" do
       attrs = %{
