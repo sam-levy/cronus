@@ -25,7 +25,4 @@ defmodule Sig.HR.Registrations.CompanyAssignments.CompanyAssignment do
     |> assoc_constraint(:assigned_company)
     |> unique_constraint(:start_date, name: :employee_company_assignments_company_start_date)
   end
-
-  # TODO: Create a DB trigger with a stored procedure to
-  # ensure that a registration always have at least one company assignment
 end
