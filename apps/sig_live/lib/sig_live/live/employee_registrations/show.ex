@@ -15,6 +15,7 @@ defmodule SigLive.EmployeeRegistrations.Show do
     Overtimes,
     Suspensions,
     LeavePeriods,
+    CompanyAssignments,
     RecurringPayslipItems,
     Payslips
   }
@@ -45,6 +46,7 @@ defmodule SigLive.EmployeeRegistrations.Show do
        warnings: [],
        suspensions: [],
        leave_periods: [],
+       company_assignments: [],
        recurring_payslip_items: nil
      ]}
   end
@@ -70,6 +72,7 @@ defmodule SigLive.EmployeeRegistrations.Show do
       HR.subscribe_to_registration_overtimes(registration)
       HR.subscribe_to_registration_suspensions(registration)
       HR.subscribe_to_registration_leave_periods(registration)
+      HR.subscribe_to_company_assignments(registration)
       HR.subscribe_to_registration_recurring_payslip_items(registration)
     end
 
@@ -81,6 +84,7 @@ defmodule SigLive.EmployeeRegistrations.Show do
       overtimes: HR.list_overtimes_by_registration(registration),
       suspensions: HR.list_suspensions_by_registration(registration),
       leave_periods: HR.list_leave_periods_by_registration(registration),
+      company_assignments: HR.list_company_assignments_by(registration),
       recurring_payslip_items: HR.list_recurring_payslip_items_by_registration(registration),
       assigns_built_for: MapSet.put(assigns_built_for, :registration_show),
       active_screen: :registration_show
@@ -145,6 +149,11 @@ defmodule SigLive.EmployeeRegistrations.Show do
   end
 
   @impl true
+  def handle_info({:updated_registration_company_assignments, company_assignments}, socket) do
+    {:noreply, assign(socket, company_assignments: company_assignments)}
+  end
+
+  @impl true
   def handle_info({:updated_registration_leave_periods, leave_periods}, socket) do
     {:noreply, assign(socket, leave_periods: leave_periods)}
   end
@@ -176,6 +185,7 @@ defmodule SigLive.EmployeeRegistrations.Show do
         <div class="flex flex-row justify-end space-x-4">
           <LivePatch
             to={Routes.sig_employee_registrations_show_path(@socket, :registration_show, @org, @registration)}
+            replace={true}
             class={tab_classes_for(:registration_show, @active_screen)}
           >
             Registro
@@ -183,6 +193,7 @@ defmodule SigLive.EmployeeRegistrations.Show do
 
           <LivePatch
             to={Routes.sig_employee_registrations_show_path(@socket, :payslips, @org, @registration)}
+            replace={true}
             class={tab_classes_for(:payslips, @active_screen)}
           >
             Holerites
@@ -194,6 +205,7 @@ defmodule SigLive.EmployeeRegistrations.Show do
         <RecurringPayslipItems.List id="recurring_payslip_items_list" {=@registration} {=@recurring_payslip_items}/>
         <Overtimes.List id="warning_list" {=@registration} {=@overtimes}/>
         <Salaries.List id="benefit_list" {=@registration} {=@salaries}/>
+        <CompanyAssignments.List id="company_assignment_list" {=@org} {=@registration} {=@company_assignments}/>
         <Benefits.List id="salary_list" {=@registration} {=@benefits}/>
         <Warnings.List id="warning_list" {=@registration} {=@warnings}/>
         <Suspensions.List id="suspension_list" {=@registration} {=@suspensions}/>
