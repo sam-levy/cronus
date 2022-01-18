@@ -104,6 +104,28 @@ defmodule Sig.HR.Registrations.Salaries.SalaryTest do
     end
   end
 
+  describe "employee_salaries delete stored procedure" do
+    test "raises on delete if registration has only one employee salary" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+      salary = insert(:employee_salary, org: org, registration: registration)
+
+      assert_raise Postgrex.Error,
+                   ~r/\(integrity_constraint_violation\) a registration must have at least one item in employee_salaries/,
+                   fn -> Repo.delete(salary) end
+    end
+
+    test "successfully deletes if registration has more than one employee salary" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+
+      _salary_1 = insert(:employee_salary, org: org, registration: registration)
+      salary_2 = insert(:employee_salary, org: org, registration: registration)
+
+      assert {:ok, _} = Repo.delete(salary_2)
+    end
+  end
+
   describe "create_changeset/2" do
     test "valid attrs" do
       attrs = %{

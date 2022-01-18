@@ -1,7 +1,7 @@
 defmodule Sig.Repo.Migrations.CreateEmployeeSalariesTable do
   use Ecto.Migration
 
-  def change do
+  def up do
     create table(:employee_salaries) do
       add :org_id, references(:orgs), primary_key: true
 
@@ -25,5 +25,28 @@ defmodule Sig.Repo.Migrations.CreateEmployeeSalariesTable do
              :employee_salaries_amount_greater_than_zero,
              check: "amount > 0"
            )
+
+    execute("""
+      CREATE TRIGGER ensure_at_least_one_employee_salary_for_registration_on_delete
+      AFTER DELETE ON employee_salaries
+      FOR EACH ROW
+      EXECUTE PROCEDURE ensure_at_least_one_resource_for_registration ();
+    """)
+  end
+
+  def down do
+    execute("""
+      DROP TRIGGER ensure_at_least_one_employee_salary_for_registration_on_delete
+      ON employee_salaries;
+    """)
+
+    drop constraint(
+           :employee_salaries,
+           :employee_salaries_amount_greater_than_zero
+         )
+
+    drop index(:employee_salaries, [:start_date, :registration_id, :org_id])
+
+    drop table(:employee_salaries)
   end
 end
