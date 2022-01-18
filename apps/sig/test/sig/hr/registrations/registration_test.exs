@@ -183,6 +183,7 @@ defmodule Sig.HR.Registrations.RegistrationTest do
       sector = insert(:org_sector, org: org)
       position = insert(:org_position, org: org)
       registered_at = insert(:company, org: org)
+      assigned_company = insert(:company, org: org)
 
       attrs = %{
         org_id: org.id,
@@ -191,7 +192,8 @@ defmodule Sig.HR.Registrations.RegistrationTest do
         position_id: position.id,
         individual_id: individual.entity_id,
         registered_at_id: registered_at.entity_id,
-        salary_amount: Enum.random(1_200_00..4_000_00)
+        salary_amount: Enum.random(1_200_00..4_000_00),
+        assigned_company_entity_id: assigned_company.entity_id
       }
 
       assert changeset = Registration.create_changeset(attrs)
@@ -205,7 +207,8 @@ defmodule Sig.HR.Registrations.RegistrationTest do
                position_id: attrs[:position_id],
                individual_id: attrs[:individual_id],
                registered_at_id: attrs[:registered_at_id],
-               salary_amount: %Money{amount: attrs[:salary_amount], currency: :BRL}
+               salary_amount: %Money{amount: attrs[:salary_amount], currency: :BRL},
+               assigned_company_entity_id: attrs[:assigned_company_entity_id]
              }
     end
 
@@ -233,7 +236,8 @@ defmodule Sig.HR.Registrations.RegistrationTest do
         position_id: :invalid,
         individual_id: :invalid,
         registered_at_id: :invalid,
-        salary_amount: :invalid
+        salary_amount: :invalid,
+        assigned_company_entity_id: :invalid
       }
 
       assert changeset = Registration.create_changeset(attrs)
@@ -247,7 +251,8 @@ defmodule Sig.HR.Registrations.RegistrationTest do
                position_id: ["is invalid"],
                individual_id: ["is invalid"],
                registered_at_id: ["is invalid"],
-               salary_amount: ["is invalid"]
+               salary_amount: ["is invalid"],
+               assigned_company_entity_id: ["is invalid"]
              }
     end
 
@@ -258,12 +263,48 @@ defmodule Sig.HR.Registrations.RegistrationTest do
       sector = insert(:org_sector, org: org)
       position = insert(:org_position, org: org)
       registered_at = insert(:company, org: org)
+      assigned_company = insert(:company, org: org)
 
       attrs = %{
         org_id: org.id,
         admission_date: Faker.Date.between(~D[2000-01-01], ~D[2010-01-01]),
         resignation_date: Faker.Date.between(~D[2000-01-01], ~D[2010-01-01]),
         resignation_type: random_enum_value(:resignation_type),
+        sector_id: sector.id,
+        position_id: position.id,
+        individual_id: individual.entity_id,
+        registered_at_id: registered_at.entity_id,
+        salary_amount: Enum.random(1_200_00..4_000_00),
+        assigned_company_entity_id: assigned_company.entity_id
+      }
+
+      assert changeset = Registration.create_changeset(attrs)
+
+      assert changeset.valid?
+
+      assert changeset.changes == %{
+               org_id: attrs[:org_id],
+               admission_date: attrs[:admission_date],
+               sector_id: attrs[:sector_id],
+               position_id: attrs[:position_id],
+               individual_id: attrs[:individual_id],
+               registered_at_id: attrs[:registered_at_id],
+               salary_amount: %Money{amount: attrs[:salary_amount], currency: :BRL},
+               assigned_company_entity_id: attrs[:assigned_company_entity_id]
+             }
+    end
+
+    test "sets assigned_company_entity_id to the same as registered_at_id when it is not given" do
+      org = insert(:org)
+
+      individual = insert(:individual, org: org)
+      sector = insert(:org_sector, org: org)
+      position = insert(:org_position, org: org)
+      registered_at = insert(:company, org: org)
+
+      attrs = %{
+        org_id: org.id,
+        admission_date: Faker.Date.between(~D[2000-01-01], ~D[2010-01-01]),
         sector_id: sector.id,
         position_id: position.id,
         individual_id: individual.entity_id,
@@ -282,7 +323,8 @@ defmodule Sig.HR.Registrations.RegistrationTest do
                position_id: attrs[:position_id],
                individual_id: attrs[:individual_id],
                registered_at_id: attrs[:registered_at_id],
-               salary_amount: %Money{amount: attrs[:salary_amount], currency: :BRL}
+               salary_amount: %Money{amount: attrs[:salary_amount], currency: :BRL},
+               assigned_company_entity_id: attrs[:registered_at_id]
              }
     end
 
@@ -522,7 +564,8 @@ defmodule Sig.HR.Registrations.RegistrationTest do
         sector_id: UUID.generate(),
         position_id: UUID.generate(),
         individual_id: UUID.generate(),
-        registered_at_id: UUID.generate()
+        registered_at_id: UUID.generate(),
+        assigned_company_entity_id: UUID.generate()
       }
 
       assert changeset = Registration.update_changeset(registration, attrs)
@@ -625,7 +668,8 @@ defmodule Sig.HR.Registrations.RegistrationTest do
         sector_id: UUID.generate(),
         position_id: UUID.generate(),
         individual_id: UUID.generate(),
-        registered_at_id: UUID.generate()
+        registered_at_id: UUID.generate(),
+        assigned_company_entity_id: UUID.generate()
       }
 
       assert changeset = Registration.resignation_changeset(registration, attrs)
