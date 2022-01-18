@@ -5,6 +5,7 @@ defmodule Sig.HR.Registrations.Create do
 
   alias Sig.Entities
   alias Sig.Entities.Individuals.Individual
+  alias Sig.HR.Registrations.CompanyAssignments.CompanyAssignment
   alias Sig.HR.Registrations.Registration
   alias Sig.HR.Registrations.Salaries.Salary
   alias Sig.Organizations.Org
@@ -84,15 +85,20 @@ defmodule Sig.HR.Registrations.Create do
 
   defp create_registration_multi(%{status: :ok, changeset: changeset} = context) do
     Multi.new()
-    |> Multi.insert(:create_registration, changeset)
-    |> Multi.insert(:create_salary, fn %{create_registration: registration} ->
+    |> Multi.insert(:registration, changeset)
+    |> Multi.insert(:salary, fn %{registration: registration} ->
       registration
       |> build_salary_attrs(changeset.changes.salary_amount)
       |> Salary.create_changeset()
     end)
+    |> Multi.insert(:comapany_assignment, fn %{registration: registration} ->
+      registration
+      |> build_company_assignment_attrs(changeset.changes.assigned_company_entity_id)
+      |> CompanyAssignment.create_changeset()
+    end)
     |> Repo.transaction()
     |> case do
-      {:ok, %{create_registration: registration}} -> %{context | result: registration}
+      {:ok, %{registration: registration}} -> %{context | result: registration}
       {:error, _operation, reason, _changes} -> put_error(context, reason)
     end
   end
@@ -105,6 +111,15 @@ defmodule Sig.HR.Registrations.Create do
       registration_id: registration.id,
       start_date: registration.admission_date,
       amount: salary_amount
+    }
+  end
+
+  defp build_company_assignment_attrs(registration, assigned_company_entity_id) do
+    %{
+      org_id: registration.org_id,
+      registration_id: registration.id,
+      start_date: registration.admission_date,
+      company_id: assigned_company_entity_id
     }
   end
 
