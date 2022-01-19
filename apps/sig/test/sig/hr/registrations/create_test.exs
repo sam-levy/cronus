@@ -1,12 +1,13 @@
 defmodule Sig.HR.Registrations.CreateTest do
   use Sig.DataCase, async: true
 
+  alias Sig.HR.Registrations.CompanyAssignments.CompanyAssignment
   alias Sig.HR.Registrations.Create
   alias Sig.HR.Registrations.Registration
   alias Sig.HR.Registrations.Salaries.Salary
 
   describe "call/3" do
-    test "creates a registration and salary" do
+    test "creates a registration, salary and company assignment" do
       org = insert(:org)
 
       other_company = insert(:company, org: org)
@@ -15,6 +16,7 @@ defmodule Sig.HR.Registrations.CreateTest do
       company = insert(:company, org: org)
       sector = insert(:org_sector, org: org)
       position = insert(:org_position, org: org)
+      assigned_company = insert(:company, org: org)
 
       _other_company_open_registration =
         insert(:employee_registration,
@@ -43,7 +45,55 @@ defmodule Sig.HR.Registrations.CreateTest do
         position_id: position.id,
         individual_id: individual.entity_id,
         registered_at_id: company.entity_id,
-        work_at_id: company.entity_id,
+        salary_amount: salary_amount,
+        assigned_company_entity_id: assigned_company.entity_id
+      }
+
+      assert {:ok, %Registration{} = registration} = Create.call(org, individual, attrs)
+
+      get_by =
+        attrs
+        |> Map.drop([:salary_amount, :assigned_company_entity_id])
+        |> Enum.into(%{
+          id: registration.id,
+          org_id: org.id,
+          individual_id: individual.entity_id
+        })
+
+      assert Repo.get_by(Registration, get_by)
+
+      assert Repo.get_by(Salary,
+               org_id: org.id,
+               registration_id: registration.id,
+               amount: salary_amount,
+               start_date: registration.admission_date
+             )
+
+      assert Repo.get_by(CompanyAssignment,
+               org_id: org.id,
+               registration_id: registration.id,
+               assigned_company_id: assigned_company.entity_id,
+               start_date: registration.admission_date
+             )
+    end
+
+    test "creates company assignment when `assigned_company_entity_id` is not in attrs" do
+      org = insert(:org)
+
+      individual = insert(:individual, org: org)
+      company = insert(:company, org: org)
+      sector = insert(:org_sector, org: org)
+      position = insert(:org_position, org: org)
+
+      salary_amount = Enum.random(1_200_00..4_000_00)
+
+      attrs = %{
+        org_id: org.id,
+        admission_date: ~D[2009-01-01],
+        sector_id: sector.id,
+        position_id: position.id,
+        individual_id: individual.entity_id,
+        registered_at_id: company.entity_id,
         salary_amount: salary_amount
       }
 
@@ -65,6 +115,63 @@ defmodule Sig.HR.Registrations.CreateTest do
                registration_id: registration.id,
                amount: salary_amount,
                start_date: registration.admission_date
+             )
+
+      assert Repo.get_by(CompanyAssignment,
+               org_id: org.id,
+               registration_id: registration.id,
+               assigned_company_id: company.entity_id,
+               start_date: registration.admission_date
+             )
+    end
+
+    test "when the `assigned_company_entity` is from another org" do
+      org = insert(:org)
+
+      individual = insert(:individual, org: org)
+      company = insert(:company, org: org)
+      sector = insert(:org_sector, org: org)
+      position = insert(:org_position, org: org)
+
+      salary_amount = Enum.random(1_200_00..4_000_00)
+
+      other_company = insert(:company)
+
+      attrs = %{
+        org_id: org.id,
+        admission_date: ~D[2009-01-01],
+        sector_id: sector.id,
+        position_id: position.id,
+        individual_id: individual.entity_id,
+        registered_at_id: company.entity_id,
+        salary_amount: salary_amount,
+        assigned_company_entity_id: other_company.entity_id
+      }
+
+      assert {:error, changeset} = Create.call(org, individual, attrs)
+
+      assert errors_on(changeset) == %{
+               assigned_company: ["does not exist"]
+             }
+
+      get_by =
+        attrs
+        |> Map.drop([:salary_amount, :assigned_company_entity_id])
+        |> Enum.into(%{
+          org_id: org.id,
+          individual_id: individual.entity_id
+        })
+
+      refute Repo.get_by(Registration, get_by)
+
+      refute Repo.get_by(Salary,
+               org_id: org.id,
+               amount: salary_amount
+             )
+
+      refute Repo.get_by(CompanyAssignment,
+               org_id: org.id,
+               assigned_company_id: company.entity_id
              )
     end
 
@@ -99,7 +206,6 @@ defmodule Sig.HR.Registrations.CreateTest do
         position_id: position.id,
         individual_id: individual.entity_id,
         registered_at_id: UUID.generate(),
-        work_at_id: UUID.generate(),
         salary_amount: Enum.random(1_200_00..4_000_00)
       }
 
@@ -121,7 +227,6 @@ defmodule Sig.HR.Registrations.CreateTest do
         position_id: position.id,
         individual_id: individual.entity_id,
         registered_at_id: company.entity_id,
-        work_at_id: company.entity_id,
         salary_amount: Enum.random(1_200_00..4_000_00)
       }
 
@@ -163,7 +268,6 @@ defmodule Sig.HR.Registrations.CreateTest do
         position_id: position.id,
         individual_id: individual.entity_id,
         registered_at_id: company.entity_id,
-        work_at_id: company.entity_id,
         salary_amount: Enum.random(1_200_00..4_000_00)
       }
 

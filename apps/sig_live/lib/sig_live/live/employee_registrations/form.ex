@@ -70,24 +70,24 @@ defmodule SigLive.EmployeeRegistrations.Form do
           <ErrorTag class="form-error-tag"/>
         </Field>
 
-        <Field name={:registered_at_id} class="form-field">
-          <Label class="form-label">Empresa de Registro</Label>
-          <Select prompt="" options={companies_for_select(@real_companies)} {...props_for(:registered_at_id, @form_state)} />
-          <ErrorTag class="form-error-tag"/>
-        </Field>
-
         <Field :if={@form_state == :new_mode} name={:salary_amount} class="form-field">
           <Label class="form-label">Salário Base</Label>
           <TextInput value={format_salary_amount(@changeset)} {...props_for(:salary_ammount, @form_state)} />
           <ErrorTag class="form-error-tag"/>
         </Field>
 
-        <Field name={:work_at_id} class="form-field">
+        <Field name={:registered_at_id} class="form-field">
+          <Label class="form-label">Empresa de Registro</Label>
+          <Select prompt="" options={companies_for_select(@real_companies)} {...props_for(:registered_at_id, @form_state)} />
+          <ErrorTag class="form-error-tag"/>
+        </Field>
+
+        <Field name={:assigned_company_entity_id} class="form-field">
           <Label class="form-label">
-            Trabalha em
+            Empresa onde irá trabalhar
             <span class="form-label-complement">(opcional)</span>
           </Label>
-          <Select options={companies_for_select(@companies)} {...props_for(:work_at_id, @form_state)} />
+          <Select prompt="" options={companies_for_select(@companies)} {...props_for(:assigned_company_entity_id, @form_state)} />
           <ErrorTag class="form-error-tag"/>
         </Field>
 
@@ -180,9 +180,6 @@ defmodule SigLive.EmployeeRegistrations.Form do
 
   @input_enabled [opts: [disabled: false], class: ["form-input"]]
   @input_disabled [opts: [disabled: true], class: ["form-input-disabled"]]
-
-  defp props_for(:work_at_id, :show_mode), do: @input_disabled
-  defp props_for(:work_at_id, _form_state), do: @input_enabled
 
   defp props_for(_field, :new_mode), do: @input_enabled
   defp props_for(_field, _form_state), do: @input_disabled

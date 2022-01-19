@@ -1,6 +1,6 @@
 defmodule Sig.HR.Registrations do
   use Sig.Preloader,
-    registration: [:work_at, :registered_at, :salaries, :individual, :org, :sector]
+    registration: [:registered_at, :salaries, :individual, :org, :sector]
 
   import Ecto.Query
 
@@ -35,7 +35,7 @@ defmodule Sig.HR.Registrations do
   def list_by(%Individual{} = individual) do
     individual
     |> query_by()
-    |> shallow_preload([:work_at, :registered_at, :salaries])
+    |> shallow_preload([:registered_at, :salaries])
     |> order_by(:admission_date)
     |> Repo.all()
     |> handle_salary_amount()

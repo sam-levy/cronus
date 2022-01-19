@@ -99,7 +99,10 @@ defmodule SigLive.ViewHelpers do
 
   @spec companies_for_select([Company.t()]) :: %{String.t() => String.t()}
   def companies_for_select(companies) when is_list(companies) do
-    Map.new(companies, &{&1.registration_name, &1.entity_id})
+    Map.new(companies, fn
+      %{registration_name: nil} = company -> {company.trade_name, company.entity_id}
+      company -> {company.registration_name, company.entity_id}
+    end)
   end
 
   @spec id_by_name_for_select([map()]) :: %{String.t() => String.t()}

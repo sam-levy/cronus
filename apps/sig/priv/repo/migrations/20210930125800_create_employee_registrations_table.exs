@@ -16,7 +16,6 @@ defmodule Sig.Repo.Migrations.CreateEmployeeRegistrationsTable do
       add :position_id, references(:org_positions, with: [org_id: :org_id]), null: false
       add :individual_id, references(:entities, with: [org_id: :org_id]), null: false
       add :registered_at_id, references(:entities, with: [org_id: :org_id]), null: false
-      add :work_at_id, references(:entities, with: [org_id: :org_id]), null: false
 
       timestamps()
     end
@@ -45,7 +44,5 @@ defmodule Sig.Repo.Migrations.CreateEmployeeRegistrationsTable do
              :employee_registrations_admission_before_resignation,
              check: "admission_date < resignation_date"
            )
-
-    # TODO: Add trigger function to ensure no period overlap
   end
 end

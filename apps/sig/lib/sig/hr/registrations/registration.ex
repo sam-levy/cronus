@@ -3,6 +3,7 @@ defmodule Sig.HR.Registrations.Registration do
 
   alias Sig.Entities.Companies.Company
   alias Sig.Entities.Individuals.Individual
+  alias Sig.HR.Registrations.CompanyAssignments.CompanyAssignment
   alias Sig.HR.Registrations.Salaries.Salary
   alias Sig.Organizations.Org
   alias Sig.Organizations.Position
@@ -21,15 +22,16 @@ defmodule Sig.HR.Registrations.Registration do
     field :resignation_date, :date
     field :resignation_type, ResignationType
 
-    field :salary_amount, Money.Ecto.Amount.Type, virtual: true
-
     belongs_to :sector, Sector
     belongs_to :position, Position
     belongs_to :individual, Individual, references: :entity_id
     belongs_to :registered_at, Company, references: :entity_id
-    belongs_to :work_at, Company, references: :entity_id
 
     has_many :salaries, Salary
+    has_many :company_assignments, CompanyAssignment
+
+    field :salary_amount, Money.Ecto.Amount.Type, virtual: true
+    field :assigned_company_entity_id, Ecto.UUID, virtual: true
 
     timestamps()
   end
@@ -44,17 +46,16 @@ defmodule Sig.HR.Registrations.Registration do
     :salary_amount
   ]
 
-  @create_fields @create_required_fields ++ [:work_at_id]
+  @create_fields @create_required_fields ++ [:assigned_company_entity_id]
 
   def create_changeset(attrs) do
     %__MODULE__{}
     |> cast(attrs, @create_fields)
     |> validate_required(@create_required_fields)
-    |> maybe_put_work_at_id()
+    |> maybe_put_assigned_company_entity_id()
     |> assoc_constraint(:sector)
     |> assoc_constraint(:position)
     |> assoc_constraint(:registered_at)
-    |> assoc_constraint(:work_at)
     |> unique_constraint([:registered_at_id, :individual_id, :org_id],
       name: :employee_registrations_resignation_date_is_null_unique
     )
@@ -62,10 +63,9 @@ defmodule Sig.HR.Registrations.Registration do
 
   def update_changeset(%__MODULE__{} = target, attrs) do
     target
-    |> cast(attrs, [:sector_id, :position_id, :work_at_id])
+    |> cast(attrs, [:sector_id, :position_id])
     |> assoc_constraint(:sector)
     |> assoc_constraint(:position)
-    |> assoc_constraint(:work_at)
   end
 
   def resignation_changeset(%__MODULE__{} = target, attrs) do
@@ -75,11 +75,11 @@ defmodule Sig.HR.Registrations.Registration do
     |> validate_dates(:admission_date, :lt, :resignation_date)
   end
 
-  defp maybe_put_work_at_id(changeset) do
+  defp maybe_put_assigned_company_entity_id(changeset) do
     with true <- changeset.valid?,
-         :error <- fetch_change(changeset, :work_at_id),
+         :error <- fetch_change(changeset, :assigned_company_entity_id),
          {:ok, registered_at_id} <- fetch_change(changeset, :registered_at_id) do
-      put_change(changeset, :work_at_id, registered_at_id)
+      put_change(changeset, :assigned_company_entity_id, registered_at_id)
     else
       _ -> changeset
     end

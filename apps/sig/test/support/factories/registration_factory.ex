@@ -8,7 +8,6 @@ defmodule Sig.Factories.RegistrationFactory do
         org = Keyword.get(attrs, :org) || insert(:org)
         individual = Keyword.get(attrs, :individual) || insert(:individual, org: org)
         registered_at = Keyword.get(attrs, :registered_at) || insert(:company, org: org)
-        work_at = Keyword.get(attrs, :work_at, registered_at)
 
         %Registration{
           org: org,
@@ -16,8 +15,7 @@ defmodule Sig.Factories.RegistrationFactory do
           sector: build(:org_sector, org: org),
           position: build(:org_position, org: org),
           individual: individual,
-          registered_at: registered_at,
-          work_at: work_at
+          registered_at: registered_at
         }
       end
 
