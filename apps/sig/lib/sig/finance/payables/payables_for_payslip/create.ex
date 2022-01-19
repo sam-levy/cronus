@@ -7,6 +7,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.Create do
   alias Sig.Finance.Payables.Payable
   alias Sig.Finance.Payables.PayablesForPayslip
   alias Sig.Finance.Payables.PayablesForPayslip.PayslipPayables
+  alias Sig.HR
   alias Sig.HR.Payslips
   alias Sig.HR.Payslips.Payslip
   alias Sig.Repo
@@ -71,12 +72,17 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.Create do
       |> Map.get(:amount, Money.new(0))
       |> Money.add(existing_non_adjustable_amount_sum)
 
-    if payslip.amount >= new_non_adjustable_amount_sum do
+    payments_in_advance_sum = HR.sum_payments_in_advance_items_by_payslip(payslip)
+
+    if Money.add(payslip.amount, payments_in_advance_sum) >= new_non_adjustable_amount_sum do
       context
     else
       {:error, changeset} =
         changeset
-        |> add_error(:amount, "can't exceed payslip amount")
+        |> add_error(
+          :amount,
+          "o valor total dos pagáveis não pode exceder o valor do holerite mais os adiantamentos"
+        )
         |> apply_action(:insert)
 
       put_error(context, changeset)

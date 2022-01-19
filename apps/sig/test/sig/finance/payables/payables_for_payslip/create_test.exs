@@ -32,7 +32,9 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateTest do
       assert {:error, changeset} = Create.call(payslip, attrs, is_auto_adjustable_amount: false)
 
       assert errors_on(changeset) == %{
-               amount: ["can't exceed payslip amount"]
+               amount: [
+                 "o valor total dos pagáveis não pode exceder o valor do holerite mais os adiantamentos"
+               ]
              }
     end
 
@@ -173,7 +175,9 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateTest do
       assert {:error, changeset} = Create.call(payslip, attrs, is_auto_adjustable_amount: false)
 
       assert errors_on(changeset) == %{
-               amount: ["can't exceed payslip amount"]
+               amount: [
+                 "o valor total dos pagáveis não pode exceder o valor do holerite mais os adiantamentos"
+               ]
              }
     end
 

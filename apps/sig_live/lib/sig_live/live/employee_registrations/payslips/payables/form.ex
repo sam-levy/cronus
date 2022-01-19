@@ -331,7 +331,6 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.Form do
   end
 
   defp handle_return(%{return: {:error, changeset}, socket: socket}) when is_struct(changeset) do
-    IO.inspect(changeset)
     {:noreply, assign(socket, message: nil, changeset: changeset)}
   end
 
