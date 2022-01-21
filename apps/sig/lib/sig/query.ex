@@ -43,6 +43,30 @@ defmodule Sig.Query do
         Enum.reduce(fields, queryable, &shallow_preload(&2, &1))
       end
 
+      def reject_nil(queryable, field) when field in unquote(schema.__schema__(:fields)) do
+        where(
+          queryable,
+          [{unquote(named_binding), named_binding}],
+          not is_nil(field(named_binding, ^field))
+        )
+      end
+
+      def reject_nil(queryable, [{key, _} | _] = opts) when is_atom(key) do
+        case Keyword.take(opts, [:reject_nil]) do
+          [] ->
+            queryable
+
+          reject_nils ->
+            Enum.reduce(reject_nils, queryable, fn {_, fields}, acc ->
+              Enum.reduce(fields, acc, fn field, acc ->
+                reject_nil(acc, field)
+              end)
+            end)
+        end
+      end
+
+      def reject_nil(queryable, []), do: queryable
+
       def filter_by(queryable, filter_key, %MapSet{} = filter_values)
           when filter_key in unquote(schema.__schema__(:fields)) do
         filter_by(queryable, filter_key, MapSet.to_list(filter_values))

@@ -57,10 +57,12 @@ defmodule Sig.Finance.FinancialTransactions.Summary do
   defp list_for_bank_summary(org, ft_ids) do
     org
     |> FT.query_by()
-    |> FT.filter_by(:type, bank_types())
     |> FT.filter_by(:id, ft_ids)
-    |> where([financial_transaction: ft], not is_nil(ft.clearing_date))
+    |> FT.filter_by(:entry_type, :debit)
+    |> FT.filter_by(:type, bank_types())
+    |> FT.reject_nil(:clearing_date)
     |> FT.shallow_preload([:bank_account, :payables])
+    |> where([payables: payable], payable.target == :payslip)
     |> join(:left, [payables: payable], payslip in assoc(payable, :payslip), as: :payslips)
     |> join(:left, [payslips: payslip], registration in assoc(payslip, :registration),
       as: :registrations
