@@ -5,15 +5,15 @@ defmodule Sig.Query do
               filter_value :: any()
             ) :: Ecto.Queryable.t()
 
-  defmacro __using__([{:schema, schema}, {:as, bind_name}]) do
-    quote bind_quoted: [schema: schema, bind_name: bind_name] do
+  defmacro __using__([{:schema, schema}, {:as, named_binding}]) do
+    quote bind_quoted: [schema: schema, named_binding: named_binding] do
       @behaviour Sig.Query
 
       import Ecto.Query
       import Sig.Query
 
       def init_query do
-        from(s in unquote(schema), as: unquote(bind_name))
+        from(s in unquote(schema), as: unquote(named_binding))
       end
 
       for association <- schema.__schema__(:associations) do
@@ -22,7 +22,7 @@ defmodule Sig.Query do
             queryable
           else
             queryable
-            |> join(:left, [{unquote(bind_name), s}], field in assoc(s, unquote(association)),
+            |> join(:left, [{unquote(named_binding), s}], field in assoc(s, unquote(association)),
               as: unquote(association)
             )
             |> preload([{unquote(association), field}], [{unquote(association), field}])
@@ -43,12 +43,17 @@ defmodule Sig.Query do
         Enum.reduce(fields, queryable, &shallow_preload(&2, &1))
       end
 
+      def filter_by(queryable, filter_key, %MapSet{} = filter_values)
+          when filter_key in unquote(schema.__schema__(:fields)) do
+        filter_by(queryable, filter_key, MapSet.to_list(filter_values))
+      end
+
       def filter_by(queryable, filter_key, filter_values)
           when filter_key in unquote(schema.__schema__(:fields)) and is_list(filter_values) do
         where(
           queryable,
-          [{unquote(bind_name), bind_name}],
-          field(bind_name, ^filter_key) in ^filter_values
+          [{unquote(named_binding), named_binding}],
+          field(named_binding, ^filter_key) in ^filter_values
         )
       end
 
@@ -56,8 +61,8 @@ defmodule Sig.Query do
           when filter_key in unquote(schema.__schema__(:fields)) do
         where(
           queryable,
-          [{unquote(bind_name), bind_name}],
-          field(bind_name, ^filter_key) == ^filter_value
+          [{unquote(named_binding), named_binding}],
+          field(named_binding, ^filter_key) == ^filter_value
         )
       end
 
