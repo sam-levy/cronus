@@ -143,19 +143,19 @@ defmodule SigLive.BankAccounts.List do
 
           {#for %{bank_account: account} = eba <- @entity_bank_accounts}
             <tr class="border-b border-gray-200 hover:bg-gray-50">
+              <td class="px-3 text-left">
+                <div class="flex items-center">
+                  <span class="label-gray mr-1">Associada</span>
+                  <span :if={eba.is_primary} class="label-green">Principal</span>
+                </div>
+              </td>
+
               <td
                 :on-click="open_show_association_form"
                 phx-value-account_id={account.id}
                 class="py-3 pl-6 text-left cursor-pointer hover:underline truncate"
               >
                 {bank_name_with_number(account.routing_number)}
-              </td>
-
-              <td class="px-3 text-left">
-                <div class="flex items-center">
-                  <span class="label-gray mr-1">Associada</span>
-                  <span :if={eba.is_primary} class="label-green">Principal</span>
-                </div>
               </td>
 
               <td class="px-3 text-left select-all">

@@ -103,9 +103,8 @@ defmodule SigLive.EmployeeRegistrations.CompanyAssignments.List do
           {#for company_assignment <- @company_assignments}
             <tr class="border-b border-gray-200 hover:bg-gray-50">
               <td
-                :on-click="open_show_company_assignment_form"
                 phx-value-company_assignment_id={company_assignment.id}
-                class="py-3 pl-6 pr-3 text-left cursor-pointer hover:underline"
+                class="py-3 pl-6 pr-3 text-left"
               >
                 {company_assignment.assigned_company.trade_name}
               </td>

@@ -1,11 +1,12 @@
 defmodule SigLive.AccountsPayable.FinancialTransactionsList do
   use SigLive, :surface_live_component
 
+  import Sig.Enums.FinancialTransaction, only: [is_bank_type: 1]
+
   alias Sig.Finance
 
   alias SigLive.Components.ConfirmationDialog
   alias SigLive.Components.DropdownOpts
-
   alias SigLive.AccountsPayable.FinancialTransactions.{Show, ClearForm}
 
   prop org, :struct, required: true
@@ -122,6 +123,7 @@ defmodule SigLive.AccountsPayable.FinancialTransactionsList do
             <th class="py-3 px-6 text-left">Liquidação</th>
             <th class="px-3 text-left">Descrição</th>
             <th class="px-3 text-left">Forma</th>
+            <th class="px-3 text-left">Conta</th>
             <th class="px-3 text-right">Valor</th>
             <th class="text-left"></th>
           </tr>
@@ -158,9 +160,14 @@ defmodule SigLive.AccountsPayable.FinancialTransactionsList do
                 {capitalize_type(transaction.type)}
               </td>
 
-              <td class="px-3 text-right">
+              <td class="px-3 text-left">
+                {#if is_bank_type(transaction.type)}
+                  {transaction.bank_account.name}
+                {/if}
+              </td>
 
-                {transaction.amount}
+              <td class={handle_class(transaction)}>
+                {handle_amount(transaction)}
               </td>
 
               <td class="pr-5 text-right">
@@ -190,6 +197,12 @@ defmodule SigLive.AccountsPayable.FinancialTransactionsList do
     </div>
     """
   end
+
+  defp handle_class(%{entry_type: :debit}), do: "px-3 text-right select-all text-red-600"
+  defp handle_class(_), do: "px-3 text-right select-all text-blue-700"
+
+  defp handle_amount(%{entry_type: :debit, amount: amount}), do: Money.multiply(amount, -1)
+  defp handle_amount(%{amount: amount}), do: amount
 
   def close_modals(id), do: send_update(__MODULE__, closed_state(id))
 
