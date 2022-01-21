@@ -46,17 +46,33 @@ defmodule SigLive.ViewHelpersTest do
     end
   end
 
+  describe "format_bank_account/1" do
+    test "when account has a name" do
+      account =
+        insert(:bank_account, routing_number: "104", branch_number: "321", number: "654", name: "CEF Loja Tal")
+
+      assert ViewHelpers.format_bank_account(account) == "CEF Loja Tal - 104 - Caixa Econômica Federal - Ag: 321 - Conta: 654"
+    end
+
+    test "when account name is nil" do
+      account =
+        insert(:bank_account, routing_number: "104", branch_number: "321", number: "654")
+
+      assert ViewHelpers.format_bank_account(account) == "104 - Caixa Econômica Federal - Ag: 321 - Conta: 654"
+    end
+  end
+
   describe "bank_accounts_for_select/1" do
     test "returns a map of bank accounts and ids" do
       account_1 =
         insert(:bank_account, routing_number: "001", branch_number: "123", number: "456")
 
       account_2 =
-        insert(:bank_account, routing_number: "104", branch_number: "321", number: "654")
+        insert(:bank_account, routing_number: "104", branch_number: "321", number: "654", name: "CEF Loja Tal")
 
       assert ViewHelpers.bank_accounts_for_select([account_1, account_2]) == %{
                "001 - Banco do Brasil S.A. - Ag: 123 - Conta: 456" => account_1.id,
-               "104 - Caixa Econômica Federal - Ag: 321 - Conta: 654" => account_2.id
+               "CEF Loja Tal - 104 - Caixa Econômica Federal - Ag: 321 - Conta: 654" => account_2.id
              }
     end
   end

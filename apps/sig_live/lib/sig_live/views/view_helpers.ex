@@ -39,8 +39,12 @@ defmodule SigLive.ViewHelpers do
     Map.new(accounts, &{format_bank_account(&1), &1.id})
   end
 
-  def format_bank_account(%Account{} = account) do
+  def format_bank_account(%Account{name: nil} = account) do
     "#{bank_name_with_number(account.routing_number)} - Ag: #{account.branch_number} - Conta: #{account.number}"
+  end
+
+  def format_bank_account(%Account{} = account) do
+    "#{account.name} - #{bank_name_with_number(account.routing_number)} - Ag: #{account.branch_number} - Conta: #{account.number}"
   end
 
   def enum_for_select(enum) do
