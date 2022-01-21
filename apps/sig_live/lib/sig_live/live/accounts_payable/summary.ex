@@ -78,10 +78,14 @@ defmodule SigLive.AccountsPayable.Summary do
       <table class="w-full bg-white shadow-lg my-5">
         <thead>
           <tr class="bg-white">
-            <th colspan="2">
+            <th colspan="12">
               <div class="flex justify-between items-center py-3 px-6">
                 <span class="text-gray-500 font-medium tracking-wider">
                   Fluxo
+                </span>
+
+                <span class="text-gray-500 font-medium tracking-wider">
+                  {Money.multiply(@summary.total_amount_sum, -1)}
                 </span>
               </div>
             </th>

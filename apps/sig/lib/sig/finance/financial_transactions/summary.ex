@@ -31,7 +31,7 @@ defmodule Sig.Finance.FinancialTransactions.Summary do
   defp do_build(org, ft_ids) do
     financial_transactions = list_for_bank_summary(org, ft_ids)
 
-    Enum.reduce(financial_transactions, %{}, fn
+    Enum.reduce(financial_transactions, %{total_amount_sum: Money.new(0)}, fn
       transaction, acc when transaction.bank_account.name in @accounts_to_display ->
         Enum.reduce(transaction.payables, acc, fn payable, acc ->
           [assigned_company] = payable.payslip.registration.assigned_companies
@@ -42,11 +42,15 @@ defmodule Sig.Finance.FinancialTransactions.Summary do
 
           value = Map.get(acc, key, %{financial_transaction_ids: [], amount_sum: Money.new(0)})
 
-          Map.put(acc, key, %{
+          amount_sum = Money.add(value.amount_sum, payable.amount)
+
+          acc
+          |> Map.put(key, %{
             value
             | financial_transaction_ids: [transaction.id | value.financial_transaction_ids],
-              amount_sum: Money.add(value.amount_sum, payable.amount)
+              amount_sum: amount_sum
           })
+          |> Map.put(:total_amount_sum, Money.add(acc.total_amount_sum, amount_sum))
         end)
 
       _, acc ->
