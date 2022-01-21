@@ -25,7 +25,10 @@ defmodule Sig.Finance.FinancialTransactions.Summary do
 
   def accounts_to_display, do: @accounts_to_display
 
-  def build(%Org{} = org, ft_ids) when is_list(ft_ids) do
+  def build(%Org{} = org, %MapSet{} = ft_ids), do: do_build(org, ft_ids)
+  def build(%Org{} = org, ft_ids) when is_list(ft_ids), do: do_build(org, ft_ids)
+
+  defp do_build(org, ft_ids) do
     financial_transactions = list_for_bank_summary(org, ft_ids)
 
     Enum.reduce(financial_transactions, %{}, fn

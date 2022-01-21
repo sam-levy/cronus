@@ -11,11 +11,11 @@ defmodule SigLive.AccountsPayable.SummaryDetails do
 
   prop org, :struct, required: true
   prop close_event, :event, required: true
-  prop financial_transaction_ids, :string, required: true
+  prop selected_financial_transaction_ids, :string, required: true
 
   @impl true
   def update(assigns, socket) do
-    %{org: org, financial_transaction_ids: ids} = assigns
+    %{org: org, selected_financial_transaction_ids: ids} = assigns
 
     socket =
       socket

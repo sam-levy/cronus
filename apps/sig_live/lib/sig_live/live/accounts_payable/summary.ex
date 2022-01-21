@@ -14,21 +14,23 @@ defmodule SigLive.AccountsPayable.Summary do
   prop org, :struct, required: true
   prop org_bank_accounts, :list, required: true
   prop financial_transactions, :list, required: true
+  prop financial_transaction_ids, :mapset, required: true
 
   data description, :string, default: "Vale Funcionários"
   data details_modal_open, :boolean, default: false
-  data financial_transaction_ids, :list, default: []
+  prop selected_financial_transaction_ids, :list, default: []
 
   @impl true
   def update(assigns, socket) do
-    %{org: org, org_bank_accounts: org_bank_accounts, financial_transactions: financial_transactions} =
-      assigns
-
-    financial_transaction_ids = Enum.map(financial_transactions, & &1.id)
+    %{
+      org: org,
+      org_bank_accounts: org_bank_accounts,
+      financial_transactions: financial_transactions,
+      financial_transaction_ids: financial_transaction_ids
+    } = assigns
 
     {:ok,
-     socket
-     |> assign(
+     assign(socket,
        org: org,
        org_bank_accounts: build_accounts_to_display(org_bank_accounts),
        clearing_dates: list_clearing_dates(financial_transactions),
@@ -44,7 +46,10 @@ defmodule SigLive.AccountsPayable.Summary do
   end
 
   defp list_clearing_dates(transactions) do
-    transactions |> Enum.map(& &1.clearing_date) |> Enum.uniq()
+    Enum.reduce(transactions, MapSet.new(), fn
+      %{clearing_date: nil}, acc -> acc
+      %{clearing_date: date}, acc -> MapSet.put(acc, date)
+    end)
   end
 
   @impl true
@@ -53,8 +58,9 @@ defmodule SigLive.AccountsPayable.Summary do
   end
 
   @impl true
-  def handle_event("open_details_modal", %{"financial_transaction_ids" => ids}, socket) do
-    {:noreply, assign(socket, financial_transaction_ids: String.split(ids), details_modal_open: true)}
+  def handle_event("open_details_modal", %{"selected_financial_transaction_ids" => ids}, socket) do
+    {:noreply,
+     assign(socket, selected_financial_transaction_ids: String.split(ids), details_modal_open: true)}
   end
 
   @impl true
@@ -65,7 +71,7 @@ defmodule SigLive.AccountsPayable.Summary do
         :if={@details_modal_open}
         id="summary_details_modal"
         close_event="close_modals"
-        {=@financial_transaction_ids}
+        {=@selected_financial_transaction_ids}
         {=@org}
       />
 
@@ -106,7 +112,7 @@ defmodule SigLive.AccountsPayable.Summary do
                   <a
                     class="cursor-pointer hover:underline"
                     :on-click="open_details_modal"
-                    phx-value-financial_transaction_ids={handle_financial_transaction_ids(@summary, clearing_date, bank_name, company_trade_name)}
+                    phx-value-selected_financial_transaction_ids={handle_selected_financial_transaction_ids(@summary, clearing_date, bank_name, company_trade_name)}
                   >
                     {handle_amount_sum(@summary, clearing_date, bank_name, company_trade_name)}
                   </a>
@@ -120,7 +126,7 @@ defmodule SigLive.AccountsPayable.Summary do
     """
   end
 
-  defp handle_financial_transaction_ids(summary, clearing_date, bank_name, company_trade_name) do
+  defp handle_selected_financial_transaction_ids(summary, clearing_date, bank_name, company_trade_name) do
     case Map.get(summary, {clearing_date, bank_name, company_trade_name}) do
       %{financial_transaction_ids: ids} -> Enum.join(ids, " ")
       nil -> nil
@@ -140,8 +146,8 @@ defmodule SigLive.AccountsPayable.Summary do
 
   defp closed_state do
     [
-      financial_transaction_ids: nil,
-      details_modal_open: false,
+      selected_financial_transaction_ids: nil,
+      details_modal_open: false
     ]
   end
 
