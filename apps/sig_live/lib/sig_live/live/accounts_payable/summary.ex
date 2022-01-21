@@ -84,6 +84,10 @@ defmodule SigLive.AccountsPayable.Summary do
                   Fluxo
                 </span>
 
+                <a class="btn-blue" style="padding: 0.2em 1em; font-size: 0.8em;" id="copy-to-clipboard" phx-hook="CopyToClipboard">
+                  Copiar
+                </a>
+
                 <span class="text-gray-500 font-medium tracking-wider">
                   {Money.multiply(@summary.total_amount_sum, -1)}
                 </span>
@@ -103,7 +107,7 @@ defmodule SigLive.AccountsPayable.Summary do
           </tr>
         </thead>
 
-        <tbody class="text-gray-600 text-sm font-light">
+        <tbody id="content-to-copy" class="text-gray-600 text-sm font-light">
           {#for clearing_date <- @clearing_dates, %{trade_name: company_trade_name} <- @companies}
             <tr class=" border-b border-gray-200 hover:bg-gray-50">
               <td class="py-1 px-3 text-center">{format_date(clearing_date)}</td>
@@ -116,7 +120,9 @@ defmodule SigLive.AccountsPayable.Summary do
                   <a
                     class="cursor-pointer hover:underline"
                     :on-click="open_details_modal"
-                    phx-value-selected_financial_transaction_ids={handle_selected_financial_transaction_ids(@summary, clearing_date, bank_name, company_trade_name)}
+                    phx-value-selected_financial_transaction_ids={
+                      handle_selected_financial_transaction_ids(@summary, clearing_date, bank_name, company_trade_name)
+                    }
                   >
                     {handle_amount_sum(@summary, clearing_date, bank_name, company_trade_name)}
                   </a>
