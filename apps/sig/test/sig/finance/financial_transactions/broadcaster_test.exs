@@ -1,7 +1,9 @@
 defmodule Sig.Finance.FinancialTransactions.BroadcasterTest do
   use Sig.DataCase, async: true
 
+  alias Sig.Accounts.User
   alias Sig.Finance.FinancialTransactions.Broadcaster
+  alias Sig.Finance.FinancialTransactions.FinancialTransaction
 
   @endpoint SigLive.Endpoint
 
@@ -36,7 +38,7 @@ defmodule Sig.Finance.FinancialTransactions.BroadcasterTest do
   end
 
   describe "broadcast_new_financial_transaction/1" do
-    test "broadcasts payables from a payslip" do
+    test "broadcasts payables from a payslip with default preloads" do
       %{id: ft_id} = ft = insert(:financial_transaction)
 
       topic = "org_id:" <> ft.org_id <> ":financial_transactions"
@@ -45,7 +47,8 @@ defmodule Sig.Finance.FinancialTransactions.BroadcasterTest do
 
       assert Broadcaster.broadcast_new_financial_transaction(ft) == :ok
 
-      assert_receive {:new_financial_transaction, %{id: ^ft_id}}
+      assert_receive {:new_financial_transaction,
+                      %FinancialTransaction{id: ^ft_id, created_by: %User{}}}
 
       @endpoint.unsubscribe(topic)
     end
@@ -61,7 +64,8 @@ defmodule Sig.Finance.FinancialTransactions.BroadcasterTest do
 
       assert Broadcaster.broadcast_updated_financial_transaction(ft) == :ok
 
-      assert_receive {:updated_financial_transaction, %{id: ^ft_id}}
+      assert_receive {:updated_financial_transaction,
+                      %FinancialTransaction{id: ^ft_id, created_by: %User{}}}
 
       @endpoint.unsubscribe(topic)
     end
