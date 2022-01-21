@@ -59,26 +59,26 @@ defmodule Sig.HR.Registrations.CompanyAssignmentsTest do
       registration = insert(:employee_registration, org: org)
 
       %{id: company_assignment_1_id} =
-        company_assignment_1 =
         insert(:employee_company_assignment,
           org: org,
           registration: registration,
-          start_date: ~D[2021-01-01]
+          start_date: registration.admission_date
         )
 
       %{id: company_assignment_2_id} =
+        company_assignment_2 =
         insert(:employee_company_assignment,
           org: org,
           registration: registration,
-          start_date: ~D[2021-06-01]
+          start_date: Date.utc_today()
         )
 
-      assert {:ok, %CompanyAssignment{id: ^company_assignment_1_id}} =
-               CompanyAssignments.delete(company_assignment_1)
+      assert {:ok, %CompanyAssignment{id: ^company_assignment_2_id}} =
+               CompanyAssignments.delete(company_assignment_2)
 
-      refute Repo.get_by(CompanyAssignment, org_id: org.id, id: company_assignment_1_id)
+      refute Repo.get_by(CompanyAssignment, org_id: org.id, id: company_assignment_2_id)
 
-      assert Repo.get_by(CompanyAssignment, org_id: org.id, id: company_assignment_2_id)
+      assert Repo.get_by(CompanyAssignment, org_id: org.id, id: company_assignment_1_id)
     end
 
     test "when registration has only one company assignment" do

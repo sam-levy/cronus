@@ -9,22 +9,34 @@ defmodule Sig.Repo.Migrations.CreateEnsureAtLeastOneResourceForRegistrationProce
       AS
     $$
     DECLARE
-      items_count integer;
+      registration_admission_date date;
+      existing integer;
     BEGIN
       EXECUTE
         format('
-          SELECT COUNT(*)
-          FROM %I
+          SELECT admission_date
+          FROM employee_registrations
           WHERE
             org_id = $1.org_id AND
-            registration_id = $1.registration_id', TG_TABLE_NAME)
+            id = $1.registration_id')
       USING OLD
-      INTO items_count;
+      INTO registration_admission_date;
+
+      EXECUTE
+        format('
+          SELECT 1
+          FROM %1$I
+          WHERE
+            org_id = $1.org_id AND
+            start_date = %2$L AND
+            registration_id = $1.registration_id', TG_TABLE_NAME, registration_admission_date)
+      USING OLD
+      INTO existing;
 
       IF
-        items_count = 0
+        existing IS NULL
       THEN
-        RAISE 'a registration must have at least one item in %', TG_TABLE_NAME
+        RAISE 'one record with `start_date` equal to `employee_registrations.admission_date` must exist'
         USING ERRCODE = 'integrity_constraint_violation';
       END IF;
 
