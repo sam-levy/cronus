@@ -94,12 +94,34 @@ defmodule Sig.HR.Registrations.CompanyAssignments.CompanyAssignmentTest do
         insert(:employee_company_assignment,
           org: org,
           registration: registration,
-          start_date: ~D[2021-06-01]
+          start_date: registration.admission_date
         )
 
       assert_raise Postgrex.Error,
-                   ~r/\(integrity_constraint_violation\) a registration must have at least one item in employee_company_assignments/,
+                   ~r/\(integrity_constraint_violation\) one record with `start_date` equal to `employee_registrations.admission_date` must exist/,
                    fn -> Repo.delete(company_assignment) end
+    end
+
+    test "when the deleted company assignment is the original one" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+
+      company_assignment_1 =
+        insert(:employee_company_assignment,
+          org: org,
+          registration: registration,
+          start_date: registration.admission_date
+        )
+
+      insert(:employee_company_assignment,
+        org: org,
+        registration: registration,
+        start_date: Date.utc_today()
+      )
+
+      assert_raise Postgrex.Error,
+                   ~r/\(integrity_constraint_violation\) one record with `start_date` equal to `employee_registrations.admission_date` must exist/,
+                   fn -> Repo.delete(company_assignment_1) end
     end
 
     test "successfully deletes if registration has more than one company assignment" do
@@ -110,14 +132,14 @@ defmodule Sig.HR.Registrations.CompanyAssignments.CompanyAssignmentTest do
         insert(:employee_company_assignment,
           org: org,
           registration: registration,
-          start_date: ~D[2021-01-01]
+          start_date: registration.admission_date
         )
 
       company_assignment_2 =
         insert(:employee_company_assignment,
           org: org,
           registration: registration,
-          start_date: ~D[2021-06-01]
+          start_date: Date.utc_today()
         )
 
       assert {:ok, _} = Repo.delete(company_assignment_2)

@@ -42,7 +42,7 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.CreateFromPayslipT
   @impl true
   def render(assigns) do
     ~F"""
-    <Modal title="Adicionar Items a partir de um Modelo de Holerite" close={@close_event}>
+    <Modal title="Importar Modelo de Holerite" close={@close_event}>
       <Form for={:payslip_template} submit="save" opts={autocomplete: "off"}>
         <Field name={:payslip_template_id} class="form-field">
           <Label class="form-label">Modelo de Holerite</Label>

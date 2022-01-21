@@ -3,6 +3,7 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransaction do
 
   alias Sig.Accounts.User
   alias Sig.Finance.FinancialTransactions.BankTransactions.BankTransaction
+  alias Sig.Finance.Payables.Payable
   alias Sig.Organizations.Org
 
   schema "financial_transactions" do
@@ -21,6 +22,8 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransaction do
     has_one :bank_transaction, BankTransaction
     has_one :bank_account, through: [:bank_transaction, :bank_account]
 
+    has_many :payables, Payable
+
     timestamps()
   end
 
@@ -33,6 +36,7 @@ defmodule Sig.Finance.FinancialTransactions.FinancialTransaction do
     :description,
     :created_by_id
   ]
+
   @create_optional_fields [:clearing_date, :transfer_counterparty_id]
 
   @create_fields @create_required_fields ++ @create_optional_fields

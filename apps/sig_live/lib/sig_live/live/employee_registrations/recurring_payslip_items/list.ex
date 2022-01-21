@@ -187,7 +187,7 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
                     :on-click="open_new_payslip_items_from_payslip_template_form"
                     class="dropdown-item"
                   >
-                    Items a partir de um Modelo de Holerite
+                    Importar Modelo de Holerite
                   </a>
 
                   <a :on-click="open_new_payslip_item_model_form" class="dropdown-item">Item a partir de um Modelo de Item de Holerite</a>

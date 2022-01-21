@@ -3,6 +3,7 @@
 @layer base {
 	.btn {
 		@apply
+		select-none
 		cursor-pointer
 		flex
 		items-center

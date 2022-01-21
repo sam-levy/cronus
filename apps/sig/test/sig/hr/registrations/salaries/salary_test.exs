@@ -108,19 +108,54 @@ defmodule Sig.HR.Registrations.Salaries.SalaryTest do
     test "raises on delete if registration has only one employee salary" do
       org = insert(:org)
       registration = insert(:employee_registration, org: org)
-      salary = insert(:employee_salary, org: org, registration: registration)
+
+      salary =
+        insert(:employee_salary,
+          org: org,
+          registration: registration,
+          start_date: registration.admission_date
+        )
 
       assert_raise Postgrex.Error,
-                   ~r/\(integrity_constraint_violation\) a registration must have at least one item in employee_salaries/,
+                   ~r/\(integrity_constraint_violation\) one record with `start_date` equal to `employee_registrations.admission_date` must exist/,
                    fn -> Repo.delete(salary) end
+    end
+
+    test "when the deleted salary is the original one" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+
+      salary_1 =
+        insert(:employee_salary,
+          org: org,
+          registration: registration,
+          start_date: registration.admission_date
+        )
+
+      insert(:employee_salary, org: org, registration: registration, start_date: Date.utc_today())
+
+      assert_raise Postgrex.Error,
+                   ~r/\(integrity_constraint_violation\) one record with `start_date` equal to `employee_registrations.admission_date` must exist/,
+                   fn -> Repo.delete(salary_1) end
     end
 
     test "successfully deletes if registration has more than one employee salary" do
       org = insert(:org)
       registration = insert(:employee_registration, org: org)
 
-      _salary_1 = insert(:employee_salary, org: org, registration: registration)
-      salary_2 = insert(:employee_salary, org: org, registration: registration)
+      _salary_1 =
+        insert(:employee_salary,
+          org: org,
+          registration: registration,
+          start_date: registration.admission_date
+        )
+
+      salary_2 =
+        insert(:employee_salary,
+          org: org,
+          registration: registration,
+          start_date: Date.utc_today()
+        )
 
       assert {:ok, _} = Repo.delete(salary_2)
     end

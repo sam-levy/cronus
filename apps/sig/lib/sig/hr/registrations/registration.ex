@@ -33,6 +33,9 @@ defmodule Sig.HR.Registrations.Registration do
     field :salary_amount, Money.Ecto.Amount.Type, virtual: true
     field :assigned_company_entity_id, Ecto.UUID, virtual: true
 
+    # TODO: Remove once Summary is removed
+    has_many :assigned_companies, through: [:company_assignments, :assigned_company]
+
     timestamps()
   end
 

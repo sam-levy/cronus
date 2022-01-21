@@ -1,6 +1,7 @@
 defmodule Sig.Finance.FinancialTransactions.Broadcaster do
   import Sig.Broadcaster
 
+  alias Sig.Finance.FinancialTransactions
   alias Sig.Finance.FinancialTransactions.FinancialTransaction
   alias Sig.Organizations.Org
 
@@ -13,10 +14,16 @@ defmodule Sig.Finance.FinancialTransactions.Broadcaster do
   end
 
   def broadcast_new_financial_transaction(%FinancialTransaction{} = ft) do
+    {:ok, ft} =
+      FinancialTransactions.refetch(ft, preload: FinancialTransactions.default_preloads())
+
     broadcast(topics_for(ft), {:new_financial_transaction, ft})
   end
 
   def broadcast_updated_financial_transaction(%FinancialTransaction{} = ft) do
+    {:ok, ft} =
+      FinancialTransactions.refetch(ft, preload: FinancialTransactions.default_preloads())
+
     broadcast(topics_for(ft), {:updated_financial_transaction, ft})
   end
 

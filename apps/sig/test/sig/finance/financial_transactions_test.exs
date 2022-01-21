@@ -1,6 +1,7 @@
 defmodule Sig.Finance.FinancialTransactionsTest do
   use Sig.DataCase
 
+  alias Sig.Accounts.User
   alias Sig.Finance.Banks.Accounts.Account
   alias Sig.Finance.FinancialTransactions
   alias Sig.Finance.FinancialTransactions.FinancialTransaction
@@ -53,6 +54,24 @@ defmodule Sig.Finance.FinancialTransactionsTest do
     end
   end
 
+  describe "refetch/2" do
+    test "refetches a financial transaction" do
+      %{id: id} = financial_transaction = insert(:financial_transaction)
+
+      assert {:ok, %FinancialTransaction{id: ^id, created_by: %User{}}} =
+               FinancialTransactions.refetch(financial_transaction, preload: :created_by)
+    end
+
+    test "when financial tansaction no longer exists" do
+      financial_transaction = insert(:financial_transaction)
+
+      Repo.delete(financial_transaction)
+
+      assert FinancialTransactions.refetch(financial_transaction, preload: :created_by) ==
+               {:error, :not_found}
+    end
+  end
+
   describe "list_by/2 Org" do
     test "lists financial transactions by org ordered by `clearing_date` and `description`" do
       org = insert(:org)
@@ -86,7 +105,12 @@ defmodule Sig.Finance.FinancialTransactionsTest do
                %FinancialTransaction{clearing_date: ~D[2022-01-04]}
              ] =
                FinancialTransactions.list_by(org,
-                 clearing_date: [period_start: ~D[2022-01-02], period_end: ~D[2022-01-04]]
+                 filter_by: [
+                   clearing_date_period: [
+                     period_start: ~D[2022-01-02],
+                     period_end: ~D[2022-01-04]
+                   ]
+                 ]
                )
     end
 
@@ -135,7 +159,12 @@ defmodule Sig.Finance.FinancialTransactionsTest do
                %FinancialTransaction{placement_date: ~D[2022-01-04]}
              ] =
                FinancialTransactions.list_by(org,
-                 clearing_date: [period_start: ~D[2022-01-02], period_end: ~D[2022-01-04]]
+                 filter_by: [
+                   clearing_date_period: [
+                     period_start: ~D[2022-01-02],
+                     period_end: ~D[2022-01-04]
+                   ]
+                 ]
                )
     end
 
