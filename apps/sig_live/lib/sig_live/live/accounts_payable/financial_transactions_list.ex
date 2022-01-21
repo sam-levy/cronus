@@ -112,6 +112,10 @@ defmodule SigLive.AccountsPayable.FinancialTransactionsList do
                 <span class="text-gray-500 font-medium tracking-wider">
                   Transações
                 </span>
+
+                <span class="text-gray-500 font-medium tracking-wider">
+                  {handle_amount_sum(@financial_transactions)}
+                </span>
               </div>
             </th>
           </tr>
@@ -196,6 +200,13 @@ defmodule SigLive.AccountsPayable.FinancialTransactionsList do
       </table>
     </div>
     """
+  end
+
+  defp handle_amount_sum(fiancial_transactions) do
+    Enum.reduce(fiancial_transactions, Money.new(0), fn
+      %{entry_type: :credit, amount: amount}, acc -> Money.add(acc, amount)
+      %{entry_type: :debit, amount: amount}, acc -> Money.subtract(acc, amount)
+    end)
   end
 
   defp handle_class(%{entry_type: :debit}), do: "px-3 text-right select-all text-red-600"
