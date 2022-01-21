@@ -63,7 +63,7 @@ defmodule Sig.Finance.FinancialTransactions do
 
   def clear(%FinancialTransaction{}, %{}), do: {:error, "already cleared"}
 
-  #TODO: Make it private once Summary is removed
+  # TODO: Make it private once Summary is removed
   def query_by(%Org{} = org) do
     init_query() |> where(org_id: ^org.id)
   end
