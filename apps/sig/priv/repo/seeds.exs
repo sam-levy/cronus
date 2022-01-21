@@ -136,6 +136,98 @@ central =
 # Bank Accounts
 alias Sig.Finance.Banks.Accounts.Account
 
+## Penha
+
+Repo.insert!(%Account{
+  name: "Brad Pe",
+  org_id: main_org.id,
+  entity_id: penha.entity_id,
+  type: :checking_account,
+  routing_number: "237",
+  branch_number: "118",
+  number: "0208157-1",
+  is_active: true,
+  is_primary: true,
+  is_joint_account: false,
+  is_managed: true
+})
+
+Repo.insert!(%Account{
+  name: "CEF Pe",
+  org_id: main_org.id,
+  entity_id: penha.entity_id,
+  type: :checking_account,
+  routing_number: "104",
+  branch_number: "0642",
+  number: "90-1",
+  is_active: true,
+  is_primary: false,
+  is_joint_account: false,
+  is_managed: true
+})
+
+## São Miguel
+
+Repo.insert!(%Account{
+  name: "Brad SM",
+  org_id: main_org.id,
+  entity_id: smiguel.entity_id,
+  type: :checking_account,
+  routing_number: "237",
+  branch_number: "118",
+  number: "0152226-4",
+  is_active: true,
+  is_primary: true,
+  is_joint_account: false,
+  is_managed: true
+})
+
+Repo.insert!(%Account{
+  name: "CEF SM",
+  org_id: main_org.id,
+  entity_id: smiguel.entity_id,
+  type: :checking_account,
+  routing_number: "104",
+  branch_number: "0642",
+  number: "245-9",
+  is_active: true,
+  is_primary: false,
+  is_joint_account: false,
+  is_managed: true
+})
+
+## Suzano
+
+Repo.insert!(%Account{
+  name: "Brad Sz",
+  org_id: main_org.id,
+  entity_id: suzano.entity_id,
+  type: :checking_account,
+  routing_number: "237",
+  branch_number: "118",
+  number: "1469-9",
+  is_active: true,
+  is_primary: true,
+  is_joint_account: false,
+  is_managed: true
+})
+
+Repo.insert!(%Account{
+  name: "CEF Sz",
+  org_id: main_org.id,
+  entity_id: suzano.entity_id,
+  type: :checking_account,
+  routing_number: "104",
+  branch_number: "0642",
+  number: "92-8",
+  is_active: true,
+  is_primary: false,
+  is_joint_account: false,
+  is_managed: true
+})
+
+## Mogi
+
 Repo.insert!(%Account{
   name: "Brad MC",
   org_id: main_org.id,
