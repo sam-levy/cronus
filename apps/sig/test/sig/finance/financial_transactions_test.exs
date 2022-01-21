@@ -1,6 +1,7 @@
 defmodule Sig.Finance.FinancialTransactionsTest do
   use Sig.DataCase
 
+  alias Sig.Accounts.User
   alias Sig.Finance.Banks.Accounts.Account
   alias Sig.Finance.FinancialTransactions
   alias Sig.Finance.FinancialTransactions.FinancialTransaction
@@ -50,6 +51,24 @@ defmodule Sig.Finance.FinancialTransactionsTest do
       assert errors_on(changeset) == %{
                clearing_date: ["must be after or equal to placement_date"]
              }
+    end
+  end
+
+  describe "refetch/2" do
+    test "refetches a financial transaction" do
+      %{id: id} = financial_transaction = insert(:financial_transaction)
+
+      assert {:ok, %FinancialTransaction{id: ^id, created_by: %User{}}} =
+               FinancialTransactions.refetch(financial_transaction, preload: :created_by)
+    end
+
+    test "when financial tansaction no longer exists" do
+      financial_transaction = insert(:financial_transaction)
+
+      Repo.delete(financial_transaction)
+
+      assert FinancialTransactions.refetch(financial_transaction, preload: :created_by) ==
+               {:error, :not_found}
     end
   end
 
