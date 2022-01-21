@@ -86,7 +86,12 @@ defmodule Sig.Finance.FinancialTransactionsTest do
                %FinancialTransaction{clearing_date: ~D[2022-01-04]}
              ] =
                FinancialTransactions.list_by(org,
-                 clearing_date: [period_start: ~D[2022-01-02], period_end: ~D[2022-01-04]]
+                 filter_by: [
+                   clearing_date_period: [
+                     period_start: ~D[2022-01-02],
+                     period_end: ~D[2022-01-04]
+                   ]
+                 ]
                )
     end
 
@@ -135,7 +140,12 @@ defmodule Sig.Finance.FinancialTransactionsTest do
                %FinancialTransaction{placement_date: ~D[2022-01-04]}
              ] =
                FinancialTransactions.list_by(org,
-                 clearing_date: [period_start: ~D[2022-01-02], period_end: ~D[2022-01-04]]
+                 filter_by: [
+                   clearing_date_period: [
+                     period_start: ~D[2022-01-02],
+                     period_end: ~D[2022-01-04]
+                   ]
+                 ]
                )
     end
 
