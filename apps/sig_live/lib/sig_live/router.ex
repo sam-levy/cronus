@@ -30,6 +30,7 @@ defmodule SigLive.Router do
       live "/", Organizations.Show, :organizations
       live "/accounts_payable", AccountsPayable.Index, :accounts_payable
       live "/financial_transactions", AccountsPayable.Index, :financial_transactions
+      live "/summary", AccountsPayable.Index, :summary
       live "/benefit_models", BenefitModels.Index, :benefit_models
       live "/payslip_categories", PayslipCategories.Index, :payslip_categories
       live "/payslip_templates", PayslipTemplates.Index, :payslip_templates

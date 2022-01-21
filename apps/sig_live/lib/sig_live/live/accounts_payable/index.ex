@@ -111,6 +111,16 @@ defmodule SigLive.AccountsPayable.Index do
     socket
   end
 
+  defp handle_subscriptions(%{assigns: %{live_action: :summary, assigns_built_for: %{summary: _}}} = socket) do
+    socket
+  end
+
+  defp handle_subscriptions(%{assigns: %{live_action: :summary}} = socket) do
+    # if connected?(socket), do: Finance.subscribe_to_financial_transactions(socket.assigns.org)
+
+    socket
+  end
+
   defp build_screen_assigns(
          %{
            assigns: %{
@@ -178,8 +188,8 @@ defmodule SigLive.AccountsPayable.Index do
 
     financial_transactions =
       Finance.list_financial_transactions_by(org,
-        preload: Finance.default_financial_transaction_preloads(),
-        clearing_date: [period_start: start_date, period_end: end_date]
+        filter_by: [clearing_date_period: [period_start: start_date, period_end: end_date]],
+        preload: Finance.default_financial_transaction_preloads()
       )
 
     assigns_built_for =
@@ -193,6 +203,44 @@ defmodule SigLive.AccountsPayable.Index do
       financial_transaction_ids: MapSet.new(financial_transactions, & &1.id),
       assigns_built_for: assigns_built_for,
       active_screen: :financial_transactions
+    )
+  end
+
+  defp build_screen_assigns(
+         %{
+           assigns: %{
+             live_action: :summary,
+             assigns_built_for: %{
+               summary: %{start_date: start_date, end_date: end_date}
+             },
+             start_date: start_date,
+             end_date: end_date
+           }
+         } = socket
+       ) do
+    assign(socket, active_screen: :summary)
+  end
+
+  defp build_screen_assigns(%{assigns: %{live_action: :summary}} = socket) do
+    %{org: org, assigns_built_for: assigns_built_for, start_date: start_date, end_date: end_date} =
+      socket.assigns
+
+    financial_transactions =
+      Finance.list_financial_transactions_by(org,
+        filter_by: [clearing_date_period: [period_start: start_date, period_end: end_date]],
+        preload: Finance.default_financial_transaction_preloads()
+      )
+
+    assigns_built_for =
+      Map.put(assigns_built_for, :summary, %{
+        start_date: start_date,
+        end_date: end_date
+      })
+
+    assign(socket,
+      financial_transactions: financial_transactions,
+      assigns_built_for: assigns_built_for,
+      active_screen: :summary
     )
   end
 
@@ -435,6 +483,13 @@ defmodule SigLive.AccountsPayable.Index do
           >
             Transações
           </LivePatch>
+
+          <LivePatch
+            to={build_route(@socket, :summary, @org, @start_date, @end_date)}
+            class={tab_classes_for(:summary, @active_screen)}
+          >
+            Resumo
+          </LivePatch>
         </div>
       </div>
 
@@ -455,6 +510,15 @@ defmodule SigLive.AccountsPayable.Index do
       <div :show={@active_screen == :financial_transactions}>
         <AccountsPayable.FinancialTransactionsList
           id="financial_transactions_list"
+          {=@financial_transactions}
+          {=@org}
+        />
+      </div>
+
+      <div :show={@active_screen == :summary}>
+        <AccountsPayable.Summary
+          id="financial_transactions_summary"
+          {=@org_bank_accounts}
           {=@financial_transactions}
           {=@org}
         />
