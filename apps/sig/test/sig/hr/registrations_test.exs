@@ -146,7 +146,7 @@ defmodule Sig.HR.RegistrationsTest do
                  registered_at: %Company{},
                  salaries: [%Salary{}]
                }
-             ] = Registrations.list_by(individual)
+             ] = Registrations.list_by(individual, preload: [:registered_at, :salaries])
     end
 
     test "fills salary_amount virtual field with the latest salary amount" do
@@ -198,7 +198,7 @@ defmodule Sig.HR.RegistrationsTest do
       assert [
                %Registration{salary_amount: %Money{amount: 1_700_00, currency: :BRL}},
                %Registration{salary_amount: %Money{amount: 1_800_00, currency: :BRL}}
-             ] = Registrations.list_by(individual)
+             ] = Registrations.list_by(individual, preload: :salaries)
     end
 
     test "individual has no registration" do
@@ -249,7 +249,9 @@ defmodule Sig.HR.RegistrationsTest do
                %Registration{admission_date: ~D[2010-01-01], resignation_date: nil}
              ] =
                Registrations.list_by(org,
-                 active_in_period: [start_date: ~D[2010-01-01], end_date: ~D[2010-01-31]]
+                 filter_by: [
+                   active_in_period: [start_date: ~D[2010-01-01], end_date: ~D[2010-01-31]]
+                 ]
                )
     end
 
@@ -286,8 +288,10 @@ defmodule Sig.HR.RegistrationsTest do
                %Registration{sector_id: ^cleaning_sector_id}
              ] =
                Registrations.list_by(org,
-                 sectors_ids: [kitchen_sector.id, cleaning_sector.id],
-                 active_in_period: [start_date: ~D[2020-01-01], end_date: ~D[2020-01-31]]
+                filter_by: [
+                  sector_id: [kitchen_sector.id, cleaning_sector.id],
+                  active_in_period: [start_date: ~D[2020-01-01], end_date: ~D[2020-01-31]]
+                ]
                )
     end
 
@@ -295,7 +299,9 @@ defmodule Sig.HR.RegistrationsTest do
       org = insert(:org)
 
       assert Registrations.list_by(org,
-               active_in_period: [start_date: ~D[2010-01-01], end_date: ~D[2010-01-31]]
+              filter_by: [
+                active_in_period: [start_date: ~D[2010-01-01], end_date: ~D[2010-01-31]]
+              ]
              ) == []
     end
   end
@@ -321,28 +327,6 @@ defmodule Sig.HR.RegistrationsTest do
       _to_ignore_2 = insert(:employee_registration)
 
       assert Registrations.count_by(position) == 2
-    end
-  end
-
-  describe "list_by_ids/2" do
-    test "lists by the given ids" do
-      org = insert(:org)
-
-      %{id: id_1} = insert(:employee_registration, org: org, admission_date: ~D[2021-03-01])
-      %{id: id_2} = insert(:employee_registration, org: org, admission_date: ~D[2021-02-01])
-      insert(:employee_registration, org: org, admission_date: ~D[2021-01-01])
-
-      assert [
-               %Registration{id: ^id_2, org: %Org{}, admission_date: ~D[2021-02-01]},
-               %Registration{id: ^id_1, org: %Org{}, admission_date: ~D[2021-03-01]}
-             ] = Registrations.list_by_ids(org, [id_1, id_2], preload: :org)
-    end
-
-    test "invalid registrations ids" do
-      org = insert(:org)
-
-      assert Registrations.list_by_ids(org, [UUID.generate(), UUID.generate()], preload: :org) ==
-               []
     end
   end
 

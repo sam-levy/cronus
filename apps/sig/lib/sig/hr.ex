@@ -29,7 +29,7 @@ defmodule Sig.HR do
 
   defdelegate create_registration(org, individual, attrs), to: Registrations, as: :create
   defdelegate update_registration(individual, attrs), to: Registrations, as: :update
-  defdelegate list_registrations_by(schema), to: Registrations, as: :list_by
+  defdelegate list_registrations_by(schema, opts), to: Registrations, as: :list_by
   defdelegate count_registrations_by(schema), to: Registrations, as: :count_by
   defdelegate get_registration(schema, id), to: Registrations, as: :get
   defdelegate subscribe_to_individual_registrations(individual), to: Registrations
