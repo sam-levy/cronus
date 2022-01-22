@@ -17,12 +17,12 @@ defmodule SigLive.EmployeeRegistrations.LeavePeriods.List do
   end
 
   @impl true
-  def handle_event("open_edit_leave_period_form", %{"leave-period_id" => id}, socket) do
+  def handle_event("open_edit_leave_period_form", %{"leave_period_id" => id}, socket) do
     {:noreply, assign(socket, form_state: :edit_mode, leave_period_id: id)}
   end
 
   @impl true
-  def handle_event("open_show_leave_period_form", %{"leave-period_id" => id}, socket) do
+  def handle_event("open_show_leave_period_form", %{"leave_period_id" => id}, socket) do
     {:noreply, assign(socket, form_state: :show_mode, leave_period_id: id)}
   end
 
