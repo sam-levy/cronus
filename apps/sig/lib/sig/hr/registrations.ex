@@ -36,6 +36,21 @@ defmodule Sig.HR.Registrations do
   def list_by(%Org{} = schema, opts), do: do_list_by(schema, opts)
   def list_by(%Individual{} = schema, opts), do: do_list_by(schema, opts)
 
+  def get(schema, id, opts \\ [])
+  def get(%Org{} = schema, id, opts) when is_binary(id), do: do_get(schema, id, opts)
+  def get(%Individual{} = schema, id, opts) when is_binary(id), do: do_get(schema, id, opts)
+
+  def count_by(schema, opts \\ [])
+  def count_by(%Position{} = schema, opts), do: do_count_by(schema, opts)
+  def count_by(%Sector{} = schema, opts), do: do_count_by(schema, opts)
+
+  def get_by(attrs, opts \\ []) when is_list(attrs) do
+    init_query()
+    |> where(^attrs)
+    |> shallow_preload(opts)
+    |> Repo.one()
+  end
+
   defp do_list_by(schema, opts) do
     schema
     |> query_by()
@@ -46,27 +61,15 @@ defmodule Sig.HR.Registrations do
     |> handle_salary_amount()
   end
 
-  def get(schema, id, opts \\ [])
-  def get(%Org{} = schema, id, opts) when is_binary(id), do: do_get(schema, id, opts)
-  def get(%Individual{} = schema, id, opts) when is_binary(id), do: do_get(schema, id, opts)
-
   defp do_get(schema, id, opts) do
     schema
     |> query_by()
     |> where(id: ^id)
     |> shallow_preload(opts)
-    |> shallow_preload([:org, :salaries])
     |> Repo.one()
   end
 
-  def get_by(attrs, opts \\ []) when is_list(attrs) do
-    init_query()
-    |> where(^attrs)
-    |> shallow_preload(opts)
-    |> Repo.one()
-  end
-
-  def count_by(schema, opts \\ []) do
+  defp do_count_by(schema, opts) do
     schema
     |> query_by()
     |> filter_by(opts)
@@ -137,7 +140,9 @@ defmodule Sig.HR.Registrations do
   end
 
   def broadcast_individual_registrations(%Individual{} = individual) do
-    broadcast(topic(individual), {:updated_individual_registrations, list_by(individual)})
+    registrations = list_by(individual, preload: :registered_at)
+
+    broadcast(topic(individual), {:updated_individual_registrations, registrations})
   end
 
   defp topic(%Individual{} = individual) do
