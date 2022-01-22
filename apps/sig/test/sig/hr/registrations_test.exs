@@ -389,7 +389,7 @@ defmodule Sig.HR.RegistrationsTest do
       )
 
       assert %Registration{salaries: [%Salary{}, %Salary{}], org: %Org{id: ^org_id}} =
-               Registrations.get(individual, registration.id)
+               Registrations.get(individual, registration.id, preload: [:org, :salaries])
     end
   end
 
