@@ -25,13 +25,14 @@ defmodule SigLive.AccountsPayable.Summary do
   prop org_bank_accounts, :list, required: true
   prop financial_transactions, :list, required: true
   prop financial_transaction_ids, :mapset, required: true
+  prop select_description, :event, required: true
+  prop selected_description, :string, required: true
 
-  data description, :string, default: "Vale Funcionários"
+  data descriptions, :list, default: @descriptions
   data details_modal_open, :boolean, default: false
   data selected_payable_ids, :list, default: []
 
-  data descriptions, :list, default: @descriptions
-  data selected_description, :string, default: List.first(@descriptions)
+  def default_description, do: List.first(@descriptions)
 
   @impl true
   def update(assigns, socket) do
@@ -43,8 +44,10 @@ defmodule SigLive.AccountsPayable.Summary do
     } = assigns
 
     {:ok,
-     assign(socket,
+    assign(socket,
        org: org,
+       select_description: assigns.select_description,
+       selected_description: assigns.selected_description,
        org_bank_accounts: build_accounts_to_display(org_bank_accounts),
        clearing_dates: list_clearing_dates(financial_transactions),
        companies: Entities.list_companies(org),
@@ -78,7 +81,9 @@ defmodule SigLive.AccountsPayable.Summary do
 
   @impl true
   def handle_event("select_description", %{"selected_description" => description}, socket) do
-    {:noreply, assign(socket, selected_description: description)}
+    send(self(), {:selected_summary_description, description})
+
+    {:noreply, socket}
   end
 
   @impl true
