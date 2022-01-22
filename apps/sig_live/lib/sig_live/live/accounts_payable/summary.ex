@@ -6,10 +6,20 @@ defmodule SigLive.AccountsPayable.Summary do
 
   use SigLive, :surface_live_component
 
+  alias Surface.Components.Form
+
   alias Sig.Finance.FinancialTransactions.Summary
   alias Sig.Entities
 
   alias SigLive.AccountsPayable.SummaryDetails
+
+  @descriptions [
+    "Salário de funcionários",
+    "Vale de Funcionários",
+    "Pagamento Motoboys",
+    "Décimo Terceiro Salário - Primeira Parcela",
+    "Décimo Terceiro Salário - Segunda Parcela"
+  ]
 
   prop org, :struct, required: true
   prop org_bank_accounts, :list, required: true
@@ -18,7 +28,10 @@ defmodule SigLive.AccountsPayable.Summary do
 
   data description, :string, default: "Vale Funcionários"
   data details_modal_open, :boolean, default: false
-  prop selected_payable_ids, :list, default: []
+  data selected_payable_ids, :list, default: []
+
+  data descriptions, :list, default: @descriptions
+  data selected_description, :string, default: List.first(@descriptions)
 
   @impl true
   def update(assigns, socket) do
@@ -64,6 +77,11 @@ defmodule SigLive.AccountsPayable.Summary do
   end
 
   @impl true
+  def handle_event("select_description", %{"selected_description" => description}, socket) do
+    {:noreply, assign(socket, selected_description: description)}
+  end
+
+  @impl true
   def render(assigns) do
     ~F"""
     <div>
@@ -80,17 +98,28 @@ defmodule SigLive.AccountsPayable.Summary do
           <tr class="bg-white">
             <th colspan="12">
               <div class="flex justify-between items-center py-3 px-6">
-                <span class="text-gray-500 font-medium tracking-wider">
-                  Fluxo
-                </span>
+                <div class="flex space-x-3">
+                  <Form for={:description_selection} change="select_description">
+                    <select name="selected_description" class="form-input py-1">
+                      {#for description <- @descriptions}
+                        <option
+                          value={description}
+                          selected={description == @selected_description}
+                        >
+                          {description}
+                        </option>
+                      {/for}
+                    </select>
+                  </Form>
 
-                {#case @summary}
-                  {#match %{total_amount_sum: %Money{amount: 0}}}
-                  {#match _}
-                    <a class="btn-blue" style="padding: 0.2em 1em; font-size: 0.8em;" id="copy-to-clipboard" phx-hook="CopyToClipboard">
-                      Copiar
-                    </a>
-                {/case}
+                  {#case @summary}
+                    {#match %{total_amount_sum: %Money{amount: 0}}}
+                    {#match _}
+                      <a class="btn-blue" style="padding: 0.2em 1em; font-size: 0.8em;" id="copy-to-clipboard" phx-hook="CopyToClipboard">
+                        Copiar
+                      </a>
+                  {/case}
+                </div>
 
                 <span class="text-gray-500 font-medium tracking-wider">
                   {@summary.total_amount_sum}
@@ -119,7 +148,7 @@ defmodule SigLive.AccountsPayable.Summary do
           {#for clearing_date <- @clearing_dates, %{trade_name: company_trade_name} <- @companies}
             <tr class=" border-b border-gray-200 hover:bg-gray-50">
               <td class="py-1 px-3 text-center">{format_date(clearing_date)}</td>
-              <td class="px-3 text-left">{@description}</td>
+              <td class="px-3 text-left">{@selected_description}</td>
               <td class="px-3 text-left">{translate(company_trade_name)}</td>
               <td></td>
 
