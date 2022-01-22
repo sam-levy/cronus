@@ -18,7 +18,7 @@ defmodule SigLive.AccountsPayable.Summary do
 
   data description, :string, default: "Vale Funcionários"
   data details_modal_open, :boolean, default: false
-  prop selected_financial_transaction_ids, :list, default: []
+  prop selected_payable_ids, :list, default: []
 
   @impl true
   def update(assigns, socket) do
@@ -58,9 +58,9 @@ defmodule SigLive.AccountsPayable.Summary do
   end
 
   @impl true
-  def handle_event("open_details_modal", %{"selected_financial_transaction_ids" => ids}, socket) do
+  def handle_event("open_details_modal", %{"selected_payable_ids" => ids}, socket) do
     {:noreply,
-     assign(socket, selected_financial_transaction_ids: String.split(ids), details_modal_open: true)}
+     assign(socket, selected_payable_ids: String.split(ids), details_modal_open: true)}
   end
 
   @impl true
@@ -71,7 +71,7 @@ defmodule SigLive.AccountsPayable.Summary do
         :if={@details_modal_open}
         id="summary_details_modal"
         close_event="close_modals"
-        {=@selected_financial_transaction_ids}
+        {=@selected_payable_ids}
         {=@org}
       />
 
@@ -84,27 +84,35 @@ defmodule SigLive.AccountsPayable.Summary do
                   Fluxo
                 </span>
 
-                <a class="btn-blue" style="padding: 0.2em 1em; font-size: 0.8em;" id="copy-to-clipboard" phx-hook="CopyToClipboard">
-                  Copiar
-                </a>
+                {#case @summary}
+                  {#match %{total_amount_sum: %Money{amount: 0}}}
+                  {#match _}
+                    <a class="btn-blue" style="padding: 0.2em 1em; font-size: 0.8em;" id="copy-to-clipboard" phx-hook="CopyToClipboard">
+                      Copiar
+                    </a>
+                {/case}
 
                 <span class="text-gray-500 font-medium tracking-wider">
-                  {Money.multiply(@summary.total_amount_sum, -1)}
+                  {@summary.total_amount_sum}
                 </span>
               </div>
             </th>
           </tr>
 
-          <tr :if={@summary != %{}} class="bg-gray-100 text-xs font-medium text-gray-500 tracking-wider">
-            <th class="py-3 px-3 text-center">Data</th>
-            <th class="py-3 px-3 text-left">Descrição</th>
-            <th class="py-3 px-3 text-left">Titular</th>
-            <th></th>
+          {#case @summary}
+            {#match %{total_amount_sum: %Money{amount: 0}}}
+            {#match _}
+              <tr :if={@summary != %{}} class="bg-gray-100 text-xs font-medium text-gray-500 tracking-wider">
+                <th class="py-3 px-3 text-center">Data</th>
+                <th class="py-3 px-3 text-left">Descrição</th>
+                <th class="py-3 px-3 text-left">Titular</th>
+                <th></th>
 
-            {#for %{name: name} <- @org_bank_accounts}
-              <th class="py-3 px-3 text-right">{name}</th>
-            {/for}
-          </tr>
+                {#for %{name: name} <- @org_bank_accounts}
+                  <th class="py-3 px-3 text-right">{name}</th>
+                {/for}
+              </tr>
+          {/case}
         </thead>
 
         <tbody id="content-to-copy" class="text-gray-600 text-sm font-light">
@@ -120,8 +128,8 @@ defmodule SigLive.AccountsPayable.Summary do
                   <a
                     class="cursor-pointer hover:underline"
                     :on-click="open_details_modal"
-                    phx-value-selected_financial_transaction_ids={
-                      handle_selected_financial_transaction_ids(@summary, clearing_date, bank_name, company_trade_name)
+                    phx-value-selected_payable_ids={
+                      handle_selected_payable_ids(@summary, clearing_date, bank_name, company_trade_name)
                     }
                   >
                     {handle_amount_sum(@summary, clearing_date, bank_name, company_trade_name)}
@@ -136,9 +144,9 @@ defmodule SigLive.AccountsPayable.Summary do
     """
   end
 
-  defp handle_selected_financial_transaction_ids(summary, clearing_date, bank_name, company_trade_name) do
+  defp handle_selected_payable_ids(summary, clearing_date, bank_name, company_trade_name) do
     case Map.get(summary, {clearing_date, bank_name, company_trade_name}) do
-      %{financial_transaction_ids: ids} -> Enum.join(ids, " ")
+      %{payable_ids: ids} -> Enum.join(ids, " ")
       nil -> nil
     end
   end
@@ -156,7 +164,7 @@ defmodule SigLive.AccountsPayable.Summary do
 
   defp closed_state do
     [
-      selected_financial_transaction_ids: nil,
+      selected_payable_ids: nil,
       details_modal_open: false
     ]
   end
