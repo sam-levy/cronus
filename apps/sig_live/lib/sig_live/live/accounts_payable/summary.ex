@@ -102,7 +102,7 @@ defmodule SigLive.AccountsPayable.Summary do
         <thead>
           <tr class="bg-white">
             <th colspan="12">
-              <div class="flex justify-between items-center py-3 px-6">
+              <div class="flex justify-between items-center py-3 px-6 text-gray-500 font-medium tracking-wider">
                 <div class="flex space-x-3">
                   <Form for={:description_selection} change="select_description">
                     <select name="selected_description" class="form-input py-1">
