@@ -5,6 +5,11 @@ defmodule Sig.Query do
               value :: any()
             ) :: Ecto.Queryable.t()
 
+  @callback shallow_preload(
+              queryable :: Ecto.Queryable.t(),
+              preload_name :: atom()
+            ) :: Ecto.Queryable.t()
+
   defmacro __using__([{:schema, schema}, {:as, named_binding}]) do
     quote bind_quoted: [schema: schema, named_binding: named_binding] do
       @behaviour Sig.Query
