@@ -6,19 +6,33 @@ defmodule SigLive.AccountsPayable.Summary do
 
   use SigLive, :surface_live_component
 
+  alias Surface.Components.Form
+
   alias Sig.Finance.FinancialTransactions.Summary
   alias Sig.Entities
 
   alias SigLive.AccountsPayable.SummaryDetails
 
+  @descriptions [
+    "Salário de funcionários",
+    "Vale de Funcionários",
+    "Pagamento Motoboys",
+    "Décimo Terceiro Salário - Primeira Parcela",
+    "Décimo Terceiro Salário - Segunda Parcela"
+  ]
+
   prop org, :struct, required: true
   prop org_bank_accounts, :list, required: true
   prop financial_transactions, :list, required: true
   prop financial_transaction_ids, :mapset, required: true
+  prop select_description, :event, required: true
+  prop selected_description, :string, required: true
 
-  data description, :string, default: "Vale Funcionários"
+  data descriptions, :list, default: @descriptions
   data details_modal_open, :boolean, default: false
-  prop selected_financial_transaction_ids, :list, default: []
+  data selected_payable_ids, :list, default: []
+
+  def default_description, do: List.first(@descriptions)
 
   @impl true
   def update(assigns, socket) do
@@ -30,8 +44,10 @@ defmodule SigLive.AccountsPayable.Summary do
     } = assigns
 
     {:ok,
-     assign(socket,
+    assign(socket,
        org: org,
+       select_description: assigns.select_description,
+       selected_description: assigns.selected_description,
        org_bank_accounts: build_accounts_to_display(org_bank_accounts),
        clearing_dates: list_clearing_dates(financial_transactions),
        companies: Entities.list_companies(org),
@@ -58,9 +74,16 @@ defmodule SigLive.AccountsPayable.Summary do
   end
 
   @impl true
-  def handle_event("open_details_modal", %{"selected_financial_transaction_ids" => ids}, socket) do
+  def handle_event("open_details_modal", %{"selected_payable_ids" => ids}, socket) do
     {:noreply,
-     assign(socket, selected_financial_transaction_ids: String.split(ids), details_modal_open: true)}
+     assign(socket, selected_payable_ids: String.split(ids), details_modal_open: true)}
+  end
+
+  @impl true
+  def handle_event("select_description", %{"selected_description" => description}, socket) do
+    send(self(), {:selected_summary_description, description})
+
+    {:noreply, socket}
   end
 
   @impl true
@@ -71,7 +94,7 @@ defmodule SigLive.AccountsPayable.Summary do
         :if={@details_modal_open}
         id="summary_details_modal"
         close_event="close_modals"
-        {=@selected_financial_transaction_ids}
+        {=@selected_payable_ids}
         {=@org}
       />
 
@@ -80,38 +103,57 @@ defmodule SigLive.AccountsPayable.Summary do
           <tr class="bg-white">
             <th colspan="12">
               <div class="flex justify-between items-center py-3 px-6">
-                <span class="text-gray-500 font-medium tracking-wider">
-                  Fluxo
-                </span>
+                <div class="flex space-x-3">
+                  <Form for={:description_selection} change="select_description">
+                    <select name="selected_description" class="form-input py-1">
+                      {#for description <- @descriptions}
+                        <option
+                          value={description}
+                          selected={description == @selected_description}
+                        >
+                          {description}
+                        </option>
+                      {/for}
+                    </select>
+                  </Form>
 
-                <a class="btn-blue" style="padding: 0.2em 1em; font-size: 0.8em;" id="copy-to-clipboard" phx-hook="CopyToClipboard">
-                  Copiar
-                </a>
+                  {#case @summary}
+                    {#match %{total_amount_sum: %Money{amount: 0}}}
+                    {#match _}
+                      <a class="btn-blue" style="padding: 0.2em 1em; font-size: 0.8em;" id="copy-to-clipboard" phx-hook="CopyToClipboard">
+                        Copiar
+                      </a>
+                  {/case}
+                </div>
 
                 <span class="text-gray-500 font-medium tracking-wider">
-                  {Money.multiply(@summary.total_amount_sum, -1)}
+                  {@summary.total_amount_sum}
                 </span>
               </div>
             </th>
           </tr>
 
-          <tr :if={@summary != %{}} class="bg-gray-100 text-xs font-medium text-gray-500 tracking-wider">
-            <th class="py-3 px-3 text-center">Data</th>
-            <th class="py-3 px-3 text-left">Descrição</th>
-            <th class="py-3 px-3 text-left">Titular</th>
-            <th></th>
+          {#case @summary}
+            {#match %{total_amount_sum: %Money{amount: 0}}}
+            {#match _}
+              <tr :if={@summary != %{}} class="bg-gray-100 text-xs font-medium text-gray-500 tracking-wider">
+                <th class="py-3 px-3 text-center">Data</th>
+                <th class="py-3 px-3 text-left">Descrição</th>
+                <th class="py-3 px-3 text-left">Titular</th>
+                <th></th>
 
-            {#for %{name: name} <- @org_bank_accounts}
-              <th class="py-3 px-3 text-right">{name}</th>
-            {/for}
-          </tr>
+                {#for %{name: name} <- @org_bank_accounts}
+                  <th class="py-3 px-3 text-right">{name}</th>
+                {/for}
+              </tr>
+          {/case}
         </thead>
 
         <tbody id="content-to-copy" class="text-gray-600 text-sm font-light">
           {#for clearing_date <- @clearing_dates, %{trade_name: company_trade_name} <- @companies}
             <tr class=" border-b border-gray-200 hover:bg-gray-50">
               <td class="py-1 px-3 text-center">{format_date(clearing_date)}</td>
-              <td class="px-3 text-left">{@description}</td>
+              <td class="px-3 text-left">{@selected_description}</td>
               <td class="px-3 text-left">{translate(company_trade_name)}</td>
               <td></td>
 
@@ -120,8 +162,8 @@ defmodule SigLive.AccountsPayable.Summary do
                   <a
                     class="cursor-pointer hover:underline"
                     :on-click="open_details_modal"
-                    phx-value-selected_financial_transaction_ids={
-                      handle_selected_financial_transaction_ids(@summary, clearing_date, bank_name, company_trade_name)
+                    phx-value-selected_payable_ids={
+                      handle_selected_payable_ids(@summary, clearing_date, bank_name, company_trade_name)
                     }
                   >
                     {handle_amount_sum(@summary, clearing_date, bank_name, company_trade_name)}
@@ -136,9 +178,9 @@ defmodule SigLive.AccountsPayable.Summary do
     """
   end
 
-  defp handle_selected_financial_transaction_ids(summary, clearing_date, bank_name, company_trade_name) do
+  defp handle_selected_payable_ids(summary, clearing_date, bank_name, company_trade_name) do
     case Map.get(summary, {clearing_date, bank_name, company_trade_name}) do
-      %{financial_transaction_ids: ids} -> Enum.join(ids, " ")
+      %{payable_ids: ids} -> Enum.join(ids, " ")
       nil -> nil
     end
   end
@@ -156,7 +198,7 @@ defmodule SigLive.AccountsPayable.Summary do
 
   defp closed_state do
     [
-      selected_financial_transaction_ids: nil,
+      selected_payable_ids: nil,
       details_modal_open: false
     ]
   end

@@ -40,17 +40,17 @@ defmodule Sig.Finance.FinancialTransactions.Summary do
             {transaction.clearing_date, transaction.bank_account.name,
              assigned_company.trade_name}
 
-          value = Map.get(acc, key, %{financial_transaction_ids: [], amount_sum: Money.new(0)})
+          value = Map.get(acc, key, %{payable_ids: [], amount_sum: Money.new(0)})
 
           amount_sum = Money.add(value.amount_sum, payable.amount)
 
           acc
           |> Map.put(key, %{
             value
-            | financial_transaction_ids: [transaction.id | value.financial_transaction_ids],
+            | payable_ids: [payable.id | value.payable_ids],
               amount_sum: amount_sum
           })
-          |> Map.put(:total_amount_sum, Money.add(acc.total_amount_sum, amount_sum))
+          |> Map.put(:total_amount_sum, Money.add(acc.total_amount_sum, payable.amount))
         end)
 
       _, acc ->

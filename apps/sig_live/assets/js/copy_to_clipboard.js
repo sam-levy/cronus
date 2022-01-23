@@ -6,7 +6,7 @@ export const CopyToClipboard = {
 
 			navigator.clipboard.writeText(el.innerText).then(
 				function() {
-					e.target.innerText = 'Copiado!'
+					e.target.innerText = 'COPIADO!'
 					
 					setTimeout(() => {e.target.innerText = buttonText}, 1000)
 				}
