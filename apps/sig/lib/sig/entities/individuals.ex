@@ -1,29 +1,39 @@
 defmodule Sig.Entities.Individuals do
-  import Ecto.Query
+  use Sig.Query, schema: __MODULE__.Individual, as: :individual
+
+  import Sig.Broadcaster
 
   alias Ecto.Multi
 
+  alias Sig.Entities.Companies.Company
   alias Sig.Entities.Entity
   alias Sig.Entities.Individuals.Individual
   alias Sig.Documents
   alias Sig.Organizations.Org
   alias Sig.Repo
 
+  @default_preloads [:entity]
+
   def create_individual_change(%{} = attrs \\ %{}) do
     Individual.create_changeset(attrs)
   end
 
-  def list_individuals(%Org{} = org) do
+  def list_individuals(%Org{} = org, opts \\ []) do
     org
-    |> individual_base_query()
-    |> order_by(:name)
+    |> query_by()
+    |> shallow_preload(@default_preloads)
+    |> shallow_preload(opts)
+    |> filter_by(opts)
+    |> handle_order_by(opts, :name)
     |> Repo.all()
   end
 
-  def get_individual(%Org{} = org, entity_id) when is_binary(entity_id) do
+  def get_individual(%Org{} = org, entity_id, opts \\ []) when is_binary(entity_id) do
     org
-    |> individual_base_query()
+    |> query_by()
     |> where(entity_id: ^entity_id)
+    |> shallow_preload(@default_preloads)
+    |> shallow_preload(opts)
     |> Repo.one()
   end
 
@@ -60,29 +70,40 @@ defmodule Sig.Entities.Individuals do
     |> Repo.update()
   end
 
-  def subscribe_to_individuals(%Org{} = org) do
-    Phoenix.PubSub.subscribe(Sig.PubSub, topic(org))
-  end
+  def subscribe_to_individuals(%Org{} = org), do: subscribe(topic(org))
 
   def broadcast_individuals(%Org{} = org) do
-    Phoenix.PubSub.broadcast(
-      Sig.PubSub,
-      topic(org),
-      {:updated_individuals, list_individuals(org)}
-    )
+    broadcast(topic(org), {:updated_individuals, list_individuals(org)})
   end
 
   defp topic(%Org{} = org), do: "org_id:" <> org.id <> ":individuals"
 
-  defp individual_base_query(org) do
-    Individual
-    |> where(org_id: ^org.id)
-    |> join(:left, [individual], entity in assoc(individual, :entity))
-    |> preload([_individual, entity], entity: entity)
+  defp query_by(%Org{} = org) do
+    where(init_query(), org_id: ^org.id)
   end
 
   defp as_result(%Individual{} = individual), do: {:ok, individual}
   defp as_result({:ok, %{create_individual: individual}}), do: {:ok, individual}
   defp as_result({:error, _operation, reason, _changes}), do: {:error, reason}
   defp as_result(nil), do: {:error, :not_found}
+
+  @impl Sig.Query
+  def shallow_preload(queryable, :active_registered_at_companies) do
+    queryable
+    |> join(
+      :left_lateral,
+      [individual: individual],
+      r in fragment(
+        "SELECT * FROM employee_registrations AS r WHERE r.org_id = ? AND r.individual_id = ? AND r.resignation_date IS NULL",
+        individual.org_id,
+        individual.entity_id
+      ),
+      as: :active_registrations
+    )
+    |> join(:left, [active_registrations: r], c in Company,
+      on: c.entity_id == r.registered_at_id,
+      as: :active_registered_at_companies
+    )
+    |> preload([active_registered_at_companies: c], registered_at_companies: c)
+  end
 end

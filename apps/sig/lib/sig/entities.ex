@@ -8,8 +8,8 @@ defmodule Sig.Entities do
   alias Sig.Repo
 
   defdelegate create_individual_change(attrs), to: Individuals
-  defdelegate list_individuals(org), to: Individuals
-  defdelegate get_individual(org, entity_id), to: Individuals
+  defdelegate list_individuals(org, opts \\ []), to: Individuals
+  defdelegate get_individual(org, entity_id, opts \\ []), to: Individuals
   defdelegate fetch_individual_by_cpf(org, cpf), to: Individuals
   defdelegate create_individual(org, attrs), to: Individuals
   defdelegate update_individual(individual, attrs), to: Individuals
