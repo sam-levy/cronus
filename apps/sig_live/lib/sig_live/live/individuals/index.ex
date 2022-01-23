@@ -35,7 +35,7 @@ defmodule SigLive.Individuals.Index do
   def handle_params(%{"filters" => filters}, _url, socket) do
     filtered_individuals = filter_individuals(filters, socket.assigns.individuals)
 
-    {:noreply, assign(socket, filtered_individuals: filtered_individuals)}
+    {:noreply, assign(socket, filters: filters, filtered_individuals: filtered_individuals)}
   end
 
   @impl true
@@ -78,10 +78,7 @@ defmodule SigLive.Individuals.Index do
 
     filters = update_filters(filters, params)
 
-    {:noreply,
-     socket
-     |> assign(filters: filters)
-     |> push_patch(to: build_route(socket, org, filters), replace: true)}
+    {:noreply, push_patch(socket, to: build_route(socket, org, filters), replace: true)}
   end
 
   defp update_filters(filters, params) do
