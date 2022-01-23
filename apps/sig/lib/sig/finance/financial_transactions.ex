@@ -42,7 +42,7 @@ defmodule Sig.Finance.FinancialTransactions do
     |> query_by()
     |> shallow_preload(opts)
     |> filter_by(opts)
-    |> order()
+    |> handle_order_by(opts, [:clearing_date, :description])
     |> Repo.all()
   end
 
@@ -66,10 +66,6 @@ defmodule Sig.Finance.FinancialTransactions do
   # TODO: Make it private once Summary is removed
   def query_by(%Org{} = org) do
     init_query() |> where(org_id: ^org.id)
-  end
-
-  defp order(queryable) do
-    order_by(queryable, [:clearing_date, :description])
   end
 
   @impl Sig.Query

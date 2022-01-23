@@ -4,6 +4,7 @@ defmodule Sig.Entities.Individuals.Individual do
   alias BrazilianDocuments.Types.CPF
 
   alias Sig.Entities.Entity
+  alias Sig.HR.Registrations.Registration
   alias Sig.Organizations.Org
 
   defenum(Gender, :gender, [:male, :female, :other])
@@ -16,6 +17,9 @@ defmodule Sig.Entities.Individuals.Individual do
     field :name, :string
     field :cpf, CPF
     field :gender, Gender
+
+    has_many :registrations, Registration, references: :entity_id, foreign_key: :individual_id
+    has_many :registered_at_companies, through: [:registrations, :registered_at]
 
     timestamps()
   end

@@ -80,8 +80,11 @@ defmodule Sig.HR.Payslips.BatchCreator do
     end_date = Date.end_of_month(start_date)
 
     case Registrations.list_by(org,
-           active_in_period: [start_date: start_date, end_date: end_date],
-           sectors_ids: sectors_ids
+           preload: :salaries,
+           filter_by: [
+             sector_id: sectors_ids,
+             active_in_period: [start_date: start_date, end_date: end_date]
+           ]
          ) do
       [] -> {:error, "Não existem registros de funcionários para os setores nesta data"}
       registrations -> {:ok, Map.new(registrations, &{&1.id, &1})}
@@ -279,9 +282,10 @@ defmodule Sig.HR.Payslips.BatchCreator do
     registration_ids = Enum.map(payslips_attrs, & &1.registration_id)
 
     registrations =
-      Registrations.list_by_ids(org, registration_ids,
-        preload: [:individual, :sector, :registered_at],
-        order_by: :individual_name
+      Registrations.list_by(org,
+        order_by: [individual: :name],
+        filter_by: [id: registration_ids],
+        preload: [:individual, :sector, :registered_at]
       )
 
     {:ok, registrations}

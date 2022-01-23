@@ -4,6 +4,7 @@ defmodule Sig.Entities.IndividualsTest do
   alias BrazilianDocuments.Types.CPF
 
   alias Sig.Entities.Entity
+  alias Sig.Entities.Companies.Company
   alias Sig.Entities.Individuals
   alias Sig.Entities.Individuals.Individual
 
@@ -29,6 +30,40 @@ defmodule Sig.Entities.IndividualsTest do
                %Individual{name: "Bugs Bunny"},
                %Individual{name: "Daffy Duck"}
              ] = Individuals.list_individuals(org)
+    end
+
+    test "preloads `active_registered_at_companies`" do
+      org = insert(:org)
+
+      insert(:individual, org: org, name: "Beltrano")
+
+      individual = insert(:individual, org: org, name: "Fulano")
+
+      company = insert(:company, org: org, trade_name: "Active Registration Company")
+
+      _active_registration =
+        insert(:employee_registration,
+          org: org,
+          individual: individual,
+          registered_at: company
+        )
+
+      _inactive_registration =
+        insert(:employee_registration,
+          org: org,
+          individual: individual,
+          admission_date: ~D[2021-06-01],
+          resignation_date: ~D[2022-01-01],
+          resignation_type: :resigned
+        )
+
+      assert [
+               %Individual{name: "Beltrano"},
+               %Individual{
+                 name: "Fulano",
+                 registered_at_companies: [%Company{trade_name: "Active Registration Company"}]
+               }
+             ] = Individuals.list_individuals(org, preload: :active_registered_at_companies)
     end
 
     test "do not list individuals from another org" do
