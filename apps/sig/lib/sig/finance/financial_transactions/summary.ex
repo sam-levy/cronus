@@ -75,7 +75,8 @@ defmodule Sig.Finance.FinancialTransactions.Summary do
       :inner_lateral,
       [payslips: payslip, registrations: registration],
       ca in fragment(
-        "SELECT * FROM employee_company_assignments AS ca WHERE ca.registration_id = ? AND ca.start_date <= ? LIMIT 1",
+        "SELECT * FROM employee_company_assignments AS ca WHERE ca.org_id = ? AND ca.registration_id = ? AND ca.start_date <= ? LIMIT 1",
+        registration.org_id,
         registration.id,
         payslip.start_date
       ),
