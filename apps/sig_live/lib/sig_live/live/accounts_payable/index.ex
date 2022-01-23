@@ -26,7 +26,8 @@ defmodule SigLive.AccountsPayable.Index do
         filters: @filters,
         companies: Entities.list_companies(org, filter: [is_virtual: false]),
         org_bank_accounts:
-          Finance.list_accounts_by(org, where: [is_active: true, is_managed: true])
+          Finance.list_accounts_by(org, where: [is_active: true, is_managed: true]),
+        selected_summary_description: AccountsPayable.Summary.default_description()
       )
 
     {:ok, socket, temporary_assigns: [payables: []]}
@@ -564,6 +565,8 @@ defmodule SigLive.AccountsPayable.Index do
       <div :if={@active_screen == :summary}>
         <AccountsPayable.Summary
           id="financial_transactions_summary"
+          selected_description={@selected_summary_description}
+          select_description="select_summary_description"
           {=@org}
           {=@org_bank_accounts}
           {=@financial_transactions}
@@ -572,6 +575,12 @@ defmodule SigLive.AccountsPayable.Index do
       </div>
     </div>
     """
+  end
+
+  # TODO: Remove handler and state once summary is removed
+  @impl true
+  def handle_info({:selected_summary_description, description}, socket) do
+    {:noreply, assign(socket, selected_summary_description: description)}
   end
 
   defp tab_classes_for(screen, screen) do
