@@ -16,7 +16,7 @@ defmodule SigLive.Individuals.Index do
 
     socket =
       assign(socket,
-        individuals: Entities.list_individuals(org),
+        individuals: Entities.list_individuals(org, preload: :active_registered_at_companies),
         new_individual_modal_open: false
       )
 
@@ -57,7 +57,7 @@ defmodule SigLive.Individuals.Index do
       <table class="w-full bg-white shadow-lg my-7">
         <thead class="top-0">
         <tr class="bg-white">
-          <th colspan="2">
+          <th colspan="3">
             <div class="flex justify-between items-center py-3 px-6">
               <span class="text-gray-500 font-medium tracking-wider">Pessoas</span>
 
@@ -69,6 +69,7 @@ defmodule SigLive.Individuals.Index do
         <tr class="bg-gray-100 uppercase text-xs font-medium text-gray-500 tracking-wider">
           <th class="py-3 px-6 text-left">Nome</th>
           <th class="py-3 px-6 text-left">CPF</th>
+          <th class="py-3 px-6 text-left">Registro Ativo</th>
         </tr>
         </thead>
 
@@ -84,6 +85,10 @@ defmodule SigLive.Individuals.Index do
               <td class="py-3 px-6 text-left select-all">
                 <span>{format_cpf(individual.cpf)}</span>
               </td>
+
+              <td class="py-3 px-6 text-left select-all">
+                <span>{handle_company_names(individual.registered_at_companies)}</span>
+              </td>
             </tr>
           {/for}
         </tbody>
@@ -91,4 +96,8 @@ defmodule SigLive.Individuals.Index do
     </div>
     """
   end
+
+  defp handle_company_names([]), do: ""
+  defp handle_company_names([company]), do: company.trade_name
+  defp handle_company_names([company | others]), do: "#{company.trade_name} + #{Enum.count(others)}"
 end
