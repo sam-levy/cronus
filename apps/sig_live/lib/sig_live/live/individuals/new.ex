@@ -17,8 +17,9 @@ defmodule SigLive.Individuals.New do
 
   alias SigLive.Components.Modal
 
-  prop close, :event, required: true
+  prop close_event, :event, required: true
   prop org, :struct, required: true
+  prop individuals_list_opts, :keyword, default: []
 
   data gender_options, :map, default: Gender.__enums__()
   data cpf, :string, default: nil
@@ -46,12 +47,13 @@ defmodule SigLive.Individuals.New do
 
   @impl true
   def handle_event("save", %{"individual" => individual_params}, socket) do
-    org = socket.assigns.org
+    %{org: org, individuals_list_opts: opts} = socket.assigns
 
     with {:ok, attrs} <- handle_create_params(individual_params),
          {:ok, _individual} <- Entities.create_individual(org, attrs) do
-      Entities.broadcast_individuals(org)
-      send(self(), "individual_created")
+      Entities.broadcast_individuals(org, opts)
+      flash_info("Pessoa adicionada")
+      send(self(), "close_modals")
 
       {:noreply, socket}
     else
@@ -62,7 +64,7 @@ defmodule SigLive.Individuals.New do
   @impl true
   def render(assigns) do
     ~F"""
-    <Modal title="Adicionar Pessoa" {=@close}>
+    <Modal title="Adicionar Pessoa" close={@close_event}>
       {#if is_nil(@changeset)}
 
         <Form for={:validate_cpf} submit="fetch_individual_by_cpf" opts={autocomplete: "off"}>
