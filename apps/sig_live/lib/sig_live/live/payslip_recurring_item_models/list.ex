@@ -92,8 +92,9 @@ defmodule SigLive.PayslipRecurringItemModels.List do
   def render(assigns) do
     ~F"""
     <div>
-      <AppMenu>
-        <AppMenu.Breadcrumb noslash name="Modelos de Items Recorrentes de Holerite" />
+      <AppMenu id="app_menu" {=@org}>
+        <AppMenu.Breadcrumb noslash name="Configurações" />
+        <AppMenu.Breadcrumb name="Modelos de Itens de Holerite" />
       </AppMenu>
 
       <Form
@@ -122,7 +123,7 @@ defmodule SigLive.PayslipRecurringItemModels.List do
             <th colspan="6">
               <div class="flex justify-between items-center py-3 px-6">
                 <span class="text-gray-500 font-medium tracking-wider">
-                  Modelos de Items Recorrentes de Holerite
+                  Modelos de Itens de Holerite
                 </span>
 
                 <ButtonPlus on_click="open_new_item_model_form" />

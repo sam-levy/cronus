@@ -94,8 +94,9 @@ defmodule SigLive.PayslipGroups.List do
   def render(assigns) do
     ~F"""
     <div>
-      <AppMenu>
-        <AppMenu.Breadcrumb noslash name="Holerites" />
+      <AppMenu id="app_menu" {=@org}>
+        <AppMenu.Breadcrumb noslash name="RH" />
+        <AppMenu.Breadcrumb name="Holerites" />
       </AppMenu>
 
       <ConfirmationDialog

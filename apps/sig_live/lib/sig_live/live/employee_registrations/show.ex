@@ -181,8 +181,9 @@ defmodule SigLive.EmployeeRegistrations.Show do
     ~F"""
     <div>
       <div class="flex justify-between items-center">
-        <AppMenu>
-          <AppMenu.Breadcrumb noslash name="Pessoas" path={Routes.sig_individuals_index_path(@socket, :index, @org)} />
+        <AppMenu id="app_menu" {=@org}>
+          <AppMenu.Breadcrumb noslash name="RH" />
+          <AppMenu.Breadcrumb name="Pessoas" path={Routes.sig_individuals_index_path(@socket, :index, @org)} />
           <AppMenu.Breadcrumb name={@individual.name} path={Routes.sig_individuals_show_path(@socket, :show, @org, @individual.entity_id)} />
           <AppMenu.Breadcrumb name={"Registro " <> @registration.registered_at.trade_name} />
         </AppMenu>

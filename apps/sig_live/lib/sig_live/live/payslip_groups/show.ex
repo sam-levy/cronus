@@ -89,8 +89,9 @@ defmodule SigLive.PayslipGroups.Show do
 
     ~F"""
     <div>
-      <AppMenu>
-        <AppMenu.Breadcrumb noslash name="Holerites" path={Routes.sig_payslip_groups_list_path(@socket, :payslip_groups, @org)} />
+      <AppMenu id="app_menu" {=@org}>
+        <AppMenu.Breadcrumb noslash name="RH" />
+        <AppMenu.Breadcrumb name="Holerites" path={Routes.sig_payslip_groups_list_path(@socket, :payslip_groups, @org)} />
         <AppMenu.Breadcrumb name={group_name} />
       </AppMenu>
 

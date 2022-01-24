@@ -515,7 +515,7 @@ defmodule SigLive.AccountsPayable.Index do
     <div>
 
       <div class="flex justify-between items-center">
-        <AppMenu>
+        <AppMenu id="app_menu" {=@org}>
           <AppMenu.Breadcrumb noslash name="Financeiro" />
         </AppMenu>
 

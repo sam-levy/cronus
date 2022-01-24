@@ -59,8 +59,9 @@ defmodule SigLive.PayslipTemplates.Index do
   def render(assigns) do
     ~F"""
     <div>
-      <AppMenu>
-        <AppMenu.Breadcrumb noslash name="Modelos" />
+      <AppMenu id="app_menu" {=@org}>
+        <AppMenu.Breadcrumb noslash name="Configurações" />
+        <AppMenu.Breadcrumb name="Modelos de Holerite" />
       </AppMenu>
 
       <PayslipTemplates.List id="payslip_templates_list" {=@payslip_templates} {=@org} />

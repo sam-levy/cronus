@@ -73,8 +73,9 @@ defmodule SigLive.PayslipCategories.List do
   def render(assigns) do
     ~F"""
     <div>
-      <AppMenu>
-        <AppMenu.Breadcrumb noslash name="Categorias de Itens de Holerite" />
+      <AppMenu id="app_menu" {=@org}>
+        <AppMenu.Breadcrumb noslash name="Configurações" />
+        <AppMenu.Breadcrumb name="Categorias de Itens de Holerite" />
       </AppMenu>
 
       <Form

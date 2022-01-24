@@ -104,8 +104,9 @@ defmodule SigLive.BenefitModels.List do
   def render(assigns) do
     ~F"""
     <div>
-      <AppMenu>
-        <AppMenu.Breadcrumb noslash name="Modelos de Benefícios de Funcionários " />
+      <AppMenu id="app_menu" {=@org}>
+        <AppMenu.Breadcrumb noslash name="Configurações" />
+        <AppMenu.Breadcrumb name="Modelos de Benefícios de Funcionários" />
       </AppMenu>
 
       <Form

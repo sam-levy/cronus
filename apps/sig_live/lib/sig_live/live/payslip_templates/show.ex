@@ -74,8 +74,9 @@ defmodule SigLive.PayslipTemplates.Show do
   def render(assigns) do
     ~F"""
     <div>
-      <AppMenu>
-        <AppMenu.Breadcrumb noslash name="Modelos de Holerites" path={Routes.sig_payslip_templates_index_path(@socket, :payslip_templates, @org)} />
+      <AppMenu id="app_menu" {=@org}>
+        <AppMenu.Breadcrumb noslash name="Configurações" />
+        <AppMenu.Breadcrumb name="Modelos de Holerite" path={Routes.sig_payslip_templates_index_path(@socket, :payslip_templates, @org)} />
         <AppMenu.Breadcrumb name={@payslip_template.name}/>
       </AppMenu>
 

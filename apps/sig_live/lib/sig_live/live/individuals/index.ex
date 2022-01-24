@@ -131,8 +131,9 @@ defmodule SigLive.Individuals.Index do
   def render(assigns) do
     ~F"""
     <div>
-      <AppMenu>
-        <AppMenu.Breadcrumb noslash name="Pessoas" />
+      <AppMenu id="app_menu" {=@org}>
+        <AppMenu.Breadcrumb noslash name="RH" />
+        <AppMenu.Breadcrumb name="Pessoas" />
       </AppMenu>
 
       <New
