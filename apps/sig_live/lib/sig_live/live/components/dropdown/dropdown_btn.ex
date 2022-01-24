@@ -1,6 +1,8 @@
 defmodule SigLive.Components.DropdownBtn do
   use SigLive, :surface_component
 
+  alias SigLive.Components.Dropdown
+
   prop text, :string
   prop disabled, :boolean, default: false
 
@@ -26,21 +28,10 @@ defmodule SigLive.Components.DropdownBtn do
 
         <span :if={@text} class="select-none ml-2">{@text}</span>
       </button>
-      <div
-        :if={!@disabled}
-        class="dropdown-list"
-        x-cloak
-        x-show="isOpen"
-        @click="isOpen = false"
-        x-transition:enter="transition ease-out duration-75"
-        x-transition:enter-start="transform opacity-0 scale-95"
-        x-transition:enter-end="transform opacity-100 scale-100"
-        x-transition:leave="transition ease-in duration-75"
-        x-transition:leave-start="transform opacity-100 scale-100"
-        x-transition:leave-end="transform opacity-0 scale-95"
-      >
+
+      <Dropdown.List :if={!@disabled}>
         <#slot :if={!@disabled} />
-      </div>
+      </Dropdown.List>
     </div>
     """
   end
