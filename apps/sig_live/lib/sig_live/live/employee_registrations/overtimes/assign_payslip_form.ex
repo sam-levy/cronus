@@ -72,7 +72,7 @@ defmodule SigLive.EmployeeRegistrations.Overtimes.AssignPayslipForm do
   def states, do: @form_states
 
   defp payslips_for_select(payslips) do
-    Map.new(payslips, & {format_month(&1.start_date), &1.id})
+    Map.new(payslips, &{format_month(&1.start_date), &1.id})
   end
 
   defp validate_params(%{params: params} = context) do

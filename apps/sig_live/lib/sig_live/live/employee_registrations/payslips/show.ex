@@ -22,9 +22,18 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
   data payslip_form_state, :atom, default: :closed, values!: PayslipForm.states()
   data payslip_item_form_state, :atom, default: :closed, values!: PayslipItemForm.states()
   data outside_item_form_state, :atom, default: :closed, values!: OutsideItemForm.states()
-  data update_item_amount_form_state, :atom, default: :closed, values!: UpdateItemAmountForm.states()
-  data delete_item_confirmation_dialog_state, :atom, default: :closed, values!: ConfirmationDialog.states()
-  data delete_payslip_confirmation_dialog_state, :atom, default: :closed, values!: ConfirmationDialog.states()
+
+  data update_item_amount_form_state, :atom,
+    default: :closed,
+    values!: UpdateItemAmountForm.states()
+
+  data delete_item_confirmation_dialog_state, :atom,
+    default: :closed,
+    values!: ConfirmationDialog.states()
+
+  data delete_payslip_confirmation_dialog_state, :atom,
+    default: :closed,
+    values!: ConfirmationDialog.states()
 
   data item_id, :string, default: nil
   data message, :string, default: nil

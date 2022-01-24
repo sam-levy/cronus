@@ -35,14 +35,21 @@ defmodule SigLive.Router do
       live "/payslip_categories", PayslipCategories.Index, :payslip_categories
       live "/payslip_templates", PayslipTemplates.Index, :payslip_templates
       live "/payslip_templates/:id", PayslipTemplates.Show, :payslip_templates
-      live "/payslip_recurring_item_models", PayslipRecurringItemModels.Index, :payslip_recurring_item_models
+
+      live "/payslip_recurring_item_models",
+           PayslipRecurringItemModels.Index,
+           :payslip_recurring_item_models
+
       live "/payslip_groups", PayslipGroups.List, :payslip_groups
       live "/payslip_groups/:id", PayslipGroups.Show, :payslip_groups
       live "/individuals", Individuals.Index, :index
       live "/individuals/:id", Individuals.Show, :show
       live "/registrations/:registration_id", EmployeeRegistrations.Show, :registration_show
       live "/registrations/:registration_id/payslips", EmployeeRegistrations.Show, :payslips
-      live "/registrations/:registration_id/payslips/:payslip_id", EmployeeRegistrations.Show, :payslip
+
+      live "/registrations/:registration_id/payslips/:payslip_id",
+           EmployeeRegistrations.Show,
+           :payslip
     end
   end
 

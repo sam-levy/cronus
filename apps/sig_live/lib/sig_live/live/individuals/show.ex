@@ -24,7 +24,8 @@ defmodule SigLive.Individuals.Show do
         individual: individual,
         bank_accounts: Finance.list_accounts_by(individual.entity),
         entity_bank_accounts: Finance.list_entity_bank_accounts_by_entity(individual.entity),
-        employee_registrations: HR.list_registrations_by(individual, preload: [:registered_at, :salaries])
+        employee_registrations:
+          HR.list_registrations_by(individual, preload: [:registered_at, :salaries])
       )
 
     {:ok, socket, temporary_assigns: [employee_registrations: []]}

@@ -50,13 +50,23 @@ defmodule SigLive.BenefitModels.List do
   end
 
   @impl true
-  def handle_event("open_enable_benefit_model_confirmation_dialog", %{"benefit_model_id" => id}, socket) do
-    {:noreply, assign(socket, enable_benefit_model_confirmation_dialog_state: :open, benefit_model_id: id)}
+  def handle_event(
+        "open_enable_benefit_model_confirmation_dialog",
+        %{"benefit_model_id" => id},
+        socket
+      ) do
+    {:noreply,
+     assign(socket, enable_benefit_model_confirmation_dialog_state: :open, benefit_model_id: id)}
   end
 
   @impl true
-  def handle_event("open_delete_benefit_model_confirmation_dialog", %{"benefit_model_id" => id}, socket) do
-    {:noreply, assign(socket, delete_benefit_model_confirmation_dialog_state: :open, benefit_model_id: id)}
+  def handle_event(
+        "open_delete_benefit_model_confirmation_dialog",
+        %{"benefit_model_id" => id},
+        socket
+      ) do
+    {:noreply,
+     assign(socket, delete_benefit_model_confirmation_dialog_state: :open, benefit_model_id: id)}
   end
 
   @impl true
@@ -243,7 +253,7 @@ defmodule SigLive.BenefitModels.List do
   end
 
   defp fetch_benefit_model(benefit_models, benefit_model_id) do
-    case Enum.find(benefit_models, & &1.id == benefit_model_id) do
+    case Enum.find(benefit_models, &(&1.id == benefit_model_id)) do
       nil -> {:error, "Modelo não encontrado"}
       benefit_model -> {:ok, benefit_model}
     end

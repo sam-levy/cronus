@@ -44,7 +44,7 @@ defmodule SigLive.AccountsPayable.Summary do
     } = assigns
 
     {:ok,
-    assign(socket,
+     assign(socket,
        org: org,
        select_description: assigns.select_description,
        selected_description: assigns.selected_description,
@@ -75,8 +75,7 @@ defmodule SigLive.AccountsPayable.Summary do
 
   @impl true
   def handle_event("open_details_modal", %{"selected_payable_ids" => ids}, socket) do
-    {:noreply,
-     assign(socket, selected_payable_ids: String.split(ids), details_modal_open: true)}
+    {:noreply, assign(socket, selected_payable_ids: String.split(ids), details_modal_open: true)}
   end
 
   @impl true

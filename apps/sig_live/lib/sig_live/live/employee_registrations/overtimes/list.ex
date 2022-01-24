@@ -12,7 +12,10 @@ defmodule SigLive.EmployeeRegistrations.Overtimes.List do
   prop registration, :struct, required: true
   prop overtimes, :list, required: true
 
-  data delete_confirmation_dialog_state, :atom, default: :closed, values!: ConfirmationDialog.states()
+  data delete_confirmation_dialog_state, :atom,
+    default: :closed,
+    values!: ConfirmationDialog.states()
+
   data assign_payslip_form_state, :atom, default: :closed, values!: AssignPayslipForm.states()
   data form_state, :atom, default: :closed, values!: Form.states()
   data overtime_id, :string, default: nil

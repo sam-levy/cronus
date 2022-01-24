@@ -110,7 +110,9 @@ defmodule SigLive.PayslipCategories.Form do
   def states, do: @form_states
 
   defp get_payslip_category(_org, nil), do: nil
-  defp get_payslip_category(org, payslip_category_id), do: HR.get_payslip_category(org, payslip_category_id)
+
+  defp get_payslip_category(org, payslip_category_id),
+    do: HR.get_payslip_category(org, payslip_category_id)
 
   defp set_changeset(nil), do: HR.create_payslip_category_change(%{entry_type: :credit})
   defp set_changeset(payslip_category), do: HR.update_payslip_category_change(payslip_category)

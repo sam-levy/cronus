@@ -16,7 +16,10 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.List do
   prop payslip_payables, :list, default: []
   prop payment_difference, :struct, default: Money.new(0)
 
-  data delete_confirmation_dialog_state, :atom, default: :closed, values!: ConfirmationDialog.states()
+  data delete_confirmation_dialog_state, :atom,
+    default: :closed,
+    values!: ConfirmationDialog.states()
+
   data form_state, :atom, default: :closed, values!: Form.states()
   data payable_id, :string, default: nil
   data message, :string, default: nil

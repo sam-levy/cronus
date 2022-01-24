@@ -100,7 +100,11 @@ defmodule SigLive.PayslipTemplates.PayslipTemplateItems.PayslipItemForm do
   defp persist(%{validation: {:ok, changeset}} = context) do
     %{payslip_template: payslip_template} = context.socket.assigns
 
-    Map.put(context, :return, HR.create_payslip_template_item(payslip_template, changeset.changes))
+    Map.put(
+      context,
+      :return,
+      HR.create_payslip_template_item(payslip_template, changeset.changes)
+    )
   end
 
   defp handle_return(%{validation: {:error, changeset}, socket: socket}) do

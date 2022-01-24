@@ -15,7 +15,8 @@ defmodule SigLive.PayslipRecurringItemModels.Index do
 
     socket =
       assign(socket,
-      payslip_recurring_item_models: HR.list_payslip_recurring_item_models(org, preload: :category),
+        payslip_recurring_item_models:
+          HR.list_payslip_recurring_item_models(org, preload: :category)
       )
 
     {:ok, socket}
@@ -31,7 +32,7 @@ defmodule SigLive.PayslipRecurringItemModels.Index do
   end
 
   @impl true
-  def handle_info({:updated_payslip_recurring_item_model, %{id: id} =  updated_model}, socket) do
+  def handle_info({:updated_payslip_recurring_item_model, %{id: id} = updated_model}, socket) do
     models = socket.assigns.payslip_recurring_item_models
 
     updated_models =
@@ -49,7 +50,7 @@ defmodule SigLive.PayslipRecurringItemModels.Index do
   def handle_info({:deleted_payslip_recurring_item_model, model}, socket) do
     models = socket.assigns.payslip_recurring_item_models
 
-    updated_models = Enum.reject(models, & &1.id == model.id)
+    updated_models = Enum.reject(models, &(&1.id == model.id))
 
     {:noreply, assign(socket, payslip_recurring_item_models: updated_models)}
   end

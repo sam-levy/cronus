@@ -1,7 +1,7 @@
 defmodule SigLive.Components.DropdownOpts do
   use SigLive, :surface_component
 
-  slot default, required: true
+  slot(default, required: true)
 
   def render(assigns) do
     ~F"""

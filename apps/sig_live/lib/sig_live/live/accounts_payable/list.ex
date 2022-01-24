@@ -15,7 +15,7 @@ defmodule SigLive.AccountsPayable.List do
   prop payables, :list, required: true
   prop payables_amount_sum, :struct, required: true
   prop overdue_at, :date, required: true
-  prop companies,:list, required: true
+  prop companies, :list, required: true
   prop filters, :map, required: true
 
   data message, :string, default: nil

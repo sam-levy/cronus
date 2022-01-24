@@ -15,7 +15,7 @@ defmodule SigLive.PayslipCategories.Index do
 
     socket =
       assign(socket,
-        payslip_categories: HR.list_payslip_categories(org),
+        payslip_categories: HR.list_payslip_categories(org)
       )
 
     {:ok, socket}
@@ -25,13 +25,14 @@ defmodule SigLive.PayslipCategories.Index do
   def handle_info({:new_payslip_category, new_payslip_category}, socket) do
     payslip_categories = socket.assigns.payslip_categories
 
-    updated_payslip_categories = sort_payslip_categories([new_payslip_category | payslip_categories])
+    updated_payslip_categories =
+      sort_payslip_categories([new_payslip_category | payslip_categories])
 
     {:noreply, assign(socket, payslip_categories: updated_payslip_categories)}
   end
 
   @impl true
-  def handle_info({:updated_payslip_category, %{id: id} =  updated_payslip_category}, socket) do
+  def handle_info({:updated_payslip_category, %{id: id} = updated_payslip_category}, socket) do
     payslip_categories = socket.assigns.payslip_categories
 
     updated_payslip_categories =
@@ -49,7 +50,7 @@ defmodule SigLive.PayslipCategories.Index do
   def handle_info({:deleted_payslip_category, payslip_category}, socket) do
     payslip_categories = socket.assigns.payslip_categories
 
-    updated_payslip_categories = Enum.reject(payslip_categories, & &1.id == payslip_category.id)
+    updated_payslip_categories = Enum.reject(payslip_categories, &(&1.id == payslip_category.id))
 
     {:noreply, assign(socket, payslip_categories: updated_payslip_categories)}
   end

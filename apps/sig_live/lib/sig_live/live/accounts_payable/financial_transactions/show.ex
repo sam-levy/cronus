@@ -21,8 +21,9 @@ defmodule SigLive.AccountsPayable.FinancialTransactions.Show do
       |> assign(assigns)
       |> assign(
         payables: Finance.list_payables_by(financial_transaction, preload: [:payslip, :employee]),
-        financial_transaction: Repo.preload(financial_transaction, Finance.default_financial_transaction_preloads())
-        )
+        financial_transaction:
+          Repo.preload(financial_transaction, Finance.default_financial_transaction_preloads())
+      )
 
     {:ok, socket}
   end

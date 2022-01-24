@@ -132,7 +132,6 @@ defmodule SigLive.EmployeeRegistrations.LeavePeriods.Form do
   end
 
   defp handle_return(%{validation: {:error, changeset}, socket: socket}) do
-
     {:noreply, assign(socket, changeset: changeset)}
   end
 

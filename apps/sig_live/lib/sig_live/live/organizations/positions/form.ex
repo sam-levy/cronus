@@ -70,7 +70,9 @@ defmodule SigLive.Organizations.Positions.Form do
   def states, do: @form_states
 
   defp get_org_position(_org, nil), do: nil
-  defp get_org_position(org, org_position_id), do: Organizations.get_org_position(org, org_position_id)
+
+  defp get_org_position(org, org_position_id),
+    do: Organizations.get_org_position(org, org_position_id)
 
   defp set_changeset(nil), do: Organizations.org_position_change()
   defp set_changeset(org_position), do: Organizations.org_position_change(org_position)

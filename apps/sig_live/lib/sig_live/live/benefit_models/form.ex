@@ -113,12 +113,21 @@ defmodule SigLive.BenefitModels.Form do
   defp set_changeset(:show_mode, benefit_model), do: HR.update_benefit_model_change(benefit_model)
 
   defp set_changeset(:edit_mode, benefit_model), do: HR.update_benefit_model_change(benefit_model)
-  defp set_changeset(:edit_amount_mode, benefit_model), do: HR.update_benefit_model_amount_change(benefit_model)
-  defp set_changeset(:disable_mode, benefit_model), do: HR.disable_benefit_model_change(benefit_model)
 
-  defp set_changeset(:edit_mode, benefit_model, params), do: HR.update_benefit_model_change(benefit_model, params)
-  defp set_changeset(:edit_amount_mode, benefit_model, params), do: HR.update_benefit_model_amount_change(benefit_model, params)
-  defp set_changeset(:disable_mode, benefit_model, params), do: HR.disable_benefit_model_change(benefit_model, params)
+  defp set_changeset(:edit_amount_mode, benefit_model),
+    do: HR.update_benefit_model_amount_change(benefit_model)
+
+  defp set_changeset(:disable_mode, benefit_model),
+    do: HR.disable_benefit_model_change(benefit_model)
+
+  defp set_changeset(:edit_mode, benefit_model, params),
+    do: HR.update_benefit_model_change(benefit_model, params)
+
+  defp set_changeset(:edit_amount_mode, benefit_model, params),
+    do: HR.update_benefit_model_amount_change(benefit_model, params)
+
+  defp set_changeset(:disable_mode, benefit_model, params),
+    do: HR.disable_benefit_model_change(benefit_model, params)
 
   defp validate_params(%{form_state: :new_mode} = context) do
     changeset =

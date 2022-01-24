@@ -49,16 +49,22 @@ defmodule SigLive.ViewHelpersTest do
   describe "format_bank_account/1" do
     test "when account has a name" do
       account =
-        insert(:bank_account, routing_number: "104", branch_number: "321", number: "654", name: "CEF Loja Tal")
+        insert(:bank_account,
+          routing_number: "104",
+          branch_number: "321",
+          number: "654",
+          name: "CEF Loja Tal"
+        )
 
-      assert ViewHelpers.format_bank_account(account) == "CEF Loja Tal - 104 - Caixa Econômica Federal - Ag: 321 - Conta: 654"
+      assert ViewHelpers.format_bank_account(account) ==
+               "CEF Loja Tal - 104 - Caixa Econômica Federal - Ag: 321 - Conta: 654"
     end
 
     test "when account name is nil" do
-      account =
-        insert(:bank_account, routing_number: "104", branch_number: "321", number: "654")
+      account = insert(:bank_account, routing_number: "104", branch_number: "321", number: "654")
 
-      assert ViewHelpers.format_bank_account(account) == "104 - Caixa Econômica Federal - Ag: 321 - Conta: 654"
+      assert ViewHelpers.format_bank_account(account) ==
+               "104 - Caixa Econômica Federal - Ag: 321 - Conta: 654"
     end
   end
 
@@ -68,11 +74,17 @@ defmodule SigLive.ViewHelpersTest do
         insert(:bank_account, routing_number: "001", branch_number: "123", number: "456")
 
       account_2 =
-        insert(:bank_account, routing_number: "104", branch_number: "321", number: "654", name: "CEF Loja Tal")
+        insert(:bank_account,
+          routing_number: "104",
+          branch_number: "321",
+          number: "654",
+          name: "CEF Loja Tal"
+        )
 
       assert ViewHelpers.bank_accounts_for_select([account_1, account_2]) == %{
                "001 - Banco do Brasil S.A. - Ag: 123 - Conta: 456" => account_1.id,
-               "CEF Loja Tal - 104 - Caixa Econômica Federal - Ag: 321 - Conta: 654" => account_2.id
+               "CEF Loja Tal - 104 - Caixa Econômica Federal - Ag: 321 - Conta: 654" =>
+                 account_2.id
              }
     end
   end
@@ -193,13 +205,20 @@ defmodule SigLive.ViewHelpersTest do
 
   describe "payslip_categories_for_select/1" do
     test "returns a maps of categories formated for select" do
-     category_1 = insert(:payslip_category, code: "1", description: "SALÁRIO", entry_type: :credit)
-     category_2 = insert(:payslip_category, code: "109", description: "DESC. VALE TRANSPORTE", entry_type: :debit)
+      category_1 =
+        insert(:payslip_category, code: "1", description: "SALÁRIO", entry_type: :credit)
+
+      category_2 =
+        insert(:payslip_category,
+          code: "109",
+          description: "DESC. VALE TRANSPORTE",
+          entry_type: :debit
+        )
 
       assert ViewHelpers.payslip_categories_for_select([category_1, category_2]) == %{
-        "1 - SALÁRIO - Crédito" => category_1.id,
-        "109 - DESC. VALE TRANSPORTE - Débito" => category_2.id
-      }
+               "1 - SALÁRIO - Crédito" => category_1.id,
+               "109 - DESC. VALE TRANSPORTE - Débito" => category_2.id
+             }
     end
 
     test "empty list" do

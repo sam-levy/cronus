@@ -51,9 +51,9 @@ defmodule SigLive.PayslipGroups.Show do
   def handle_info({:deleted_payslip_group, group}, socket) do
     if group.id == socket.assigns.group.id do
       {:noreply,
-        push_redirect(socket,
-          to: Routes.sig_payslip_groups_list_path(socket, :payslip_groups, socket.assigns.org)
-      )}
+       push_redirect(socket,
+         to: Routes.sig_payslip_groups_list_path(socket, :payslip_groups, socket.assigns.org)
+       )}
     else
       {:noreply, socket}
     end

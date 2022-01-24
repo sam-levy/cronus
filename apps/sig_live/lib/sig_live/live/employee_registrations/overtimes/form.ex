@@ -37,7 +37,7 @@ defmodule SigLive.EmployeeRegistrations.Overtimes.Form do
         overtime: overtime,
         changeset: set_changeset(overtime),
         selected_date: selected_date,
-        dates_for_select: build_dates_for_select(selected_date, registration.admission_date),
+        dates_for_select: build_dates_for_select(selected_date, registration.admission_date)
       )
 
     {:ok, socket}

@@ -251,7 +251,10 @@ defmodule SigLive.EmployeeRegistrations.Benefits.Form do
   defp show_field?(_field, :show_mode), do: true
   defp show_field?(_field, _form_state), do: false
 
-  defp show_field?(:benefit_historical_amounts, :show_mode, %{is_from_model: false, benefit_historical_amounts: [_]}) do
+  defp show_field?(:benefit_historical_amounts, :show_mode, %{
+         is_from_model: false,
+         benefit_historical_amounts: [_]
+       }) do
     false
   end
 

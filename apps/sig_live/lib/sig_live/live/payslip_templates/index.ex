@@ -15,7 +15,7 @@ defmodule SigLive.PayslipTemplates.Index do
 
     socket =
       assign(socket,
-        payslip_templates: HR.list_payslip_templates(org),
+        payslip_templates: HR.list_payslip_templates(org)
       )
 
     {:ok, socket}
@@ -31,7 +31,7 @@ defmodule SigLive.PayslipTemplates.Index do
   end
 
   @impl true
-  def handle_info({:updated_payslip_template, %{id: id} =  updated_payslip_template}, socket) do
+  def handle_info({:updated_payslip_template, %{id: id} = updated_payslip_template}, socket) do
     payslip_templates = socket.assigns.payslip_templates
 
     updated_payslip_templates =
@@ -49,7 +49,7 @@ defmodule SigLive.PayslipTemplates.Index do
   def handle_info({:deleted_payslip_template, payslip_template}, socket) do
     payslip_templates = socket.assigns.payslip_templates
 
-    updated_payslip_templates = Enum.reject(payslip_templates, & &1.id == payslip_template.id)
+    updated_payslip_templates = Enum.reject(payslip_templates, &(&1.id == payslip_template.id))
 
     {:noreply, assign(socket, payslip_templates: updated_payslip_templates)}
   end

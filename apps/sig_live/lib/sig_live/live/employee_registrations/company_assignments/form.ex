@@ -33,7 +33,7 @@ defmodule SigLive.EmployeeRegistrations.CompanyAssignments.Form do
       |> assign(
         companies: Entities.list_companies(assigns.org),
         changeset: HR.create_company_assignment_change()
-       )
+      )
 
     {:ok, socket}
   end

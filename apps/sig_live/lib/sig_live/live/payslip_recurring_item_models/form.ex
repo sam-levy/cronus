@@ -62,14 +62,14 @@ defmodule SigLive.PayslipRecurringItemModels.Form do
         {:noreply, assign(socket, changeset: changeset)}
 
       :edit_mode ->
-        changeset = HR.update_payslip_recurring_item_model_change(socket.assigns.item_model, params)
+        changeset =
+          HR.update_payslip_recurring_item_model_change(socket.assigns.item_model, params)
 
         {:noreply, assign(socket, changeset: changeset)}
 
       _ ->
         {:noreply, socket}
     end
-
   end
 
   @impl true
@@ -175,7 +175,7 @@ defmodule SigLive.PayslipRecurringItemModels.Form do
     HR.create_payslip_recurring_item_model_change(%{is_fixed_amount: true})
   end
 
-  defp set_changeset(item_model)do
+  defp set_changeset(item_model) do
     HR.update_payslip_recurring_item_model_change(item_model)
   end
 
@@ -213,7 +213,11 @@ defmodule SigLive.PayslipRecurringItemModels.Form do
   defp persist(%{validation: {:ok, changeset}, form_state: :edit_mode} = context) do
     %{item_model: item_model} = context.socket.assigns
 
-    Map.put(context, :return, HR.update_payslip_recurring_item_model(item_model, changeset.changes))
+    Map.put(
+      context,
+      :return,
+      HR.update_payslip_recurring_item_model(item_model, changeset.changes)
+    )
   end
 
   defp handle_return(%{validation: {:error, changeset}, socket: socket}) do
@@ -261,8 +265,16 @@ defmodule SigLive.PayslipRecurringItemModels.Form do
   defp show_field?(:percentage_target, %{data: %{is_fixed_amount: true}}), do: false
   defp show_field?(:percentage_target, _), do: true
 
-  defp show_field?(:employee_benefit_type_percentage_target, %{changes: %{percentage_target: :employee_benefit}}), do: true
-  defp show_field?(:employee_benefit_type_percentage_target, %{data: %{percentage_target: :employee_benefit}}), do: true
+  defp show_field?(:employee_benefit_type_percentage_target, %{
+         changes: %{percentage_target: :employee_benefit}
+       }),
+       do: true
+
+  defp show_field?(:employee_benefit_type_percentage_target, %{
+         data: %{percentage_target: :employee_benefit}
+       }),
+       do: true
+
   defp show_field?(:employee_benefit_type_percentage_target, _), do: false
 
   defp is_fixed_amount?(%{changes: %{is_fixed_amount: is_fixed_amount}}), do: is_fixed_amount

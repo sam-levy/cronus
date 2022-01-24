@@ -106,9 +106,9 @@ defmodule SigLive.Individuals.Index do
   end
 
   defp apply_filter(
-    {"registered_at_company_entity_id", "active_employees"},
-    %{registered_at_companies: []}
-  ) do
+         {"registered_at_company_entity_id", "active_employees"},
+         %{registered_at_companies: []}
+       ) do
     {:halt, :reject}
   end
 

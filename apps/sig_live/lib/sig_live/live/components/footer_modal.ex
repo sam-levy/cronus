@@ -4,8 +4,8 @@ defmodule SigLive.Components.FooterModal do
   prop close, :event, required: true
   prop title, :string
 
-  slot default, required: true
-  slot title_content
+  slot(default, required: true)
+  slot(title_content)
 
   data is_collapsed, :boolean, default: false
 

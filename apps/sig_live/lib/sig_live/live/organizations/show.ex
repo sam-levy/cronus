@@ -34,7 +34,7 @@ defmodule SigLive.Organizations.Show do
   end
 
   @impl true
-  def handle_info({:updated_org_sector, %{id: id} =  updated_org_sector}, socket) do
+  def handle_info({:updated_org_sector, %{id: id} = updated_org_sector}, socket) do
     org_sectors = socket.assigns.org_sectors
 
     updated_org_sectors =
@@ -52,7 +52,7 @@ defmodule SigLive.Organizations.Show do
   def handle_info({:deleted_org_sector, org_sector}, socket) do
     org_sectors = socket.assigns.org_sectors
 
-    updated_org_sectors = Enum.reject(org_sectors, & &1.id == org_sector.id)
+    updated_org_sectors = Enum.reject(org_sectors, &(&1.id == org_sector.id))
 
     {:noreply, assign(socket, org_sectors: updated_org_sectors)}
   end
@@ -67,7 +67,7 @@ defmodule SigLive.Organizations.Show do
   end
 
   @impl true
-  def handle_info({:updated_org_position, %{id: id} =  updated_org_position}, socket) do
+  def handle_info({:updated_org_position, %{id: id} = updated_org_position}, socket) do
     org_positions = socket.assigns.org_positions
 
     updated_org_positions =
@@ -85,7 +85,7 @@ defmodule SigLive.Organizations.Show do
   def handle_info({:deleted_org_position, org_position}, socket) do
     org_positions = socket.assigns.org_positions
 
-    updated_org_positions = Enum.reject(org_positions, & &1.id == org_position.id)
+    updated_org_positions = Enum.reject(org_positions, &(&1.id == org_position.id))
 
     {:noreply, assign(socket, org_positions: updated_org_positions)}
   end

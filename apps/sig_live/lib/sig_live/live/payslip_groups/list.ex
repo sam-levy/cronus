@@ -39,7 +39,7 @@ defmodule SigLive.PayslipGroups.List do
 
   @impl true
   def handle_info({:deleted_payslip_group, group}, socket) do
-    groups = Enum.reject(socket.assigns.groups, & &1.id == group.id)
+    groups = Enum.reject(socket.assigns.groups, &(&1.id == group.id))
 
     {:noreply, assign(socket, groups: groups)}
   end
@@ -83,7 +83,7 @@ defmodule SigLive.PayslipGroups.List do
   end
 
   defp fetch_group(groups, group_id) do
-    case Enum.find(groups, & &1.id == group_id) do
+    case Enum.find(groups, &(&1.id == group_id)) do
       nil -> {:error, "Grupo não encontrado"}
       group -> {:ok, group}
     end

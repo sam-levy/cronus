@@ -16,10 +16,20 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
   prop recurring_payslip_items, :list, required: true
 
   data payslip_item_form_state, :atom, default: :closed, values!: PayslipItemForm.states()
-  data payslip_item_model_form_state, :atom, default: :closed, values!: PayslipItemModelForm.states()
-  data payslip_template_form_state, :atom, default: :closed, values!: CreateFromPayslipTemplateForm.states()
+
+  data payslip_item_model_form_state, :atom,
+    default: :closed,
+    values!: PayslipItemModelForm.states()
+
+  data payslip_template_form_state, :atom,
+    default: :closed,
+    values!: CreateFromPayslipTemplateForm.states()
+
   data outside_item_form_state, :atom, default: :closed, values!: OutsideItemForm.states()
-  data delete_confirmation_dialog_state, :atom, default: :closed, values!: ConfirmationDialog.states()
+
+  data delete_confirmation_dialog_state, :atom,
+    default: :closed,
+    values!: ConfirmationDialog.states()
 
   data item_id, :string, default: nil
   data message, :string, default: nil
@@ -107,7 +117,7 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
       {:error, message} ->
         flash_info("Falha ao remover o item")
 
-      {:noreply, assign(socket, message: message)}
+        {:noreply, assign(socket, message: message)}
     end
   end
 
@@ -357,19 +367,28 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
   defp assign_items(socket, items) do
     assign(
       socket,
-      recurring_payslip_items: Enum.filter(items, &(&1.type in [:payslip_item, :payslip_item_model])),
+      recurring_payslip_items:
+        Enum.filter(items, &(&1.type in [:payslip_item, :payslip_item_model])),
       recurring_outside_items: Enum.filter(items, &(&1.type == :outside_item))
     )
   end
 
   defp assign_totals(socket) do
-    %{assigns: %{recurring_payslip_items: recurring_payslip_items, recurring_outside_items: recurring_outside_items}} = socket
+    %{
+      assigns: %{
+        recurring_payslip_items: recurring_payslip_items,
+        recurring_outside_items: recurring_outside_items
+      }
+    } = socket
 
     payslip_items_credit_subtotal = Sig.sum_by(:credit, recurring_payslip_items)
     payslip_items_debit_subtotal = Sig.sum_by(:debit, recurring_payslip_items)
 
-    credit_total = Money.add(Sig.sum_by(:credit, recurring_outside_items), payslip_items_credit_subtotal)
-    debit_total = Money.add(Sig.sum_by(:debit, recurring_outside_items), payslip_items_debit_subtotal)
+    credit_total =
+      Money.add(Sig.sum_by(:credit, recurring_outside_items), payslip_items_credit_subtotal)
+
+    debit_total =
+      Money.add(Sig.sum_by(:debit, recurring_outside_items), payslip_items_debit_subtotal)
 
     assign(socket,
       payslip_items_credit_subtotal: payslip_items_credit_subtotal,

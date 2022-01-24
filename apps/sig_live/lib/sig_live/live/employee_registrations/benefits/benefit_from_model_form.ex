@@ -187,11 +187,15 @@ defmodule SigLive.EmployeeRegistrations.Benefits.BenefitFromModelForm do
   defp props_for_checkbox(:is_for_dependent, :new_mode), do: @checkbox_enabled
   defp props_for_checkbox(:is_for_dependent, _form_state), do: @checkbox_disabled
 
-  defp show_field?(:benefit_model_historical_amounts, :show_mode, %{is_from_model: true, benefit_model: %{historical_amounts: [_]}}) do
+  defp show_field?(:benefit_model_historical_amounts, :show_mode, %{
+         is_from_model: true,
+         benefit_model: %{historical_amounts: [_]}
+       }) do
     false
   end
 
-  defp show_field?(:benefit_model_historical_amounts, :show_mode, %{is_from_model: true}), do: true
+  defp show_field?(:benefit_model_historical_amounts, :show_mode, %{is_from_model: true}),
+    do: true
 
   defp show_field?(:benefit_model_historical_amounts, :show_mode, _benefit), do: false
 

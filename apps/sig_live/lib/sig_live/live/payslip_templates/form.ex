@@ -69,7 +69,10 @@ defmodule SigLive.PayslipTemplates.Form do
   def states, do: @form_states
 
   defp get_payslip_template(_org, nil), do: nil
-  defp get_payslip_template(org, payslip_template_id), do: HR.get_payslip_template(org, payslip_template_id)
+
+  defp get_payslip_template(org, payslip_template_id) do
+    HR.get_payslip_template(org, payslip_template_id)
+  end
 
   defp set_changeset(nil), do: HR.create_payslip_template_change()
   defp set_changeset(payslip_template), do: HR.update_payslip_template_change(payslip_template)

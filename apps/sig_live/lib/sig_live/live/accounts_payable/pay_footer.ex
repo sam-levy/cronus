@@ -61,7 +61,8 @@ defmodule SigLive.AccountsPayable.PayFooter do
 
   defp get_check_debit_bank_account_id(selected_paybles) do
     with 1 <- Enum.count(selected_paybles),
-    %{financial_transaction_type: :check, check_debit_bank_account_id: account_id} <- get_single_payable(selected_paybles) do
+         %{financial_transaction_type: :check, check_debit_bank_account_id: account_id} <-
+           get_single_payable(selected_paybles) do
       account_id
     else
       _ -> nil
@@ -78,8 +79,12 @@ defmodule SigLive.AccountsPayable.PayFooter do
 
   @impl true
   def handle_event("save", %{"attrs" => params}, socket) do
-    %{org: org, selected_method: selected_method, selected_payables: selected_payables, current_user: current_user} =
-      socket.assigns
+    %{
+      org: org,
+      selected_method: selected_method,
+      selected_payables: selected_payables,
+      current_user: current_user
+    } = socket.assigns
 
     params =
       params

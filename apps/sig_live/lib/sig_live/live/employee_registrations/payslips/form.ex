@@ -235,7 +235,10 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Form do
   defp set_selected_type(%{data: %{type: nil}}), do: :regular
   defp set_selected_type(%{data: %{type: type}}), do: type
 
-  defp assign_changeset_dates(%{assigns: %{changeset: %{data: %{start_date: nil}}}} = socket, date) do
+  defp assign_changeset_dates(
+         %{assigns: %{changeset: %{data: %{start_date: nil}}}} = socket,
+         date
+       ) do
     changeset =
       socket.assigns.changeset
       |> Ecto.Changeset.put_change(:start_date, Date.beginning_of_month(date))

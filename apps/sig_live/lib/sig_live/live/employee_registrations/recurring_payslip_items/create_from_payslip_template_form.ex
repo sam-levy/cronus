@@ -35,7 +35,8 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.CreateFromPayslipT
 
         {:noreply, socket}
 
-      error -> handle_error(error, socket)
+      error ->
+        handle_error(error, socket)
     end
   end
 

@@ -15,7 +15,7 @@ defmodule SigLive.BenefitModels.Index do
 
     socket =
       assign(socket,
-        benefit_models: HR.list_benefit_models(org),
+        benefit_models: HR.list_benefit_models(org)
       )
 
     {:ok, socket}
@@ -31,7 +31,7 @@ defmodule SigLive.BenefitModels.Index do
   end
 
   @impl true
-  def handle_info({:updated_benefit_model, %{id: id} =  updated_benefit_model}, socket) do
+  def handle_info({:updated_benefit_model, %{id: id} = updated_benefit_model}, socket) do
     benefit_models = socket.assigns.benefit_models
 
     updated_benefit_models =
@@ -49,7 +49,7 @@ defmodule SigLive.BenefitModels.Index do
   def handle_info({:deleted_benefit_model, benefit_model}, socket) do
     benefit_models = socket.assigns.benefit_models
 
-    updated_benefit_models = Enum.reject(benefit_models, & &1.id == benefit_model.id)
+    updated_benefit_models = Enum.reject(benefit_models, &(&1.id == benefit_model.id))
 
     {:noreply, assign(socket, benefit_models: updated_benefit_models)}
   end
