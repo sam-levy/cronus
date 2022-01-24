@@ -3,8 +3,6 @@ defmodule SigLive.Components.AppMenu do
 
   alias Surface.Components.LivePatch
 
-  alias SigLive.Components.Icon
-
   slot default
   prop org, :struct, required: true
 
@@ -23,7 +21,15 @@ defmodule SigLive.Components.AppMenu do
     ~F"""
     <div class="relative z-20" x-data="{ isOpen: false }" @click.away="isOpen = false">
       <div class="p-1 mr-3 hover:bg-gray-300 rounded" @mouseover="isOpen = true">
-        <Icon name="menu" class="text-gray-600" />
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          :class="{ 'rotate-180': isOpen, 'rotate-0': !isOpen }"
+          class="h-6 w-6 text-gray-600 transition-transform duration-300 transform"
+          fill="none"
+          stroke="currentColor"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
       </div>
 
       <div

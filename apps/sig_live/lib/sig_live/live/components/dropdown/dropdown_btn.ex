@@ -41,8 +41,9 @@ defmodule SigLive.Components.DropdownBtn do
 
   @svg_base_class ~w(group-hover:text-light-blue-600 text-light-blue-500)
 
-  defp handle_svg_class(false),
-    do: @svg_base_class ++ ~w(transition-transform duration-200 transform)
+  defp handle_svg_class(false) do
+    @svg_base_class ++ ~w(transition-transform duration-200 transform)
+  end
 
   defp handle_svg_class(true), do: @svg_base_class
 end
