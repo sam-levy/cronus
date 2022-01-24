@@ -97,7 +97,7 @@ defmodule SigLive.PayslipGroups.Show do
       <div class="flex mt-4 divide-x divide-gray-400 divide-opacity-50">
         <div class="w-3/4 pr-5">
           <ShowWithPayables
-            hide_payslip_date={true}
+            hide_payslip_date
             id="payslip_show_with_payables"
             payslip={@selected_payslip}
             payslip_items={@selected_payslip_items}

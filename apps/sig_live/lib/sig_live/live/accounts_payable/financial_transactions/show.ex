@@ -40,10 +40,8 @@ defmodule SigLive.AccountsPayable.FinancialTransactions.Show do
               <div class="text-sm text-gray-500 trucate">
                 {format_bank_account(@financial_transaction.bank_account)}
               </div>
-
             {#match %{type: type} when is_bank_type(type)}
               <div class="text-md text-gray-700">Conta</div>
-
             {#match _}
               <div class="text-md text-gray-700">Dinheiro</div>
           {/case}
@@ -73,7 +71,13 @@ defmodule SigLive.AccountsPayable.FinancialTransactions.Show do
           {#for payable <- @payables}
             <a
               class="py-3 px-4 block hover:bg-gray-100 hover:rounded-lg"
-              href={Routes.sig_employee_registrations_show_path(@socket, :payslip, @org, payable.payslip.registration_id, payable.payslip)}
+              href={Routes.sig_employee_registrations_show_path(
+                @socket,
+                :payslip,
+                @org,
+                payable.payslip.registration_id,
+                payable.payslip
+              )}
               target="_blank"
             >
               <div class="flex items-center space-x-4">

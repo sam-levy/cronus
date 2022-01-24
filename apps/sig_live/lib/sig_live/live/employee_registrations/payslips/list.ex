@@ -40,7 +40,11 @@ defmodule SigLive.EmployeeRegistrations.Payslips.List do
         <div class="mb-2">
           <button :on-click="open_form" class="btn-dark-gray flex-auto">
             <svg class="" width="12" height="20" fill="currentColor">
-              <path fill-rule="evenodd" clip-rule="evenodd" d="M6 5a1 1 0 011 1v3h3a1 1 0 110 2H7v3a1 1 0 11-2 0v-3H2a1 1 0 110-2h3V6a1 1 0 011-1z"/>
+              <path
+                fill-rule="evenodd"
+                clip-rule="evenodd"
+                d="M6 5a1 1 0 011 1v3h3a1 1 0 110 2H7v3a1 1 0 11-2 0v-3H2a1 1 0 110-2h3V6a1 1 0 011-1z"
+              />
             </svg>
 
             <span class="ml-2">Holerite</span>
@@ -63,7 +67,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.List do
                   {format_type(payslip.type)}
                 </div>
 
-                <Icon name="lock_open" :if={!payslip.is_closed} size="4" class="ml-2"/>
+                <Icon name="lock_open" :if={!payslip.is_closed} size="4" class="ml-2" />
               </div>
             </div>
           {/for}

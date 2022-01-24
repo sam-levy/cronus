@@ -98,7 +98,7 @@ defmodule SigLive.EmployeeRegistrations.Benefits.List do
             <th class="py-3 px-6 text-right">Valor</th>
             <th class="py-3 px-6 text-right">Início</th>
             <th class="py-3 px-6 text-right">Término</th>
-            <th class="py-3 px-6 text-right"></th>
+            <th class="py-3 px-6 text-right" />
           </tr>
         </thead>
 
@@ -147,11 +147,7 @@ defmodule SigLive.EmployeeRegistrations.Benefits.List do
                       Alterar Valor
                     </a>
 
-                    <a
-                      :on-click="open_finalize_benefit_form"
-                      phx-value-benefit_id={benefit.id}
-                      class="dropdown-item"
-                    >
+                    <a :on-click="open_finalize_benefit_form" phx-value-benefit_id={benefit.id} class="dropdown-item">
                       Finalizar Benefício
                     </a>
                   </DropdownOpts>

@@ -70,12 +70,12 @@ defmodule SigLive.EmployeeRegistrations.Overtimes.Form do
 
         <Field name={:hours_amount} class="form-field">
           <Label class="form-label">Horas</Label>
-          <TextInput class="form-input"/>
-          <ErrorTag class="form-error-tag"/>
+          <TextInput class="form-input" />
+          <ErrorTag class="form-error-tag" />
         </Field>
 
         <div :if={@form_state != :show_mode} class="flex justify-end">
-          <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Salvando..."}/>
+          <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Salvando..."} />
         </div>
       </Form>
     </Modal>

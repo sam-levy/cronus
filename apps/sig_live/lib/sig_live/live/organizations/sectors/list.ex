@@ -95,7 +95,7 @@ defmodule SigLive.Organizations.Sectors.List do
                   Setores
                 </span>
 
-                <ButtonPlus on_click="open_new_org_sector_form"/>
+                <ButtonPlus on_click="open_new_org_sector_form" />
               </div>
             </th>
           </tr>
@@ -105,7 +105,7 @@ defmodule SigLive.Organizations.Sectors.List do
             class="bg-gray-100 uppercase text-xs font-medium text-gray-500 tracking-wider"
           >
             <th class="py-3 pl-6 text-left">Nome</th>
-            <th class="py-3 px-3 text-left"></th>
+            <th class="py-3 px-3 text-left" />
           </tr>
         </thead>
 
@@ -119,7 +119,6 @@ defmodule SigLive.Organizations.Sectors.List do
               <td class="pr-5 text-right">
                 <DropdownOpts>
                   <a
-
                     :on-click="open_edit_org_sector_form"
                     phx-value-org_sector_id={org_sector.id}
                     class="dropdown-item"

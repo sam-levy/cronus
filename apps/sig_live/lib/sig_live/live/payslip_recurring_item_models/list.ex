@@ -100,7 +100,7 @@ defmodule SigLive.PayslipRecurringItemModels.List do
                   Modelos de Items Recorrentes de Holerite
                 </span>
 
-                <ButtonPlus on_click="open_new_item_model_form"/>
+                <ButtonPlus on_click="open_new_item_model_form" />
               </div>
             </th>
           </tr>
@@ -111,7 +111,7 @@ defmodule SigLive.PayslipRecurringItemModels.List do
             <th class="py-3 px-3 text-left">Descrição</th>
             <th class="py-3 px-3 text-left">Valor</th>
             <th class="py-3 px-3 text-left">Tipo</th>
-            <th class="py-3 text-left"></th>
+            <th class="py-3 text-left" />
           </tr>
         </thead>
 

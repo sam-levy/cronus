@@ -95,11 +95,11 @@ defmodule SigLive.Organizations.Show do
     ~F"""
     <div class="flex gap-4">
       <div class="w-1/2">
-        <Sectors.List id="org_sectors_list" {=@org_sectors} {=@org}/>
+        <Sectors.List id="org_sectors_list" {=@org_sectors} {=@org} />
       </div>
 
       <div class="w-1/2">
-        <Positions.List id="org_positions_list" {=@org_positions} {=@org}/>
+        <Positions.List id="org_positions_list" {=@org_positions} {=@org} />
       </div>
     </div>
     """

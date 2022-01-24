@@ -102,7 +102,7 @@ defmodule SigLive.PayslipTemplates.List do
                   Modelos de Holerite
                 </span>
 
-                <ButtonPlus on_click="open_new_payslip_template_form"/>
+                <ButtonPlus on_click="open_new_payslip_template_form" />
               </div>
             </th>
           </tr>
@@ -112,7 +112,7 @@ defmodule SigLive.PayslipTemplates.List do
             class="bg-gray-100 uppercase text-xs font-medium text-gray-500 tracking-wider"
           >
             <th class="py-3 px-6 text-left">Nome</th>
-            <th class="py-3 text-left"></th>
+            <th class="py-3 text-left" />
           </tr>
         </thead>
 

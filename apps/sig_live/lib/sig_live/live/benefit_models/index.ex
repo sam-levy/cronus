@@ -58,11 +58,7 @@ defmodule SigLive.BenefitModels.Index do
   def render(assigns) do
     ~F"""
     <div>
-      <BenefitModels.List
-        id="benefit_models_list"
-        {=@benefit_models}
-        {=@org}
-      />
+      <BenefitModels.List id="benefit_models_list" {=@benefit_models} {=@org} />
     </div>
     """
   end

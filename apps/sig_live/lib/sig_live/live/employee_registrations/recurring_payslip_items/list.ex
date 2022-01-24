@@ -206,7 +206,7 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
             <th class="py-3 px-6 text-left">Descrição</th>
             <th class="py-3 px-6 text-right">Vencimentos</th>
             <th class="py-3 px-6 text-right">Descontos</th>
-            <th class="py-3 px-6 text-right"></th>
+            <th class="py-3 px-6 text-right" />
           </tr>
         </thead>
 
@@ -243,20 +243,29 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
             </tr>
           {/for}
 
-          <tr :if={@recurring_payslip_items != []} class="border-b italic bg-gray-100 text-sm text-gray-500 tracking-wider">
+          <tr
+            :if={@recurring_payslip_items != []}
+            class="border-b italic bg-gray-100 text-sm text-gray-500 tracking-wider"
+          >
             <td class="py-2 px-6 text-left" colspan="2">Subtotais</td>
             <td class="py-2 px-6 text-right">{format_amount(@payslip_items_credit_subtotal)}</td>
             <td class="py-2 px-6 text-right">{format_amount(@payslip_items_debit_subtotal)}</td>
-            <td></td>
+            <td />
           </tr>
 
-          <tr :if={@recurring_payslip_items != []} class="text-sm bg-gray-100 font-medium text-gray-500 tracking-wider">
+          <tr
+            :if={@recurring_payslip_items != []}
+            class="text-sm bg-gray-100 font-medium text-gray-500 tracking-wider"
+          >
             <td class="py-2 px-6 text-left" colspan="3">Líquido Holerite</td>
             <td class={"py-2", "px-6", "text-right", "text-red-500": Money.negative?(@payslip_total)}>{format_amount(@payslip_total)}</td>
-            <td></td>
+            <td />
           </tr>
 
-          <tr :if={Money.negative?(@payslip_total)} class="text-sm bg-gray-100 font-medium text-red-500 tracking-wider">
+          <tr
+            :if={Money.negative?(@payslip_total)}
+            class="text-sm bg-gray-100 font-medium text-red-500 tracking-wider"
+          >
             <td class="py-2 px-6 text-center" colspan="5">
               O valor líquido do holerite não pode ser negativo. Favor ajustar antes de gerar um holerite.
             </td>
@@ -264,7 +273,7 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
 
           {#for item <- @recurring_outside_items}
             <tr class="border-b hover:bg-gray-50">
-              <td></td>
+              <td />
 
               <td class="py-3 px-6 text-left">
                 {item.description}
@@ -292,13 +301,19 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.List do
             </tr>
           {/for}
 
-          <tr :if={@recurring_outside_items != []} class="text-sm bg-gray-100 font-medium text-gray-500 tracking-wider">
+          <tr
+            :if={@recurring_outside_items != []}
+            class="text-sm bg-gray-100 font-medium text-gray-500 tracking-wider"
+          >
             <td class="py-2 px-6 text-left" colspan="3">Total</td>
             <td class={"py-2", "px-6", "text-right", "text-red-500": Money.negative?(@net_total)}>{format_amount(@net_total)}</td>
-            <td></td>
+            <td />
           </tr>
 
-          <tr :if={Money.negative?(@net_total)} class="text-sm bg-gray-100 font-medium text-red-500 tracking-wider">
+          <tr
+            :if={Money.negative?(@net_total)}
+            class="text-sm bg-gray-100 font-medium text-red-500 tracking-wider"
+          >
             <td class="py-2 px-6 text-center" colspan="5">
               O valor total não pode ser negativo. Favor ajustar antes de gerar um holerite.
             </td>

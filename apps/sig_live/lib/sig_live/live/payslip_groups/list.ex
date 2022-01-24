@@ -121,7 +121,7 @@ defmodule SigLive.PayslipGroups.List do
                   Holerites
                 </span>
 
-                <ButtonPlus on_click="open_form"/>
+                <ButtonPlus on_click="open_form" />
               </div>
             </th>
           </tr>
@@ -132,7 +132,7 @@ defmodule SigLive.PayslipGroups.List do
           >
             <th class="py-3 px-6 text-left">Mês</th>
             <th class="py-3 px-3 text-left">Tipo</th>
-            <th></th>
+            <th />
           </tr>
         </thead>
 

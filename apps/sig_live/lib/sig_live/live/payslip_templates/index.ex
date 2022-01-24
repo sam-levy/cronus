@@ -58,11 +58,7 @@ defmodule SigLive.PayslipTemplates.Index do
   def render(assigns) do
     ~F"""
     <div>
-      <PayslipTemplates.List
-        id="payslip_templates_list"
-        {=@payslip_templates}
-        {=@org}
-      />
+      <PayslipTemplates.List id="payslip_templates_list" {=@payslip_templates} {=@org} />
     </div>
     """
   end

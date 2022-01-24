@@ -129,7 +129,7 @@ defmodule SigLive.AccountsPayable.FinancialTransactionsList do
             <th class="px-3 text-left">Forma</th>
             <th class="px-3 text-left">Conta</th>
             <th class="px-3 text-right">Valor</th>
-            <th class="text-left"></th>
+            <th class="text-left" />
           </tr>
         </thead>
 

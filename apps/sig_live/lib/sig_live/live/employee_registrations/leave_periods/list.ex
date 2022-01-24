@@ -54,7 +54,7 @@ defmodule SigLive.EmployeeRegistrations.LeavePeriods.List do
                   Licenças
                 </span>
 
-                <ButtonPlus on_click="open_new_leave_period_form"/>
+                <ButtonPlus on_click="open_new_leave_period_form" />
               </div>
             </th>
           </tr>
@@ -66,7 +66,7 @@ defmodule SigLive.EmployeeRegistrations.LeavePeriods.List do
             <th class="py-3 px-6 text-left">Tipo</th>
             <th class="py-3 px-6 text-right">Início</th>
             <th class="py-3 px-6 text-right">Término</th>
-            <th class="py-3 px-6 text-right"></th>
+            <th class="py-3 px-6 text-right" />
           </tr>
         </thead>
 
@@ -91,7 +91,11 @@ defmodule SigLive.EmployeeRegistrations.LeavePeriods.List do
 
               <td class="pr-5 text-right">
                 <DropdownOpts>
-                  <a :on-click="open_edit_leave_period_form" phx-value-leave_period_id={leave_period.id} class="dropdown-item">Editar</a>
+                  <a
+                    :on-click="open_edit_leave_period_form"
+                    phx-value-leave_period_id={leave_period.id}
+                    class="dropdown-item"
+                  >Editar</a>
                 </DropdownOpts>
               </td>
             </tr>

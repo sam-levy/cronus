@@ -185,7 +185,7 @@ defmodule SigLive.EmployeeRegistrations.Show do
         <div class="flex flex-row justify-end space-x-4">
           <LivePatch
             to={Routes.sig_employee_registrations_show_path(@socket, :registration_show, @org, @registration)}
-            replace={true}
+            replace
             class={tab_classes_for(:registration_show, @active_screen)}
           >
             Registro
@@ -193,7 +193,7 @@ defmodule SigLive.EmployeeRegistrations.Show do
 
           <LivePatch
             to={Routes.sig_employee_registrations_show_path(@socket, :payslips, @org, @registration)}
-            replace={true}
+            replace
             class={tab_classes_for(:payslips, @active_screen)}
           >
             Holerites
@@ -202,14 +202,23 @@ defmodule SigLive.EmployeeRegistrations.Show do
       </div>
 
       <div :show={@active_screen == :registration_show} class="mt-4">
-        <RecurringPayslipItems.List id="recurring_payslip_items_list" {=@registration} {=@recurring_payslip_items}/>
-        <Overtimes.List id="warning_list" {=@registration} {=@overtimes}/>
-        <Salaries.List id="benefit_list" {=@registration} {=@salaries}/>
-        <CompanyAssignments.List id="company_assignment_list" {=@org} {=@registration} {=@company_assignments}/>
-        <Benefits.List id="salary_list" {=@registration} {=@benefits}/>
-        <Warnings.List id="warning_list" {=@registration} {=@warnings}/>
-        <Suspensions.List id="suspension_list" {=@registration} {=@suspensions}/>
-        <LeavePeriods.List id="leave_period_list" {=@registration} {=@leave_periods}/>
+        <RecurringPayslipItems.List
+          id="recurring_payslip_items_list"
+          {=@registration}
+          {=@recurring_payslip_items}
+        />
+        <Overtimes.List id="warning_list" {=@registration} {=@overtimes} />
+        <Salaries.List id="benefit_list" {=@registration} {=@salaries} />
+        <CompanyAssignments.List
+          id="company_assignment_list"
+          {=@org}
+          {=@registration}
+          {=@company_assignments}
+        />
+        <Benefits.List id="salary_list" {=@registration} {=@benefits} />
+        <Warnings.List id="warning_list" {=@registration} {=@warnings} />
+        <Suspensions.List id="suspension_list" {=@registration} {=@suspensions} />
+        <LeavePeriods.List id="leave_period_list" {=@registration} {=@leave_periods} />
       </div>
 
       <div :show={@active_screen in [:payslip, :payslips]} class="mt-4">

@@ -132,7 +132,7 @@ defmodule SigLive.BenefitModels.List do
                   Modelos de Benefícios de Funcionários
                 </span>
 
-                <ButtonPlus on_click="open_new_benefit_model_form"/>
+                <ButtonPlus on_click="open_new_benefit_model_form" />
               </div>
             </th>
           </tr>
@@ -144,7 +144,7 @@ defmodule SigLive.BenefitModels.List do
             <th class="py-3 px-6 text-left">Descrição</th>
             <th class="py-3 px-3 text-left">Tipo</th>
             <th class="py-3 px-3 text-left">Valor</th>
-            <th class="py-3 text-left"></th>
+            <th class="py-3 text-left" />
           </tr>
         </thead>
 

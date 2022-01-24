@@ -95,7 +95,7 @@ defmodule SigLive.PayslipCategories.List do
                   Categorias de Itens de Holerite
                 </span>
 
-                <ButtonPlus on_click="open_new_payslip_category_form"/>
+                <ButtonPlus on_click="open_new_payslip_category_form" />
               </div>
             </th>
           </tr>
@@ -107,7 +107,7 @@ defmodule SigLive.PayslipCategories.List do
             <th class="py-3 px-3 text-left">Código</th>
             <th class="py-3 px-3 text-left">Descrição</th>
             <th class="py-3 px-3 text-left">Tipo</th>
-            <th class="py-3 px-3 text-left"></th>
+            <th class="py-3 px-3 text-left" />
           </tr>
         </thead>
 

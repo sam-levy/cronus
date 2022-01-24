@@ -99,7 +99,7 @@ defmodule SigLive.BankAccounts.List do
             <th class="py-3 px-3 text-left">Chave PIX</th>
             <th class="py-3 px-3 text-left">Agência</th>
             <th class="py-3 px-3 text-left">Conta</th>
-            <th></th>
+            <th />
           </tr>
         </thead>
 

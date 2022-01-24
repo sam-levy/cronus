@@ -58,11 +58,11 @@ defmodule SigLive.PayslipTemplates.PayslipTemplateItems.PayslipModelItemForm do
             class="form-input"
             options={models_for_select(@payslip_recurring_item_models)}
           />
-          <ErrorTag class="form-error-tag"/>
+          <ErrorTag class="form-error-tag" />
         </Field>
 
         <div class="flex justify-end">
-          <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Salvando..."}/>
+          <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Salvando..."} />
         </div>
       </Form>
     </Modal>

@@ -173,10 +173,7 @@ defmodule SigLive.AccountsPayable.List do
                         </option>
 
                         {#for company <- @companies}
-                          <option
-                            value={company.entity_id}
-                            selected={company.entity_id == @filters.company_entity_id}
-                          >
+                          <option value={company.entity_id} selected={company.entity_id == @filters.company_entity_id}>
                             {company.trade_name}
                           </option>
                         {/for}
@@ -193,14 +190,14 @@ defmodule SigLive.AccountsPayable.List do
               :if={@payables != []}
               class="bg-gray-100 uppercase text-xs font-medium text-gray-500 tracking-wider"
             >
-              <th class="pl-6 pr-3 text-left"></th>
+              <th class="pl-6 pr-3 text-left" />
               <th class="py-3 pr-3 text-left">Vencimento</th>
               <th class="px-3 text-left">Empresa</th>
               <th class="px-3 text-left">Descrição</th>
               <th class="px-3 text-left">Destinatário</th>
               <th class="px-3 text-left">Forma</th>
               <th class="px-3 text-right">Valor</th>
-              <th class="text-left"></th>
+              <th class="text-left" />
             </tr>
           </thead>
 
@@ -211,11 +208,11 @@ defmodule SigLive.AccountsPayable.List do
                   {#if payable.financial_transaction_id == nil}
                     <Field name={payable.id} class="h-6">
                       <Label class="py-3 pl-6 pr-3">
-                        <Checkbox {...checkbox_attrs(@selected_payables, @selected_method, payable)}/>
+                        <Checkbox {...checkbox_attrs(@selected_payables, @selected_method, payable)} />
                       </Label>
                     </Field>
                   {#else}
-                    <div class="h-6"></div>
+                    <div class="h-6" />
                   {/if}
                 </td>
 
@@ -271,7 +268,13 @@ defmodule SigLive.AccountsPayable.List do
                   <DropdownOpts>
                     <a
                       :if={payable.target == :payslip}
-                      href={Routes.sig_employee_registrations_show_path(@socket, :payslip, @org, payable.payslip.registration_id, payable.payslip)}
+                      href={Routes.sig_employee_registrations_show_path(
+                        @socket,
+                        :payslip,
+                        @org,
+                        payable.payslip.registration_id,
+                        payable.payslip
+                      )}
                       target="_blank"
                       class="dropdown-item not-italic"
                     >

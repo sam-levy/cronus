@@ -107,10 +107,7 @@ defmodule SigLive.AccountsPayable.Summary do
                   <Form for={:description_selection} change="select_description">
                     <select name="selected_description" class="form-input py-1">
                       {#for description <- @descriptions}
-                        <option
-                          value={description}
-                          selected={description == @selected_description}
-                        >
+                        <option value={description} selected={description == @selected_description}>
                           {description}
                         </option>
                       {/for}
@@ -120,7 +117,12 @@ defmodule SigLive.AccountsPayable.Summary do
                   {#case @summary}
                     {#match %{total_amount_sum: %Money{amount: 0}}}
                     {#match _}
-                      <a class="btn-blue" style="padding: 0.2em 1em; font-size: 0.8em;" id="copy-to-clipboard" phx-hook="CopyToClipboard">
+                      <a
+                        class="btn-blue"
+                        style="padding: 0.2em 1em; font-size: 0.8em;"
+                        id="copy-to-clipboard"
+                        phx-hook="CopyToClipboard"
+                      >
                         Copiar
                       </a>
                   {/case}
@@ -140,7 +142,7 @@ defmodule SigLive.AccountsPayable.Summary do
                 <th class="py-3 px-3 text-center">Data</th>
                 <th class="py-3 px-3 text-left">Descrição</th>
                 <th class="py-3 px-3 text-left">Titular</th>
-                <th></th>
+                <th />
 
                 {#for %{name: name} <- @org_bank_accounts}
                   <th class="py-3 px-3 text-right">{name}</th>
@@ -151,20 +153,18 @@ defmodule SigLive.AccountsPayable.Summary do
 
         <tbody id="content-to-copy" class="text-gray-600 text-sm font-light">
           {#for clearing_date <- @clearing_dates, %{trade_name: company_trade_name} <- @companies}
-            <tr class=" border-b border-gray-200 hover:bg-gray-50">
+            <tr class="border-b border-gray-200 hover:bg-gray-50">
               <td class="py-1 px-3 text-center">{format_date(clearing_date)}</td>
               <td class="px-3 text-left">{@selected_description}</td>
               <td class="px-3 text-left">{translate(company_trade_name)}</td>
-              <td></td>
+              <td />
 
               {#for %{name: bank_name} <- @org_bank_accounts}
                 <td class="px-3 text-right text-red-600 hover:bg-gray-200">
                   <a
                     class="cursor-pointer hover:underline"
                     :on-click="open_details_modal"
-                    phx-value-selected_payable_ids={
-                      handle_selected_payable_ids(@summary, clearing_date, bank_name, company_trade_name)
-                    }
+                    phx-value-selected_payable_ids={handle_selected_payable_ids(@summary, clearing_date, bank_name, company_trade_name)}
                   >
                     {handle_amount_sum(@summary, clearing_date, bank_name, company_trade_name)}
                   </a>

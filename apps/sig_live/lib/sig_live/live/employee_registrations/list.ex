@@ -47,7 +47,7 @@ defmodule SigLive.EmployeeRegistrations.List do
                   Registros de Trabalho
                 </span>
 
-                <ButtonPlus on_click="open_form"/>
+                <ButtonPlus on_click="open_form" />
               </div>
             </th>
           </tr>
@@ -60,7 +60,7 @@ defmodule SigLive.EmployeeRegistrations.List do
             <th class="py-3 px-3 text-left">Início</th>
             <th class="py-3 px-3 text-left">Término</th>
             <th class="py-3 px-3 text-left">Salário</th>
-            <th></th>
+            <th />
           </tr>
         </thead>
 
