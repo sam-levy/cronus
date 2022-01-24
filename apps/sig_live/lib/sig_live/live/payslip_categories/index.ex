@@ -22,6 +22,11 @@ defmodule SigLive.PayslipCategories.Index do
   end
 
   @impl true
+  def handle_params(_params, _socket, socket) do
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_info({:new_payslip_category, new_payslip_category}, socket) do
     payslip_categories = socket.assigns.payslip_categories
 

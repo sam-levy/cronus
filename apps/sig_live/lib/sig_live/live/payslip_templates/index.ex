@@ -23,6 +23,11 @@ defmodule SigLive.PayslipTemplates.Index do
   end
 
   @impl true
+  def handle_params(_params, _socket, socket) do
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_info({:new_payslip_template, new_payslip_template}, socket) do
     payslip_templates = socket.assigns.payslip_templates
 

@@ -26,6 +26,11 @@ defmodule SigLive.Organizations.Show do
   end
 
   @impl true
+  def handle_params(_params, _socket, socket) do
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_info({:new_org_sector, new_org_sector}, socket) do
     org_sectors = socket.assigns.org_sectors
 

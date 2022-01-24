@@ -23,6 +23,11 @@ defmodule SigLive.PayslipRecurringItemModels.Index do
   end
 
   @impl true
+  def handle_params(_params, _socket, socket) do
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_info({:new_payslip_recurring_item_model, new_model}, socket) do
     models = socket.assigns.payslip_recurring_item_models
 

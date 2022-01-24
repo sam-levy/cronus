@@ -22,6 +22,11 @@ defmodule SigLive.BenefitModels.Index do
   end
 
   @impl true
+  def handle_params(_params, _socket, socket) do
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_info({:new_benefit_model, new_benefit_model}, socket) do
     benefit_models = socket.assigns.benefit_models
 
