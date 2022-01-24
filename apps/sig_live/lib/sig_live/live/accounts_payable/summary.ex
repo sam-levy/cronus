@@ -97,7 +97,7 @@ defmodule SigLive.AccountsPayable.Summary do
         {=@org}
       />
 
-      <table class="w-full bg-white shadow-lg my-5">
+      <table class="w-full bg-white shadow-lg">
         <thead>
           <tr class="bg-white">
             <th colspan="12">

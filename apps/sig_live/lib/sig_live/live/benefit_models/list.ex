@@ -3,6 +3,7 @@ defmodule SigLive.BenefitModels.List do
 
   alias Sig.HR
 
+  alias SigLive.Components.AppMenu
   alias SigLive.Components.ButtonPlus
   alias SigLive.Components.ConfirmationDialog
   alias SigLive.Components.DropdownOpts
@@ -103,6 +104,10 @@ defmodule SigLive.BenefitModels.List do
   def render(assigns) do
     ~F"""
     <div>
+      <AppMenu>
+        <AppMenu.Breadcrumb noslash name="Modelos de Benefícios de Funcionários " />
+      </AppMenu>
+
       <Form
         :if={@form_state != :closed}
         id="benefit_model_form"
@@ -133,7 +138,7 @@ defmodule SigLive.BenefitModels.List do
         error_message={@message}
       />
 
-      <table class="w-full bg-white shadow-lg my-7">
+      <table class="w-full bg-white shadow-lg">
         <thead class="top-0 z-20">
           <tr class="bg-white">
             <th colspan="6">

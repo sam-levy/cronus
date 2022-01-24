@@ -109,7 +109,7 @@ defmodule SigLive.AccountsPayable.FinancialTransactionsList do
         error_message={@message}
       />
 
-      <table class="w-full bg-white shadow-lg my-5">
+      <table class="w-full bg-white shadow-lg">
         <thead class="top-0 z-20">
           <tr class="bg-white">
             <th colspan="6">

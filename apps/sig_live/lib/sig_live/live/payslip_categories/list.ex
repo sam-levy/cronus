@@ -3,6 +3,7 @@ defmodule SigLive.PayslipCategories.List do
 
   alias Sig.HR
 
+  alias SigLive.Components.AppMenu
   alias SigLive.Components.ButtonPlus
   alias SigLive.Components.ConfirmationDialog
   alias SigLive.Components.DropdownOpts
@@ -72,6 +73,10 @@ defmodule SigLive.PayslipCategories.List do
   def render(assigns) do
     ~F"""
     <div>
+      <AppMenu>
+        <AppMenu.Breadcrumb noslash name="Categorias de Itens de Holerite" />
+      </AppMenu>
+
       <Form
         :if={@form_state != :closed}
         id="payslip_category_create_form"
@@ -92,7 +97,7 @@ defmodule SigLive.PayslipCategories.List do
         error_message={@message}
       />
 
-      <table class="w-full bg-white shadow-lg my-7">
+      <table class="w-full bg-white shadow-lg">
         <thead class="top-0 z-20">
           <tr class="bg-white">
             <th colspan="6">

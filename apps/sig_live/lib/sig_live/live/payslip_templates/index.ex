@@ -3,6 +3,7 @@ defmodule SigLive.PayslipTemplates.Index do
 
   alias Sig.HR
 
+  alias SigLive.Components.AppMenu
   alias SigLive.PayslipTemplates
 
   @impl true
@@ -58,6 +59,10 @@ defmodule SigLive.PayslipTemplates.Index do
   def render(assigns) do
     ~F"""
     <div>
+      <AppMenu>
+        <AppMenu.Breadcrumb noslash name="Modelos" />
+      </AppMenu>
+
       <PayslipTemplates.List id="payslip_templates_list" {=@payslip_templates} {=@org} />
     </div>
     """

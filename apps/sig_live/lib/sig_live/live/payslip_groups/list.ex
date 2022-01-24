@@ -5,6 +5,7 @@ defmodule SigLive.PayslipGroups.List do
 
   alias Sig.HR
 
+  alias SigLive.Components.AppMenu
   alias SigLive.Components.ButtonPlus
   alias SigLive.Components.ConfirmationDialog
   alias SigLive.Components.DropdownOpts
@@ -93,6 +94,10 @@ defmodule SigLive.PayslipGroups.List do
   def render(assigns) do
     ~F"""
     <div>
+      <AppMenu>
+        <AppMenu.Breadcrumb noslash name="Holerites" />
+      </AppMenu>
+
       <ConfirmationDialog
         :if={@delete_group_confirmation_dialog_state != :closed}
         close_event="close_modals"
@@ -112,13 +117,13 @@ defmodule SigLive.PayslipGroups.List do
         {=@org}
       />
 
-      <table class="w-full bg-white shadow-lg my-7">
+      <table class="w-full bg-white shadow-lg">
         <thead class="top-0 z-20">
           <tr class="bg-white">
             <th colspan="6">
               <div class="flex justify-between items-center py-3 px-6">
                 <span class="text-gray-500 font-medium tracking-wider">
-                  Holerites
+                  Grupos
                 </span>
 
                 <ButtonPlus on_click="open_form" />
@@ -149,7 +154,7 @@ defmodule SigLive.PayslipGroups.List do
               </td>
 
               <td class="px-3 text-left">
-                {format_type(group.type)}
+                {capitalize_type(group.type)}
               </td>
 
               <td class="pr-5 text-right">

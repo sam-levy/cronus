@@ -6,6 +6,7 @@ defmodule SigLive.AccountsPayable.Index do
   alias Sig.Entities
   alias Sig.Finance
 
+  alias SigLive.Components.AppMenu
   alias SigLive.AccountsPayable
   alias SigLive.Components.DateToggle
 
@@ -511,8 +512,13 @@ defmodule SigLive.AccountsPayable.Index do
   @impl true
   def render(assigns) do
     ~F"""
-    <div class="mt-5">
+    <div>
+
       <div class="flex justify-between items-center">
+        <AppMenu>
+          <AppMenu.Breadcrumb noslash name="Financeiro" />
+        </AppMenu>
+
         <DateToggle
           start_date={@start_date}
           end_date={@end_date}
