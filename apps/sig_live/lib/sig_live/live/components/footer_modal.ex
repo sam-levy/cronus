@@ -4,8 +4,8 @@ defmodule SigLive.Components.FooterModal do
   prop close, :event, required: true
   prop title, :string
 
-  slot(default, required: true)
-  slot(title_content)
+  slot default, required: true
+  slot title_content
 
   data is_collapsed, :boolean, default: false
 
@@ -17,13 +17,7 @@ defmodule SigLive.Components.FooterModal do
   @impl true
   def render(assigns) do
     ~F"""
-    <div
-      style="padding-bottom: 37rem"
-      class="flex justify-center inset-0 overflow-y-auto"
-      aria-labelledby="modal-title"
-      role="dialog"
-      aria-modal="true"
-    >
+    <div style="padding-bottom: 37rem" class="flex justify-center inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
       <div class="fixed bottom-0 z-50 flex items-start justify-center pt-4 px-4 text-center">
         <!-- This element is to trick the browser into centering the modal contents. -->
         <span class="hidden inline-block align-middle" aria-hidden="true">&#8203;</span>
@@ -43,44 +37,18 @@ defmodule SigLive.Components.FooterModal do
                   </h3>
 
                   <div class="flex justify-between items-center">
-                    <div
-                      :on-click="toggle_is_collapsed"
-                      class="ml-4 mr-2 p-1 hover:bg-gray-100 hover:rounded-md cursor-pointer text-gray-500"
-                    >
-                      <svg
-                        :show={!@is_collapsed}
-                        xmlns="http://www.w3.org/2000/svg"
-                        class="h-6 w-6"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
+                    <div :on-click="toggle_is_collapsed" class="ml-4 mr-2 p-1 hover:bg-gray-100 hover:rounded-md cursor-pointer text-gray-500">
+                      <svg :show={!@is_collapsed} xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                       </svg>
 
-                      <svg
-                        :show={@is_collapsed}
-                        xmlns="http://www.w3.org/2000/svg"
-                        class="h-6 w-6"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
+                      <svg :show={@is_collapsed} xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
                       </svg>
                     </div>
 
-                    <div
-                      :on-click={@close}
-                      class="p-1 hover:bg-gray-100 hover:rounded-md cursor-pointer text-gray-500"
-                    >
-                      <svg
-                        class="h-6 w-6"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
+                    <div :on-click={@close} class="p-1 hover:bg-gray-100 hover:rounded-md cursor-pointer text-gray-500">
+                      <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                       </svg>
                     </div>
@@ -88,7 +56,7 @@ defmodule SigLive.Components.FooterModal do
                 </div>
 
                 <div :show={not @is_collapsed} class="mt-6">
-                  <#slot />
+                  <#slot/>
                 </div>
               </div>
             </div>

@@ -106,9 +106,9 @@ defmodule SigLive.Individuals.Index do
   end
 
   defp apply_filter(
-         {"registered_at_company_entity_id", "active_employees"},
-         %{registered_at_companies: []}
-       ) do
+    {"registered_at_company_entity_id", "active_employees"},
+    %{registered_at_companies: []}
+  ) do
     {:halt, :reject}
   end
 
@@ -170,7 +170,7 @@ defmodule SigLive.Individuals.Index do
                     </select>
                   </Form>
 
-                  <ButtonPlus on_click="open_new_individual_modal" />
+                  <ButtonPlus on_click="open_new_individual_modal"/>
                 </div>
               </div>
             </th>
@@ -187,10 +187,7 @@ defmodule SigLive.Individuals.Index do
           {#for individual <- @filtered_individuals}
             <tr class="border-b border-gray-200 hover:bg-gray-50">
               <td class="py-3 px-6 text-left">
-                <LiveRedirect
-                  to={Routes.sig_individuals_show_path(@socket, :show, @org, individual.entity)}
-                  class="hover:underline"
-                >
+                <LiveRedirect to={Routes.sig_individuals_show_path(@socket, :show, @org, individual.entity)} class="hover:underline">
                   {individual.name}
                 </LiveRedirect>
               </td>

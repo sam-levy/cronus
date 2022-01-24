@@ -151,20 +151,20 @@ defmodule SigLive.PayslipGroups.Form do
         submit={handle_submit_event(@verified_registrations)}
         opts={autocomplete: "off"}
       >
-        <Field name={:start_date} class="flex-1">
+        <Field  name={:start_date} class="flex-1">
           <Label class="form-label">Mês</Label>
           <Select
             options={@dates_for_select}
             selected={Date.to_iso8601(@selected_date)}
             class="form-input"
           />
-          <ErrorTag class="form-error-tag" />
+          <ErrorTag class="form-error-tag"/>
         </Field>
 
         <Field name={:type} class="form-field">
           <Label class="form-label">Tipo</Label>
-          <Select options={enum_for_select(PayslipGroupType)} class="form-input" />
-          <ErrorTag class="form-error-tag" />
+          <Select options={enum_for_select(PayslipGroupType)} class="form-input"/>
+          <ErrorTag class="form-error-tag"/>
         </Field>
 
         <label class="form-label">Setores</label>
@@ -188,7 +188,7 @@ defmodule SigLive.PayslipGroups.Form do
         </div>
 
         <div class="flex justify-start items-center mt-3">
-          <Switch is_active={@payments_type != :none} toggle_is_active="handle_payments_type" />
+          <Switch is_active={@payments_type != :none} toggle_is_active="handle_payments_type"/>
 
           <label class="form-side-label ml-2" :on-click="handle_payments_type">
             Criar pagamentos
@@ -206,7 +206,7 @@ defmodule SigLive.PayslipGroups.Form do
               :on-blur="assign_due_date"
               phx-value-field="payment_advance_date"
               value={@due_dates.payment_advance_date}
-            />
+            >
           </div>
 
           <div class="flex-1">
@@ -219,7 +219,7 @@ defmodule SigLive.PayslipGroups.Form do
               :on-blur="assign_due_date"
               phx-value-field="salary_date"
               value={@due_dates.salary_date}
-            />
+            >
           </div>
         </div>
 

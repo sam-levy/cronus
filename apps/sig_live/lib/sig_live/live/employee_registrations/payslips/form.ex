@@ -141,16 +141,16 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Form do
         </div>
 
         <div class="flex form-field space-x-3">
-          <Field name={:start_date} class="flex-1">
+          <Field  name={:start_date} class="flex-1">
             <Label class="form-label">Início do Período</Label>
-            <DateInput {...props_for(:start_date, @form_state)} />
-            <ErrorTag class="form-error-tag" />
+            <DateInput {...props_for(:start_date, @form_state)}/>
+            <ErrorTag class="form-error-tag"/>
           </Field>
 
           <Field name={:end_date} class="flex-1">
             <Label class="form-label">Final do Período</Label>
-            <DateInput {...props_for(:end_date, @form_state)} />
-            <ErrorTag class="form-error-tag" />
+            <DateInput {...props_for(:end_date, @form_state)}/>
+            <ErrorTag class="form-error-tag"/>
           </Field>
         </div>
 
@@ -161,24 +161,21 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Form do
             selected={@selected_type}
             {...props_for(:type, @form_state)}
           />
-          <ErrorTag class="form-error-tag" />
+          <ErrorTag class="form-error-tag"/>
         </Field>
 
         <div :if={@form_state == :new_mode} class="flex justify-start items-center">
-          <Switch is_active={@is_from_model} toggle_is_active="toggle_is_from_model" />
+          <Switch is_active={@is_from_model} toggle_is_active="toggle_is_from_model"/>
 
-          <label class="form-side-label ml-2" :on-click="toggle_is_from_model">
+          <label class="form-side-label ml-2":on-click="toggle_is_from_model">
             Criar a partir do modelo
           </label>
         </div>
 
-        <div
-          :if={@form_state == :new_mode and @is_from_model}
-          class="flex justify-start items-center mt-3"
-        >
-          <Switch is_active={@payments_type != :none} toggle_is_active="handle_payments_type" />
+        <div :if={@form_state == :new_mode and @is_from_model} class="flex justify-start items-center mt-3">
+          <Switch is_active={@payments_type != :none} toggle_is_active="handle_payments_type"/>
 
-          <label class="form-side-label ml-2" :on-click="handle_payments_type">
+          <label class="form-side-label ml-2":on-click="handle_payments_type">
             Criar pagamentos
           </label>
         </div>
@@ -194,7 +191,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Form do
               :on-blur="assign_due_date"
               phx-value-field="payment_advance_date"
               value={@due_dates.payment_advance_date}
-            />
+            >
           </div>
 
           <div class="flex-1">
@@ -207,14 +204,14 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Form do
               :on-blur="assign_due_date"
               phx-value-field="salary_date"
               value={@due_dates.salary_date}
-            />
+            >
           </div>
         </div>
 
         <div :if={@message} class="form-error-tag mb-3">{@message}</div>
 
         <div :if={@form_state != :show_mode} class="flex justify-end">
-          <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Adicionando..."} />
+          <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Adicionando..."}/>
         </div>
       </Form>
     </Modal>
@@ -235,10 +232,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Form do
   defp set_selected_type(%{data: %{type: nil}}), do: :regular
   defp set_selected_type(%{data: %{type: type}}), do: type
 
-  defp assign_changeset_dates(
-         %{assigns: %{changeset: %{data: %{start_date: nil}}}} = socket,
-         date
-       ) do
+  defp assign_changeset_dates(%{assigns: %{changeset: %{data: %{start_date: nil}}}} = socket, date) do
     changeset =
       socket.assigns.changeset
       |> Ecto.Changeset.put_change(:start_date, Date.beginning_of_month(date))

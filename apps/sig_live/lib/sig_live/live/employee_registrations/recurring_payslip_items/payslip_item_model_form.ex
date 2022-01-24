@@ -44,13 +44,13 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.PayslipItemModelFo
             options={recurring_item_model_for_select(@registration.org)}
             class="form-input"
           />
-          <ErrorTag class="form-error-tag" />
+          <ErrorTag class="form-error-tag"/>
         </Field>
 
         <div :if={@message} class="form-error-tag">{@message}</div>
 
         <div class="flex justify-end">
-          <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Salvando..."} />
+          <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Salvando..."}/>
         </div>
       </Form>
     </Modal>

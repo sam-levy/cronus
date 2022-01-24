@@ -66,11 +66,12 @@ defmodule SigLive.Individuals.New do
     ~F"""
     <Modal title="Adicionar Pessoa" close={@close_event}>
       {#if is_nil(@changeset)}
+
         <Form for={:validate_cpf} submit="fetch_individual_by_cpf" opts={autocomplete: "off"}>
           <Field name={:cpf} class="form-field">
             <Label class="form-label">CPF</Label>
-            <TextInput class="form-input" opts={autofocus: true} />
-            <ErrorTag class="form-error-tag" />
+            <TextInput class="form-input" opts={autofocus: true}/>
+            <ErrorTag class="form-error-tag"/>
           </Field>
 
           <blockquote :if={@message} class="text-gray-500 text-sm">
@@ -78,37 +79,36 @@ defmodule SigLive.Individuals.New do
           </blockquote>
 
           <div class="mt-5 flex justify-end">
-            <Submit class="btn-blue" label="Validar" opts={phx_disable_with: "Validando..."} />
+            <Submit class="btn-blue" label="Validar" opts={phx_disable_with: "Validando..."}/>
           </div>
         </Form>
+
       {#else}
+
         <Form for={@changeset} submit="save" opts={autocomplete: "off"}>
           <Field name={:cpf} class="form-field">
             <Label class="form-label">CPF</Label>
-            <TextInput
-              class="form-input-disabled"
-              value={format_cpf_in_changeset(@changeset)}
-              opts={readonly: true}
-            />
-            <ErrorTag class="form-error-tag" />
+            <TextInput class="form-input-disabled" value={format_cpf_in_changeset(@changeset)} opts={readonly: true}/>
+            <ErrorTag class="form-error-tag"/>
           </Field>
 
           <Field name={:name} class="form-field">
             <Label class="form-label">Nome</Label>
-            <TextInput class="form-input" opts={autofocus: true} />
-            <ErrorTag class="form-error-tag" />
+            <TextInput class="form-input" opts={autofocus: true}/>
+            <ErrorTag class="form-error-tag"/>
           </Field>
 
           <Field name={:gender}>
             <Label class="form-label">Sexo</Label>
-            <Select class="form-input" options={@gender_options} prompt="" />
-            <ErrorTag class="form-error-tag" />
+            <Select class="form-input" options={@gender_options} prompt=""/>
+            <ErrorTag class="form-error-tag"/>
           </Field>
 
           <div class="mt-5 flex justify-end">
-            <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Adicionando..."} />
+            <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Adicionando..."}/>
           </div>
         </Form>
+
       {/if}
     </Modal>
     """

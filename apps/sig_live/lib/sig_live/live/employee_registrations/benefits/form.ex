@@ -61,8 +61,8 @@ defmodule SigLive.EmployeeRegistrations.Benefits.Form do
       <Form for={@changeset} submit="save" opts={autocomplete: "off"}>
         <Field name={:start_date} :if={show_field?(:start_date, @form_state)} class="form-field">
           <Label class="form-label">Data de Início</Label>
-          <DateInput {...props_for(:start_date, @form_state)} />
-          <ErrorTag class="form-error-tag" />
+          <DateInput {...props_for(:start_date, @form_state)}/>
+          <ErrorTag class="form-error-tag"/>
         </Field>
 
         <Field name={:benefit_type} :if={show_field?(:benefit_type, @form_state)} class="form-field">
@@ -72,32 +72,25 @@ defmodule SigLive.EmployeeRegistrations.Benefits.Form do
             options={enum_for_select(BenefitType)}
             {...props_for(:benefit_type, @form_state)}
           />
-          <ErrorTag class="form-error-tag" />
+          <ErrorTag class="form-error-tag"/>
         </Field>
 
         <Field name={:benefit_amount} :if={show_field?(:benefit_amount, @form_state)} class="form-field">
           <Label class="form-label">Valor</Label>
-          <TextInput
-            value={format_benefit_amount(@changeset)}
-            {...props_for(:benefit_amount, @form_state)}
-          />
-          <ErrorTag class="form-error-tag" />
+          <TextInput value={format_benefit_amount(@changeset)} {...props_for(:benefit_amount, @form_state)}/>
+          <ErrorTag class="form-error-tag"/>
         </Field>
 
-        <Field
-          name={:benefit_amount_date}
-          :if={show_field?(:benefit_amount_date, @form_state)}
-          class="form-field"
-        >
+        <Field name={:benefit_amount_date} :if={show_field?(:benefit_amount_date, @form_state)} class="form-field">
           <Label class="form-label">Data de Início do Novo Valor</Label>
-          <DateInput {...props_for(:benefit_amount_date, @form_state)} />
-          <ErrorTag class="form-error-tag" />
+          <DateInput {...props_for(:benefit_amount_date, @form_state)}/>
+          <ErrorTag class="form-error-tag"/>
         </Field>
 
         <Field name={:end_date} :if={show_field?(:end_date, @form_state)} class="form-field">
           <Label class="form-label">Data de Término</Label>
-          <DateInput {...props_for(:end_date, @form_state)} />
-          <ErrorTag class="form-error-tag" />
+          <DateInput {...props_for(:end_date, @form_state)}/>
+          <ErrorTag class="form-error-tag"/>
         </Field>
 
         <Field name={:description} :if={show_field?(:description, @form_state)} class="form-field">
@@ -108,24 +101,20 @@ defmodule SigLive.EmployeeRegistrations.Benefits.Form do
               (opcional)
             </span>
           </Label>
-          <TextInput {...props_for(:description, @form_state)} />
-          <ErrorTag class="form-error-tag" />
+          <TextInput {...props_for(:description, @form_state)}/>
+          <ErrorTag class="form-error-tag"/>
         </Field>
 
-        <Field
-          name={:is_for_dependent}
-          :if={show_field?(:is_for_dependent, @form_state)}
-          class="form-checkbox-field"
-        >
-          <Checkbox {...props_for_checkbox(:is_for_dependent, @form_state)} />
+        <Field name={:is_for_dependent} :if={show_field?(:is_for_dependent, @form_state)} class="form-checkbox-field">
+          <Checkbox {...props_for_checkbox(:is_for_dependent, @form_state)}/>
           <Label class="form-side-label">Para Dependente</Label>
-          <ErrorTag class="form-error-tag" />
+          <ErrorTag class="form-error-tag"/>
         </Field>
 
         <div :if={@message} class="form-error-tag mb-3">{@message}</div>
 
         <div :if={show_field?(:submit, @form_state)} class="flex justify-end">
-          <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Salvando..."} />
+          <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Salvando..."}/>
         </div>
       </Form>
 
@@ -251,10 +240,7 @@ defmodule SigLive.EmployeeRegistrations.Benefits.Form do
   defp show_field?(_field, :show_mode), do: true
   defp show_field?(_field, _form_state), do: false
 
-  defp show_field?(:benefit_historical_amounts, :show_mode, %{
-         is_from_model: false,
-         benefit_historical_amounts: [_]
-       }) do
+  defp show_field?(:benefit_historical_amounts, :show_mode, %{is_from_model: false, benefit_historical_amounts: [_]}) do
     false
   end
 

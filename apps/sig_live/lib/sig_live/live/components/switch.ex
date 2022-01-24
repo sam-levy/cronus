@@ -9,7 +9,7 @@ defmodule SigLive.Components.Switch do
     <div class="flex flex-col justify-center items-center">
       <div class="flex justify-center items-center">
         <div class={container_class(@is_active)} :on-click={@toggle_is_active}>
-          <div class={switch_class(@is_active)} :on-click={@toggle_is_active} />
+          <div class={switch_class(@is_active)} :on-click={@toggle_is_active}></div>
         </div>
       </div>
     </div>

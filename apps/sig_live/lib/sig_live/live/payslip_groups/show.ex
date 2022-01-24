@@ -51,9 +51,9 @@ defmodule SigLive.PayslipGroups.Show do
   def handle_info({:deleted_payslip_group, group}, socket) do
     if group.id == socket.assigns.group.id do
       {:noreply,
-       push_redirect(socket,
-         to: Routes.sig_payslip_groups_list_path(socket, :payslip_groups, socket.assigns.org)
-       )}
+        push_redirect(socket,
+          to: Routes.sig_payslip_groups_list_path(socket, :payslip_groups, socket.assigns.org)
+      )}
     else
       {:noreply, socket}
     end
@@ -97,7 +97,7 @@ defmodule SigLive.PayslipGroups.Show do
       <div class="flex mt-4 divide-x divide-gray-400 divide-opacity-50">
         <div class="w-3/4 pr-5">
           <ShowWithPayables
-            hide_payslip_date
+            hide_payslip_date={true}
             id="payslip_show_with_payables"
             payslip={@selected_payslip}
             payslip_items={@selected_payslip_items}

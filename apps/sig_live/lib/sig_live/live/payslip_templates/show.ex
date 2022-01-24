@@ -12,9 +12,9 @@ defmodule SigLive.PayslipTemplates.Show do
     case HR.fetch_payslip_template(org, payslip_template_id) do
       {:error, :not_found} ->
         {:ok,
-         push_redirect(socket,
-           to: Routes.sig_payslip_templates_index_path(socket, :payslip_templates, org)
-         )}
+        push_redirect(socket,
+          to: Routes.sig_payslip_templates_index_path(socket, :payslip_templates, org)
+        )}
 
       {:ok, payslip_template} ->
         if connected?(socket) do
@@ -60,10 +60,9 @@ defmodule SigLive.PayslipTemplates.Show do
   def handle_info({:deleted_payslip_template, deleted_payslip_template}, socket) do
     if deleted_payslip_template.id == socket.assigns.payslip_template.id do
       {:noreply,
-       push_redirect(socket,
-         to:
-           Routes.sig_payslip_templates_index_path(socket, :payslip_templates, socket.assigns.org)
-       )}
+        push_redirect(socket,
+          to: Routes.sig_payslip_templates_index_path(socket, :payslip_templates, socket.assigns.org)
+      )}
     else
       {:noreply, socket}
     end

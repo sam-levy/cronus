@@ -54,7 +54,7 @@ defmodule SigLive.EmployeeRegistrations.Suspensions.List do
                   Suspensões
                 </span>
 
-                <ButtonPlus on_click="open_new_suspension_form" />
+                <ButtonPlus on_click="open_new_suspension_form"/>
               </div>
             </th>
           </tr>
@@ -66,7 +66,7 @@ defmodule SigLive.EmployeeRegistrations.Suspensions.List do
             <th class="py-3 px-6 text-left">Motivo</th>
             <th class="py-3 px-6 text-right">Início</th>
             <th class="py-3 px-6 text-right">Término</th>
-            <th class="py-3 px-6 text-right" />
+            <th class="py-3 px-6 text-right"></th>
           </tr>
         </thead>
 
@@ -91,11 +91,7 @@ defmodule SigLive.EmployeeRegistrations.Suspensions.List do
 
               <td class="pr-5 text-right">
                 <DropdownOpts>
-                  <a
-                    :on-click="open_edit_suspension_form"
-                    phx-value-suspension_id={suspension.id}
-                    class="dropdown-item"
-                  >Editar</a>
+                  <a :on-click="open_edit_suspension_form" phx-value-suspension_id={suspension.id} class="dropdown-item">Editar</a>
                 </DropdownOpts>
               </td>
             </tr>

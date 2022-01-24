@@ -59,26 +59,26 @@ defmodule SigLive.BenefitModels.Form do
       <Form for={@changeset} submit="save" opts={autocomplete: "off"}>
         <Field name={:description} :if={show_field?(:description, @form_state)} class="form-field">
           <Label class="form-label">Descrição</Label>
-          <TextInput {...props_for(:description, @form_state)} />
-          <ErrorTag class="form-error-tag" />
+          <TextInput {...props_for(:description, @form_state)}/>
+          <ErrorTag class="form-error-tag"/>
         </Field>
 
         <Field name={:type} :if={show_field?(:type, @form_state)} class="form-field">
           <Label class="form-label">Tipo</Label>
-          <Select options={enum_for_select(BenefitType)} prompt="" {...props_for(:type, @form_state)} />
-          <ErrorTag class="form-error-tag" />
+          <Select options={enum_for_select(BenefitType)} prompt="" {...props_for(:type, @form_state)}/>
+          <ErrorTag class="form-error-tag"/>
         </Field>
 
         <Field name={:amount} :if={show_field?(:amount, @form_state)} class="form-field">
           <Label class="form-label">Valor</Label>
-          <TextInput value={format_benefit_model_amount(@changeset)} {...props_for(:amount, @form_state)} />
-          <ErrorTag class="form-error-tag" />
+          <TextInput value={format_benefit_model_amount(@changeset)} {...props_for(:amount, @form_state)}/>
+          <ErrorTag class="form-error-tag"/>
         </Field>
 
         <Field name={:amount_date} :if={show_field?(:amount_date, @form_state)} class="form-field">
           <Label class="form-label">Data de Início do Valor</Label>
-          <DateInput {...props_for(:amount_date, @form_state)} />
-          <ErrorTag class="form-error-tag" />
+          <DateInput {...props_for(:amount_date, @form_state)}/>
+          <ErrorTag class="form-error-tag"/>
         </Field>
 
         <HistoricalAmounts
@@ -86,18 +86,14 @@ defmodule SigLive.BenefitModels.Form do
           historical_amounts={@benefit_model.historical_amounts}
         />
 
-        <Field
-          name={:disabled_at}
-          :if={show_field?(:disabled_at, @form_state, @benefit_model)}
-          class="form-field"
-        >
+        <Field name={:disabled_at} :if={show_field?(:disabled_at, @form_state, @benefit_model)} class="form-field">
           <Label class="form-label">Data de Desativação</Label>
-          <DateInput {...props_for(:disabled_at, @form_state)} />
-          <ErrorTag class="form-error-tag" />
+          <DateInput {...props_for(:disabled_at, @form_state)}/>
+          <ErrorTag class="form-error-tag"/>
         </Field>
 
         <div :if={show_field?(:submit, @form_state)} class="flex justify-end">
-          <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Salvando..."} />
+          <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Salvando..."}/>
         </div>
       </Form>
     </Modal>
@@ -113,21 +109,12 @@ defmodule SigLive.BenefitModels.Form do
   defp set_changeset(:show_mode, benefit_model), do: HR.update_benefit_model_change(benefit_model)
 
   defp set_changeset(:edit_mode, benefit_model), do: HR.update_benefit_model_change(benefit_model)
+  defp set_changeset(:edit_amount_mode, benefit_model), do: HR.update_benefit_model_amount_change(benefit_model)
+  defp set_changeset(:disable_mode, benefit_model), do: HR.disable_benefit_model_change(benefit_model)
 
-  defp set_changeset(:edit_amount_mode, benefit_model),
-    do: HR.update_benefit_model_amount_change(benefit_model)
-
-  defp set_changeset(:disable_mode, benefit_model),
-    do: HR.disable_benefit_model_change(benefit_model)
-
-  defp set_changeset(:edit_mode, benefit_model, params),
-    do: HR.update_benefit_model_change(benefit_model, params)
-
-  defp set_changeset(:edit_amount_mode, benefit_model, params),
-    do: HR.update_benefit_model_amount_change(benefit_model, params)
-
-  defp set_changeset(:disable_mode, benefit_model, params),
-    do: HR.disable_benefit_model_change(benefit_model, params)
+  defp set_changeset(:edit_mode, benefit_model, params), do: HR.update_benefit_model_change(benefit_model, params)
+  defp set_changeset(:edit_amount_mode, benefit_model, params), do: HR.update_benefit_model_amount_change(benefit_model, params)
+  defp set_changeset(:disable_mode, benefit_model, params), do: HR.disable_benefit_model_change(benefit_model, params)
 
   defp validate_params(%{form_state: :new_mode} = context) do
     changeset =

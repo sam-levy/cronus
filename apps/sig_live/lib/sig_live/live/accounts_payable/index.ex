@@ -112,16 +112,11 @@ defmodule SigLive.AccountsPayable.Index do
     socket
   end
 
-  defp handle_subscriptions(
-         %{assigns: %{live_action: :summary, assigns_built_for: %{financial_transactions: _}}} =
-           socket
-       ) do
+  defp handle_subscriptions(%{assigns: %{live_action: :summary, assigns_built_for: %{financial_transactions: _}}} = socket) do
     socket
   end
 
-  defp handle_subscriptions(
-         %{assigns: %{live_action: :summary, assigns_built_for: %{summary: _}}} = socket
-       ) do
+  defp handle_subscriptions(%{assigns: %{live_action: :summary, assigns_built_for: %{summary: _}}} = socket) do
     socket
   end
 
@@ -196,10 +191,9 @@ defmodule SigLive.AccountsPayable.Index do
          %{
            assigns: %{
              live_action: :financial_transactions,
-             assigns_built_for:
-               %{
-                 summary: %{start_date: start_date, end_date: end_date}
-               } = assigns_built_for,
+             assigns_built_for: %{
+               summary: %{start_date: start_date, end_date: end_date}
+             } = assigns_built_for,
              start_date: start_date,
              end_date: end_date
            }
@@ -253,10 +247,9 @@ defmodule SigLive.AccountsPayable.Index do
          %{
            assigns: %{
              live_action: :summary,
-             assigns_built_for:
-               %{
-                 financial_transactions: %{start_date: start_date, end_date: end_date}
-               } = assigns_built_for,
+             assigns_built_for: %{
+               financial_transactions: %{start_date: start_date, end_date: end_date}
+             } = assigns_built_for,
              start_date: start_date,
              end_date: end_date
            }

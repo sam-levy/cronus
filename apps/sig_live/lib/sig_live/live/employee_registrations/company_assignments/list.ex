@@ -84,7 +84,7 @@ defmodule SigLive.EmployeeRegistrations.CompanyAssignments.List do
                   Designações
                 </span>
 
-                <ButtonPlus on_click="open_new_company_assignment_form" />
+                <ButtonPlus on_click="open_new_company_assignment_form"/>
               </div>
             </th>
           </tr>
@@ -95,14 +95,17 @@ defmodule SigLive.EmployeeRegistrations.CompanyAssignments.List do
           >
             <th class="py-3 pl-6 pr-3 text-left">Empresa</th>
             <th class="py-3 px-3 text-right">Início</th>
-            <th class="py-3 px-3 text-right" />
+            <th class="py-3 px-3 text-right"></th>
           </tr>
         </thead>
 
         <tbody class="text-gray-600 text-sm font-light">
           {#for company_assignment <- @company_assignments}
             <tr class="border-b border-gray-200 hover:bg-gray-50">
-              <td phx-value-company_assignment_id={company_assignment.id} class="py-3 pl-6 pr-3 text-left">
+              <td
+                phx-value-company_assignment_id={company_assignment.id}
+                class="py-3 pl-6 pr-3 text-left"
+              >
                 {company_assignment.assigned_company.trade_name}
               </td>
 

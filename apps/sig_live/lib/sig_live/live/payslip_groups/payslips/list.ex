@@ -59,7 +59,7 @@ defmodule SigLive.PayslipGroups.Payslips.List do
               </div>
             </div>
 
-            <Icon name="lock_open" :if={!payslip.is_closed} size="4" class="ml-2" />
+            <Icon name="lock_open" :if={!payslip.is_closed} size="4" class="ml-2"/>
           </div>
         {#else}
           <div class="text-gray-400 text-center tracking-wider">Não há holerites</div>

@@ -70,14 +70,14 @@ defmodule SigLive.PayslipCategories.Form do
       <Form for={@changeset} submit="save" change="form_change" opts={autocomplete: "off"}>
         <Field name={:code} class="form-field">
           <Label class="form-label">Código</Label>
-          <TextInput class="form-input" />
-          <ErrorTag class="form-error-tag" />
+          <TextInput class="form-input"/>
+          <ErrorTag class="form-error-tag"/>
         </Field>
 
         <Field name={:description} class="form-field">
           <Label class="form-label">Descrição</Label>
-          <TextInput class="form-input" />
-          <ErrorTag class="form-error-tag" />
+          <TextInput class="form-input"/>
+          <ErrorTag class="form-error-tag"/>
         </Field>
 
         <Field name={:entry_type} class="form-field flex gap-5">
@@ -92,15 +92,15 @@ defmodule SigLive.PayslipCategories.Form do
 
         <Field :if={show?(@changeset)} name={:is_payment_advance} class="form-field mt-3">
           <div class="flex items-center">
-            <Checkbox class="form-checkbox" />
+            <Checkbox class="form-checkbox"/>
             <Label class="form-side-label">É Adiantamento de Salário</Label>
           </div>
 
-          <ErrorTag class="form-error-tag block" />
+          <ErrorTag class="form-error-tag block"/>
         </Field>
 
         <div class="flex justify-end">
-          <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Salvando..."} />
+          <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Salvando..."}/>
         </div>
       </Form>
     </Modal>
@@ -110,9 +110,7 @@ defmodule SigLive.PayslipCategories.Form do
   def states, do: @form_states
 
   defp get_payslip_category(_org, nil), do: nil
-
-  defp get_payslip_category(org, payslip_category_id),
-    do: HR.get_payslip_category(org, payslip_category_id)
+  defp get_payslip_category(org, payslip_category_id), do: HR.get_payslip_category(org, payslip_category_id)
 
   defp set_changeset(nil), do: HR.create_payslip_category_change(%{entry_type: :credit})
   defp set_changeset(payslip_category), do: HR.update_payslip_category_change(payslip_category)

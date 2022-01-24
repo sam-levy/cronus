@@ -12,10 +12,7 @@ defmodule SigLive.EmployeeRegistrations.Overtimes.List do
   prop registration, :struct, required: true
   prop overtimes, :list, required: true
 
-  data delete_confirmation_dialog_state, :atom,
-    default: :closed,
-    values!: ConfirmationDialog.states()
-
+  data delete_confirmation_dialog_state, :atom, default: :closed, values!: ConfirmationDialog.states()
   data assign_payslip_form_state, :atom, default: :closed, values!: AssignPayslipForm.states()
   data form_state, :atom, default: :closed, values!: Form.states()
   data overtime_id, :string, default: nil
@@ -146,7 +143,7 @@ defmodule SigLive.EmployeeRegistrations.Overtimes.List do
                   Horas Extras
                 </span>
 
-                <ButtonPlus on_click="open_new_overtime_form" />
+                <ButtonPlus on_click="open_new_overtime_form"/>
               </div>
             </th>
           </tr>
@@ -158,7 +155,7 @@ defmodule SigLive.EmployeeRegistrations.Overtimes.List do
             <th class="py-3 px-6 text-left">Data</th>
             <th class="py-3 px-6 text-left">Horas</th>
             <th class="py-3 px-6 text-left">Holerite</th>
-            <th class="py-3 px-6 text-right" />
+            <th class="py-3 px-6 text-right"></th>
           </tr>
         </thead>
 
@@ -222,7 +219,7 @@ defmodule SigLive.EmployeeRegistrations.Overtimes.List do
           <tr :if={@overtimes != []} class="text-sm bg-gray-100 font-medium text-gray-500 tracking-wider">
             <td class="py-2 px-6 text-left">Horas extras em aberto</td>
             <td class="py-2 px-6 text-left">{@hours_sum}</td>
-            <td colspan="2" />
+            <td colspan="2"></td>
           </tr>
         </tbody>
       </table>

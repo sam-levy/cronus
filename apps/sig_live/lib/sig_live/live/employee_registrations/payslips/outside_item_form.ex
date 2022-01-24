@@ -47,8 +47,8 @@ defmodule SigLive.EmployeeRegistrations.Payslips.OutsideItemForm do
       <Form for={@changeset} change="form_change" submit="save" opts={autocomplete: "off"}>
         <Field name={:description} class="form-field">
           <Label class="form-label">Descrição</Label>
-          <TextInput class="form-input" />
-          <ErrorTag class="form-error-tag" />
+          <TextInput class="form-input"/>
+          <ErrorTag class="form-error-tag"/>
         </Field>
 
         <Field name={:entry_type} class="form-field flex space-x-3">
@@ -63,23 +63,23 @@ defmodule SigLive.EmployeeRegistrations.Payslips.OutsideItemForm do
 
         <Field name={:amount} class="form-field">
           <Label class="form-label">Valor</Label>
-          <TextInput value={format_amount(@changeset)} class="form-input" />
-          <ErrorTag class="form-error-tag" />
+          <TextInput value={format_amount(@changeset)} class="form-input"/>
+          <ErrorTag class="form-error-tag"/>
         </Field>
 
         <Field :if={show?(@changeset)} name={:is_payment_advance} class="form-field">
           <div class="flex items-center">
-            <Checkbox class="form-checkbox" />
+            <Checkbox class="form-checkbox"/>
             <Label class="form-side-label">É Adiantamento de Salário</Label>
           </div>
 
-          <ErrorTag class="form-error-tag block" />
+          <ErrorTag class="form-error-tag block"/>
         </Field>
 
         <div :if={@message} class="form-error-tag">{@message}</div>
 
         <div class="flex justify-end">
-          <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Salvando..."} />
+          <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Salvando..."}/>
         </div>
       </Form>
     </Modal>

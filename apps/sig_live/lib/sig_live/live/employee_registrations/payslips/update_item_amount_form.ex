@@ -58,14 +58,14 @@ defmodule SigLive.EmployeeRegistrations.Payslips.UpdateItemAmountForm do
       <Form for={@changeset} submit="save" opts={autocomplete: "off"}>
         <Field name={:amount} class="form-field">
           <Label class="form-label">Valor</Label>
-          <TextInput value={format_amount(@changeset)} class="form-input" />
-          <ErrorTag class="form-error-tag" />
+          <TextInput value={format_amount(@changeset)} class="form-input"/>
+          <ErrorTag class="form-error-tag"/>
         </Field>
 
         <div :if={@message} class="form-error-tag">{@message}</div>
 
         <div class="flex justify-end">
-          <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Salvando..."} />
+          <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Salvando..."}/>
         </div>
       </Form>
     </Modal>

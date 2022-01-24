@@ -62,14 +62,14 @@ defmodule SigLive.PayslipRecurringItemModels.Form do
         {:noreply, assign(socket, changeset: changeset)}
 
       :edit_mode ->
-        changeset =
-          HR.update_payslip_recurring_item_model_change(socket.assigns.item_model, params)
+        changeset = HR.update_payslip_recurring_item_model_change(socket.assigns.item_model, params)
 
         {:noreply, assign(socket, changeset: changeset)}
 
       _ ->
         {:noreply, socket}
     end
+
   end
 
   @impl true
@@ -79,8 +79,8 @@ defmodule SigLive.PayslipRecurringItemModels.Form do
       <Form for={@changeset} change="form_change" submit="save" opts={autocomplete: "off"}>
         <Field name={:description} class="form-field">
           <Label class="form-label">Nome</Label>
-          <TextInput {...props_for(:description, @form_state)} />
-          <ErrorTag class="form-error-tag" />
+          <TextInput {...props_for(:description, @form_state)}/>
+          <ErrorTag class="form-error-tag"/>
         </Field>
 
         <Field name={:category_id} class="form-field">
@@ -90,7 +90,7 @@ defmodule SigLive.PayslipRecurringItemModels.Form do
             options={payslip_categories_for_select(@categories)}
             {...props_for(:category_id, @form_state)}
           />
-          <ErrorTag class="form-error-tag" />
+          <ErrorTag class="form-error-tag"/>
         </Field>
 
         <Field name={:is_fixed_amount} class="form-field flex gap-6">
@@ -111,14 +111,14 @@ defmodule SigLive.PayslipRecurringItemModels.Form do
               checked={is_fixed_amount?(@changeset) == false}
               {...radio_props_for(:is_fixed_amount, @form_state)}
             />
-            Valor Variável
+             Valor Variável
           </label>
         </Field>
 
         <Field :if={show_field?(:amount, @changeset)} name={:amount} class="form-field">
           <Label class="form-label">Valor</Label>
-          <TextInput {...props_for(:amount, @form_state)} />
-          <ErrorTag class="form-error-tag" />
+          <TextInput {...props_for(:amount, @form_state)}/>
+          <ErrorTag class="form-error-tag"/>
         </Field>
 
         <Field
@@ -132,13 +132,13 @@ defmodule SigLive.PayslipRecurringItemModels.Form do
             options={enum_for_select(PercentageTarget)}
             {...props_for(:percentage_target, @form_state)}
           />
-          <ErrorTag class="form-error-tag" />
+          <ErrorTag class="form-error-tag"/>
         </Field>
 
         <Field :if={show_field?(:percentage, @changeset)} name={:percentage} class="form-field">
           <Label class="form-label">Percentual</Label>
-          <TextInput {...props_for(:percentage, @form_state)} />
-          <ErrorTag class="form-error-tag" />
+          <TextInput {...props_for(:percentage, @form_state)}/>
+          <ErrorTag class="form-error-tag"/>
         </Field>
 
         <Field
@@ -152,11 +152,11 @@ defmodule SigLive.PayslipRecurringItemModels.Form do
             options={enum_for_select(BenefitType)}
             {...props_for(:employee_benefit_type_percentage_target, @form_state)}
           />
-          <ErrorTag class="form-error-tag" />
+          <ErrorTag class="form-error-tag"/>
         </Field>
 
         <div :if={@form_state != :show_mode} class="flex justify-end">
-          <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Salvando..."} />
+          <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Salvando..."}/>
         </div>
       </Form>
     </Modal>
@@ -175,7 +175,7 @@ defmodule SigLive.PayslipRecurringItemModels.Form do
     HR.create_payslip_recurring_item_model_change(%{is_fixed_amount: true})
   end
 
-  defp set_changeset(item_model) do
+  defp set_changeset(item_model)do
     HR.update_payslip_recurring_item_model_change(item_model)
   end
 
@@ -213,11 +213,7 @@ defmodule SigLive.PayslipRecurringItemModels.Form do
   defp persist(%{validation: {:ok, changeset}, form_state: :edit_mode} = context) do
     %{item_model: item_model} = context.socket.assigns
 
-    Map.put(
-      context,
-      :return,
-      HR.update_payslip_recurring_item_model(item_model, changeset.changes)
-    )
+    Map.put(context, :return, HR.update_payslip_recurring_item_model(item_model, changeset.changes))
   end
 
   defp handle_return(%{validation: {:error, changeset}, socket: socket}) do
@@ -265,16 +261,8 @@ defmodule SigLive.PayslipRecurringItemModels.Form do
   defp show_field?(:percentage_target, %{data: %{is_fixed_amount: true}}), do: false
   defp show_field?(:percentage_target, _), do: true
 
-  defp show_field?(:employee_benefit_type_percentage_target, %{
-         changes: %{percentage_target: :employee_benefit}
-       }),
-       do: true
-
-  defp show_field?(:employee_benefit_type_percentage_target, %{
-         data: %{percentage_target: :employee_benefit}
-       }),
-       do: true
-
+  defp show_field?(:employee_benefit_type_percentage_target, %{changes: %{percentage_target: :employee_benefit}}), do: true
+  defp show_field?(:employee_benefit_type_percentage_target, %{data: %{percentage_target: :employee_benefit}}), do: true
   defp show_field?(:employee_benefit_type_percentage_target, _), do: false
 
   defp is_fixed_amount?(%{changes: %{is_fixed_amount: is_fixed_amount}}), do: is_fixed_amount

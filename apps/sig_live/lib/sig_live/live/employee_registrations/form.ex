@@ -66,27 +66,20 @@ defmodule SigLive.EmployeeRegistrations.Form do
       <Form for={@changeset} submit="save" opts={autocomplete: "off"}>
         <Field name={:admission_date}>
           <Label class="form-label">Data de Contratação</Label>
-          <DateInput {...props_for(:admission_date, @form_state)} />
-          <ErrorTag class="form-error-tag" />
+          <DateInput {...props_for(:admission_date, @form_state)}/>
+          <ErrorTag class="form-error-tag"/>
         </Field>
 
         <Field :if={@form_state == :new_mode} name={:salary_amount} class="form-field">
           <Label class="form-label">Salário Base</Label>
-          <TextInput
-            value={format_salary_amount(@changeset)}
-            {...props_for(:salary_ammount, @form_state)}
-          />
-          <ErrorTag class="form-error-tag" />
+          <TextInput value={format_salary_amount(@changeset)} {...props_for(:salary_ammount, @form_state)} />
+          <ErrorTag class="form-error-tag"/>
         </Field>
 
         <Field name={:registered_at_id} class="form-field">
           <Label class="form-label">Empresa de Registro</Label>
-          <Select
-            prompt=""
-            options={companies_for_select(@real_companies)}
-            {...props_for(:registered_at_id, @form_state)}
-          />
-          <ErrorTag class="form-error-tag" />
+          <Select prompt="" options={companies_for_select(@real_companies)} {...props_for(:registered_at_id, @form_state)} />
+          <ErrorTag class="form-error-tag"/>
         </Field>
 
         <Field name={:assigned_company_entity_id} class="form-field">
@@ -94,38 +87,26 @@ defmodule SigLive.EmployeeRegistrations.Form do
             Empresa onde irá trabalhar
             <span class="form-label-complement">(opcional)</span>
           </Label>
-          <Select
-            prompt=""
-            options={companies_for_select(@companies)}
-            {...props_for(:assigned_company_entity_id, @form_state)}
-          />
-          <ErrorTag class="form-error-tag" />
+          <Select prompt="" options={companies_for_select(@companies)} {...props_for(:assigned_company_entity_id, @form_state)} />
+          <ErrorTag class="form-error-tag"/>
         </Field>
 
         <Field name={:sector_id} class="form-field">
           <Label class="form-label">Setor</Label>
-          <Select
-            prompt=""
-            options={id_by_name_for_select(@sectors)}
-            {...props_for(:sector_id, @form_state)}
-          />
-          <ErrorTag class="form-error-tag" />
+          <Select prompt=""  options={id_by_name_for_select(@sectors)} {...props_for(:sector_id, @form_state)}/>
+          <ErrorTag class="form-error-tag"/>
         </Field>
 
         <Field name={:position_id} class="form-field">
           <Label class="form-label">Cargo</Label>
-          <Select
-            prompt=""
-            options={id_by_name_for_select(@positions)}
-            {...props_for(:position_id, @form_state)}
-          />
-          <ErrorTag class="form-error-tag" />
+          <Select prompt="" options={id_by_name_for_select(@positions)} {...props_for(:position_id, @form_state)}/>
+          <ErrorTag class="form-error-tag"/>
         </Field>
 
         <div :if={@message} class="form-error-tag">{@message}</div>
 
         <div class="flex justify-end">
-          <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Adicionando..."} />
+          <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Adicionando..."}/>
         </div>
       </Form>
     </Modal>

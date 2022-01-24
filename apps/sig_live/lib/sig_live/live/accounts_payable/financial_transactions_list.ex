@@ -28,18 +28,14 @@ defmodule SigLive.AccountsPayable.FinancialTransactionsList do
 
   @impl true
   def handle_event("open_financial_transaction_show", %{"financial_transaction_id" => id}, socket) do
-    ft = Enum.find(socket.assigns.financial_transactions, &(&1.id == id))
+    ft = Enum.find(socket.assigns.financial_transactions, & &1.id == id)
 
     {:noreply, assign(socket, selected_financial_transaction: ft, show_open: true)}
   end
 
   @impl true
-  def handle_event(
-        "open_clear_financial_transaction_form",
-        %{"financial_transaction_id" => id},
-        socket
-      ) do
-    ft = Enum.find(socket.assigns.financial_transactions, &(&1.id == id))
+  def handle_event("open_clear_financial_transaction_form", %{"financial_transaction_id" => id}, socket) do
+    ft = Enum.find(socket.assigns.financial_transactions, & &1.id == id)
 
     {:noreply, assign(socket, selected_financial_transaction: ft, clear_form_open: true)}
   end
@@ -57,8 +53,7 @@ defmodule SigLive.AccountsPayable.FinancialTransactionsList do
     } = socket.assigns
 
     with {:ok, financial_transaction} <- fetch_financial_transaction(financial_transactions, id),
-         {:ok, financial_transaction} <-
-           Finance.delete_financial_transaction(financial_transaction) do
+         {:ok, financial_transaction} <- Finance.delete_financial_transaction(financial_transaction) do
       Finance.broadcast_deleted_financial_transaction(financial_transaction)
       flash_info("Transação removida")
 
@@ -134,7 +129,7 @@ defmodule SigLive.AccountsPayable.FinancialTransactionsList do
             <th class="px-3 text-left">Forma</th>
             <th class="px-3 text-left">Conta</th>
             <th class="px-3 text-right">Valor</th>
-            <th class="text-left" />
+            <th class="text-left"></th>
           </tr>
         </thead>
 

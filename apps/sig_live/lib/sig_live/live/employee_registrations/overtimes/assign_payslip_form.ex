@@ -57,12 +57,12 @@ defmodule SigLive.EmployeeRegistrations.Overtimes.AssignPayslipForm do
       <Form for={@changeset} submit="save" opts={autocomplete: "off"}>
         <Field name={:payslip_id} class="form-field">
           <Label class="form-label">Holerite</Label>
-          <Select options={payslips_for_select(@payslips)} class="form-input" />
-          <ErrorTag class="form-error-tag" />
+          <Select options={payslips_for_select(@payslips)} class="form-input"/>
+          <ErrorTag class="form-error-tag"/>
         </Field>
 
         <div class="flex justify-end">
-          <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Salvando..."} />
+          <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Salvando..."}/>
         </div>
       </Form>
     </Modal>
@@ -72,7 +72,7 @@ defmodule SigLive.EmployeeRegistrations.Overtimes.AssignPayslipForm do
   def states, do: @form_states
 
   defp payslips_for_select(payslips) do
-    Map.new(payslips, &{format_month(&1.start_date), &1.id})
+    Map.new(payslips, & {format_month(&1.start_date), &1.id})
   end
 
   defp validate_params(%{params: params} = context) do

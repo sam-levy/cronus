@@ -54,7 +54,7 @@ defmodule SigLive.EmployeeRegistrations.Warnings.List do
                   Advertências
                 </span>
 
-                <ButtonPlus on_click="open_new_warning_form" />
+                <ButtonPlus on_click="open_new_warning_form"/>
               </div>
             </th>
           </tr>
@@ -65,7 +65,7 @@ defmodule SigLive.EmployeeRegistrations.Warnings.List do
           >
             <th class="py-3 px-6 text-left">Motivo</th>
             <th class="py-3 px-6 text-left">Data</th>
-            <th class="py-3 px-6 text-right" />
+            <th class="py-3 px-6 text-right"></th>
           </tr>
         </thead>
 

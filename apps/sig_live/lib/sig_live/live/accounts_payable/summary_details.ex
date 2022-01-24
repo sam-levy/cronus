@@ -32,7 +32,10 @@ defmodule SigLive.AccountsPayable.SummaryDetails do
       <div class="space-y-6 divide-y divide-gray-300">
         <ul role="list" class="bg-gray-50 rounded-lg divide-y divide-gray-200">
           {#for payable <- @payables}
-            <a class="py-3 px-4 block hover:bg-gray-100 hover:rounded-lg" target="_blank">
+            <a
+              class="py-3 px-4 block hover:bg-gray-100 hover:rounded-lg"
+              target="_blank"
+            >
               <div class="flex items-center space-x-4">
                 <div class="flex-1 min-w-0">
                   <p class="text-sm font-medium text-gray-900 truncate">

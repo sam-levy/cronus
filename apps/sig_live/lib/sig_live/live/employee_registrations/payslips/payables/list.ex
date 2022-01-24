@@ -16,10 +16,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.List do
   prop payslip_payables, :list, default: []
   prop payment_difference, :struct, default: Money.new(0)
 
-  data delete_confirmation_dialog_state, :atom,
-    default: :closed,
-    values!: ConfirmationDialog.states()
-
+  data delete_confirmation_dialog_state, :atom, default: :closed, values!: ConfirmationDialog.states()
   data form_state, :atom, default: :closed, values!: Form.states()
   data payable_id, :string, default: nil
   data message, :string, default: nil
@@ -154,7 +151,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.List do
   @impl true
   def render(%{payslip: nil} = assigns) do
     ~F"""
-    <div />
+    <div></div>
     """
   end
 
@@ -194,7 +191,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.List do
                   Pagamentos
                 </span>
 
-                <ButtonPlus on_click="open_new_payable_form" />
+                <ButtonPlus on_click="open_new_payable_form"/>
               </div>
             </th>
           </tr>
@@ -206,7 +203,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.List do
             <th class="py-3 px-6 text-left">Vencimento</th>
             <th class="py-3 px-6 text-left">Descrição</th>
             <th class="py-3 px-6 text-right">Valor</th>
-            <th class="py-3 px-6 text-right" />
+            <th class="py-3 px-6 text-right"></th>
           </tr>
         </thead>
 
@@ -284,9 +281,11 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.List do
                     </a>
 
                     <a
-                      :if={!payable.financial_transaction_id and
+                      :if={
+                        !payable.financial_transaction_id and
                         !payable.authorized_by_id and
-                        !payable.payslip_payable.is_auto_adjustable_amount}
+                        !payable.payslip_payable.is_auto_adjustable_amount
+                      }
                       :on-click="set_as_auto_adjustable_amount"
                       phx-value-payable_id={payable.id}
                       class="dropdown-item"
@@ -332,7 +331,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.List do
           >
             <td class="py-2 px-6 text-left" colspan="2">Diferença</td>
             <td class="py-2 px-6 text-right">{format_amount(@payment_difference)}</td>
-            <td />
+            <td></td>
           </tr>
         </tbody>
       </table>

@@ -54,12 +54,12 @@ defmodule SigLive.PayslipTemplates.Form do
       <Form for={@changeset} submit="save" opts={autocomplete: "off"}>
         <Field name={:name} class="form-field">
           <Label class="form-label">Nome</Label>
-          <TextInput class="form-input" />
-          <ErrorTag class="form-error-tag" />
+          <TextInput class="form-input"/>
+          <ErrorTag class="form-error-tag"/>
         </Field>
 
         <div class="flex justify-end">
-          <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Salvando..."} />
+          <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Salvando..."}/>
         </div>
       </Form>
     </Modal>
@@ -69,10 +69,7 @@ defmodule SigLive.PayslipTemplates.Form do
   def states, do: @form_states
 
   defp get_payslip_template(_org, nil), do: nil
-
-  defp get_payslip_template(org, payslip_template_id) do
-    HR.get_payslip_template(org, payslip_template_id)
-  end
+  defp get_payslip_template(org, payslip_template_id), do: HR.get_payslip_template(org, payslip_template_id)
 
   defp set_changeset(nil), do: HR.create_payslip_template_change()
   defp set_changeset(payslip_template), do: HR.update_payslip_template_change(payslip_template)

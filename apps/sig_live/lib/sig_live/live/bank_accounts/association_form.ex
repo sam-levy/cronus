@@ -87,6 +87,7 @@ defmodule SigLive.BankAccounts.AssociationForm do
     ~F"""
     <Modal title={handle_title(@form_state)} close={@close_event}>
       {#if is_nil(@changeset)}
+
         <Form for={:fetch_entity} submit="fetch_entity_by_document" opts={autocomplete: "off"}>
           <Field name={:document} class="form-field">
             <Label class="form-label">
@@ -94,8 +95,8 @@ defmodule SigLive.BankAccounts.AssociationForm do
               <span class="form-label-complement">(CPF ou CNPJ)</span>
             </Label>
 
-            <TextInput value={format_document(@document)} class="form-input" opts={autofocus: true} />
-            <ErrorTag class="form-error-tag" />
+            <TextInput value={format_document(@document)} class="form-input" opts={autofocus: true}/>
+            <ErrorTag class="form-error-tag"/>
           </Field>
 
           <blockquote :if={@message} class="text-gray-500 text-sm">
@@ -107,14 +108,16 @@ defmodule SigLive.BankAccounts.AssociationForm do
               <a :show={@message} :on-click="clear" class="cursor-pointer text-blue-600 text-sm font-medium">Limpar</a>
             </div>
 
-            <Submit class="btn-blue" label="Buscar" opts={phx_disable_with: "Buscando..."} />
+            <Submit class="btn-blue" label="Buscar" opts={phx_disable_with: "Buscando..."}/>
           </div>
         </Form>
+
       {#elseif @changeset && @form_state == :new_mode}
+
         <Form for={@changeset} submit="save" opts={autocomplete: "off"}>
           <Field name={:account_holder_name} class="form-field">
             <Label class="form-label">Titular da Conta</Label>
-            <TextInput value={@account_holder_name} {...props_for(:account_holder_name, @form_state)} />
+            <TextInput value={@account_holder_name} {...props_for(:account_holder_name, @form_state)}/>
           </Field>
 
           <Field name={:bank_account_id} class="form-field">
@@ -124,7 +127,7 @@ defmodule SigLive.BankAccounts.AssociationForm do
               options={bank_accounts_for_select(@accounts)}
               {...props_for(:bank_account_id, @form_state)}
             />
-            <ErrorTag class="form-error-tag" />
+            <ErrorTag class="form-error-tag"/>
           </Field>
 
           <Field name={:relationship_with_holder} class="form-field">
@@ -134,32 +137,34 @@ defmodule SigLive.BankAccounts.AssociationForm do
               options={@entities_relationships}
               {...props_for(:relationship_with_holder, @form_state)}
             />
-            <ErrorTag class="form-error-tag" />
+            <ErrorTag class="form-error-tag"/>
           </Field>
 
           <Field name={:is_primary} class="form-checkbox-field">
-            <Checkbox {...props_for_checkbox({:is_primary, @changeset.data}, @form_state)} />
+            <Checkbox {...props_for_checkbox({:is_primary, @changeset.data}, @form_state)}/>
             <Label class="form-side-label">Conta Principal</Label>
-            <ErrorTag class="form-error-tag" />
+            <ErrorTag class="form-error-tag"/>
           </Field>
 
           <Field name={:is_joint_account_holder} class="form-checkbox-field">
-            <Checkbox {...props_for_checkbox(:is_joint_account_holder, @form_state)} />
+            <Checkbox {...props_for_checkbox(:is_joint_account_holder, @form_state)}/>
             <Label class="form-side-label">Titular da Conta Conjunta</Label>
-            <ErrorTag class="form-error-tag" />
+            <ErrorTag class="form-error-tag"/>
           </Field>
 
           <div :if={@message} class="form-error-tag">{@message}</div>
 
           <div class="flex justify-end">
-            <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Adicionando..."} />
+            <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Adicionando..."}/>
           </div>
         </Form>
+
       {#else}
+
         <Form for={@changeset} submit="save" opts={autocomplete: "off"}>
           <Field name={:account_holder_name} class="form-field">
             <Label class="form-label">Titular da Conta</Label>
-            <TextInput value={@account_holder_name} {...props_for(:account_holder_name, @form_state)} />
+            <TextInput value={@account_holder_name} {...props_for(:account_holder_name, @form_state)}/>
           </Field>
 
           <Field name={:relationship_with_holder} class="form-field">
@@ -168,13 +173,13 @@ defmodule SigLive.BankAccounts.AssociationForm do
               options={@entities_relationships}
               {...props_for(:relationship_with_holder, @form_state)}
             />
-            <ErrorTag class="form-error-tag" />
+            <ErrorTag class="form-error-tag"/>
           </Field>
 
           <Field name={:is_joint_account_holder} class="form-checkbox-field">
-            <Checkbox {...props_for_checkbox(:is_joint_account_holder, @form_state)} />
+            <Checkbox {...props_for_checkbox(:is_joint_account_holder, @form_state)}/>
             <Label class="form-side-label">Titular da Conta Conjunta</Label>
-            <ErrorTag class="form-error-tag" />
+            <ErrorTag class="form-error-tag"/>
           </Field>
 
           <Field name={:routing_number}>
@@ -184,7 +189,7 @@ defmodule SigLive.BankAccounts.AssociationForm do
               options={bank_for_select(@changeset.data.bank_account.routing_number)}
               {...props_for(:routing_number, @form_state)}
             />
-            <ErrorTag class="form-error-tag" />
+            <ErrorTag class="form-error-tag"/>
           </Field>
 
           <Field name={:branch_number} class="form-field">
@@ -192,11 +197,8 @@ defmodule SigLive.BankAccounts.AssociationForm do
               Número da Agência
               <span class="form-label-complement">(com dígito)</span>
             </Label>
-            <TextInput
-              value={@changeset.data.bank_account.branch_number}
-              {...props_for(:branch_number, @form_state)}
-            />
-            <ErrorTag class="form-error-tag" />
+            <TextInput value={@changeset.data.bank_account.branch_number} {...props_for(:branch_number, @form_state)}/>
+            <ErrorTag class="form-error-tag"/>
           </Field>
 
           <Field name={:number} class="form-field">
@@ -204,8 +206,8 @@ defmodule SigLive.BankAccounts.AssociationForm do
               Número da Conta
               <span class="form-label-complement">(com dígito)</span>
             </Label>
-            <TextInput value={@changeset.data.bank_account.number} {...props_for(:number, @form_state)} />
-            <ErrorTag class="form-error-tag" />
+            <TextInput value={@changeset.data.bank_account.number} {...props_for(:number, @form_state)}/>
+            <ErrorTag class="form-error-tag"/>
           </Field>
 
           <Field name={:type} class="form-field">
@@ -215,25 +217,26 @@ defmodule SigLive.BankAccounts.AssociationForm do
               options={enum_for_select(BankAccountType)}
               {...props_for(:type, @form_state)}
             />
-            <ErrorTag class="form-error-tag" />
+            <ErrorTag class="form-error-tag"/>
           </Field>
 
           <Field name={:pix_key} class="form-field">
             <Label class="form-label">Chave PIX</Label>
-            <TextInput value={@changeset.data.bank_account.pix_key} {...props_for(:pix_key, @form_state)} />
-            <ErrorTag class="form-error-tag" />
+            <TextInput value={@changeset.data.bank_account.pix_key} {...props_for(:pix_key, @form_state)}/>
+            <ErrorTag class="form-error-tag"/>
           </Field>
 
           <Field name={:is_primary} class="form-checkbox-field">
-            <Checkbox {...props_for_checkbox({:is_primary, @changeset.data}, @form_state)} />
+            <Checkbox {...props_for_checkbox({:is_primary, @changeset.data}, @form_state)}/>
             <Label class="form-side-label">Conta Principal</Label>
-            <ErrorTag class="form-error-tag" />
+            <ErrorTag class="form-error-tag"/>
           </Field>
 
           <div :if={@form_state != :show_mode} class="flex justify-end">
-            <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Adicionando..."} />
+            <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Adicionando..."}/>
           </div>
         </Form>
+
       {/if}
     </Modal>
     """
