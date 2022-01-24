@@ -58,11 +58,11 @@ defmodule SigLive.PayslipTemplates.PayslipTemplateItems.PayslipModelItemForm do
             class="form-input"
             options={models_for_select(@payslip_recurring_item_models)}
           />
-          <ErrorTag class="form-error-tag"/>
+          <ErrorTag class="form-error-tag" />
         </Field>
 
         <div class="flex justify-end">
-          <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Salvando..."}/>
+          <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Salvando..."} />
         </div>
       </Form>
     </Modal>
@@ -89,7 +89,11 @@ defmodule SigLive.PayslipTemplates.PayslipTemplateItems.PayslipModelItemForm do
   defp persist(%{validation: {:ok, changeset}} = context) do
     %{payslip_template: payslip_template} = context.socket.assigns
 
-    Map.put(context, :return, HR.create_payslip_template_model_item(payslip_template, changeset.changes))
+    Map.put(
+      context,
+      :return,
+      HR.create_payslip_template_model_item(payslip_template, changeset.changes)
+    )
   end
 
   defp handle_return(%{validation: {:error, changeset}, socket: socket}) do

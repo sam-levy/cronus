@@ -50,13 +50,23 @@ defmodule SigLive.BenefitModels.List do
   end
 
   @impl true
-  def handle_event("open_enable_benefit_model_confirmation_dialog", %{"benefit_model_id" => id}, socket) do
-    {:noreply, assign(socket, enable_benefit_model_confirmation_dialog_state: :open, benefit_model_id: id)}
+  def handle_event(
+        "open_enable_benefit_model_confirmation_dialog",
+        %{"benefit_model_id" => id},
+        socket
+      ) do
+    {:noreply,
+     assign(socket, enable_benefit_model_confirmation_dialog_state: :open, benefit_model_id: id)}
   end
 
   @impl true
-  def handle_event("open_delete_benefit_model_confirmation_dialog", %{"benefit_model_id" => id}, socket) do
-    {:noreply, assign(socket, delete_benefit_model_confirmation_dialog_state: :open, benefit_model_id: id)}
+  def handle_event(
+        "open_delete_benefit_model_confirmation_dialog",
+        %{"benefit_model_id" => id},
+        socket
+      ) do
+    {:noreply,
+     assign(socket, delete_benefit_model_confirmation_dialog_state: :open, benefit_model_id: id)}
   end
 
   @impl true
@@ -123,7 +133,7 @@ defmodule SigLive.BenefitModels.List do
         error_message={@message}
       />
 
-      <table class="w-full bg-white shadow-lg my-7">
+      <table class="w-full bg-white shadow-lg">
         <thead class="top-0 z-20">
           <tr class="bg-white">
             <th colspan="6">
@@ -132,7 +142,7 @@ defmodule SigLive.BenefitModels.List do
                   Modelos de Benefícios de Funcionários
                 </span>
 
-                <ButtonPlus on_click="open_new_benefit_model_form"/>
+                <ButtonPlus on_click="open_new_benefit_model_form" />
               </div>
             </th>
           </tr>
@@ -144,7 +154,7 @@ defmodule SigLive.BenefitModels.List do
             <th class="py-3 px-6 text-left">Descrição</th>
             <th class="py-3 px-3 text-left">Tipo</th>
             <th class="py-3 px-3 text-left">Valor</th>
-            <th class="py-3 text-left"></th>
+            <th class="py-3 text-left" />
           </tr>
         </thead>
 
@@ -243,7 +253,7 @@ defmodule SigLive.BenefitModels.List do
   end
 
   defp fetch_benefit_model(benefit_models, benefit_model_id) do
-    case Enum.find(benefit_models, & &1.id == benefit_model_id) do
+    case Enum.find(benefit_models, &(&1.id == benefit_model_id)) do
       nil -> {:error, "Modelo não encontrado"}
       benefit_model -> {:ok, benefit_model}
     end

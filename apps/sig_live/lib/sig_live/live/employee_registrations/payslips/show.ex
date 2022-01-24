@@ -22,9 +22,18 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
   data payslip_form_state, :atom, default: :closed, values!: PayslipForm.states()
   data payslip_item_form_state, :atom, default: :closed, values!: PayslipItemForm.states()
   data outside_item_form_state, :atom, default: :closed, values!: OutsideItemForm.states()
-  data update_item_amount_form_state, :atom, default: :closed, values!: UpdateItemAmountForm.states()
-  data delete_item_confirmation_dialog_state, :atom, default: :closed, values!: ConfirmationDialog.states()
-  data delete_payslip_confirmation_dialog_state, :atom, default: :closed, values!: ConfirmationDialog.states()
+
+  data update_item_amount_form_state, :atom,
+    default: :closed,
+    values!: UpdateItemAmountForm.states()
+
+  data delete_item_confirmation_dialog_state, :atom,
+    default: :closed,
+    values!: ConfirmationDialog.states()
+
+  data delete_payslip_confirmation_dialog_state, :atom,
+    default: :closed,
+    values!: ConfirmationDialog.states()
 
   data item_id, :string, default: nil
   data message, :string, default: nil
@@ -228,7 +237,10 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
                     </div>
                   </div>
 
-                  <div :if={assoc_loaded?(@registration.registered_at)} class="mt-1 text-left text-gray-400 font-light tracking-wider">
+                  <div
+                    :if={assoc_loaded?(@registration.registered_at)}
+                    class="mt-1 text-left text-gray-400 font-light tracking-wider"
+                  >
                     {@registration.registered_at.trade_name}
                   </div>
                 </div>
@@ -261,7 +273,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
             <th class="py-3 px-6 text-left">Descrição</th>
             <th class="py-3 px-6 text-right">Vencimentos</th>
             <th class="py-3 px-6 text-right">Descontos</th>
-            <th class="py-3 px-6 text-right"></th>
+            <th class="py-3 px-6 text-right" />
           </tr>
         </thead>
 
@@ -286,18 +298,10 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
 
               <td class="pr-5 text-right">
                 <DropdownOpts :if={!@payslip.is_closed}>
-                  <a
-                    :on-click="open_update_item_amount_form"
-                    phx-value-item_id={item.id}
-                    class="dropdown-item"
-                  >
+                  <a :on-click="open_update_item_amount_form" phx-value-item_id={item.id} class="dropdown-item">
                     Alterar Valor
                   </a>
-                  <a
-                    :on-click="open_delete_confirmation_dialog"
-                    phx-value-item_id={item.id}
-                    class="dropdown-item"
-                  >
+                  <a :on-click="open_delete_confirmation_dialog" phx-value-item_id={item.id} class="dropdown-item">
                     Remover
                   </a>
                 </DropdownOpts>
@@ -305,22 +309,28 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
             </tr>
           {/for}
 
-          <tr :if={@payslip_items != []} class="border-b italic bg-gray-100 text-sm text-gray-500 tracking-wider">
+          <tr
+            :if={@payslip_items != []}
+            class="border-b italic bg-gray-100 text-sm text-gray-500 tracking-wider"
+          >
             <td class="py-2 px-6 text-left" colspan="2">Subtotais</td>
             <td class="py-2 px-6 text-right">{format_amount(@payslip_items_credit_subtotal)}</td>
             <td class="py-2 px-6 text-right">{format_amount(@payslip_items_debit_subtotal)}</td>
-            <td></td>
+            <td />
           </tr>
 
-          <tr :if={@payslip_items != []} class="border-b text-sm bg-gray-100 font-medium text-gray-500 tracking-wider">
+          <tr
+            :if={@payslip_items != []}
+            class="border-b text-sm bg-gray-100 font-medium text-gray-500 tracking-wider"
+          >
             <td class="py-2 px-6 text-left" colspan="3">Líquido Holerite</td>
             <td class="py-2 px-6 text-right">{format_amount(@payslip_items_total)}</td>
-            <td></td>
+            <td />
           </tr>
 
           {#for item <- @outside_items}
             <tr class="border-b hover:bg-gray-50">
-              <td></td>
+              <td />
 
               <td class="py-3 px-6 text-left">
                 {item.description}
@@ -336,18 +346,10 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
 
               <td class="pr-5 text-right">
                 <DropdownOpts :if={!@payslip.is_closed}>
-                  <a
-                    :on-click="open_update_item_amount_form"
-                    phx-value-item_id={item.id}
-                    class="dropdown-item"
-                  >
+                  <a :on-click="open_update_item_amount_form" phx-value-item_id={item.id} class="dropdown-item">
                     Alterar Valor
                   </a>
-                  <a
-                    :on-click="open_delete_confirmation_dialog"
-                    phx-value-item_id={item.id}
-                    class="dropdown-item"
-                  >
+                  <a :on-click="open_delete_confirmation_dialog" phx-value-item_id={item.id} class="dropdown-item">
                     Remover
                   </a>
                 </DropdownOpts>
@@ -355,10 +357,13 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
             </tr>
           {/for}
 
-          <tr :if={@outside_items != []} class="text-sm bg-gray-100 font-medium text-gray-500 tracking-wider">
+          <tr
+            :if={@outside_items != []}
+            class="text-sm bg-gray-100 font-medium text-gray-500 tracking-wider"
+          >
             <td class="py-2 px-6 text-left" colspan="3">Total</td>
             <td class="py-2 px-6 text-right">{format_amount(@payslip.amount)}</td>
-            <td></td>
+            <td />
           </tr>
         </tbody>
       </table>

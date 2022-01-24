@@ -39,15 +39,21 @@ defmodule SigLive.PayslipTemplates.List do
   end
 
   @impl true
-  def handle_event("open_delete_payslip_template_confirmation_dialog", %{"payslip_template_id" => id}, socket) do
+  def handle_event(
+        "open_delete_payslip_template_confirmation_dialog",
+        %{"payslip_template_id" => id},
+        socket
+      ) do
     {:noreply, assign(socket, confirmation_dialog_state: :open, payslip_template_id: id)}
   end
 
   @impl true
   def handle_event("delete_payslip_template", _, socket) do
-    %{payslip_templates: payslip_templates, payslip_template_id: payslip_template_id} = socket.assigns
+    %{payslip_templates: payslip_templates, payslip_template_id: payslip_template_id} =
+      socket.assigns
 
-    with {:ok, payslip_template} <- fetch_payslip_template(payslip_templates, payslip_template_id),
+    with {:ok, payslip_template} <-
+           fetch_payslip_template(payslip_templates, payslip_template_id),
          {:ok, payslip_template} <- HR.delete_payslip_template(payslip_template) do
       HR.broadcast_deleted_payslip_template(payslip_template)
       flash_info("Modelo de holerite removido")
@@ -63,7 +69,7 @@ defmodule SigLive.PayslipTemplates.List do
   end
 
   defp fetch_payslip_template(payslip_templates, payslip_template_id) do
-    case Enum.find(payslip_templates, & &1.id == payslip_template_id) do
+    case Enum.find(payslip_templates, &(&1.id == payslip_template_id)) do
       nil -> {:error, "Modelo não encontrado"}
       payslip_template -> {:ok, payslip_template}
     end
@@ -93,7 +99,7 @@ defmodule SigLive.PayslipTemplates.List do
         error_message={@message}
       />
 
-      <table class="w-full bg-white shadow-lg my-7">
+      <table class="w-full bg-white shadow-lg">
         <thead class="top-0 z-20">
           <tr class="bg-white">
             <th colspan="6">
@@ -102,7 +108,7 @@ defmodule SigLive.PayslipTemplates.List do
                   Modelos de Holerite
                 </span>
 
-                <ButtonPlus on_click="open_new_payslip_template_form"/>
+                <ButtonPlus on_click="open_new_payslip_template_form" />
               </div>
             </th>
           </tr>
@@ -112,7 +118,7 @@ defmodule SigLive.PayslipTemplates.List do
             class="bg-gray-100 uppercase text-xs font-medium text-gray-500 tracking-wider"
           >
             <th class="py-3 px-6 text-left">Nome</th>
-            <th class="py-3 text-left"></th>
+            <th class="py-3 text-left" />
           </tr>
         </thead>
 

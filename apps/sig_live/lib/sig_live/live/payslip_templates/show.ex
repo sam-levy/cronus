@@ -3,6 +3,7 @@ defmodule SigLive.PayslipTemplates.Show do
 
   alias Sig.HR
 
+  alias SigLive.Components.AppMenu
   alias SigLive.PayslipTemplates.PayslipTemplateItems
 
   @impl true
@@ -12,9 +13,9 @@ defmodule SigLive.PayslipTemplates.Show do
     case HR.fetch_payslip_template(org, payslip_template_id) do
       {:error, :not_found} ->
         {:ok,
-        push_redirect(socket,
-          to: Routes.sig_payslip_templates_index_path(socket, :payslip_templates, org)
-        )}
+         push_redirect(socket,
+           to: Routes.sig_payslip_templates_index_path(socket, :payslip_templates, org)
+         )}
 
       {:ok, payslip_template} ->
         if connected?(socket) do
@@ -60,9 +61,10 @@ defmodule SigLive.PayslipTemplates.Show do
   def handle_info({:deleted_payslip_template, deleted_payslip_template}, socket) do
     if deleted_payslip_template.id == socket.assigns.payslip_template.id do
       {:noreply,
-        push_redirect(socket,
-          to: Routes.sig_payslip_templates_index_path(socket, :payslip_templates, socket.assigns.org)
-      )}
+       push_redirect(socket,
+         to:
+           Routes.sig_payslip_templates_index_path(socket, :payslip_templates, socket.assigns.org)
+       )}
     else
       {:noreply, socket}
     end
@@ -72,6 +74,12 @@ defmodule SigLive.PayslipTemplates.Show do
   def render(assigns) do
     ~F"""
     <div>
+      <AppMenu id="app_menu" {=@org}>
+        <AppMenu.Breadcrumb noslash name="Configurações" />
+        <AppMenu.Breadcrumb name="Modelos de Holerite" path={Routes.sig_payslip_templates_index_path(@socket, :payslip_templates, @org)} />
+        <AppMenu.Breadcrumb name={@payslip_template.name}/>
+      </AppMenu>
+
       <PayslipTemplateItems.List
         id="payslip_template_items_list"
         {=@payslip_template_items}

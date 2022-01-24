@@ -6,6 +6,7 @@ defmodule SigLive.Individuals.Show do
   alias Sig.HR
 
   alias SigLive.BankAccounts
+  alias SigLive.Components.AppMenu
   alias SigLive.EmployeeRegistrations
 
   @impl true
@@ -21,10 +22,12 @@ defmodule SigLive.Individuals.Show do
 
     socket =
       assign(socket,
+        org: org,
         individual: individual,
         bank_accounts: Finance.list_accounts_by(individual.entity),
         entity_bank_accounts: Finance.list_entity_bank_accounts_by_entity(individual.entity),
-        employee_registrations: HR.list_registrations_by(individual, preload: [:registered_at, :salaries])
+        employee_registrations:
+          HR.list_registrations_by(individual, preload: [:registered_at, :salaries])
       )
 
     {:ok, socket, temporary_assigns: [employee_registrations: []]}
@@ -49,9 +52,11 @@ defmodule SigLive.Individuals.Show do
   def render(assigns) do
     ~F"""
     <div>
-      <div class="my-7">
-        <span class="text-gray-500 font-medium text-2xl tracking-wider">{@individual.name}</span>
-      </div>
+      <AppMenu id="app_menu" {=@org}>
+        <AppMenu.Breadcrumb noslash name="RH" />
+        <AppMenu.Breadcrumb name="Pessoas" path={Routes.sig_individuals_index_path(@socket, :index, @org)} />
+        <AppMenu.Breadcrumb name={@individual.name} />
+      </AppMenu>
 
       <BankAccounts.List
         id="bank_accounts"

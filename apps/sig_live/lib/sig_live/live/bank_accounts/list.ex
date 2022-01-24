@@ -75,7 +75,7 @@ defmodule SigLive.BankAccounts.List do
         {=@account_id}
       />
 
-      <table class="w-full bg-white shadow-lg my-7">
+      <table class="w-full bg-white shadow-lg">
         <thead class="top-0 z-20">
           <tr class="bg-white">
             <th colspan="6">
@@ -99,7 +99,7 @@ defmodule SigLive.BankAccounts.List do
             <th class="py-3 px-3 text-left">Chave PIX</th>
             <th class="py-3 px-3 text-left">Agência</th>
             <th class="py-3 px-3 text-left">Conta</th>
-            <th></th>
+            <th />
           </tr>
         </thead>
 

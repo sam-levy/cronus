@@ -3,6 +3,7 @@ defmodule SigLive.PayslipTemplates.Index do
 
   alias Sig.HR
 
+  alias SigLive.Components.AppMenu
   alias SigLive.PayslipTemplates
 
   @impl true
@@ -15,10 +16,15 @@ defmodule SigLive.PayslipTemplates.Index do
 
     socket =
       assign(socket,
-        payslip_templates: HR.list_payslip_templates(org),
+        payslip_templates: HR.list_payslip_templates(org)
       )
 
     {:ok, socket}
+  end
+
+  @impl true
+  def handle_params(_params, _socket, socket) do
+    {:noreply, socket}
   end
 
   @impl true
@@ -31,7 +37,7 @@ defmodule SigLive.PayslipTemplates.Index do
   end
 
   @impl true
-  def handle_info({:updated_payslip_template, %{id: id} =  updated_payslip_template}, socket) do
+  def handle_info({:updated_payslip_template, %{id: id} = updated_payslip_template}, socket) do
     payslip_templates = socket.assigns.payslip_templates
 
     updated_payslip_templates =
@@ -49,7 +55,7 @@ defmodule SigLive.PayslipTemplates.Index do
   def handle_info({:deleted_payslip_template, payslip_template}, socket) do
     payslip_templates = socket.assigns.payslip_templates
 
-    updated_payslip_templates = Enum.reject(payslip_templates, & &1.id == payslip_template.id)
+    updated_payslip_templates = Enum.reject(payslip_templates, &(&1.id == payslip_template.id))
 
     {:noreply, assign(socket, payslip_templates: updated_payslip_templates)}
   end
@@ -58,11 +64,12 @@ defmodule SigLive.PayslipTemplates.Index do
   def render(assigns) do
     ~F"""
     <div>
-      <PayslipTemplates.List
-        id="payslip_templates_list"
-        {=@payslip_templates}
-        {=@org}
-      />
+      <AppMenu id="app_menu" {=@org}>
+        <AppMenu.Breadcrumb noslash name="Configurações" />
+        <AppMenu.Breadcrumb name="Modelos de Holerite" />
+      </AppMenu>
+
+      <PayslipTemplates.List id="payslip_templates_list" {=@payslip_templates} {=@org} />
     </div>
     """
   end

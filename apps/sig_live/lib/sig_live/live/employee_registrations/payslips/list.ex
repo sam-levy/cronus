@@ -40,7 +40,11 @@ defmodule SigLive.EmployeeRegistrations.Payslips.List do
         <div class="mb-2">
           <button :on-click="open_form" class="btn-dark-gray flex-auto">
             <svg class="" width="12" height="20" fill="currentColor">
-              <path fill-rule="evenodd" clip-rule="evenodd" d="M6 5a1 1 0 011 1v3h3a1 1 0 110 2H7v3a1 1 0 11-2 0v-3H2a1 1 0 110-2h3V6a1 1 0 011-1z"/>
+              <path
+                fill-rule="evenodd"
+                clip-rule="evenodd"
+                d="M6 5a1 1 0 011 1v3h3a1 1 0 110 2H7v3a1 1 0 11-2 0v-3H2a1 1 0 110-2h3V6a1 1 0 011-1z"
+              />
             </svg>
 
             <span class="ml-2">Holerite</span>
@@ -59,11 +63,11 @@ defmodule SigLive.EmployeeRegistrations.Payslips.List do
               </div>
 
               <div class="flex">
-                <div :if={payslip.type != :regular} class={classes_for_type(payslip.type)}>
-                  {format_type(payslip.type)}
+                <div :if={payslip.type != :regular} class={~w(text-xs) ++ payslip_type_text_color(payslip.type)}>
+                  {capitalize_type(payslip.type)}
                 </div>
 
-                <Icon name="lock_open" :if={!payslip.is_closed} size="4" class="ml-2"/>
+                <Icon name="lock_open" :if={!payslip.is_closed} size="4" class="ml-2" />
               </div>
             </div>
           {/for}
@@ -77,14 +81,6 @@ defmodule SigLive.EmployeeRegistrations.Payslips.List do
 
   defp closed_state, do: [form_state: :closed, payslip_id: nil]
   defp closed_state(id), do: closed_state() ++ [id: id]
-
-  defp classes_for_type(:vacation), do: ~w(text-blue-400) ++ type_base_classes()
-  defp classes_for_type(:first_13), do: ~w(text-indigo-400) ++ type_base_classes()
-  defp classes_for_type(:second_13), do: ~w(text-indigo-400) ++ type_base_classes()
-  defp classes_for_type(:extra), do: ~w(text-purple-400) ++ type_base_classes()
-  defp classes_for_type(_type), do: ~w(text-gray-400) ++ type_base_classes()
-
-  defp type_base_classes, do: ~w(text-xs)
 
   defp classes_for_card(id, id), do: ~w(border-blue-500) ++ base_card_classes()
   defp classes_for_card(_id, _selected_id), do: ~w(border-white) ++ base_card_classes()

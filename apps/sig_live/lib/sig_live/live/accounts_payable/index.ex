@@ -6,6 +6,7 @@ defmodule SigLive.AccountsPayable.Index do
   alias Sig.Entities
   alias Sig.Finance
 
+  alias SigLive.Components.AppMenu
   alias SigLive.AccountsPayable
   alias SigLive.Components.DateToggle
 
@@ -112,11 +113,16 @@ defmodule SigLive.AccountsPayable.Index do
     socket
   end
 
-  defp handle_subscriptions(%{assigns: %{live_action: :summary, assigns_built_for: %{financial_transactions: _}}} = socket) do
+  defp handle_subscriptions(
+         %{assigns: %{live_action: :summary, assigns_built_for: %{financial_transactions: _}}} =
+           socket
+       ) do
     socket
   end
 
-  defp handle_subscriptions(%{assigns: %{live_action: :summary, assigns_built_for: %{summary: _}}} = socket) do
+  defp handle_subscriptions(
+         %{assigns: %{live_action: :summary, assigns_built_for: %{summary: _}}} = socket
+       ) do
     socket
   end
 
@@ -191,9 +197,10 @@ defmodule SigLive.AccountsPayable.Index do
          %{
            assigns: %{
              live_action: :financial_transactions,
-             assigns_built_for: %{
-               summary: %{start_date: start_date, end_date: end_date}
-             } = assigns_built_for,
+             assigns_built_for:
+               %{
+                 summary: %{start_date: start_date, end_date: end_date}
+               } = assigns_built_for,
              start_date: start_date,
              end_date: end_date
            }
@@ -247,9 +254,10 @@ defmodule SigLive.AccountsPayable.Index do
          %{
            assigns: %{
              live_action: :summary,
-             assigns_built_for: %{
-               financial_transactions: %{start_date: start_date, end_date: end_date}
-             } = assigns_built_for,
+             assigns_built_for:
+               %{
+                 financial_transactions: %{start_date: start_date, end_date: end_date}
+               } = assigns_built_for,
              start_date: start_date,
              end_date: end_date
            }
@@ -504,8 +512,13 @@ defmodule SigLive.AccountsPayable.Index do
   @impl true
   def render(assigns) do
     ~F"""
-    <div class="mt-5">
+    <div>
+
       <div class="flex justify-between items-center">
+        <AppMenu id="app_menu" {=@org}>
+          <AppMenu.Breadcrumb noslash name="Financeiro" />
+        </AppMenu>
+
         <DateToggle
           start_date={@start_date}
           end_date={@end_date}

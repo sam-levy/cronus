@@ -1,10 +1,11 @@
-defmodule SigLive.PayslipGroups.List do
+defmodule SigLive.PayslipGroups.Index do
   use SigLive, :surface_live_view
 
   alias Surface.Components.LiveRedirect
 
   alias Sig.HR
 
+  alias SigLive.Components.AppMenu
   alias SigLive.Components.ButtonPlus
   alias SigLive.Components.ConfirmationDialog
   alias SigLive.Components.DropdownOpts
@@ -31,6 +32,11 @@ defmodule SigLive.PayslipGroups.List do
   end
 
   @impl true
+  def handle_params(_params, _url, socket) do
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_info({:new_payslip_group, group}, socket) do
     groups = Enum.sort_by([group | socket.assigns.groups], & &1.date, {:desc, Date})
 
@@ -39,7 +45,7 @@ defmodule SigLive.PayslipGroups.List do
 
   @impl true
   def handle_info({:deleted_payslip_group, group}, socket) do
-    groups = Enum.reject(socket.assigns.groups, & &1.id == group.id)
+    groups = Enum.reject(socket.assigns.groups, &(&1.id == group.id))
 
     {:noreply, assign(socket, groups: groups)}
   end
@@ -83,7 +89,7 @@ defmodule SigLive.PayslipGroups.List do
   end
 
   defp fetch_group(groups, group_id) do
-    case Enum.find(groups, & &1.id == group_id) do
+    case Enum.find(groups, &(&1.id == group_id)) do
       nil -> {:error, "Grupo não encontrado"}
       group -> {:ok, group}
     end
@@ -93,6 +99,11 @@ defmodule SigLive.PayslipGroups.List do
   def render(assigns) do
     ~F"""
     <div>
+      <AppMenu id="app_menu" {=@org}>
+        <AppMenu.Breadcrumb noslash name="RH" />
+        <AppMenu.Breadcrumb name="Holerites" />
+      </AppMenu>
+
       <ConfirmationDialog
         :if={@delete_group_confirmation_dialog_state != :closed}
         close_event="close_modals"
@@ -112,7 +123,7 @@ defmodule SigLive.PayslipGroups.List do
         {=@org}
       />
 
-      <table class="w-full bg-white shadow-lg my-7">
+      <table class="w-full bg-white shadow-lg">
         <thead class="top-0 z-20">
           <tr class="bg-white">
             <th colspan="6">
@@ -121,7 +132,7 @@ defmodule SigLive.PayslipGroups.List do
                   Holerites
                 </span>
 
-                <ButtonPlus on_click="open_form"/>
+                <ButtonPlus on_click="open_form" />
               </div>
             </th>
           </tr>
@@ -132,7 +143,7 @@ defmodule SigLive.PayslipGroups.List do
           >
             <th class="py-3 px-6 text-left">Mês</th>
             <th class="py-3 px-3 text-left">Tipo</th>
-            <th></th>
+            <th />
           </tr>
         </thead>
 
@@ -149,7 +160,7 @@ defmodule SigLive.PayslipGroups.List do
               </td>
 
               <td class="px-3 text-left">
-                {format_type(group.type)}
+                {capitalize_type(group.type)}
               </td>
 
               <td class="pr-5 text-right">

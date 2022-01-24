@@ -47,7 +47,7 @@ defmodule SigLive.EmployeeRegistrations.List do
                   Registros de Trabalho
                 </span>
 
-                <ButtonPlus on_click="open_form"/>
+                <ButtonPlus on_click="open_form" />
               </div>
             </th>
           </tr>
@@ -60,7 +60,7 @@ defmodule SigLive.EmployeeRegistrations.List do
             <th class="py-3 px-3 text-left">Início</th>
             <th class="py-3 px-3 text-left">Término</th>
             <th class="py-3 px-3 text-left">Salário</th>
-            <th></th>
+            <th />
           </tr>
         </thead>
 
@@ -72,7 +72,7 @@ defmodule SigLive.EmployeeRegistrations.List do
                   to={Routes.sig_employee_registrations_show_path(@socket, :registration_show, @org, registration)}
                   class="hover:underline"
                 >
-                  <span>{registration.registered_at.registration_name}</span>
+                  <span>{registration.registered_at.trade_name}</span>
                 </LiveRedirect>
               </td>
 

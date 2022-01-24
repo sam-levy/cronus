@@ -4,6 +4,7 @@ defmodule SigLive.BenefitModels.Index do
   alias Sig.HR
 
   alias SigLive.BenefitModels
+  alias SigLive.Components.AppMenu
 
   @impl true
   def mount(_params, _session, socket) do
@@ -15,10 +16,15 @@ defmodule SigLive.BenefitModels.Index do
 
     socket =
       assign(socket,
-        benefit_models: HR.list_benefit_models(org),
+        benefit_models: HR.list_benefit_models(org)
       )
 
     {:ok, socket}
+  end
+
+  @impl true
+  def handle_params(_params, _socket, socket) do
+    {:noreply, socket}
   end
 
   @impl true
@@ -31,7 +37,7 @@ defmodule SigLive.BenefitModels.Index do
   end
 
   @impl true
-  def handle_info({:updated_benefit_model, %{id: id} =  updated_benefit_model}, socket) do
+  def handle_info({:updated_benefit_model, %{id: id} = updated_benefit_model}, socket) do
     benefit_models = socket.assigns.benefit_models
 
     updated_benefit_models =
@@ -49,7 +55,7 @@ defmodule SigLive.BenefitModels.Index do
   def handle_info({:deleted_benefit_model, benefit_model}, socket) do
     benefit_models = socket.assigns.benefit_models
 
-    updated_benefit_models = Enum.reject(benefit_models, & &1.id == benefit_model.id)
+    updated_benefit_models = Enum.reject(benefit_models, &(&1.id == benefit_model.id))
 
     {:noreply, assign(socket, benefit_models: updated_benefit_models)}
   end
@@ -58,11 +64,12 @@ defmodule SigLive.BenefitModels.Index do
   def render(assigns) do
     ~F"""
     <div>
-      <BenefitModels.List
-        id="benefit_models_list"
-        {=@benefit_models}
-        {=@org}
-      />
+      <AppMenu id="app_menu" {=@org}>
+        <AppMenu.Breadcrumb noslash name="Configurações" />
+        <AppMenu.Breadcrumb name="Modelos de Benefícios de Funcionários" />
+      </AppMenu>
+
+      <BenefitModels.List id="benefit_models_list" {=@benefit_models} {=@org} />
     </div>
     """
   end

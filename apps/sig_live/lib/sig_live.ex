@@ -151,6 +151,9 @@ defmodule SigLive do
       # Import custom view helpers
       import SigLive.ViewHelpers
 
+      # Import style view helpers
+      import SigLive.ViewStyleHelpers
+
       import SigLive.ErrorHelpers
       import SigLive.Gettext
 

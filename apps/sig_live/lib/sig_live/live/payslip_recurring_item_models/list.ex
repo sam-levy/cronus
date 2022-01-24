@@ -27,25 +27,45 @@ defmodule SigLive.PayslipRecurringItemModels.List do
   end
 
   @impl true
-  def handle_event("open_show_item_model_form", %{"payslip_recurring_item_model_id" => id}, socket) do
+  def handle_event(
+        "open_show_item_model_form",
+        %{"payslip_recurring_item_model_id" => id},
+        socket
+      ) do
     {:noreply, assign(socket, form_state: :show_mode, payslip_recurring_item_model_id: id)}
   end
 
   @impl true
-  def handle_event("open_edit_item_model_form", %{"payslip_recurring_item_model_id" => id}, socket) do
+  def handle_event(
+        "open_edit_item_model_form",
+        %{"payslip_recurring_item_model_id" => id},
+        socket
+      ) do
     {:noreply, assign(socket, form_state: :edit_mode, payslip_recurring_item_model_id: id)}
   end
 
   @impl true
-  def handle_event("open_delete_item_model_confirmation_dialog", %{"payslip_recurring_item_model_id" => id}, socket) do
-    {:noreply, assign(socket, delete_item_model_confirmation_dialog_state: :open, payslip_recurring_item_model_id: id)}
+  def handle_event(
+        "open_delete_item_model_confirmation_dialog",
+        %{"payslip_recurring_item_model_id" => id},
+        socket
+      ) do
+    {:noreply,
+     assign(socket,
+       delete_item_model_confirmation_dialog_state: :open,
+       payslip_recurring_item_model_id: id
+     )}
   end
 
   @impl true
   def handle_event("delete_item_model", _, socket) do
-    %{payslip_recurring_item_models: payslip_recurring_item_models, payslip_recurring_item_model_id: payslip_recurring_item_model_id} = socket.assigns
+    %{
+      payslip_recurring_item_models: payslip_recurring_item_models,
+      payslip_recurring_item_model_id: payslip_recurring_item_model_id
+    } = socket.assigns
 
-    with {:ok, item_model} <- fetch_item_model(payslip_recurring_item_models, payslip_recurring_item_model_id),
+    with {:ok, item_model} <-
+           fetch_item_model(payslip_recurring_item_models, payslip_recurring_item_model_id),
          {:ok, item_model} <- HR.delete_payslip_recurring_item_model(item_model) do
       HR.broadcast_deleted_payslip_recurring_item_model(item_model)
       flash_info("Modelo de item removido")
@@ -61,7 +81,7 @@ defmodule SigLive.PayslipRecurringItemModels.List do
   end
 
   defp fetch_item_model(payslip_recurring_item_models, payslip_recurring_item_model_id) do
-    case Enum.find(payslip_recurring_item_models, & &1.id == payslip_recurring_item_model_id) do
+    case Enum.find(payslip_recurring_item_models, &(&1.id == payslip_recurring_item_model_id)) do
       nil -> {:error, "Modelo de item não encontrado"}
       item_model -> {:ok, item_model}
     end
@@ -91,16 +111,16 @@ defmodule SigLive.PayslipRecurringItemModels.List do
         error_message={@message}
       />
 
-      <table class="w-full bg-white shadow-lg my-7">
+      <table class="w-full bg-white shadow-lg">
         <thead class="top-0 z-20">
           <tr class="bg-white">
             <th colspan="6">
               <div class="flex justify-between items-center py-3 px-6">
                 <span class="text-gray-500 font-medium tracking-wider">
-                  Modelos de Items Recorrentes de Holerite
+                  Modelos de Itens de Holerite
                 </span>
 
-                <ButtonPlus on_click="open_new_item_model_form"/>
+                <ButtonPlus on_click="open_new_item_model_form" />
               </div>
             </th>
           </tr>
@@ -111,7 +131,7 @@ defmodule SigLive.PayslipRecurringItemModels.List do
             <th class="py-3 px-3 text-left">Descrição</th>
             <th class="py-3 px-3 text-left">Valor</th>
             <th class="py-3 px-3 text-left">Tipo</th>
-            <th class="py-3 text-left"></th>
+            <th class="py-3 text-left" />
           </tr>
         </thead>
 

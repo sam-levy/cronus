@@ -55,12 +55,12 @@ defmodule SigLive.Organizations.Sectors.Form do
       <Form for={@changeset} submit="save" opts={autocomplete: "off"}>
         <Field name={:name} class="form-field">
           <Label class="form-label">Nome</Label>
-          <TextInput class="form-input"/>
-          <ErrorTag class="form-error-tag"/>
+          <TextInput class="form-input" />
+          <ErrorTag class="form-error-tag" />
         </Field>
 
         <div class="flex justify-end">
-          <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Salvando..."}/>
+          <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Salvando..."} />
         </div>
       </Form>
     </Modal>

@@ -86,16 +86,16 @@ defmodule SigLive.Organizations.Positions.List do
         error_message={@message}
       />
 
-      <table class="w-full bg-white shadow-lg my-7">
+      <table class="w-full bg-white shadow-lg">
         <thead class="top-0 z-20">
           <tr class="bg-white">
             <th colspan="6">
               <div class="flex justify-between items-center py-3 px-6">
                 <span class="text-gray-500 font-medium tracking-wider">
-                  Posições
+                  Cargos
                 </span>
 
-                <ButtonPlus on_click="open_new_org_position_form"/>
+                <ButtonPlus on_click="open_new_org_position_form" />
               </div>
             </th>
           </tr>
@@ -105,7 +105,7 @@ defmodule SigLive.Organizations.Positions.List do
             class="bg-gray-100 uppercase text-xs font-medium text-gray-500 tracking-wider"
           >
             <th class="py-3 pl-6 text-left">Nome</th>
-            <th class="py-3 px-3 text-left"></th>
+            <th class="py-3 px-3 text-left" />
           </tr>
         </thead>
 
@@ -119,7 +119,6 @@ defmodule SigLive.Organizations.Positions.List do
               <td class="pr-5 text-right">
                 <DropdownOpts>
                   <a
-
                     :on-click="open_edit_org_position_form"
                     phx-value-org_position_id={org_position.id}
                     class="dropdown-item"

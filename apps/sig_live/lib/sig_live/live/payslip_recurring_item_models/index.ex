@@ -3,6 +3,7 @@ defmodule SigLive.PayslipRecurringItemModels.Index do
 
   alias Sig.HR
 
+  alias SigLive.Components.AppMenu
   alias SigLive.PayslipRecurringItemModels
 
   @impl true
@@ -15,10 +16,16 @@ defmodule SigLive.PayslipRecurringItemModels.Index do
 
     socket =
       assign(socket,
-      payslip_recurring_item_models: HR.list_payslip_recurring_item_models(org, preload: :category),
+        payslip_recurring_item_models:
+          HR.list_payslip_recurring_item_models(org, preload: :category)
       )
 
     {:ok, socket}
+  end
+
+  @impl true
+  def handle_params(_params, _socket, socket) do
+    {:noreply, socket}
   end
 
   @impl true
@@ -31,7 +38,7 @@ defmodule SigLive.PayslipRecurringItemModels.Index do
   end
 
   @impl true
-  def handle_info({:updated_payslip_recurring_item_model, %{id: id} =  updated_model}, socket) do
+  def handle_info({:updated_payslip_recurring_item_model, %{id: id} = updated_model}, socket) do
     models = socket.assigns.payslip_recurring_item_models
 
     updated_models =
@@ -49,7 +56,7 @@ defmodule SigLive.PayslipRecurringItemModels.Index do
   def handle_info({:deleted_payslip_recurring_item_model, model}, socket) do
     models = socket.assigns.payslip_recurring_item_models
 
-    updated_models = Enum.reject(models, & &1.id == model.id)
+    updated_models = Enum.reject(models, &(&1.id == model.id))
 
     {:noreply, assign(socket, payslip_recurring_item_models: updated_models)}
   end
@@ -58,6 +65,11 @@ defmodule SigLive.PayslipRecurringItemModels.Index do
   def render(assigns) do
     ~F"""
     <div>
+      <AppMenu id="app_menu" {=@org}>
+        <AppMenu.Breadcrumb noslash name="Configurações" />
+        <AppMenu.Breadcrumb name="Modelos de Itens de Holerite" />
+      </AppMenu>
+
       <PayslipRecurringItemModels.List
         id="payslip_recurring_item_models_list"
         {=@payslip_recurring_item_models}

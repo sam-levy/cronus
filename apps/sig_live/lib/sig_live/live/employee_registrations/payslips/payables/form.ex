@@ -114,19 +114,19 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.Form do
       <Form for={@changeset} change="form_change" submit="save" opts={autocomplete: "off"}>
         <Field name={:description} class="form-field">
           <Label class="form-label">Descrição</Label>
-          <TextInput {...props_for(:description, @form_state)}/>
-          <ErrorTag class="form-error-tag"/>
+          <TextInput {...props_for(:description, @form_state)} />
+          <ErrorTag class="form-error-tag" />
         </Field>
 
         <Field name={:due_date} class="form-field">
           <Label class="form-label">Data</Label>
-          <DateInput {...props_for(:due_date, @form_state)}/>
-          <ErrorTag class="form-error-tag"/>
+          <DateInput {...props_for(:due_date, @form_state)} />
+          <ErrorTag class="form-error-tag" />
         </Field>
 
         <div :if={@form_state == :new_mode} class="flex justify-start items-center">
-          <Switch is_active={@is_automatic_amount} toggle_is_active="handle_automatic_amount"/>
-          <label class="form-side-label ml-3":on-click="handle_automatic_amount">Valor Automático</label>
+          <Switch is_active={@is_automatic_amount} toggle_is_active="handle_automatic_amount" />
+          <label class="form-side-label ml-3" :on-click="handle_automatic_amount">Valor Automático</label>
         </div>
 
         <Field name={:amount} class="form-field">
@@ -137,7 +137,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.Form do
             value={format_amount(@changeset)}
             {...props_for(:amount, @form_state, @is_automatic_amount)}
           />
-          <ErrorTag class="form-error-tag"/>
+          <ErrorTag class="form-error-tag" />
         </Field>
 
         <div class="my-5 flex flex-row justify-between space-x-2 rounded-md">
@@ -172,15 +172,15 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.Form do
               options={@credit_bank_account_options}
               {...props_for(:credit_bank_account_id, @form_state)}
             />
-            <ErrorTag class="form-error-tag"/>
+            <ErrorTag class="form-error-tag" />
           </Field>
         </div>
 
         <div :show={@selected_financial_transaction_type == :check}>
           <Field name={:check_number} class="form-field">
             <Label class="form-label">Número do Cheque</Label>
-            <TextInput {...props_for(:check_number, @form_state)}/>
-            <ErrorTag class="form-error-tag"/>
+            <TextInput {...props_for(:check_number, @form_state)} />
+            <ErrorTag class="form-error-tag" />
           </Field>
 
           <Field name={:check_debit_bank_account_id} class="form-field">
@@ -190,14 +190,11 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.Form do
               options={@check_debit_bank_account_options}
               {...props_for(:check_debit_bank_account_id, @form_state)}
             />
-            <ErrorTag class="form-error-tag"/>
+            <ErrorTag class="form-error-tag" />
           </Field>
         </div>
 
-        <div
-          class="form-field"
-          :if={@form_state == :show_mode and @payable.authorized_by != nil}
-        >
+        <div class="form-field" :if={@form_state == :show_mode and @payable.authorized_by != nil}>
           <label class="form-label">Autorizado Por</label>
 
           <input type="text" disabled class="form-input-disabled" value={@payable.authorized_by.email}>
@@ -207,34 +204,54 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.Form do
           <div>
             <label class="form-label">Pago Por</label>
 
-            <input type="text" disabled class="form-input-disabled" value={@payable.financial_transaction_created_by.email}>
+            <input
+              type="text"
+              disabled
+              class="form-input-disabled"
+              value={@payable.financial_transaction_created_by.email}
+            />
           </div>
 
           <div class="form-field flex space-x-4">
             <div>
               <label class="form-label">Data de Pagamento</label>
 
-              <input type="text" disabled class="form-input-disabled" value={format_date(@payable.financial_transaction.placement_date)}>
+              <input
+                type="text"
+                disabled
+                class="form-input-disabled"
+                value={format_date(@payable.financial_transaction.placement_date)}
+              />
             </div>
 
             <div>
               <label class="form-label">Data de Liquidação</label>
 
-              <input type="text" disabled class="form-input-disabled" value={format_date(@payable.financial_transaction.clearing_date)}>
+              <input
+                type="text"
+                disabled
+                class="form-input-disabled"
+                value={format_date(@payable.financial_transaction.clearing_date)}
+              />
             </div>
           </div>
 
           <div>
             <label class="form-label">Descrição do Pagamento</label>
 
-            <input type="text" disabled class="form-input-disabled" value={@payable.financial_transaction.description}>
+            <input
+              type="text"
+              disabled
+              class="form-input-disabled"
+              value={@payable.financial_transaction.description}
+            />
           </div>
         </div>
 
         <div :if={@message} class="form-error-tag">{@message}</div>
 
         <div :if={@form_state != :show_mode} class="flex justify-end">
-          <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Salvando..."}/>
+          <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Salvando..."} />
         </div>
       </Form>
     </Modal>

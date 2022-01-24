@@ -32,15 +32,21 @@ defmodule SigLive.PayslipCategories.List do
   end
 
   @impl true
-  def handle_event("open_delete_payslip_category_confirmation_dialog", %{"payslip_category_id" => id}, socket) do
+  def handle_event(
+        "open_delete_payslip_category_confirmation_dialog",
+        %{"payslip_category_id" => id},
+        socket
+      ) do
     {:noreply, assign(socket, confirmation_dialog_state: :open, payslip_category_id: id)}
   end
 
   @impl true
   def handle_event("delete_payslip_category", _, socket) do
-    %{payslip_categories: payslip_categories, payslip_category_id: payslip_category_id} = socket.assigns
+    %{payslip_categories: payslip_categories, payslip_category_id: payslip_category_id} =
+      socket.assigns
 
-    with {:ok, payslip_category} <- fetch_payslip_category(payslip_categories, payslip_category_id),
+    with {:ok, payslip_category} <-
+           fetch_payslip_category(payslip_categories, payslip_category_id),
          {:ok, payslip_category} <- HR.delete_payslip_category(payslip_category) do
       HR.broadcast_deleted_payslip_category(payslip_category)
       flash_info("Categoria removida")
@@ -56,7 +62,7 @@ defmodule SigLive.PayslipCategories.List do
   end
 
   defp fetch_payslip_category(payslip_categories, payslip_category_id) do
-    case Enum.find(payslip_categories, & &1.id == payslip_category_id) do
+    case Enum.find(payslip_categories, &(&1.id == payslip_category_id)) do
       nil -> {:error, "Categoria não encontrada"}
       payslip_category -> {:ok, payslip_category}
     end
@@ -86,7 +92,7 @@ defmodule SigLive.PayslipCategories.List do
         error_message={@message}
       />
 
-      <table class="w-full bg-white shadow-lg my-7">
+      <table class="w-full bg-white shadow-lg">
         <thead class="top-0 z-20">
           <tr class="bg-white">
             <th colspan="6">
@@ -95,7 +101,7 @@ defmodule SigLive.PayslipCategories.List do
                   Categorias de Itens de Holerite
                 </span>
 
-                <ButtonPlus on_click="open_new_payslip_category_form"/>
+                <ButtonPlus on_click="open_new_payslip_category_form" />
               </div>
             </th>
           </tr>
@@ -107,7 +113,7 @@ defmodule SigLive.PayslipCategories.List do
             <th class="py-3 px-3 text-left">Código</th>
             <th class="py-3 px-3 text-left">Descrição</th>
             <th class="py-3 px-3 text-left">Tipo</th>
-            <th class="py-3 px-3 text-left"></th>
+            <th class="py-3 px-3 text-left" />
           </tr>
         </thead>
 
