@@ -140,9 +140,9 @@ defmodule SigLive.Organizations.Positions.Form do
     Organizations.broadcast_updated_org_position(org_position)
   end
 
-  defp handle_flash(:new_mode), do: flash_info("Posição criada")
-  defp handle_flash(:edit_mode), do: flash_info("Posição alterada")
+  defp handle_flash(:new_mode), do: flash_info("Cargo criado")
+  defp handle_flash(:edit_mode), do: flash_info("Cargo alterado")
 
-  defp handle_title(:new_mode), do: "Nova Posição"
-  defp handle_title(:edit_mode), do: "Renomear Posição"
+  defp handle_title(:new_mode), do: "Novo Cargo"
+  defp handle_title(:edit_mode), do: "Renomear Cargo"
 end
