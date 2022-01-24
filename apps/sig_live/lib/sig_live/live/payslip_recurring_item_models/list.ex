@@ -3,7 +3,6 @@ defmodule SigLive.PayslipRecurringItemModels.List do
 
   alias Sig.HR
 
-  alias SigLive.Components.AppMenu
   alias SigLive.Components.ButtonPlus
   alias SigLive.Components.ConfirmationDialog
   alias SigLive.Components.DropdownOpts
@@ -92,11 +91,6 @@ defmodule SigLive.PayslipRecurringItemModels.List do
   def render(assigns) do
     ~F"""
     <div>
-      <AppMenu id="app_menu" {=@org}>
-        <AppMenu.Breadcrumb noslash name="Configurações" />
-        <AppMenu.Breadcrumb name="Modelos de Itens de Holerite" />
-      </AppMenu>
-
       <Form
         :if={@form_state != :closed}
         id="item_model_create_form"

@@ -3,7 +3,6 @@ defmodule SigLive.PayslipCategories.List do
 
   alias Sig.HR
 
-  alias SigLive.Components.AppMenu
   alias SigLive.Components.ButtonPlus
   alias SigLive.Components.ConfirmationDialog
   alias SigLive.Components.DropdownOpts
@@ -73,11 +72,6 @@ defmodule SigLive.PayslipCategories.List do
   def render(assigns) do
     ~F"""
     <div>
-      <AppMenu id="app_menu" {=@org}>
-        <AppMenu.Breadcrumb noslash name="Configurações" />
-        <AppMenu.Breadcrumb name="Categorias de Itens de Holerite" />
-      </AppMenu>
-
       <Form
         :if={@form_state != :closed}
         id="payslip_category_create_form"
