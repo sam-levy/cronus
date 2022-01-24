@@ -61,8 +61,8 @@ defmodule SigLive.EmployeeRegistrations.Benefits.BenefitFromModelForm do
       <Form for={@changeset} submit="save" opts={autocomplete: "off"}>
         <Field name={:start_date} class="form-field">
           <Label class="form-label">Data de Início</Label>
-          <DateInput {...props_for(:start_date, @form_state)}/>
-          <ErrorTag class="form-error-tag"/>
+          <DateInput {...props_for(:start_date, @form_state)} />
+          <ErrorTag class="form-error-tag" />
         </Field>
 
         <Field name={:benefit_model_id} class="form-field">
@@ -72,13 +72,13 @@ defmodule SigLive.EmployeeRegistrations.Benefits.BenefitFromModelForm do
             options={benefit_models_for_select(@benefit_models)}
             {...props_for(:benefit_model_id, @form_state)}
           />
-          <ErrorTag class="form-error-tag"/>
+          <ErrorTag class="form-error-tag" />
         </Field>
 
         <Field name={:end_date} :if={@form_state != :new_mode} class="form-field">
           <Label class="form-label">Data de Término</Label>
-          <DateInput {...props_for(:end_date, @form_state)}/>
-          <ErrorTag class="form-error-tag"/>
+          <DateInput {...props_for(:end_date, @form_state)} />
+          <ErrorTag class="form-error-tag" />
         </Field>
 
         <Field name={:description} class="form-field">
@@ -89,20 +89,20 @@ defmodule SigLive.EmployeeRegistrations.Benefits.BenefitFromModelForm do
               (opcional)
             </span>
           </Label>
-          <TextInput {...props_for(:description, @form_state)}/>
-          <ErrorTag class="form-error-tag"/>
+          <TextInput {...props_for(:description, @form_state)} />
+          <ErrorTag class="form-error-tag" />
         </Field>
 
         <Field name={:is_for_dependent} class="form-checkbox-field">
-          <Checkbox {...props_for_checkbox(:is_for_dependent, @form_state)}/>
+          <Checkbox {...props_for_checkbox(:is_for_dependent, @form_state)} />
           <Label class="form-side-label">Para Dependente</Label>
-          <ErrorTag class="form-error-tag"/>
+          <ErrorTag class="form-error-tag" />
         </Field>
 
         <div :if={@message} class="form-error-tag mb-3">{@message}</div>
 
         <div :if={@form_state != :show_mode} class="flex justify-end">
-          <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Salvando..."}/>
+          <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Salvando..."} />
         </div>
       </Form>
 
@@ -187,11 +187,15 @@ defmodule SigLive.EmployeeRegistrations.Benefits.BenefitFromModelForm do
   defp props_for_checkbox(:is_for_dependent, :new_mode), do: @checkbox_enabled
   defp props_for_checkbox(:is_for_dependent, _form_state), do: @checkbox_disabled
 
-  defp show_field?(:benefit_model_historical_amounts, :show_mode, %{is_from_model: true, benefit_model: %{historical_amounts: [_]}}) do
+  defp show_field?(:benefit_model_historical_amounts, :show_mode, %{
+         is_from_model: true,
+         benefit_model: %{historical_amounts: [_]}
+       }) do
     false
   end
 
-  defp show_field?(:benefit_model_historical_amounts, :show_mode, %{is_from_model: true}), do: true
+  defp show_field?(:benefit_model_historical_amounts, :show_mode, %{is_from_model: true}),
+    do: true
 
   defp show_field?(:benefit_model_historical_amounts, :show_mode, _benefit), do: false
 

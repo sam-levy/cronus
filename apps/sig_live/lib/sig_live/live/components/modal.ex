@@ -5,14 +5,23 @@ defmodule SigLive.Components.Modal do
   prop close, :event, required: true
   prop title, :string, required: true
 
-  slot default, required: true
+  slot(default, required: true)
 
   def render(assigns) do
     ~F"""
-    <div class="fixed z-50 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div
+      class="fixed z-50 inset-0 overflow-y-auto"
+      aria-labelledby="modal-title"
+      role="dialog"
+      aria-modal="true"
+    >
       <div class="flex items-start justify-center min-h-screen pt-4 px-4 text-center">
         <!-- Background overlay, show/hide based on modal state. -->
-        <div :on-capture-click={@close} class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity select-none" aria-hidden="true"></div>
+        <div
+          :on-capture-click={@close}
+          class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity select-none"
+          aria-hidden="true"
+        />
 
         <!-- This element is to trick the browser into centering the modal contents. -->
         <span class="hidden inline-block align-middle h-screen" aria-hidden="true">&#8203;</span>
@@ -31,14 +40,20 @@ defmodule SigLive.Components.Modal do
                     :on-click={@close}
                     class="ml-2 p-1 hover:bg-gray-100 hover:rounded-md cursor-pointer text-gray-500"
                   >
-                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg
+                      class="h-5 w-5"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                   </div>
                 </div>
 
                 <div class="mt-6">
-                  <#slot/>
+                  <#slot />
                 </div>
               </div>
             </div>

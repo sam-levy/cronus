@@ -60,23 +60,23 @@ defmodule SigLive.EmployeeRegistrations.LeavePeriods.Form do
             options={list_for_select(HR.list_leave_period_types())}
             {...props_for(:type, @form_state)}
           />
-          <ErrorTag class="form-error-tag"/>
+          <ErrorTag class="form-error-tag" />
         </Field>
 
         <Field name={:start_date} class="form-field">
           <Label class="form-label">Data de Início</Label>
-          <DateInput {...props_for(:start_date, @form_state)}/>
-          <ErrorTag class="form-error-tag"/>
+          <DateInput {...props_for(:start_date, @form_state)} />
+          <ErrorTag class="form-error-tag" />
         </Field>
 
         <Field name={:end_date} class="form-field">
           <Label class="form-label">Data de Término</Label>
-          <DateInput {...props_for(:end_date, @form_state)}/>
-          <ErrorTag class="form-error-tag"/>
+          <DateInput {...props_for(:end_date, @form_state)} />
+          <ErrorTag class="form-error-tag" />
         </Field>
 
         <div :if={@form_state != :show_mode} class="flex justify-end">
-          <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Salvando..."}/>
+          <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Salvando..."} />
         </div>
       </Form>
     </Modal>
@@ -132,7 +132,6 @@ defmodule SigLive.EmployeeRegistrations.LeavePeriods.Form do
   end
 
   defp handle_return(%{validation: {:error, changeset}, socket: socket}) do
-
     {:noreply, assign(socket, changeset: changeset)}
   end
 

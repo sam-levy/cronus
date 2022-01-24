@@ -62,12 +62,12 @@ defmodule SigLive.AccountsPayable.FinancialTransactions.ClearForm do
       <Form for={@changeset} submit="save" opts={autocomplete: "off"}>
         <Field name={:clearing_date} class="form-field">
           <Label class="form-label">Data de Liquidação</Label>
-          <DateInput class="form-input"/>
-          <ErrorTag class="form-error-tag"/>
+          <DateInput class="form-input" />
+          <ErrorTag class="form-error-tag" />
         </Field>
 
         <div class="flex justify-end">
-          <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Salvando..."}/>
+          <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Salvando..."} />
         </div>
       </Form>
     </Modal>

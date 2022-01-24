@@ -209,7 +209,9 @@ defmodule SigLive.PayslipsState do
       defp list_payslip_items(payslip), do: HR.list_items_by_payslip(payslip)
 
       defp list_payslip_payables(nil), do: []
-      defp list_payslip_payables(payslip), do: Finance.list_payables_by(payslip, preload: [:financial_transaction])
+
+      defp list_payslip_payables(payslip),
+        do: Finance.list_payables_by(payslip, preload: [:financial_transaction])
     end
   end
 end

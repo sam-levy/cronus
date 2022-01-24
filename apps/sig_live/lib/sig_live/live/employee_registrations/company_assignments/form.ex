@@ -33,7 +33,7 @@ defmodule SigLive.EmployeeRegistrations.CompanyAssignments.Form do
       |> assign(
         companies: Entities.list_companies(assigns.org),
         changeset: HR.create_company_assignment_change()
-       )
+      )
 
     {:ok, socket}
   end
@@ -58,17 +58,17 @@ defmodule SigLive.EmployeeRegistrations.CompanyAssignments.Form do
             options={companies_for_select(@companies)}
             {...props_for(:assigned_company_id, @form_state)}
           />
-          <ErrorTag class="form-error-tag"/>
+          <ErrorTag class="form-error-tag" />
         </Field>
 
         <Field name={:start_date} class="form-field">
           <Label class="form-label">Data de Início</Label>
-          <DateInput {...props_for(:start_date, @form_state)}/>
-          <ErrorTag class="form-error-tag"/>
+          <DateInput {...props_for(:start_date, @form_state)} />
+          <ErrorTag class="form-error-tag" />
         </Field>
 
         <div class="flex justify-end">
-          <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Salvando..."}/>
+          <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Salvando..."} />
         </div>
       </Form>
     </Modal>

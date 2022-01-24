@@ -61,7 +61,8 @@ defmodule SigLive.AccountsPayable.PayFooter do
 
   defp get_check_debit_bank_account_id(selected_paybles) do
     with 1 <- Enum.count(selected_paybles),
-    %{financial_transaction_type: :check, check_debit_bank_account_id: account_id} <- get_single_payable(selected_paybles) do
+         %{financial_transaction_type: :check, check_debit_bank_account_id: account_id} <-
+           get_single_payable(selected_paybles) do
       account_id
     else
       _ -> nil
@@ -78,8 +79,12 @@ defmodule SigLive.AccountsPayable.PayFooter do
 
   @impl true
   def handle_event("save", %{"attrs" => params}, socket) do
-    %{org: org, selected_method: selected_method, selected_payables: selected_payables, current_user: current_user} =
-      socket.assigns
+    %{
+      org: org,
+      selected_method: selected_method,
+      selected_payables: selected_payables,
+      current_user: current_user
+    } = socket.assigns
 
     params =
       params
@@ -152,27 +157,31 @@ defmodule SigLive.AccountsPayable.PayFooter do
         <Form for={@changeset} change="form_change" submit="save" opts={autocomplete: "off"}>
           <Field name={:description} class="form-field">
             <LabelWithError>Descrição</LabelWithError>
-            <TextInput class="form-input"/>
+            <TextInput class="form-input" />
           </Field>
 
           <div class="flex space-x-4 form-field">
             <Field name={:type} class="flex-1">
               <LabelWithError>Forma de Pagamento</LabelWithError>
-              <TextInput value={capitalize_type(@selected_method)} {...props_for(:type)}/>
+              <TextInput value={capitalize_type(@selected_method)} {...props_for(:type)} />
             </Field>
 
             <Field :if={@selected_method == :check} name={:check_number} class="flex-1">
               <LabelWithError>Número do Cheque</LabelWithError>
-              <TextInput {...props_for(:check_number, @selected_payables)}/>
+              <TextInput {...props_for(:check_number, @selected_payables)} />
             </Field>
 
             <Field name={:amount} class="flex-1">
               <LabelWithError>Valor</LabelWithError>
-              <TextInput value={@selected_amount_sum} {...props_for(:amount)}/>
+              <TextInput value={@selected_amount_sum} {...props_for(:amount)} />
             </Field>
           </div>
 
-          <Field :if={single_bank_transfer_payable?(@selected_payables)} name={:credit_bank_account} class="form-field">
+          <Field
+            :if={single_bank_transfer_payable?(@selected_payables)}
+            name={:credit_bank_account}
+            class="form-field"
+          >
             <LabelWithError>Conta para Depósito</LabelWithError>
             <TextInput
               value={format_credit_bank_account(@selected_payables)}
@@ -180,7 +189,11 @@ defmodule SigLive.AccountsPayable.PayFooter do
             />
           </Field>
 
-          <Field :if={get_single_bank_transfer_payable_pix_key(@selected_payables)} name={:credit_bank_account_pix_key} class="form-field">
+          <Field
+            :if={get_single_bank_transfer_payable_pix_key(@selected_payables)}
+            name={:credit_bank_account_pix_key}
+            class="form-field"
+          >
             <LabelWithError>Chave Pix</LabelWithError>
             <TextInput
               value={get_single_bank_transfer_payable_pix_key(@selected_payables)}
@@ -191,7 +204,7 @@ defmodule SigLive.AccountsPayable.PayFooter do
           <div class="flex space-x-4 form-field">
             <Field name={:placement_date} class="flex-1">
               <LabelWithError>Data de Pagamento</LabelWithError>
-              <DateInput class="form-input"/>
+              <DateInput class="form-input" />
             </Field>
 
             <Field name={:clearing_date} class="flex-1">
@@ -200,14 +213,14 @@ defmodule SigLive.AccountsPayable.PayFooter do
 
                 <Field name={:not_cleared} class="ml-3">
                   <div class="flex items-center">
-                    <Checkbox class="form-checkbox"/>
+                    <Checkbox class="form-checkbox" />
                     <Label class="form-side-label">Não liquidado</Label>
                   </div>
                 </Field>
               </div>
 
-              <DateInput :if={@not_cleared == false} class="form-input"/>
-              <TextInput :if={@not_cleared} {...props_for(:disabled_clearing_date)}/>
+              <DateInput :if={@not_cleared == false} class="form-input" />
+              <TextInput :if={@not_cleared} {...props_for(:disabled_clearing_date)} />
             </Field>
           </div>
 
@@ -226,7 +239,11 @@ defmodule SigLive.AccountsPayable.PayFooter do
               />
             </Field>
 
-            <Submit class="w-28 btn-blue flex justify-center" label="Pagar" opts={phx_disable_with: "Adicionando..."}/>
+            <Submit
+              class="w-28 btn-blue flex justify-center"
+              label="Pagar"
+              opts={phx_disable_with: "Adicionando..."}
+            />
           </div>
 
           <div :if={@message} class="form-error-tag mb-3">{@message}</div>

@@ -132,7 +132,7 @@ defmodule SigLive.PayslipTemplates.PayslipTemplateItems.List do
             <th class="py-3 px-3 text-left">Descrição</th>
             <th class="py-3 px-3 text-left">Valor</th>
             <th class="py-3 px-3 text-left">Tipo</th>
-            <th class="py-3 px-3 text-left"></th>
+            <th class="py-3 px-3 text-left" />
           </tr>
         </thead>
 

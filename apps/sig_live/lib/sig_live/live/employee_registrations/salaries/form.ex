@@ -37,27 +37,27 @@ defmodule SigLive.EmployeeRegistrations.Salaries.Form do
   @impl true
   def render(assigns) do
     ~F"""
-      <Modal title="Atualizar Salário" close={@close_event}>
-        <Form for={@changeset} submit="save" opts={autocomplete: "off"}>
-          <Field name={:start_date}>
-            <Label class="form-label">Data de Início</Label>
-            <DateInput class="form-input"/>
-            <ErrorTag class="form-error-tag"/>
-          </Field>
+    <Modal title="Atualizar Salário" close={@close_event}>
+      <Form for={@changeset} submit="save" opts={autocomplete: "off"}>
+        <Field name={:start_date}>
+          <Label class="form-label">Data de Início</Label>
+          <DateInput class="form-input" />
+          <ErrorTag class="form-error-tag" />
+        </Field>
 
-          <Field name={:amount} class="form-field">
-            <Label class="form-label">Valor</Label>
-            <TextInput class="form-input" value={format_salary_amount(@changeset)}/>
-            <ErrorTag class="form-error-tag"/>
-          </Field>
+        <Field name={:amount} class="form-field">
+          <Label class="form-label">Valor</Label>
+          <TextInput class="form-input" value={format_salary_amount(@changeset)} />
+          <ErrorTag class="form-error-tag" />
+        </Field>
 
-          <div :if={@message} class="form-error-tag mb-3">{@message}</div>
+        <div :if={@message} class="form-error-tag mb-3">{@message}</div>
 
-          <div class="flex justify-end">
-            <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Atualizando..."}/>
-          </div>
-        </Form>
-      </Modal>
+        <div class="flex justify-end">
+          <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Atualizando..."} />
+        </div>
+      </Form>
+    </Modal>
     """
   end
 

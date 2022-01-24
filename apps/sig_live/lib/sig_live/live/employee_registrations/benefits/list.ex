@@ -10,7 +10,11 @@ defmodule SigLive.EmployeeRegistrations.Benefits.List do
   prop benefits, :list, required: true
 
   data form_state, :atom, default: :closed, values!: Form.states()
-  data benefit_from_model_form_state, :atom, default: :closed, values!: BenefitFromModelForm.states()
+
+  data benefit_from_model_form_state, :atom,
+    default: :closed,
+    values!: BenefitFromModelForm.states()
+
   data benefit_id, :string, default: nil
 
   @impl true
@@ -98,7 +102,7 @@ defmodule SigLive.EmployeeRegistrations.Benefits.List do
             <th class="py-3 px-6 text-right">Valor</th>
             <th class="py-3 px-6 text-right">Início</th>
             <th class="py-3 px-6 text-right">Término</th>
-            <th class="py-3 px-6 text-right"></th>
+            <th class="py-3 px-6 text-right" />
           </tr>
         </thead>
 
@@ -147,11 +151,7 @@ defmodule SigLive.EmployeeRegistrations.Benefits.List do
                       Alterar Valor
                     </a>
 
-                    <a
-                      :on-click="open_finalize_benefit_form"
-                      phx-value-benefit_id={benefit.id}
-                      class="dropdown-item"
-                    >
+                    <a :on-click="open_finalize_benefit_form" phx-value-benefit_id={benefit.id} class="dropdown-item">
                       Finalizar Benefício
                     </a>
                   </DropdownOpts>
@@ -168,5 +168,7 @@ defmodule SigLive.EmployeeRegistrations.Benefits.List do
   def close_form(id), do: send_update(__MODULE__, closed_state(id))
 
   defp closed_state(id), do: closed_state() ++ [id: id]
-  defp closed_state, do: [form_state: :closed, benefit_from_model_form_state: :closed, benefit_id: nil]
+
+  defp closed_state,
+    do: [form_state: :closed, benefit_from_model_form_state: :closed, benefit_id: nil]
 end

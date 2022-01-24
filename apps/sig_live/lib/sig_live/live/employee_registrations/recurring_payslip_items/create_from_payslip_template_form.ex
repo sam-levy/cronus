@@ -35,7 +35,8 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.CreateFromPayslipT
 
         {:noreply, socket}
 
-      error -> handle_error(error, socket)
+      error ->
+        handle_error(error, socket)
     end
   end
 
@@ -46,18 +47,14 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.CreateFromPayslipT
       <Form for={:payslip_template} submit="save" opts={autocomplete: "off"}>
         <Field name={:payslip_template_id} class="form-field">
           <Label class="form-label">Modelo de Holerite</Label>
-          <Select
-            prompt=""
-            options={payslip_templates_for_select(@registration.org)}
-            class="form-input"
-          />
-          <ErrorTag class="form-error-tag"/>
+          <Select prompt="" options={payslip_templates_for_select(@registration.org)} class="form-input" />
+          <ErrorTag class="form-error-tag" />
         </Field>
 
         <div :if={@message} class="form-error-tag">{@message}</div>
 
         <div class="flex justify-end">
-          <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Adicionando..."}/>
+          <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Adicionando..."} />
         </div>
       </Form>
     </Modal>
