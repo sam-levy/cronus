@@ -14,7 +14,7 @@ defmodule Sig.Entities do
   defdelegate create_individual(org, attrs), to: Individuals
   defdelegate update_individual(individual, attrs), to: Individuals
   defdelegate subscribe_to_individuals(org), to: Individuals
-  defdelegate broadcast_individuals(org), to: Individuals
+  defdelegate broadcast_individuals(org, opts \\ []), to: Individuals
 
   defdelegate fetch_company(org, entity_id), to: Companies, as: :fetch
   defdelegate list_companies(org, opts \\ []), to: Companies, as: :list

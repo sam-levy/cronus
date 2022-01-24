@@ -72,8 +72,8 @@ defmodule Sig.Entities.Individuals do
 
   def subscribe_to_individuals(%Org{} = org), do: subscribe(topic(org))
 
-  def broadcast_individuals(%Org{} = org) do
-    broadcast(topic(org), {:updated_individuals, list_individuals(org)})
+  def broadcast_individuals(%Org{} = org, opts \\ []) do
+    broadcast(topic(org), {:updated_individuals, list_individuals(org, opts)})
   end
 
   defp topic(%Org{} = org), do: "org_id:" <> org.id <> ":individuals"

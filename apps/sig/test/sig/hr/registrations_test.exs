@@ -288,10 +288,10 @@ defmodule Sig.HR.RegistrationsTest do
                %Registration{sector_id: ^cleaning_sector_id}
              ] =
                Registrations.list_by(org,
-                filter_by: [
-                  sector_id: [kitchen_sector.id, cleaning_sector.id],
-                  active_in_period: [start_date: ~D[2020-01-01], end_date: ~D[2020-01-31]]
-                ]
+                 filter_by: [
+                   sector_id: [kitchen_sector.id, cleaning_sector.id],
+                   active_in_period: [start_date: ~D[2020-01-01], end_date: ~D[2020-01-31]]
+                 ]
                )
     end
 
@@ -299,9 +299,9 @@ defmodule Sig.HR.RegistrationsTest do
       org = insert(:org)
 
       assert Registrations.list_by(org,
-              filter_by: [
-                active_in_period: [start_date: ~D[2010-01-01], end_date: ~D[2010-01-31]]
-              ]
+               filter_by: [
+                 active_in_period: [start_date: ~D[2010-01-01], end_date: ~D[2010-01-31]]
+               ]
              ) == []
     end
   end
