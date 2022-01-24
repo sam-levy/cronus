@@ -5,7 +5,7 @@ defmodule SigLive.Components.Modal do
   prop close, :event, required: true
   prop title, :string, required: true
 
-  slot(default, required: true)
+  slot default, required: true
 
   def render(assigns) do
     ~F"""

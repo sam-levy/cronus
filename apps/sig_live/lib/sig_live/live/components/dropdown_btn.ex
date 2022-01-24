@@ -4,7 +4,7 @@ defmodule SigLive.Components.DropdownBtn do
   prop text, :string
   prop disabled, :boolean, default: false
 
-  slot(default, required: true)
+  slot default, required: true
 
   def render(assigns) do
     ~F"""
