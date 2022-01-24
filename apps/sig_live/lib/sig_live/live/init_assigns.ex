@@ -4,7 +4,7 @@ defmodule SigLive.InitAssigns do
   alias Sig.Accounts
   alias Sig.Organizations
 
-  def mount(%{"org_id" => org_id}, %{"user_token" => user_token}, socket) do
+  def on_mount(:default, %{"org_id" => org_id}, %{"user_token" => user_token}, socket) do
     socket =
       socket
       |> assign_new(:org, fn -> Organizations.get_org(org_id) end)
