@@ -1,10 +1,11 @@
-defmodule SigLive.PayslipGroups.List do
+defmodule SigLive.PayslipGroups.Index do
   use SigLive, :surface_live_view
 
   alias Surface.Components.LiveRedirect
 
   alias Sig.HR
 
+  alias SigLive.Components.AppMenu
   alias SigLive.Components.ButtonPlus
   alias SigLive.Components.ConfirmationDialog
   alias SigLive.Components.DropdownOpts
@@ -28,6 +29,11 @@ defmodule SigLive.PayslipGroups.List do
       )
 
     {:ok, socket}
+  end
+
+  @impl true
+  def handle_params(_params, _url, socket) do
+    {:noreply, socket}
   end
 
   @impl true
@@ -93,6 +99,11 @@ defmodule SigLive.PayslipGroups.List do
   def render(assigns) do
     ~F"""
     <div>
+      <AppMenu id="app_menu" {=@org}>
+        <AppMenu.Breadcrumb noslash name="RH" />
+        <AppMenu.Breadcrumb name="Holerites" />
+      </AppMenu>
+
       <ConfirmationDialog
         :if={@delete_group_confirmation_dialog_state != :closed}
         close_event="close_modals"
@@ -112,7 +123,7 @@ defmodule SigLive.PayslipGroups.List do
         {=@org}
       />
 
-      <table class="w-full bg-white shadow-lg my-7">
+      <table class="w-full bg-white shadow-lg">
         <thead class="top-0 z-20">
           <tr class="bg-white">
             <th colspan="6">
@@ -149,7 +160,7 @@ defmodule SigLive.PayslipGroups.List do
               </td>
 
               <td class="px-3 text-left">
-                {format_type(group.type)}
+                {capitalize_type(group.type)}
               </td>
 
               <td class="pr-5 text-right">

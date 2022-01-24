@@ -86,13 +86,13 @@ defmodule SigLive.Organizations.Positions.List do
         error_message={@message}
       />
 
-      <table class="w-full bg-white shadow-lg my-7">
+      <table class="w-full bg-white shadow-lg">
         <thead class="top-0 z-20">
           <tr class="bg-white">
             <th colspan="6">
               <div class="flex justify-between items-center py-3 px-6">
                 <span class="text-gray-500 font-medium tracking-wider">
-                  Posições
+                  Cargos
                 </span>
 
                 <ButtonPlus on_click="open_new_org_position_form" />

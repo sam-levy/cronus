@@ -3,6 +3,7 @@ defmodule SigLive.Organizations.Show do
 
   alias Sig.Organizations
 
+  alias SigLive.Components.AppMenu
   alias SigLive.Organizations.Sectors
   alias SigLive.Organizations.Positions
 
@@ -22,6 +23,11 @@ defmodule SigLive.Organizations.Show do
       )
 
     {:ok, socket}
+  end
+
+  @impl true
+  def handle_params(_params, _socket, socket) do
+    {:noreply, socket}
   end
 
   @impl true
@@ -93,13 +99,20 @@ defmodule SigLive.Organizations.Show do
   @impl true
   def render(assigns) do
     ~F"""
-    <div class="flex gap-4">
-      <div class="w-1/2">
-        <Sectors.List id="org_sectors_list" {=@org_sectors} {=@org} />
-      </div>
+    <div>
+      <AppMenu id="app_menu" {=@org}>
+        <AppMenu.Breadcrumb noslash name="Configurações" />
+        <AppMenu.Breadcrumb name="Setores e Cargos" />
+      </AppMenu>
 
-      <div class="w-1/2">
-        <Positions.List id="org_positions_list" {=@org_positions} {=@org} />
+      <div class="flex gap-6">
+        <div class="w-1/2">
+          <Sectors.List id="org_sectors_list" {=@org_sectors} {=@org} />
+        </div>
+
+        <div class="w-1/2">
+          <Positions.List id="org_positions_list" {=@org_positions} {=@org} />
+        </div>
       </div>
     </div>
     """

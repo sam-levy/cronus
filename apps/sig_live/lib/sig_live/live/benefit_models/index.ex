@@ -4,6 +4,7 @@ defmodule SigLive.BenefitModels.Index do
   alias Sig.HR
 
   alias SigLive.BenefitModels
+  alias SigLive.Components.AppMenu
 
   @impl true
   def mount(_params, _session, socket) do
@@ -19,6 +20,11 @@ defmodule SigLive.BenefitModels.Index do
       )
 
     {:ok, socket}
+  end
+
+  @impl true
+  def handle_params(_params, _socket, socket) do
+    {:noreply, socket}
   end
 
   @impl true
@@ -58,6 +64,11 @@ defmodule SigLive.BenefitModels.Index do
   def render(assigns) do
     ~F"""
     <div>
+      <AppMenu id="app_menu" {=@org}>
+        <AppMenu.Breadcrumb noslash name="Configurações" />
+        <AppMenu.Breadcrumb name="Modelos de Benefícios de Funcionários" />
+      </AppMenu>
+
       <BenefitModels.List id="benefit_models_list" {=@benefit_models} {=@org} />
     </div>
     """

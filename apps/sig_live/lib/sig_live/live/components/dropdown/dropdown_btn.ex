@@ -1,10 +1,12 @@
 defmodule SigLive.Components.DropdownBtn do
   use SigLive, :surface_component
 
+  alias SigLive.Components.Dropdown
+
   prop text, :string
   prop disabled, :boolean, default: false
 
-  slot(default, required: true)
+  slot default, required: true
 
   def render(assigns) do
     ~F"""
@@ -26,21 +28,10 @@ defmodule SigLive.Components.DropdownBtn do
 
         <span :if={@text} class="select-none ml-2">{@text}</span>
       </button>
-      <div
-        :if={!@disabled}
-        class="dropdown-list"
-        x-cloak
-        x-show="isOpen"
-        @click="isOpen = false"
-        x-transition:enter="transition ease-out duration-75"
-        x-transition:enter-start="transform opacity-0 scale-95"
-        x-transition:enter-end="transform opacity-100 scale-100"
-        x-transition:leave="transition ease-in duration-75"
-        x-transition:leave-start="transform opacity-100 scale-100"
-        x-transition:leave-end="transform opacity-0 scale-95"
-      >
+
+      <Dropdown.List :if={!@disabled}>
         <#slot :if={!@disabled} />
-      </div>
+      </Dropdown.List>
     </div>
     """
   end
@@ -50,8 +41,9 @@ defmodule SigLive.Components.DropdownBtn do
 
   @svg_base_class ~w(group-hover:text-light-blue-600 text-light-blue-500)
 
-  defp handle_svg_class(false),
-    do: @svg_base_class ++ ~w(transition-transform duration-200 transform)
+  defp handle_svg_class(false) do
+    @svg_base_class ++ ~w(transition-transform duration-200 transform)
+  end
 
   defp handle_svg_class(true), do: @svg_base_class
 end

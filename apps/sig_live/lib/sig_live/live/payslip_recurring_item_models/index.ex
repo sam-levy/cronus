@@ -3,6 +3,7 @@ defmodule SigLive.PayslipRecurringItemModels.Index do
 
   alias Sig.HR
 
+  alias SigLive.Components.AppMenu
   alias SigLive.PayslipRecurringItemModels
 
   @impl true
@@ -20,6 +21,11 @@ defmodule SigLive.PayslipRecurringItemModels.Index do
       )
 
     {:ok, socket}
+  end
+
+  @impl true
+  def handle_params(_params, _socket, socket) do
+    {:noreply, socket}
   end
 
   @impl true
@@ -59,6 +65,11 @@ defmodule SigLive.PayslipRecurringItemModels.Index do
   def render(assigns) do
     ~F"""
     <div>
+      <AppMenu id="app_menu" {=@org}>
+        <AppMenu.Breadcrumb noslash name="Configurações" />
+        <AppMenu.Breadcrumb name="Modelos de Itens de Holerite" />
+      </AppMenu>
+
       <PayslipRecurringItemModels.List
         id="payslip_recurring_item_models_list"
         {=@payslip_recurring_item_models}

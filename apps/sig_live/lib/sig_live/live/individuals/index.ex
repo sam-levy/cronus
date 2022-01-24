@@ -6,6 +6,7 @@ defmodule SigLive.Individuals.Index do
 
   alias Sig.Entities
 
+  alias SigLive.Components.AppMenu
   alias SigLive.Components.ButtonPlus
   alias SigLive.Individuals.New
 
@@ -130,6 +131,11 @@ defmodule SigLive.Individuals.Index do
   def render(assigns) do
     ~F"""
     <div>
+      <AppMenu id="app_menu" {=@org}>
+        <AppMenu.Breadcrumb noslash name="RH" />
+        <AppMenu.Breadcrumb name="Pessoas" />
+      </AppMenu>
+
       <New
         :if={@new_individual_modal_open}
         id="new_individual_modal"
@@ -138,40 +144,36 @@ defmodule SigLive.Individuals.Index do
         {=@org}
       />
 
-      <table class="w-full bg-white shadow-lg my-7">
+      <table class="w-full bg-white shadow-lg">
         <thead class="top-0 sticky">
           <tr class="bg-white">
             <th colspan="3">
               <div class="flex justify-between items-center py-3 px-6 text-gray-500 font-medium tracking-wider">
-                <div>Pessoas</div>
+                <Form for={:filter} change="filter_individuals">
+                  <select name="registered_at_company_entity_id" class="form-input py-1">
+                    <option value="all" selected={@filters["registered_at_company_entity_id"] == "all"}>
+                      Todas as Pessoas
+                    </option>
 
-                <div class="flex space-x-5 items-center">
-                  <Form for={:filter} change="filter_individuals">
-                    <select name="registered_at_company_entity_id" class="form-input py-1">
-                      <option value="all" selected={@filters["registered_at_company_entity_id"] == "all"}>
-                        Todas as Pessoas
-                      </option>
+                    <option
+                      value="active_employees"
+                      selected={@filters["registered_at_company_entity_id"] == "active_employees"}
+                    >
+                      Funcionários Ativos
+                    </option>
 
+                    {#for company <- @companies}
                       <option
-                        value="active_employees"
-                        selected={@filters["registered_at_company_entity_id"] == "active_employees"}
+                        value={company.entity_id}
+                        selected={company.entity_id == @filters["registered_at_company_entity_id"]}
                       >
-                        Funcionários Ativos
+                        {company.trade_name}
                       </option>
+                    {/for}
+                  </select>
+                </Form>
 
-                      {#for company <- @companies}
-                        <option
-                          value={company.entity_id}
-                          selected={company.entity_id == @filters["registered_at_company_entity_id"]}
-                        >
-                          {company.trade_name}
-                        </option>
-                      {/for}
-                    </select>
-                  </Form>
-
-                  <ButtonPlus on_click="open_new_individual_modal" />
-                </div>
+                <ButtonPlus on_click="open_new_individual_modal" />
               </div>
             </th>
           </tr>

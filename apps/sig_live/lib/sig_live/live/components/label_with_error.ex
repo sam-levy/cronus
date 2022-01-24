@@ -3,7 +3,7 @@ defmodule SigLive.Components.LabelWithError do
 
   alias Surface.Components.Form.{ErrorTag, Label}
 
-  slot(default)
+  slot default
 
   def render(assigns) do
     ~F"""

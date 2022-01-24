@@ -3,6 +3,7 @@ defmodule SigLive.PayslipTemplates.Show do
 
   alias Sig.HR
 
+  alias SigLive.Components.AppMenu
   alias SigLive.PayslipTemplates.PayslipTemplateItems
 
   @impl true
@@ -73,6 +74,12 @@ defmodule SigLive.PayslipTemplates.Show do
   def render(assigns) do
     ~F"""
     <div>
+      <AppMenu id="app_menu" {=@org}>
+        <AppMenu.Breadcrumb noslash name="Configurações" />
+        <AppMenu.Breadcrumb name="Modelos de Holerite" path={Routes.sig_payslip_templates_index_path(@socket, :payslip_templates, @org)} />
+        <AppMenu.Breadcrumb name={@payslip_template.name}/>
+      </AppMenu>
+
       <PayslipTemplateItems.List
         id="payslip_template_items_list"
         {=@payslip_template_items}

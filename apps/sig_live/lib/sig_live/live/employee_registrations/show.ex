@@ -20,10 +20,13 @@ defmodule SigLive.EmployeeRegistrations.Show do
     Payslips
   }
 
+  alias SigLive.Components.AppMenu
+
   @impl true
   def mount(%{"registration_id" => registration_id}, _session, socket) do
     %{org: org} = socket.assigns
-    registration = HR.get_registration(org, registration_id, preload: :org)
+
+    registration = HR.get_registration(org, registration_id, preload: [:org, :registered_at])
 
     socket =
       assign(
@@ -177,10 +180,13 @@ defmodule SigLive.EmployeeRegistrations.Show do
   def render(assigns) do
     ~F"""
     <div>
-      <div class="flex justify-between items-center mt-4">
-        <div class="text-lg text-gray-500 font-medium tracking-wider">
-          {@individual.name}
-        </div>
+      <div class="flex justify-between items-center">
+        <AppMenu id="app_menu" {=@org}>
+          <AppMenu.Breadcrumb noslash name="RH" />
+          <AppMenu.Breadcrumb name="Pessoas" path={Routes.sig_individuals_index_path(@socket, :index, @org)} />
+          <AppMenu.Breadcrumb name={@individual.name} path={Routes.sig_individuals_show_path(@socket, :show, @org, @individual.entity_id)} />
+          <AppMenu.Breadcrumb name={"Registro " <> @registration.registered_at.trade_name} />
+        </AppMenu>
 
         <div class="flex flex-row justify-end space-x-4">
           <LivePatch
@@ -188,7 +194,7 @@ defmodule SigLive.EmployeeRegistrations.Show do
             replace
             class={tab_classes_for(:registration_show, @active_screen)}
           >
-            Registro
+            Cadastros
           </LivePatch>
 
           <LivePatch
@@ -201,7 +207,7 @@ defmodule SigLive.EmployeeRegistrations.Show do
         </div>
       </div>
 
-      <div :show={@active_screen == :registration_show} class="mt-4">
+      <div :show={@active_screen == :registration_show}>
         <RecurringPayslipItems.List
           id="recurring_payslip_items_list"
           {=@registration}
@@ -221,7 +227,7 @@ defmodule SigLive.EmployeeRegistrations.Show do
         <LeavePeriods.List id="leave_period_list" {=@registration} {=@leave_periods} />
       </div>
 
-      <div :show={@active_screen in [:payslip, :payslips]} class="mt-4">
+      <div :show={@active_screen in [:payslip, :payslips]}>
         <Payslips
           id="payslips"
           select_payslip="select_payslip"

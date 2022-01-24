@@ -3,6 +3,7 @@ defmodule SigLive.PayslipCategories.Index do
 
   alias Sig.HR
 
+  alias SigLive.Components.AppMenu
   alias SigLive.PayslipCategories
 
   @impl true
@@ -19,6 +20,11 @@ defmodule SigLive.PayslipCategories.Index do
       )
 
     {:ok, socket}
+  end
+
+  @impl true
+  def handle_params(_params, _socket, socket) do
+    {:noreply, socket}
   end
 
   @impl true
@@ -59,6 +65,11 @@ defmodule SigLive.PayslipCategories.Index do
   def render(assigns) do
     ~F"""
     <div>
+      <AppMenu id="app_menu" {=@org}>
+        <AppMenu.Breadcrumb noslash name="Configurações" />
+        <AppMenu.Breadcrumb name="Categorias de Itens de Holerite" />
+      </AppMenu>
+
       <PayslipCategories.List id="payslip_categories_list" {=@payslip_categories} {=@org} />
     </div>
     """

@@ -5,6 +5,7 @@ defmodule SigLive.PayslipGroups.Show do
   alias Sig.HR
   alias Sig.Entities
 
+  alias SigLive.Components.AppMenu
   alias SigLive.Payslips.ShowWithPayables
   alias SigLive.PayslipGroups.Payslips.List, as: PayslipsList
 
@@ -16,7 +17,7 @@ defmodule SigLive.PayslipGroups.Show do
       {:error, :not_found} ->
         {:ok,
          push_redirect(socket,
-           to: Routes.sig_payslip_groups_list_path(socket, :payslip_groups, org)
+           to: Routes.sig_payslip_groups_index_path(socket, :payslip_groups, org)
          )}
 
       {:ok, group} ->
@@ -52,7 +53,7 @@ defmodule SigLive.PayslipGroups.Show do
     if group.id == socket.assigns.group.id do
       {:noreply,
        push_redirect(socket,
-         to: Routes.sig_payslip_groups_list_path(socket, :payslip_groups, socket.assigns.org)
+         to: Routes.sig_payslip_groups_index_path(socket, :payslip_groups, socket.assigns.org)
        )}
     else
       {:noreply, socket}
@@ -84,15 +85,15 @@ defmodule SigLive.PayslipGroups.Show do
 
   @impl true
   def render(assigns) do
+    group_name = "#{format_month(assigns.group.date)} #{capitalize_type(assigns.group.type)}"
+
     ~F"""
     <div>
-      <div class="mt-4 text-lg text-gray-500 font-medium tracking-wider mr-4">
-        Holerites {format_month(@group.date)}
-
-        <span class="text-gray-400 italic font-extralight">
-          {capitalize_type(@group.type)}
-        </span>
-      </div>
+      <AppMenu id="app_menu" {=@org}>
+        <AppMenu.Breadcrumb noslash name="RH" />
+        <AppMenu.Breadcrumb name="Holerites" path={Routes.sig_payslip_groups_index_path(@socket, :payslip_groups, @org)} />
+        <AppMenu.Breadcrumb name={group_name} />
+      </AppMenu>
 
       <div class="flex mt-4 divide-x divide-gray-400 divide-opacity-50">
         <div class="w-3/4 pr-5">
@@ -157,7 +158,7 @@ defmodule SigLive.PayslipGroups.Show do
   def handle_empty_payslips(socket) do
     %{org: org} = socket.assigns
 
-    push_redirect(socket, to: Routes.sig_payslip_groups_list_path(socket, :payslip_groups, org))
+    push_redirect(socket, to: Routes.sig_payslip_groups_index_path(socket, :payslip_groups, org))
   end
 
   @impl SigLive.PayslipsState

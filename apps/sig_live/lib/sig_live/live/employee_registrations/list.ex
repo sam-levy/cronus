@@ -72,7 +72,7 @@ defmodule SigLive.EmployeeRegistrations.List do
                   to={Routes.sig_employee_registrations_show_path(@socket, :registration_show, @org, registration)}
                   class="hover:underline"
                 >
-                  <span>{registration.registered_at.registration_name}</span>
+                  <span>{registration.registered_at.trade_name}</span>
                 </LiveRedirect>
               </td>
 
