@@ -664,7 +664,7 @@ defmodule Sig.HR.Payslips.RecurringItemModels.RecurringItemModelTest do
     end
 
     test "drops non permitted attrs for percentage of employee salary" do
-      rim = insert({:payslip_recurring_item_model, :percentage})
+      rim = insert({:payslip_recurring_item_model, :percentage}, percentage: 10)
 
       attrs = %{
         org_id: UUID.generate(),
