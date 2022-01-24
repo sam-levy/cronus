@@ -1,4 +1,4 @@
-defmodule SigLive.PayslipGroups.List do
+defmodule SigLive.PayslipGroups.Index do
   use SigLive, :surface_live_view
 
   alias Surface.Components.LiveRedirect
@@ -29,6 +29,11 @@ defmodule SigLive.PayslipGroups.List do
       )
 
     {:ok, socket}
+  end
+
+  @impl true
+  def handle_params(_params, _url, socket) do
+    {:noreply, socket}
   end
 
   @impl true
@@ -124,7 +129,7 @@ defmodule SigLive.PayslipGroups.List do
             <th colspan="6">
               <div class="flex justify-between items-center py-3 px-6">
                 <span class="text-gray-500 font-medium tracking-wider">
-                  Grupos
+                  Holerites
                 </span>
 
                 <ButtonPlus on_click="open_form" />

@@ -51,7 +51,7 @@ defmodule SigLive.Components.AppMenu do
 
             <LivePatch
               class="dropdown-item"
-              to={Routes.sig_payslip_groups_list_path(@socket, :payslip_groups, @org)}
+              to={Routes.sig_payslip_groups_index_path(@socket, :payslip_groups, @org)}
             >
               Holerites
             </LivePatch>

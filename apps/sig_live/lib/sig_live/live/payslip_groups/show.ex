@@ -17,7 +17,7 @@ defmodule SigLive.PayslipGroups.Show do
       {:error, :not_found} ->
         {:ok,
          push_redirect(socket,
-           to: Routes.sig_payslip_groups_list_path(socket, :payslip_groups, org)
+           to: Routes.sig_payslip_groups_index_path(socket, :payslip_groups, org)
          )}
 
       {:ok, group} ->
@@ -53,7 +53,7 @@ defmodule SigLive.PayslipGroups.Show do
     if group.id == socket.assigns.group.id do
       {:noreply,
        push_redirect(socket,
-         to: Routes.sig_payslip_groups_list_path(socket, :payslip_groups, socket.assigns.org)
+         to: Routes.sig_payslip_groups_index_path(socket, :payslip_groups, socket.assigns.org)
        )}
     else
       {:noreply, socket}
@@ -91,7 +91,7 @@ defmodule SigLive.PayslipGroups.Show do
     <div>
       <AppMenu id="app_menu" {=@org}>
         <AppMenu.Breadcrumb noslash name="RH" />
-        <AppMenu.Breadcrumb name="Holerites" path={Routes.sig_payslip_groups_list_path(@socket, :payslip_groups, @org)} />
+        <AppMenu.Breadcrumb name="Holerites" path={Routes.sig_payslip_groups_index_path(@socket, :payslip_groups, @org)} />
         <AppMenu.Breadcrumb name={group_name} />
       </AppMenu>
 
@@ -158,7 +158,7 @@ defmodule SigLive.PayslipGroups.Show do
   def handle_empty_payslips(socket) do
     %{org: org} = socket.assigns
 
-    push_redirect(socket, to: Routes.sig_payslip_groups_list_path(socket, :payslip_groups, org))
+    push_redirect(socket, to: Routes.sig_payslip_groups_index_path(socket, :payslip_groups, org))
   end
 
   @impl SigLive.PayslipsState
