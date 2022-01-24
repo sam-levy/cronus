@@ -19,11 +19,10 @@ defmodule SigLive.Components.AppMenu do
 
   def menu(assigns) do
     ~F"""
-    <div class="relative z-20" x-data="{ isOpen: false }" @click.away="isOpen = false">
-      <div class="p-1 mr-3 hover:bg-gray-300 rounded" @mouseover="isOpen = true">
+    <div class="group relative z-20" x-data="{ isOpen: false }" @click.away="isOpen = false">
+      <div class="p-1 mr-3 group-hover:bg-gray-300 rounded cursor-pointer" @mouseover="isOpen = true">
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          :class="{ 'rotate-180': isOpen, 'rotate-0': !isOpen }"
           class="h-6 w-6 text-gray-600 transition-transform duration-300 transform"
           fill="none"
           stroke="currentColor"
@@ -33,7 +32,7 @@ defmodule SigLive.Components.AppMenu do
       </div>
 
       <div
-        class="dropdown-list origin-top-left left-0"
+        class="absolute origin-top-left -left-2 z-10 p-1.5 mt-2 min-w-max w-40 rounded-md shadow-3xl bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
         @mouseleave="isOpen = false"
         @click="isOpen = false"
         x-cloak
@@ -47,7 +46,7 @@ defmodule SigLive.Components.AppMenu do
       >
         <div class="space-y-5 my-2">
           <div>
-            <div class="dropdown-title">RH</div>
+            <div class="dropdown-title mb-1">RH</div>
             <LivePatch
               class="dropdown-item"
               to={Routes.sig_individuals_index_path(@socket, :index, @org)}
@@ -64,7 +63,7 @@ defmodule SigLive.Components.AppMenu do
           </div>
 
           <div>
-            <div class="dropdown-title">Financeiro</div>
+            <div class="dropdown-title mb-1">Financeiro</div>
 
             <LivePatch
               class="dropdown-item"
@@ -82,7 +81,7 @@ defmodule SigLive.Components.AppMenu do
           </div>
 
           <div>
-            <div class="dropdown-title">Configurações</div>
+            <div class="dropdown-title mb-1">Configurações</div>
 
             <LivePatch
               class="dropdown-item"
