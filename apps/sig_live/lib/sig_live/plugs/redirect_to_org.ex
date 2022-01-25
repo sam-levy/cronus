@@ -8,7 +8,6 @@ defmodule SigLive.Plugs.RedirectToOrg do
 
   @impl Plug
   def call(%{assigns: %{current_user: user}} = conn, _opts) do
-
     # TODO: Modify once multiple orgs are allowed
     case Map.keys(user.org_roles) do
       [org_id | _] -> redirect(conn, to: "/orgs/" <> org_id <> "/individuals")
