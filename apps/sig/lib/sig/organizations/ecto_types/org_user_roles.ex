@@ -11,18 +11,20 @@ defmodule Sig.Organizations.EctoTypes.OrgUserRoles do
 
   def type, do: :org_user_roles
 
-  def cast(value) when is_map(value) do
-    casted_values =
-      Enum.reduce_while(value, %{}, fn {org_id, user_role}, acc ->
-        with {:ok, org_id} <- UUID.cast(org_id),
-             {:ok, user_role} <- UserTypes.cast(user_role) do
-          {:cont, Map.put(acc, org_id, user_role)}
-        else
-          :error -> {:halt, :error}
-        end
-      end)
-
-    if casted_values == :error, do: :error, else: {:ok, casted_values}
+  def cast(values) when is_map(values) do
+    values
+    |> Enum.reduce_while(%{}, fn {org_id, user_role}, acc ->
+      with {:ok, org_id} <- UUID.cast(org_id),
+           {:ok, user_role} <- UserTypes.cast(user_role) do
+        {:cont, Map.put(acc, org_id, user_role)}
+      else
+        :error -> {:halt, :error}
+      end
+    end)
+    |> case do
+      :error -> :error
+      casted_values -> {:ok, casted_values}
+    end
   end
 
   def cast(_invalid), do: :error

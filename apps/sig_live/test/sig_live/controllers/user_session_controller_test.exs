@@ -11,9 +11,7 @@ defmodule SigLive.UserSessionControllerTest do
     test "renders log in page", %{conn: conn} do
       conn = get(conn, Routes.user_session_path(conn, :new))
       response = html_response(conn, 200)
-      assert response =~ "<h1>Log in</h1>"
-      assert response =~ "Log in</button>"
-      assert response =~ "Register</a>"
+      assert response =~ "Entrar"
     end
 
     test "redirects if already logged in", %{conn: conn, user: user} do
@@ -75,8 +73,8 @@ defmodule SigLive.UserSessionControllerTest do
         })
 
       response = html_response(conn, 200)
-      assert response =~ "<h1>Log in</h1>"
-      assert response =~ "Invalid email or password"
+      assert response =~ "Log in"
+      assert response =~ "Email ou senha invalido"
     end
   end
 
@@ -85,14 +83,12 @@ defmodule SigLive.UserSessionControllerTest do
       conn = conn |> log_in_user(user) |> delete(Routes.user_session_path(conn, :delete))
       assert redirected_to(conn) == "/"
       refute get_session(conn, :user_token)
-      assert get_flash(conn, :info) =~ "Logged out successfully"
     end
 
     test "succeeds even if the user is not logged in", %{conn: conn} do
       conn = delete(conn, Routes.user_session_path(conn, :delete))
       assert redirected_to(conn) == "/"
       refute get_session(conn, :user_token)
-      assert get_flash(conn, :info) =~ "Logged out successfully"
     end
   end
 end

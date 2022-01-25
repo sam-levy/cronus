@@ -78,29 +78,29 @@ defmodule SigLive.UserResetPasswordControllerTest do
       conn =
         put(conn, Routes.user_reset_password_path(conn, :update, token), %{
           "user" => %{
-            "password" => "new valid password",
-            "password_confirmation" => "new valid password"
+            "password" => "n3w V@lid Password",
+            "password_confirmation" => "n3w V@lid Password"
           }
         })
 
       assert redirected_to(conn) == Routes.user_session_path(conn, :new)
       refute get_session(conn, :user_token)
       assert get_flash(conn, :info) =~ "Password reset successfully"
-      assert Accounts.get_user_by_email_and_password(user.email, "new valid password")
+      assert Accounts.get_user_by_email_and_password(user.email, "n3w V@lid Password")
     end
 
     test "does not reset password on invalid data", %{conn: conn, token: token} do
       conn =
         put(conn, Routes.user_reset_password_path(conn, :update, token), %{
           "user" => %{
-            "password" => "too short",
+            "password" => "short",
             "password_confirmation" => "does not match"
           }
         })
 
       response = html_response(conn, 200)
       assert response =~ "<h1>Reset password</h1>"
-      assert response =~ "should be at least 12 character(s)"
+      assert response =~ "should be at least 8 character(s)"
       assert response =~ "does not match password"
     end
 

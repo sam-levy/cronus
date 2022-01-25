@@ -10,7 +10,7 @@ defmodule SigLive.UserSettingsControllerTest do
     test "renders settings page", %{conn: conn} do
       conn = get(conn, Routes.user_settings_path(conn, :edit))
       response = html_response(conn, 200)
-      assert response =~ "<h1>Settings</h1>"
+      assert response =~ "Alteração de Senha"
     end
 
     test "redirects if user is not logged in" do
@@ -27,15 +27,15 @@ defmodule SigLive.UserSettingsControllerTest do
           "action" => "update_password",
           "current_password" => valid_user_password(),
           "user" => %{
-            "password" => "new valid password",
-            "password_confirmation" => "new valid password"
+            "password" => "n3w Valid P@ssword",
+            "password_confirmation" => "n3w Valid P@ssword"
           }
         })
 
-      assert redirected_to(new_password_conn) == Routes.user_settings_path(conn, :edit)
+      assert redirected_to(new_password_conn) == "/"
       assert get_session(new_password_conn, :user_token) != get_session(conn, :user_token)
-      assert get_flash(new_password_conn, :info) =~ "Password updated successfully"
-      assert Accounts.get_user_by_email_and_password(user.email, "new valid password")
+      assert get_flash(new_password_conn, :info) =~ "Senha alterada"
+      assert Accounts.get_user_by_email_and_password(user.email, "n3w Valid P@ssword")
     end
 
     test "does not update password on invalid data", %{conn: conn} do
@@ -44,14 +44,14 @@ defmodule SigLive.UserSettingsControllerTest do
           "action" => "update_password",
           "current_password" => "invalid",
           "user" => %{
-            "password" => "too short",
+            "password" => "short",
             "password_confirmation" => "does not match"
           }
         })
 
       response = html_response(old_password_conn, 200)
-      assert response =~ "<h1>Settings</h1>"
-      assert response =~ "should be at least 12 character(s)"
+      assert response =~ "Alteração de Senha"
+      assert response =~ "should be at least 8 character(s)"
       assert response =~ "does not match password"
       assert response =~ "is not valid"
 
@@ -72,20 +72,6 @@ defmodule SigLive.UserSettingsControllerTest do
       assert redirected_to(conn) == Routes.user_settings_path(conn, :edit)
       assert get_flash(conn, :info) =~ "A link to confirm your email"
       assert Accounts.get_user_by_email(user.email)
-    end
-
-    test "does not update email on invalid data", %{conn: conn} do
-      conn =
-        put(conn, Routes.user_settings_path(conn, :update), %{
-          "action" => "update_email",
-          "current_password" => "invalid",
-          "user" => %{"email" => "with spaces"}
-        })
-
-      response = html_response(conn, 200)
-      assert response =~ "<h1>Settings</h1>"
-      assert response =~ "must have the @ sign and no spaces"
-      assert response =~ "is not valid"
     end
   end
 

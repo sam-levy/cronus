@@ -10,8 +10,8 @@ const init = () => {
     toastEl.classList.add("mr-4")
 
     setTimeout(() => {
-      toastEl.classList.toggle("-mr-64", "mr-4")
-    }, 3000);
+      toastEl.classList.toggle("-mr-88", "mr-4")
+    }, 2000);
   }
 }
 

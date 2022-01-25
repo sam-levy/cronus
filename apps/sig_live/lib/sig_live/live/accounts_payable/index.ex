@@ -416,6 +416,12 @@ defmodule SigLive.AccountsPayable.Index do
      |> assign_payables(indexed_payables, updated_filters)}
   end
 
+  # TODO: Remove handler and state once summary is removed
+  @impl true
+  def handle_info({:selected_summary_description, description}, socket) do
+    {:noreply, assign(socket, selected_summary_description: description)}
+  end
+
   defp assign_payables(socket, indexed_payables, filters) do
     acc = %{payables: [], payables_amount_sum: Money.new(0)}
 
@@ -588,12 +594,6 @@ defmodule SigLive.AccountsPayable.Index do
       </div>
     </div>
     """
-  end
-
-  # TODO: Remove handler and state once summary is removed
-  @impl true
-  def handle_info({:selected_summary_description, description}, socket) do
-    {:noreply, assign(socket, selected_summary_description: description)}
   end
 
   defp tab_classes_for(screen, screen) do

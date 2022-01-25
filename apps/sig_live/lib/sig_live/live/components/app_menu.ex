@@ -27,7 +27,12 @@ defmodule SigLive.Components.AppMenu do
           fill="none"
           stroke="currentColor"
         >
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M4 6h16M4 12h16M4 18h16"
+          />
         </svg>
       </div>
 
@@ -47,10 +52,7 @@ defmodule SigLive.Components.AppMenu do
         <div class="space-y-5 my-2">
           <div>
             <div class="dropdown-title mb-1">RH</div>
-            <LivePatch
-              class="dropdown-item"
-              to={Routes.sig_individuals_index_path(@socket, :index, @org)}
-            >
+            <LivePatch class="dropdown-item" to={Routes.sig_individuals_index_path(@socket, :index, @org)}>
               Pessoas
             </LivePatch>
 
@@ -117,6 +119,21 @@ defmodule SigLive.Components.AppMenu do
             >
               Modelos de Benefícios de Funcionários
             </LivePatch>
+          </div>
+
+          <div>
+            <div class="dropdown-title mb-1">Sessão</div>
+
+            {link("Sair",
+              to: Routes.user_session_path(@socket, :delete),
+              method: :delete,
+              class: "dropdown-item"
+            )}
+
+            {link("Alterar Senha",
+              to: Routes.user_settings_path(@socket, :edit),
+              class: "dropdown-item"
+            )}
           </div>
         </div>
       </div>

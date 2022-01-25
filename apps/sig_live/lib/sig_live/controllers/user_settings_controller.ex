@@ -41,8 +41,8 @@ defmodule SigLive.UserSettingsController do
     case Accounts.update_user_password(user, password, user_params) do
       {:ok, user} ->
         conn
-        |> put_flash(:info, "Password updated successfully.")
-        |> put_session(:user_return_to, Routes.user_settings_path(conn, :edit))
+        |> put_flash(:info, "Senha alterada")
+        |> put_session(:user_return_to, Routes.redirect_to_org_path(conn, []))
         |> UserAuth.log_in_user(user)
 
       {:error, changeset} ->
