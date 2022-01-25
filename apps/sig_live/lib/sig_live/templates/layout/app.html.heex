@@ -1,9 +1,9 @@
 <main role="main" class="max-w-5xl px-4 mx-auto">
-  <p id="alert-success" class="text-white bg-green-700 alert toast" role="alert" phx-click="lv:clear-flash"
-    phx-hook="InitToast" phx-value-key="info"><%= get_flash(@conn, :info) %></p>
+  <div id="alert-success" class="text-green-800 bg-green-100 alert toast select-none" role="alert" phx-click="lv:clear-flash"
+    phx-hook="InitToast" phx-value-key="info"><%= get_flash(@conn, :info) %></div>
 
-  <p id="alert-error" class="text-white bg-red-700 alert toast" role="alert" phx-click="lv:clear-flash"
-    phx-hook="InitToast" phx-value-key="error"><%= get_flash(@conn, :error) %></p>
+  <div id="alert-error" class="text-red-700 bg-red-100 alert toast select-none" role="alert" phx-click="lv:clear-flash"
+    phx-hook="InitToast" phx-value-key="error"><%= get_flash(@conn, :error) %></div>
 
   <%= @inner_content %>
 </main>
