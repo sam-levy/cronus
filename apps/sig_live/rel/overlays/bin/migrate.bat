@@ -1,0 +1,1 @@
+call "%~dp0\sig_live" eval SigLive.Release.migrate
