@@ -1,31 +1,22 @@
-# fly.toml file generated for sparkling-pine-6826 on 2022-01-26T15:28:46-03:00
+# fly.toml file generated for empty-forest-7811 on 2022-01-26T17:44:26-03:00
 
-app = "sparkling-pine-6826"
+app = "empty-forest-7811"
 
 kill_signal = "SIGTERM"
 kill_timeout = 5
-processes = []
 
 [env]
 
 [deploy]
-  release_command = "eval Sig.Release.migrate"
-
-[experimental]
-  allowed_public_ports = []
-  auto_rollback = true
+  release_command = "/app/bin/cronus eval Sig.Release.migrate"
 
 [[services]]
-  http_checks = []
   internal_port = 4000
-  processes = ["app"]
   protocol = "tcp"
-  script_checks = []
 
   [services.concurrency]
     hard_limit = 25
     soft_limit = 20
-    type = "connections"
 
   [[services.ports]]
     handlers = ["http"]

@@ -90,4 +90,5 @@ COPY --from=builder --chown=nobody:root /app/_build/prod/rel/cronus ./
 
 USER nobody
 
-ENTRYPOINT [ "/app/bin/cronus" ]
+# ENTRYPOINT [ "/app/bin/cronus" ]
+CMD ["bin/cronus", "start"]
