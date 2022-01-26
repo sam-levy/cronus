@@ -1,9 +1,9 @@
-defmodule SigLive.Release do
+defmodule Sig.Release do
   @moduledoc """
   Used for executing DB release tasks when run in production without Mix
   installed.
   """
-  @app :sig_live
+  @app :sig
 
   def migrate do
     load_app()

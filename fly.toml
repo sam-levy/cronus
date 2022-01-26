@@ -2,11 +2,14 @@
 
 app = "sparkling-pine-6826"
 
-kill_signal = "SIGINT"
+kill_signal = "SIGTERM"
 kill_timeout = 5
 processes = []
 
 [env]
+
+[deploy]
+  release_command = "/app/bin/cronus eval Sig.Release.migrate"
 
 [experimental]
   allowed_public_ports = []
