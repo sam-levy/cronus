@@ -41,7 +41,7 @@ alias Sig.Accounts
 
 attrs = %{
   email: "samulevy@gmail.com",
-  password: "hello world!",
+  password: "HelloWorld!",
   individual_id: samuel.entity_id,
   org_id: samuel.org_id,
   org_roles: %{
