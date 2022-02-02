@@ -29,7 +29,7 @@ defmodule SigLive.Individuals.Index do
         new_individual_modal_open: false
       )
 
-    {:ok, socket, temporary_assigns: [filtered_individuals: []]}
+    {:ok, socket, temporary_assigns: [filtered_individuals: [:ok]]}
   end
 
   @impl true
