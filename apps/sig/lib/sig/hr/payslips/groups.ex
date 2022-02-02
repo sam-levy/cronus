@@ -79,11 +79,15 @@ defmodule Sig.HR.Payslips.Groups do
     |> case do
       {:ok, %{group: group, delete_payslips: %{payslips: payslips, payables: payables}}}
       when is_list(payslips) ->
-        Task.Supervisor.start_child(Sig.BroadcastSupervisor, fn ->
-          broadcast_deleted_group(group)
-          Enum.each(payslips, &Payslips.broadcast_deleted_payslip/1)
-          if payables, do: Enum.each(payables, &Payables.broadcast_deleted_payable/1)
-        end)
+        Task.Supervisor.start_child(
+          Sig.BroadcastSupervisor,
+          fn ->
+            broadcast_deleted_group(group)
+            Enum.each(payslips, &Payslips.broadcast_deleted_payslip/1)
+            if payables, do: Enum.each(payables, &Payables.broadcast_deleted_payable/1)
+          end,
+          restart: :transient
+        )
 
         {:ok, group}
 

@@ -304,10 +304,14 @@ defmodule Sig.HR.Payslips.BatchCreator do
   end
 
   defp handle_create_return({:ok, %{group: {:new, group}, payslips: {_, payslips}}}) do
-    Task.Supervisor.start_child(Sig.BroadcastSupervisor, fn ->
-      Groups.broadcast_new_group(group)
-      handle_payslip_broadcasts(payslips)
-    end)
+    Task.Supervisor.start_child(
+      Sig.BroadcastSupervisor,
+      fn ->
+        Groups.broadcast_new_group(group)
+        handle_payslip_broadcasts(payslips)
+      end,
+      restart: :transient
+    )
 
     {:ok, payslips}
   end
