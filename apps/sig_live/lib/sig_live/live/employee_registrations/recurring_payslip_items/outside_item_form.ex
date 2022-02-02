@@ -44,7 +44,7 @@ defmodule SigLive.EmployeeRegistrations.RecurringPayslipItems.OutsideItemForm do
   @impl true
   def render(assigns) do
     ~F"""
-    <Modal title="Adicionar Item de Pagamento Recorrente" close={@close_event}>
+    <Modal title="Adicionar Item Fora do Holerite" close={@close_event}>
       <Form for={@changeset} change="form_change" submit="save" opts={autocomplete: "off"}>
         <Field name={:outside_item_description} class="form-field">
           <Label class="form-label">Descrição</Label>
