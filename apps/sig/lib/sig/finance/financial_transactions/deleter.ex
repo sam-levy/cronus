@@ -48,7 +48,13 @@ defmodule Sig.Finance.FinancialTransactions.Deleter do
          {:ok, %{payable_ids: {_, payable_ids}, financial_transaction: financial_transaction}},
          org
        ) do
-    Task.start(fn -> Payables.broadcast_payables(org, payable_ids) end)
+    Task.Supervisor.start_child(
+      Sig.BroadcastSupervisor,
+      fn ->
+        Payables.broadcast_payables(org, payable_ids)
+      end,
+      restart: :transient
+    )
 
     {:ok, financial_transaction}
   end

@@ -52,7 +52,11 @@ defmodule Sig.Finance.FinancialTransactions do
     |> Repo.update()
     |> case do
       {:ok, ft} ->
-        Task.start(fn -> Payables.broadcast_payables_for(ft) end)
+        Task.Supervisor.start_child(
+          Sig.BroadcastSupervisor,
+          fn -> Payables.broadcast_payables_for(ft) end,
+          restart: :transient
+        )
 
         {:ok, ft}
 

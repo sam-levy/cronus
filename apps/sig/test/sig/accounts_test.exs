@@ -67,7 +67,8 @@ defmodule Sig.AccountsTest do
                  "at least one digit or punctuation character",
                  "at least one upper case character",
                  "should be at least 8 character(s)"
-               ]} = errors_on(changeset)
+               ]
+             } = errors_on(changeset)
     end
 
     test "validates maximum values for email and password for security" do
@@ -274,7 +275,7 @@ defmodule Sig.AccountsTest do
                  "at least one digit or punctuation character",
                  "at least one upper case character",
                  "should be at least 8 character(s)"
-                 ],
+               ],
                password_confirmation: ["does not match password"]
              } = errors_on(changeset)
     end

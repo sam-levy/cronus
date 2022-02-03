@@ -178,7 +178,13 @@ defmodule Sig.Finance.FinancialTransactions.Creator do
         put_error(context, reason)
 
       {:ok, %{financial_transaction: transaction}} ->
-        Task.start(fn -> Payables.broadcast_payables(org, payable_ids) end)
+        Task.Supervisor.start_child(
+          Sig.BroadcastSupervisor,
+          fn ->
+            Payables.broadcast_payables(org, payable_ids)
+          end,
+          restart: :transient
+        )
 
         %{context | return: transaction}
     end
