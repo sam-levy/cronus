@@ -1,8 +1,7 @@
 defmodule Sig.Organizations do
-  alias Sig.Organizations.Org
+  alias Sig.Organizations.OrgStore
   alias Sig.Organizations.Positions
   alias Sig.Organizations.Sectors
-  alias Sig.Repo
 
   defdelegate org_sector_change(sector, attrs), to: Sectors, as: :change
   defdelegate org_sector_change(sector_or_attrs \\ %{}), to: Sectors, as: :change
@@ -28,14 +27,6 @@ defmodule Sig.Organizations do
   defdelegate broadcast_updated_org_position(position), to: Positions
   defdelegate broadcast_deleted_org_position(position), to: Positions
 
-  def fetch_org(org_id) when is_binary(org_id) do
-    case Repo.get(Org, org_id) do
-      %Org{} = org -> {:ok, org}
-      nil -> {:error, :not_found}
-    end
-  end
-
-  def get_org(org_id) when is_binary(org_id) do
-    Repo.get(Org, org_id)
-  end
+  defdelegate fetch_org(id), to: OrgStore
+  defdelegate get_org(id), to: OrgStore
 end

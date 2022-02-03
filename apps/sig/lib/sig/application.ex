@@ -1,8 +1,4 @@
 defmodule Sig.Application do
-  # See https://hexdocs.pm/elixir/Application.html
-  # for more information on OTP Applications
-  @moduledoc false
-
   use Application
 
   @impl true
@@ -10,7 +6,8 @@ defmodule Sig.Application do
     children = [
       Sig.Repo,
       {Phoenix.PubSub, name: Sig.PubSub},
-      {Task.Supervisor, name: Sig.BroadcastSupervisor}
+      {Task.Supervisor, name: Sig.BroadcastSupervisor},
+      Sig.StoresSupervisor
     ]
 
     Supervisor.start_link(children, strategy: :one_for_one, name: Sig.Supervisor)
