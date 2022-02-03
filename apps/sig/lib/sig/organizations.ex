@@ -3,7 +3,6 @@ defmodule Sig.Organizations do
   alias Sig.Organizations.OrgStore
   alias Sig.Organizations.Positions
   alias Sig.Organizations.Sectors
-  alias Sig.Repo
 
   defdelegate org_sector_change(sector, attrs), to: Sectors, as: :change
   defdelegate org_sector_change(sector_or_attrs \\ %{}), to: Sectors, as: :change
