@@ -16,37 +16,50 @@ defmodule Sig.Organizations.OrgStoreTest do
     :ok
   end
 
-  describe "fetch_org/1" do
-    test "fetches an org" do
+  describe "insert/2" do
+    test "inserts an org" do
       org = insert(:org)
 
-      OrgStore.refresh_store(@test_table)
+      assert OrgStore.insert({org.id, org}, @test_table) == :ok
 
-      assert {:ok, %Org{} = return} = OrgStore.fetch_org(org.id, @test_table)
+      assert {:ok, %Org{} = return} = OrgStore.fetch(org.id, @test_table)
 
       assert return.id == org.id
       assert return.name == org.name
-    end
-
-    test "invalid id" do
-      assert OrgStore.fetch_org(UUID.generate()) == {:error, :not_found}
     end
   end
 
-  describe "get_org/1" do
-    test "gets an org" do
+  describe "fetch/1" do
+    test "fetches an org" do
       org = insert(:org)
 
-      OrgStore.refresh_store(@test_table)
+      assert OrgStore.insert({org.id, org}, @test_table) == :ok
 
-      assert %Org{} = return = OrgStore.get_org(org.id, @test_table)
+      assert {:ok, %Org{} = return} = OrgStore.fetch(org.id, @test_table)
 
       assert return.id == org.id
       assert return.name == org.name
     end
 
     test "invalid id" do
-      assert OrgStore.get_org(UUID.generate()) == nil
+      assert OrgStore.fetch(UUID.generate()) == {:error, :not_found}
+    end
+  end
+
+  describe "get/1" do
+    test "gets an org" do
+      org = insert(:org)
+
+      assert OrgStore.insert({org.id, org}, @test_table) == :ok
+
+      assert %Org{} = return = OrgStore.get(org.id, @test_table)
+
+      assert return.id == org.id
+      assert return.name == org.name
+    end
+
+    test "invalid id" do
+      assert OrgStore.get(UUID.generate()) == nil
     end
   end
 end
