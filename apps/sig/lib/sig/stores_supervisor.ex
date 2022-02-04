@@ -8,6 +8,7 @@ defmodule Sig.StoresSupervisor do
   @impl true
   def init(_init_arg) do
     children = [
+      {Sig.Accounts.UserStore, []},
       {Sig.Organizations.OrgStore, []}
     ]
 
