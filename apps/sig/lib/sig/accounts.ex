@@ -6,7 +6,7 @@ defmodule Sig.Accounts do
   import Ecto.Query, warn: false
   alias Sig.Repo
 
-  alias Sig.Accounts.{User, UserToken, UserNotifier}
+  alias Sig.Accounts.{User, UserStore, UserToken, UserNotifier}
   alias Sig.Organizations.Org
 
   ## Database getters
@@ -228,8 +228,22 @@ defmodule Sig.Accounts do
   Gets the user with the given signed token.
   """
   def get_user_by_session_token(token) do
-    {:ok, query} = UserToken.verify_session_token_query(token)
-    Repo.one(query)
+    case UserStore.fetch(token) do
+      {:ok, user} ->
+        user
+
+      {:error, :not_found} ->
+        {:ok, query} = UserToken.verify_session_token_query(token)
+
+        case Repo.one(query) do
+          nil ->
+            nil
+
+          user ->
+            UserStore.insert({token, user})
+            user
+        end
+    end
   end
 
   @doc """
@@ -237,6 +251,7 @@ defmodule Sig.Accounts do
   """
   def delete_session_token(token) do
     Repo.delete_all(UserToken.token_and_context_query(token, "session"))
+    UserStore.delete(token)
     :ok
   end
 
