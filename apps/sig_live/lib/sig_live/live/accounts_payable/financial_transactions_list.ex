@@ -131,7 +131,6 @@ defmodule SigLive.AccountsPayable.FinancialTransactionsList do
           >
             <th class="py-3 px-6 text-left">Liquidação</th>
             <th class="px-3 text-left">Descrição</th>
-            <th class="px-3 text-left">Forma</th>
             <th class="px-3 text-left">Conta</th>
             <th class="px-3 text-right">Valor</th>
             <th class="text-left" />
@@ -166,13 +165,15 @@ defmodule SigLive.AccountsPayable.FinancialTransactionsList do
               </td>
 
               <td class="px-3 text-left">
-                {capitalize_type(transaction.type)}
-              </td>
+                <div>
+                  {#if is_bank_type(transaction.type)}
+                    {transaction.bank_account.name}
+                  {/if}
+                </div>
 
-              <td class="px-3 text-left">
-                {#if is_bank_type(transaction.type)}
-                  {transaction.bank_account.name}
-                {/if}
+                <div class="text-gray-400 italic">
+                  {capitalize_type(transaction.type)}
+                </div>
               </td>
 
               <td class={handle_class(transaction)}>

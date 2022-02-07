@@ -161,7 +161,7 @@ defmodule SigLive.AccountsPayable.List do
         <table class="w-full bg-white shadow-lg">
           <thead class="top-0 z-10 bg-white sticky">
             <tr class="bg-white">
-              <th colspan="8">
+              <th colspan="7">
                 <div class="flex justify-between items-center py-3 px-6 text-gray-500 font-medium tracking-wider">
                   <div>Contas a Pagar</div>
 
@@ -192,10 +192,8 @@ defmodule SigLive.AccountsPayable.List do
             >
               <th class="pl-6 pr-3 text-left" />
               <th class="py-3 pr-3 text-left">Vencimento</th>
-              <th class="px-3 text-left">Empresa</th>
               <th class="px-3 text-left">Descrição</th>
-              <th class="px-3 text-left">Destinatário</th>
-              <th class="px-3 text-left">Forma</th>
+              <th class="px-3 text-left">Empresa</th>
               <th class="px-3 text-right">Valor</th>
               <th class="text-left" />
             </tr>
@@ -217,31 +215,37 @@ defmodule SigLive.AccountsPayable.List do
                 </td>
 
                 <td class="pr-3 text-left">
-                  {format_date(payable.due_date)}
+                  <span class="mr-1">
+                    {format_date(payable.due_date)}
+                  </span>
 
-                  <span :if={Finance.payable_overdue?(payable, @overdue_at)} class="label-red not-italic ml-2">
+                  <span :if={Finance.payable_overdue?(payable, @overdue_at)} class="label-red not-italic">
                     vencido
                   </span>
                 </td>
 
                 <td class="px-3 text-left">
-                  {#if payable.target == :payslip}
-                    {payable.employee_registration_company.trade_name}
-                  {/if}
+                  <div>
+                    {payable.description}
+                  </div>
+
+                  <div class="text-gray-400">
+                    {#if payable.target == :payslip}
+                      {payable.employee.name}
+                    {/if}
+                  </div>
                 </td>
 
                 <td class="px-3 text-left">
-                  {payable.description}
-                </td>
+                  <div>
+                    {#if payable.target == :payslip}
+                      {payable.employee_registration_company.trade_name}
+                    {/if}
+                  </div>
 
-                <td class="px-3 text-left">
-                  {#if payable.target == :payslip}
-                    {payable.employee.name}
-                  {/if}
-                </td>
-
-                <td class="px-3 text-left">
-                  {capitalize_type(payable.financial_transaction_type)}
+                  <div class="text-gray-400 italic">
+                    {capitalize_type(payable.financial_transaction_type)}
+                  </div>
                 </td>
 
                 <td class="px-3 text-right">
