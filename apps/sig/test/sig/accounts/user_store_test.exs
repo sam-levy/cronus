@@ -61,5 +61,25 @@ defmodule Sig.Accounts.UserStoreTest do
 
       assert UserStore.fetch(user.id, @test_table) == {:error, :not_found}
     end
+
+    test "deletes multiple records" do
+      %{id: user_1_id} = user_1 = insert(:user)
+      %{id: user_2_id} = user_2 = insert(:user)
+
+      assert UserStore.insert({user_1.id, user_1}, @test_table) == :ok
+      assert UserStore.insert({user_2.id, user_2}, @test_table) == :ok
+
+      assert {:ok, %User{id: ^user_1_id}} = UserStore.fetch(user_1.id, @test_table)
+      assert {:ok, %User{id: ^user_2_id}} = UserStore.fetch(user_2.id, @test_table)
+
+      assert UserStore.delete([user_1.id, user_2.id], @test_table) == :ok
+
+      assert UserStore.fetch(user_1.id, @test_table) == {:error, :not_found}
+      assert UserStore.fetch(user_2.id, @test_table) == {:error, :not_found}
+    end
+
+    test "when user is not found" do
+      assert UserStore.delete(UUID.generate(), @test_table) == :ok
+    end
   end
 end
