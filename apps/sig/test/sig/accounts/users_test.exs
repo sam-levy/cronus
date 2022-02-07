@@ -15,9 +15,9 @@ defmodule Sig.Accounts.UsersTest do
       insert(:user, org: org, email: "user_a@test.com")
 
       assert [
-        %User{email: "user_a@test.com"},
-        %User{email: "user_b@test.com"}
-      ] = Users.list_users(org)
+               %User{email: "user_a@test.com"},
+               %User{email: "user_b@test.com"}
+             ] = Users.list_users(org)
     end
 
     test "preloads" do
@@ -26,8 +26,8 @@ defmodule Sig.Accounts.UsersTest do
       insert(:user, org: org)
 
       assert [
-        %User{individual: %Individual{}}
-      ] = Users.list_users(org, preload: :individual)
+               %User{individual: %Individual{}}
+             ] = Users.list_users(org, preload: :individual)
     end
 
     test "org has no user" do
