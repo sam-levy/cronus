@@ -3,7 +3,9 @@ defmodule Sig.Accounts.Users do
 
   import Sig.Broadcaster
 
-  alias Sig.Accounts.User
+  alias Ecto.Multi
+
+  alias Sig.Accounts.{User, UserStore, UserToken}
   alias Sig.Organizations.Org
   alias Sig.Repo
 
@@ -16,10 +18,19 @@ defmodule Sig.Accounts.Users do
   end
 
   def disable_user(%User{} = user) do
-    user
-    |> User.disable_changeset()
-    |> Repo.update()
+    Multi.new()
+    |> Multi.update(:disable_user, User.disable_changeset(user))
+    |> Multi.delete_all(:tokens, UserToken.user_and_contexts_query(user, :all))
+    |> Multi.run(:delete_from_store, fn _, %{tokens: {_, tokens}} -> delete_from_store(tokens) end)
+    |> Repo.transaction()
+    |> case do
+      {:ok, %{disable_user: user}} -> {:ok, user}
+      {:error, _operation, reason, _changes} -> {:error, reason}
+    end
   end
+
+  defp delete_from_store(nil), do: {:ok, nil}
+  defp delete_from_store(tokens), do: {:ok, UserStore.delete(tokens)}
 
   def enable_user(%User{} = user) do
     user
