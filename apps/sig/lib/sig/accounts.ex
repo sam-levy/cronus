@@ -6,8 +6,12 @@ defmodule Sig.Accounts do
   import Ecto.Query, warn: false
   alias Sig.Repo
 
-  alias Sig.Accounts.{User, UserStore, UserToken, UserNotifier}
+  alias Sig.Accounts.{Users, User, UserStore, UserToken, UserNotifier}
   alias Sig.Organizations.Org
+
+  defdelegate list_users(org, opts \\ []), to: Users
+  defdelegate subscribe_to_users(org), to: Users
+  defdelegate broadcast_users(org, opts \\ []), to: Users
 
   ## Database getters
 
