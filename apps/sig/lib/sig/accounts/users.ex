@@ -3,6 +3,7 @@ defmodule Sig.Accounts.Users do
 
   import Sig.Broadcaster
 
+  alias Sig.Accounts.User
   alias Sig.Organizations.Org
   alias Sig.Repo
 
@@ -12,6 +13,18 @@ defmodule Sig.Accounts.Users do
     |> shallow_preload(opts)
     |> handle_order_by(opts, :email)
     |> Repo.all()
+  end
+
+  def disable_user(%User{} = user) do
+    user
+    |> User.disable_changeset()
+    |> Repo.update()
+  end
+
+  def enable_user(%User{} = user) do
+    user
+    |> User.enable_changeset()
+    |> Repo.update()
   end
 
   defp query_by(%Org{} = org) do

@@ -37,6 +37,22 @@ defmodule Sig.Accounts.UsersTest do
     end
   end
 
+  describe "disable_user/1" do
+    test "disables a user" do
+      user = insert(:user)
+
+      assert {:ok, %User{disabled_at: %NaiveDateTime{}}} = Users.disable_user(user)
+    end
+  end
+
+  describe "enable_user/1" do
+    test "enables a user" do
+      user = insert(:user, disabled_at: NaiveDateTime.utc_now())
+
+      assert {:ok, %User{disabled_at: nil}} = Users.enable_user(user)
+    end
+  end
+
   describe "subscribe_to_users/1" do
     test "subscribes to users topic" do
       org = insert(:org)
