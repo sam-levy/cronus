@@ -112,7 +112,7 @@ defmodule SigLive.AccountsPayable.FinancialTransactionsList do
       <table class="w-full bg-white shadow-lg">
         <thead class="top-0 z-20">
           <tr class="bg-white">
-            <th colspan="6">
+            <th colspan="5">
               <div class="flex justify-between items-center py-3 px-6">
                 <span class="text-gray-500 font-medium tracking-wider">
                   Transações
