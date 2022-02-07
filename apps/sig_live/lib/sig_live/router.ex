@@ -56,6 +56,8 @@ defmodule SigLive.Router do
       live "/registrations/:registration_id/payslips/:payslip_id",
            EmployeeRegistrations.Show,
            :payslip
+
+      live "/users", Users.IndexLive, :users
     end
   end
 

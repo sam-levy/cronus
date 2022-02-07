@@ -41,6 +41,7 @@ defmodule Sig.Accounts.User do
     |> validate_required([:individual_id, :org_id])
     |> validate_email()
     |> validate_password(opts)
+    |> unique_constraint(:individual_id)
   end
 
   defp validate_email(changeset) do
