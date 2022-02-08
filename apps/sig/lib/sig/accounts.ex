@@ -10,6 +10,8 @@ defmodule Sig.Accounts do
   alias Sig.Organizations.Org
 
   defdelegate list_users(org, opts \\ []), to: Users
+  defdelegate disable_user(user), to: Users
+  defdelegate enable_user(user), to: Users
   defdelegate subscribe_to_users(org), to: Users
   defdelegate broadcast_users(org, opts \\ []), to: Users
 

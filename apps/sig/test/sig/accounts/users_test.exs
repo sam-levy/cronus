@@ -1,8 +1,8 @@
 defmodule Sig.Accounts.UsersTest do
   use Sig.DataCase, async: true
 
-  alias Sig.Accounts.User
-  alias Sig.Accounts.Users
+  alias Sig.Accounts
+  alias Sig.Accounts.{User, Users, UserToken}
   alias Sig.Entities.Individuals.Individual
 
   @endpoint SigLive.Endpoint
@@ -34,6 +34,31 @@ defmodule Sig.Accounts.UsersTest do
       org = insert(:org)
 
       assert Users.list_users(org) == []
+    end
+  end
+
+  describe "disable_user/1" do
+    test "disables a user" do
+      user = insert(:user)
+
+      assert {:ok, %User{disabled_at: %NaiveDateTime{}}} = Users.disable_user(user)
+    end
+
+    test "deletes user tokens" do
+      user = insert(:user)
+      _ = Accounts.generate_user_session_token(user)
+
+      assert {:ok, %User{disabled_at: %NaiveDateTime{}}} = Users.disable_user(user)
+
+      refute Repo.get_by(UserToken, user_id: user.id)
+    end
+  end
+
+  describe "enable_user/1" do
+    test "enables a user" do
+      user = insert(:user, disabled_at: NaiveDateTime.utc_now())
+
+      assert {:ok, %User{disabled_at: nil}} = Users.enable_user(user)
     end
   end
 

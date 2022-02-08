@@ -9,6 +9,7 @@ defmodule Sig.Accounts.User do
     field :password, :string, virtual: true, redact: true
     field :hashed_password, :string, redact: true
     field :confirmed_at, :naive_datetime
+    field :disabled_at, :naive_datetime
     field :org_id, :binary_id
 
     field :org_roles, OrgUserRoles, default: %{}
@@ -37,7 +38,7 @@ defmodule Sig.Accounts.User do
   """
   def registration_changeset(user, attrs, opts \\ []) do
     user
-    |> cast(attrs, [:email, :password, :individual_id, :org_id, :org_roles])
+    |> cast(attrs, [:email, :password, :individual_id, :org_id, :org_roles, :disabled_at])
     |> validate_required([:individual_id, :org_id])
     |> validate_email()
     |> validate_password(opts)
@@ -118,6 +119,21 @@ defmodule Sig.Accounts.User do
   def confirm_changeset(user) do
     now = NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
     change(user, confirmed_at: now)
+  end
+
+  @doc """
+  Disables the account by setting `disabled_at`.
+  """
+  def disable_changeset(user) do
+    now = NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
+    change(user, disabled_at: now)
+  end
+
+  @doc """
+  Enables the account by setting `disabled_at` to nil.
+  """
+  def enable_changeset(user) do
+    change(user, disabled_at: nil)
   end
 
   @doc """

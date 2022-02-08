@@ -5,7 +5,10 @@ defmodule SigLive.Users.IndexLive do
 
   alias SigLive.Components.AppMenu
   alias SigLive.Components.ButtonPlus
+  alias SigLive.Components.DropdownOpts
   alias SigLive.Users.NewUserForm
+
+  defp user_opts, do: [preload: :individual, order_by: [individual: :name]]
 
   @impl true
   def mount(_params, _session, socket) do
@@ -16,7 +19,7 @@ defmodule SigLive.Users.IndexLive do
     socket =
       assign(socket,
         new_user_form_open: false,
-        users: Accounts.list_users(org, preload: :individual, order_by: [individual: :name])
+        users: Accounts.list_users(org, user_opts())
       )
 
     {:ok, socket}
@@ -30,6 +33,43 @@ defmodule SigLive.Users.IndexLive do
   @impl true
   def handle_event("close_modals", _, socket) do
     {:noreply, assign(socket, closed_state())}
+  end
+
+  @impl true
+  def handle_event("disable_user", %{"user_id" => user_id}, socket) do
+    %{org: org, users: users} = socket.assigns
+
+    with {:ok, user} <- fetch_user(users, user_id),
+         {:ok, _user} <- Accounts.disable_user(user) do
+      flash_info("Usuário desbilitado")
+      Accounts.broadcast_users(org, user_opts())
+
+      {:noreply, socket}
+    else
+      {:error, changeset} -> {:noreply, assign(socket, changeset: changeset)}
+    end
+  end
+
+  @impl true
+  def handle_event("enable_user", %{"user_id" => user_id}, socket) do
+    %{org: org, users: users} = socket.assigns
+
+    with {:ok, user} <- fetch_user(users, user_id),
+         {:ok, _user} <- Accounts.enable_user(user) do
+      flash_info("Usuário habilitado")
+      Accounts.broadcast_users(org, user_opts())
+
+      {:noreply, socket}
+    else
+      {:error, changeset} -> {:noreply, assign(socket, changeset: changeset)}
+    end
+  end
+
+  defp fetch_user(users, user_id) do
+    case Enum.find(users, &(&1.id == user_id)) do
+      nil -> {:error, :not_found}
+      user -> {:ok, user}
+    end
   end
 
   @impl true
@@ -56,14 +96,14 @@ defmodule SigLive.Users.IndexLive do
         close_event="close_modals"
         close_fun={fn -> send(self(), "close_modals") end}
         form_open={@new_user_form_open}
-        broadcast_opts={preload: :individual}
+        broadcast_opts={user_opts()}
         {=@org}
       />
 
       <table class="w-full bg-white shadow-lg">
         <thead class="top-0 z-20">
           <tr class="bg-white">
-            <th colspan="2">
+            <th colspan="3">
               <div class="flex justify-between items-center py-3 px-6">
                 <span class="text-gray-500 font-medium tracking-wider">
                   Usuários
@@ -80,6 +120,7 @@ defmodule SigLive.Users.IndexLive do
           >
             <th class="py-3 px-6 text-left">Nome</th>
             <th class="py-3 px-3 text-left">Email</th>
+            <th class="py-3 px-3 text-left"></th>
           </tr>
         </thead>
 
@@ -88,10 +129,36 @@ defmodule SigLive.Users.IndexLive do
             <tr class="border-b border-gray-200 hover:bg-gray-50">
               <td class="py-3 pl-6 text-left">
                 {user.individual.name}
+
+                <span :if={user.disabled_at != nil} class="label-gray ml-1">
+                  Desabilitado
+                </span>
               </td>
 
-              <td class="py-3 px-3 text-left">
+              <td class="py-3 px-3 text-left select-all">
                 {user.email}
+              </td>
+
+              <td class="pr-5 text-right">
+                <DropdownOpts>
+                {#if user.disabled_at == nil}
+                  <a
+                    :on-click="disable_user"
+                    phx-value-user_id={user.id}
+                    class="dropdown-item"
+                  >
+                    Desabilitar usuário
+                  </a>
+                {#else}
+                  <a
+                    :on-click="enable_user"
+                    phx-value-user_id={user.id}
+                    class="dropdown-item"
+                  >
+                    Habilitar usuário
+                  </a>
+                {/if}
+                </DropdownOpts>
               </td>
             </tr>
           {/for}

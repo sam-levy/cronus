@@ -3,8 +3,13 @@ defmodule Sig.Accounts.Users do
 
   import Sig.Broadcaster
 
+  alias Ecto.Multi
+
+  alias Sig.Accounts.{User, UserStore, UserToken}
   alias Sig.Organizations.Org
   alias Sig.Repo
+
+  alias SigLive.UserAuth
 
   def list_users(%Org{} = org, opts \\ []) do
     org
@@ -12,6 +17,44 @@ defmodule Sig.Accounts.Users do
     |> shallow_preload(opts)
     |> handle_order_by(opts, :email)
     |> Repo.all()
+  end
+
+  def disable_user(%User{} = user) do
+    user_token_query =
+      user
+      |> UserToken.user_and_contexts_query(:all)
+      |> select([user_token], user_token.token)
+
+    Multi.new()
+    |> Multi.update(:disable_user, User.disable_changeset(user))
+    |> Multi.delete_all(:tokens, user_token_query)
+    |> Multi.run(:delete_from_store, fn _, %{tokens: {_, tokens}} -> delete_from_store(tokens) end)
+    |> Repo.transaction()
+    |> case do
+      {:ok, %{disable_user: user, tokens: {_, tokens}}} ->
+        disconnect_live_views(tokens)
+        {:ok, user}
+
+      {:error, _operation, reason, _changes} ->
+        {:error, reason}
+    end
+  end
+
+  defp delete_from_store(nil), do: {:ok, nil}
+  defp delete_from_store(tokens), do: {:ok, UserStore.delete(tokens)}
+
+  defp disconnect_live_views(tokens) do
+    Enum.each(tokens, fn token ->
+      token
+      |> UserAuth.live_socket_id()
+      |> UserAuth.disconnect_live_view()
+    end)
+  end
+
+  def enable_user(%User{} = user) do
+    user
+    |> User.enable_changeset()
+    |> Repo.update()
   end
 
   defp query_by(%Org{} = org) do

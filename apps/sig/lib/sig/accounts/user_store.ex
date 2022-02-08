@@ -23,8 +23,14 @@ defmodule Sig.Accounts.UserStore do
     GenServer.call(table, {:insert, token, user})
   end
 
-  def delete(token, table \\ @name) when is_binary(token) do
+  def delete(token, table \\ @name)
+
+  def delete(token, table) when is_binary(token) do
     GenServer.call(table, {:delete, token})
+  end
+
+  def delete(tokens, table) when is_list(tokens) do
+    Enum.each(tokens, &delete(&1, table))
   end
 
   def fetch(token, table \\ @name) when is_binary(token) do

@@ -42,7 +42,11 @@ defmodule SigLive.Users.NewUserForm do
   def handle_event("save", %{"user" => params}, socket) do
     %{org: org, broadcast_opts: broadcast_opts} = socket.assigns
 
-    params = Map.put(params, "org_id", org.id)
+    params =
+      params
+      |> Map.put("org_id", org.id)
+      # TODO Refactor on authorization implementation
+      |> Map.put("org_roles", %{org.id => :regular})
 
     case Accounts.register_user(params) do
       {:ok, _user} ->

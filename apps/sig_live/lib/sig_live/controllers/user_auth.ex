@@ -31,9 +31,17 @@ defmodule SigLive.UserAuth do
     conn
     |> renew_session()
     |> put_session(:user_token, token)
-    |> put_session(:live_socket_id, "users_sessions:#{Base.url_encode64(token)}")
+    |> put_session(:live_socket_id, live_socket_id(token))
     |> maybe_write_remember_me_cookie(token, params)
     |> redirect(to: user_return_to || signed_in_path(conn))
+  end
+
+  def live_socket_id(token) do
+    "users_sessions:#{Base.url_encode64(token)}"
+  end
+
+  def disconnect_live_view(live_socket_id) do
+    SigLive.Endpoint.broadcast(live_socket_id, "disconnect", %{})
   end
 
   defp maybe_write_remember_me_cookie(conn, token, %{"remember_me" => "true"}) do
@@ -75,7 +83,7 @@ defmodule SigLive.UserAuth do
     user_token && Accounts.delete_session_token(user_token)
 
     if live_socket_id = get_session(conn, :live_socket_id) do
-      SigLive.Endpoint.broadcast(live_socket_id, "disconnect", %{})
+      disconnect_live_view(live_socket_id)
     end
 
     conn

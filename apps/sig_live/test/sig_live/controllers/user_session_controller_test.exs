@@ -76,6 +76,19 @@ defmodule SigLive.UserSessionControllerTest do
       assert response =~ "Log in"
       assert response =~ "Email ou senha invalido"
     end
+
+    test "when user is disabled", %{conn: conn} do
+      user = insert(:user, disabled_at: NaiveDateTime.utc_now())
+
+      conn =
+        post(conn, Routes.user_session_path(conn, :create), %{
+          "user" => %{"email" => user.email, "password" => valid_user_password()}
+        })
+
+      response = html_response(conn, 200)
+      assert response =~ "Log in"
+      assert response =~ "Email ou senha invalido"
+    end
   end
 
   describe "DELETE /users/log_out" do
