@@ -38,7 +38,7 @@ defmodule Sig.Accounts.User do
   """
   def registration_changeset(user, attrs, opts \\ []) do
     user
-    |> cast(attrs, [:email, :password, :individual_id, :org_id, :org_roles])
+    |> cast(attrs, [:email, :password, :individual_id, :org_id, :org_roles, :disabled_at])
     |> validate_required([:individual_id, :org_id])
     |> validate_email()
     |> validate_password(opts)

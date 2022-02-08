@@ -11,12 +11,13 @@ defmodule SigLive.UserSessionController do
   def create(conn, %{"user" => user_params}) do
     %{"email" => email, "password" => password} = user_params
 
-    if user = Accounts.get_user_by_email_and_password(email, password) do
+    with %{disabled_at: nil} = user <- Accounts.get_user_by_email_and_password(email, password) do
       UserAuth.log_in_user(conn, user, user_params)
     else
-      conn
-      |> put_flash(:error, "Email ou senha invalido")
-      |> render("new.html")
+      _ ->
+        conn
+        |> put_flash(:error, "Email ou senha invalido")
+        |> render("new.html")
     end
   end
 
