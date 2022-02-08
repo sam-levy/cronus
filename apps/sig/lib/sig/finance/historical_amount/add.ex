@@ -32,8 +32,6 @@ defmodule Sig.Finance.HistoricalAmount.Add do
 
   def call(changeset, _, _, _), do: changeset
 
-  defp set_history(%{status: :halted} = context), do: context
-
   defp set_history(context) do
     %{changeset: changeset, history_field: history_field, amount_field: amount_field} = context
 
@@ -56,7 +54,7 @@ defmodule Sig.Finance.HistoricalAmount.Add do
 
     case fetch_field(changeset, date_field) do
       {_, date} -> %{context | date: date}
-      :error -> add_changeset_error(context, date_field, :not_found)
+      :error -> add_changeset_error(context, date_field, "not found")
     end
   end
 
@@ -67,7 +65,7 @@ defmodule Sig.Finance.HistoricalAmount.Add do
 
     case fetch_field(changeset, amount_field) do
       {_, amount} -> %{context | amount: amount}
-      :error -> add_changeset_error(context, amount_field, :not_found)
+      :error -> add_changeset_error(context, amount_field, "not found")
     end
   end
 
@@ -90,7 +88,7 @@ defmodule Sig.Finance.HistoricalAmount.Add do
   end
 
   defp map_errors_to_parent(context, errors, field, parent_field) do
-    case Keyword.fetch(errors, field) do
+    case Keyword.get(errors, field) do
       nil -> context
       field_errors -> add_changeset_error(context, parent_field, field_errors)
     end
