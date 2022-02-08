@@ -25,7 +25,7 @@ defmodule Sig.Repo.Migrations.CreateEmployeeBenefitModelsTable do
     create constraint(
              :employee_benefit_models,
              :employee_benefit_models_amount_greater_than_zero,
-             check: "amount > 0"
+             check: "amount >= 0"
            )
   end
 end

@@ -167,7 +167,7 @@ defmodule Sig.HR.BenefitModels.BenefitModelTest do
       refute changeset.valid?
 
       assert errors_on(changeset) == %{
-               amount: ["must be greater than 0,00"]
+               amount: ["must be greater than or equal to 0,00"]
              }
     end
 
