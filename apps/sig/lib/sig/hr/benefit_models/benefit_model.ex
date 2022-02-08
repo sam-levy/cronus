@@ -26,7 +26,7 @@ defmodule Sig.HR.BenefitModels.BenefitModel do
     |> cast(attrs, @create_fields)
     |> validate_required(@create_fields)
     |> validate_length(:description, max: 255)
-    |> validate_money(:amount, :gt, 0)
+    |> validate_money(:amount, [:gt, :eq], 0)
     |> unique_constraint(:description, name: :employee_benefit_models_unique_description)
     |> HistoricalAmount.add(:amount, :amount_date, :historical_amounts)
   end
