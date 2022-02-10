@@ -65,10 +65,24 @@ defmodule SigLive.EmployeeRegistrations.Form do
     <Modal title={handle_title(@form_state)} close={@close_event}>
       <Form for={@changeset} submit="save" opts={autocomplete: "off"}>
         <Field name={:admission_date}>
-          <Label class="form-label">Data de Contratação</Label>
+          <Label class="form-label">Data de Admissão</Label>
           <DateInput {...props_for(:admission_date, @form_state)} />
           <ErrorTag class="form-error-tag" />
         </Field>
+
+        <div class="flex space-x-5 form-field">
+          <Field name={:number}>
+            <Label class="form-label">Número do Registro</Label>
+            <TextInput {...props_for(:number, @form_state)}/>
+            <ErrorTag class="form-error-tag" />
+          </Field>
+
+          <Field name={:e_social_number}>
+            <Label class="form-label">Matrícula eSocial</Label>
+            <TextInput {...props_for(:number, @form_state)}/>
+            <ErrorTag class="form-error-tag" />
+          </Field>
+        </div>
 
         <Field :if={@form_state == :new_mode} name={:salary_amount} class="form-field">
           <Label class="form-label">Salário Base</Label>
