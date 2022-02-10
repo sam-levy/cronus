@@ -348,6 +348,38 @@ defmodule Sig.ChangesetTest do
     end
   end
 
+  describe "validate_numericality/2" do
+    test "valid if value is a string number" do
+      data = %{}
+      types = %{number: :string}
+      params = %{number: "1234"}
+
+      changeset =
+        {data, types}
+        |> Ecto.Changeset.cast(params, Map.keys(types))
+        |> Sig.Changeset.validate_numericality(:number)
+
+      assert changeset.valid?
+    end
+
+    test "invalid if value is not a string number" do
+      data = %{}
+      types = %{number: :string}
+      params = %{number: "12a34"}
+
+      changeset =
+        {data, types}
+        |> Ecto.Changeset.cast(params, Map.keys(types))
+        |> Sig.Changeset.validate_numericality(:number)
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+               number: ["has invalid format"]
+             }
+    end
+  end
+
   describe "validate_money/2" do
     test ":gt true" do
       data = %{}
