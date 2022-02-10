@@ -93,7 +93,7 @@ defmodule SigLive.PayslipCategories.List do
       />
 
       <table class="w-full bg-white shadow-lg">
-        <thead class="top-0 z-20">
+        <thead class="top-0 z-10 sticky">
           <tr class="bg-white">
             <th colspan="6">
               <div class="flex justify-between items-center py-3 px-6">
