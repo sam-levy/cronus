@@ -40,6 +40,8 @@ defmodule Sig.HR.Registrations.CreateTest do
 
       attrs = %{
         org_id: org.id,
+        number: random_string_number(),
+        e_social_number: random_string_number(),
         admission_date: ~D[2009-01-01],
         sector_id: sector.id,
         position_id: position.id,
@@ -89,6 +91,8 @@ defmodule Sig.HR.Registrations.CreateTest do
 
       attrs = %{
         org_id: org.id,
+        number: random_string_number(),
+        e_social_number: random_string_number(),
         admission_date: ~D[2009-01-01],
         sector_id: sector.id,
         position_id: position.id,
@@ -139,6 +143,8 @@ defmodule Sig.HR.Registrations.CreateTest do
 
       attrs = %{
         org_id: org.id,
+        number: random_string_number(),
+        e_social_number: random_string_number(),
         admission_date: ~D[2009-01-01],
         sector_id: sector.id,
         position_id: position.id,
@@ -184,6 +190,8 @@ defmodule Sig.HR.Registrations.CreateTest do
       refute changeset.valid?
 
       assert errors_on(changeset) == %{
+               number: ["can't be blank"],
+               e_social_number: ["can't be blank"],
                admission_date: ["can't be blank"],
                position_id: ["can't be blank"],
                registered_at_id: ["can't be blank"],
@@ -201,6 +209,8 @@ defmodule Sig.HR.Registrations.CreateTest do
 
       attrs = %{
         org_id: org.id,
+        number: random_string_number(),
+        e_social_number: random_string_number(),
         admission_date: Faker.Date.between(~D[2000-01-01], ~D[2010-01-01]),
         sector_id: sector.id,
         position_id: position.id,
@@ -222,6 +232,8 @@ defmodule Sig.HR.Registrations.CreateTest do
 
       attrs = %{
         org_id: org.id,
+        number: random_string_number(),
+        e_social_number: random_string_number(),
         admission_date: Faker.Date.between(~D[2000-01-01], ~D[2010-01-01]),
         sector_id: sector.id,
         position_id: position.id,
@@ -263,6 +275,8 @@ defmodule Sig.HR.Registrations.CreateTest do
 
       attrs = %{
         org_id: org.id,
+        number: random_string_number(),
+        e_social_number: random_string_number(),
         admission_date: ~D[2011-02-02],
         sector_id: sector.id,
         position_id: position.id,
@@ -294,6 +308,8 @@ defmodule Sig.HR.Registrations.CreateTest do
 
       attrs = %{
         org_id: org.id,
+        number: random_string_number(),
+        e_social_number: random_string_number(),
         admission_date: ~D[2011-02-02],
         sector_id: sector.id,
         position_id: position.id,

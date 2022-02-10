@@ -93,6 +93,10 @@ defmodule Sig.Changeset do
 
   def validate_date(changeset, _, _, _, _), do: changeset
 
+  def validate_numericality(changeset, field) do
+    validate_format(changeset, field, ~r/^\d+$/)
+  end
+
   @number_comparison_dict %{lt: "less than", eq: "equal to", gt: "greater than"}
 
   def validate_money(%{valid?: true} = changeset, field, criteria, value) do

@@ -92,7 +92,7 @@ defmodule SigLive.PayslipCategories.List do
         error_message={@message}
       />
 
-      <table class="w-full bg-white shadow-lg">
+      <table class="w-full bg-white shadow-lg mb-5">
         <thead class="top-0 z-10 sticky">
           <tr class="bg-white">
             <th colspan="6">
