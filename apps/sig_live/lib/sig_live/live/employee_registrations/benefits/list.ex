@@ -76,7 +76,7 @@ defmodule SigLive.EmployeeRegistrations.Benefits.List do
         {=@benefit_id}
       />
 
-      <table class="w-full bg-white shadow-lg my-7">
+      <table class="w-full bg-white shadow-lg">
         <thead class="top-0 z-20">
           <tr class="bg-white">
             <th colspan="6">
