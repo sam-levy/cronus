@@ -9,6 +9,7 @@ defmodule SigLive.EmployeeRegistrations.Show do
   alias Sig.HR
 
   alias SigLive.EmployeeRegistrations.{
+    Information,
     Salaries,
     Benefits,
     Warnings,
@@ -207,7 +208,8 @@ defmodule SigLive.EmployeeRegistrations.Show do
         </div>
       </div>
 
-      <div :show={@active_screen == :registration_show}>
+      <div :show={@active_screen == :registration_show} class="space-y-7 mb-5">
+        <Information {=@registration}/>
         <RecurringPayslipItems.List
           id="recurring_payslip_items_list"
           {=@registration}
