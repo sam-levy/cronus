@@ -41,7 +41,7 @@ defmodule SigLive.EmployeeRegistrations.List do
       <table class="w-full bg-white shadow-lg my-7">
         <thead class="top-0 z-20">
           <tr class="bg-white">
-            <th colspan="6">
+            <th colspan="5">
               <div class="flex justify-between items-center py-3 px-6">
                 <span class="text-gray-500 font-medium tracking-wider">
                   Registros de Trabalho
@@ -60,7 +60,6 @@ defmodule SigLive.EmployeeRegistrations.List do
             <th class="py-3 px-3 text-left">Início</th>
             <th class="py-3 px-3 text-left">Término</th>
             <th class="py-3 px-3 text-left">Salário</th>
-            <th />
           </tr>
         </thead>
 
@@ -69,7 +68,7 @@ defmodule SigLive.EmployeeRegistrations.List do
             <tr class="border-b border-gray-200 hover:bg-gray-50">
               <td class="py-3 pl-6 text-left">
                 <LiveRedirect
-                  to={Routes.sig_employee_registrations_show_path(@socket, :registration_show, @org, registration)}
+                  to={Routes.sig_employee_registrations_show_path(@socket, :registration_summary, @org, registration)}
                   class="hover:underline"
                 >
                   <span>{registration.registered_at.trade_name}</span>
