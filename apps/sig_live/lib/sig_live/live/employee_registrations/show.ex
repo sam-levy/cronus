@@ -23,7 +23,7 @@ defmodule SigLive.EmployeeRegistrations.Show do
 
   alias SigLive.Components.AppMenu
 
-  defp registration_tab do
+  defp registration_tab_screens do
     [
       :registration_summary,
       :registration_recurring_payslip_items,
@@ -294,7 +294,7 @@ defmodule SigLive.EmployeeRegistrations.Show do
           <LivePatch
             to={Routes.sig_employee_registrations_show_path(@socket, :registration_summary, @org, @registration)}
             replace
-            class={tab_classes_for(:registration_summary, @active_screen)}
+            class={tab_classes_for(@active_screen, registration_tab_screens())}
           >
             Cadastros
           </LivePatch>
@@ -302,14 +302,14 @@ defmodule SigLive.EmployeeRegistrations.Show do
           <LivePatch
             to={Routes.sig_employee_registrations_show_path(@socket, :payslips, @org, @registration)}
             replace
-            class={tab_classes_for(:payslips, @active_screen)}
+            class={tab_classes_for(@active_screen, [:payslips])}
           >
             Holerites
           </LivePatch>
         </div>
       </div>
 
-      <div :show={@active_screen in registration_tab()} class="flex space-x-5">
+      <div :show={@active_screen in registration_tab_screens()} class="flex space-x-5">
         <div class="w-1/5">
           <div class="space-y-0.5">
             <LivePatch
@@ -460,13 +460,13 @@ defmodule SigLive.EmployeeRegistrations.Show do
   @impl SigLive.PayslipsState
   def sort_payslips(payslips), do: Enum.sort_by(payslips, & &1.start_date, {:desc, Date})
 
-  defp tab_classes_for(screen, screen) do
-    ~w(text-purple-500 bg-purple-300 bg-opacity-75) ++ tab_base_classes()
-  end
-
-  defp tab_classes_for(_screen, _active_screen) do
-    ~w(cursor-pointer text-gray-500 hover:bg-purple-300 hover:bg-opacity-75 hover:text-purple-500) ++
+  defp tab_classes_for(active_screen, screens) do
+    if active_screen in screens do
+      ~w(text-purple-500 bg-purple-300 bg-opacity-75) ++ tab_base_classes()
+    else
+      ~w(cursor-pointer text-gray-500 hover:bg-purple-300 hover:bg-opacity-75 hover:text-purple-500) ++
       tab_base_classes()
+    end
   end
 
   defp tab_base_classes, do: ~w(py-2 px-4 text-sm rounded-md select-none)
