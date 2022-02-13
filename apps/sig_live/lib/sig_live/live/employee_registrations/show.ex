@@ -49,21 +49,20 @@ defmodule SigLive.EmployeeRegistrations.Show do
         registration: registration,
         payslips: [],
         selected_payslip: nil,
-        registration_overtimes: [],
         selected_payslip_items: [],
-        selected_payslip_payables: [],
-        registration_recurring_payslip_items: []
+        selected_payslip_payables: []
       )
 
     {:ok, socket,
      temporary_assigns: [
        registration_salaries: [],
+       registration_company_assignments: [],
+       registration_recurring_payslip_items: [],
+       registration_overtimes: [],
        registration_benefits: [],
        registration_warnings: [],
        registration_suspensions: [],
-       registration_leave_periods: [],
-       registration_company_assignments: [],
-       registration_recurring_payslip_items: []
+       registration_leave_periods: []
      ]}
   end
 
