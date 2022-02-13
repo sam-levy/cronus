@@ -51,13 +51,33 @@ defmodule SigLive.Router do
       live "/individuals", Individuals.Index, :index
       live "/individuals/:id", Individuals.Show, :show
 
-      live "/registrations/:registration_id/summary", EmployeeRegistrations.Show, :registration_summary
-      live "/registrations/:registration_id/registration_recurring_payslip_items", EmployeeRegistrations.Show, :registration_recurring_payslip_items
-      live "/registrations/:registration_id/registration_overtimes", EmployeeRegistrations.Show, :registration_overtimes
-      live "/registrations/:registration_id/registration_benefits", EmployeeRegistrations.Show, :registration_benefits
-      live "/registrations/:registration_id/registration_warnings", EmployeeRegistrations.Show, :registration_warnings
-      live "/registrations/:registration_id/registration_suspensions", EmployeeRegistrations.Show, :registration_suspensions
-      live "/registrations/:registration_id/registration_leave_periods", EmployeeRegistrations.Show, :registration_leave_periods
+      live "/registrations/:registration_id/summary",
+           EmployeeRegistrations.Show,
+           :registration_summary
+
+      live "/registrations/:registration_id/registration_recurring_payslip_items",
+           EmployeeRegistrations.Show,
+           :registration_recurring_payslip_items
+
+      live "/registrations/:registration_id/registration_overtimes",
+           EmployeeRegistrations.Show,
+           :registration_overtimes
+
+      live "/registrations/:registration_id/registration_benefits",
+           EmployeeRegistrations.Show,
+           :registration_benefits
+
+      live "/registrations/:registration_id/registration_warnings",
+           EmployeeRegistrations.Show,
+           :registration_warnings
+
+      live "/registrations/:registration_id/registration_suspensions",
+           EmployeeRegistrations.Show,
+           :registration_suspensions
+
+      live "/registrations/:registration_id/registration_leave_periods",
+           EmployeeRegistrations.Show,
+           :registration_leave_periods
 
       live "/registrations/:registration_id/payslips", EmployeeRegistrations.Show, :payslips
 

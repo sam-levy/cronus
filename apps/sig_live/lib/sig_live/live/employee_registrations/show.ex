@@ -103,7 +103,10 @@ defmodule SigLive.EmployeeRegistrations.Show do
 
     socket
     |> assign_active_screen(:registration_recurring_payslip_items)
-    |> assign(registration_recurring_payslip_items: HR.list_recurring_payslip_items_by_registration(registration))
+    |> assign(
+      registration_recurring_payslip_items:
+        HR.list_recurring_payslip_items_by_registration(registration)
+    )
   end
 
   defp build_assigns_for(socket, :registration_overtimes, _params) do
@@ -469,6 +472,7 @@ defmodule SigLive.EmployeeRegistrations.Show do
   defp tab_base_classes, do: ~w(py-2 px-4 text-sm rounded-md select-none)
 
   defp menu_item_classes_for(screen, active_screen) do
-    ~w[block cursor-pointer text-gray-500 text-sm pl-2 py-2 rounded-md hover:bg-gray-300] ++ ["bg-gray-300": active_screen == screen]
+    ~w[block cursor-pointer text-gray-500 text-sm pl-2 py-2 rounded-md hover:bg-gray-300] ++
+      ["bg-gray-300": active_screen == screen]
   end
 end
