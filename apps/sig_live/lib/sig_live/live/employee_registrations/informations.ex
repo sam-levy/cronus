@@ -8,7 +8,7 @@ defmodule SigLive.EmployeeRegistrations.Information do
     ~F"""
     <div class="bg-white shadow-lg overflow-hidden">
       <div class="px-4 py-4">
-        <h3 class="text-lg leading-6 font-medium text-gray-500">Registro</h3>
+        <span class="text-gray-500 font-medium tracking-wider">Registro</span>
       </div>
 
       <div class="border-t border-gray-200">
