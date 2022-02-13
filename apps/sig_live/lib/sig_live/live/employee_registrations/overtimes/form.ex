@@ -7,6 +7,7 @@ defmodule SigLive.EmployeeRegistrations.Overtimes.Form do
 
   alias Surface.Components.Form.{
     TextInput,
+    Select,
     ErrorTag,
     Field,
     Label,
@@ -52,21 +53,24 @@ defmodule SigLive.EmployeeRegistrations.Overtimes.Form do
   end
 
   @impl true
+  def handle_event("form_change", %{"overtime" => params}, socket) do
+    {:noreply, assign(socket, :changeset, HR.create_overtime_change(params))}
+  end
+
+  @impl true
   def render(assigns) do
     ~F"""
     <Modal title={handle_title(@form_state)} close={@close_event}>
-      <Form for={@changeset} submit="save" opts={autocomplete: "off"}>
-        <div class="form-field">
-          <label for="overtime_date" class="form-label">Mês</label>
-
-          <select id="overtime_date" name="overtime[date]" class="form-input">
-            {#for date <- @dates_for_select}
-              <option value={date} selected={date == @selected_date}>
-                {format_month(date)}
-              </option>
-            {/for}
-          </select>
-        </div>
+      <Form for={@changeset} change="form_change" submit="save" opts={autocomplete: "off"}>
+        <Field name={:date} class="form-field">
+          <Label class="form-label">Mês</Label>
+          <Select
+            options={Map.new(@dates_for_select, &{format_month(&1), to_string(&1)})}
+            prompt=""
+            class="form-input"
+          />
+          <ErrorTag class="form-error-tag" />
+        </Field>
 
         <Field name={:hours_amount} class="form-field">
           <Label class="form-label">Horas</Label>

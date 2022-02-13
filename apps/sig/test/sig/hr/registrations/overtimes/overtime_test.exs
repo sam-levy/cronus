@@ -217,6 +217,29 @@ defmodule Sig.HR.Registrations.Overtimes.OvertimeTest do
 
       assert errors_on(changeset) == %{date: ["must be first day of month"]}
     end
+
+    test "date unique constraint" do
+      date = ~D[2021-01-01]
+
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org, admission_date: date)
+
+      insert(:employee_overtime, org: org, registration: registration, date: date, hours_amount: "02:00")
+
+      attrs = %{
+        org_id: org.id,
+        date: date,
+        hours_amount: "01:00",
+        registration_id: registration.id
+      }
+
+      assert {:error, changeset} =
+        attrs
+        |> Overtime.create_changeset()
+        |> Repo.insert()
+
+      assert errors_on(changeset) == %{date: ["has already been taken"]}
+    end
   end
 
   describe "update_changeset/2" do
@@ -278,6 +301,29 @@ defmodule Sig.HR.Registrations.Overtimes.OvertimeTest do
       refute changeset.valid?
 
       assert errors_on(changeset) == %{date: ["must be first day of month"]}
+    end
+
+    test "date unique constraint" do
+      date = ~D[2021-01-01]
+
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org, admission_date: date)
+
+      _existing_overtime = insert(:employee_overtime, org: org, registration: registration, date: date, hours_amount: "02:00")
+
+      overtime = insert(:employee_overtime, org: org, registration: registration, date: ~D[2021-02-01], hours_amount: "01:00")
+
+      attrs = %{
+        date: date,
+        hours_amount: "03:00"
+      }
+
+      assert {:error, changeset} =
+        overtime
+        |> Overtime.update_changeset(attrs)
+        |> Repo.update()
+
+      assert errors_on(changeset) == %{date: ["has already been taken"]}
     end
   end
 
