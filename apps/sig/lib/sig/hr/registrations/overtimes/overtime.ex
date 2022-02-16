@@ -25,7 +25,9 @@ defmodule Sig.HR.Registrations.Overtimes.Overtime do
     |> validate_required(@create_required_fields)
     |> Sig.Hour.Changeset.validate_hours(:hours_amount)
     |> validate_beginning_of_month(:date)
-    |> unique_constraint([:date, :registration_id, :org_id], name: :employee_overtimes_date_registration_unique)
+    |> unique_constraint([:date, :registration_id, :org_id],
+      name: :employee_overtimes_date_registration_unique
+    )
   end
 
   def update_changeset(%__MODULE__{} = target, attrs) do
@@ -34,7 +36,9 @@ defmodule Sig.HR.Registrations.Overtimes.Overtime do
     |> validate_required([:date, :hours_amount])
     |> Sig.Hour.Changeset.validate_hours(:hours_amount)
     |> validate_beginning_of_month(:date)
-    |> unique_constraint([:date, :registration_id, :org_id], name: :employee_overtimes_date_registration_unique)
+    |> unique_constraint([:date, :registration_id, :org_id],
+      name: :employee_overtimes_date_registration_unique
+    )
   end
 
   def assign_payslip_changeset(%__MODULE__{} = target, attrs) do
