@@ -39,7 +39,10 @@ defmodule SigLive.EmployeeRegistrations.Show do
   def mount(%{"registration_id" => registration_id}, _session, socket) do
     %{org: org} = socket.assigns
 
-    registration = HR.get_registration(org, registration_id, preload: [:org, :registered_at])
+    registration =
+      HR.get_registration(org, registration_id,
+        preload: [:org, :registered_at, :sector, :position]
+      )
 
     socket =
       assign(
