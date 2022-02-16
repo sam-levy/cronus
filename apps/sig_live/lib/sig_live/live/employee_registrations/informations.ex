@@ -27,6 +27,16 @@ defmodule SigLive.EmployeeRegistrations.Information do
             <dt class="text-sm font-medium text-gray-500">Matrícula eSocial</dt>
             <dd class="mt-1 text-sm text-gray-500">{@registration.e_social_number}</dd>
           </div>
+
+          <div class="px-4 py-2 grid grid-cols-2">
+            <dt class="text-sm font-medium text-gray-500">Setor</dt>
+            <dd class="mt-1 text-sm text-gray-500">{@registration.sector.name}</dd>
+          </div>
+
+          <div class="px-4 py-2 bg-gray-100 grid grid-cols-2">
+            <dt class="text-sm font-medium text-gray-500">Cargo</dt>
+            <dd class="mt-1 text-sm text-gray-500">{@registration.position.name}</dd>
+          </div>
         </dl>
       </div>
     </div>
