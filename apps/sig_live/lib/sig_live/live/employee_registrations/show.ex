@@ -464,7 +464,7 @@ defmodule SigLive.EmployeeRegistrations.Show do
       ~w(text-purple-500 bg-purple-300 bg-opacity-75) ++ tab_base_classes()
     else
       ~w(cursor-pointer text-gray-500 hover:bg-purple-300 hover:bg-opacity-75 hover:text-purple-500) ++
-      tab_base_classes()
+        tab_base_classes()
     end
   end
 

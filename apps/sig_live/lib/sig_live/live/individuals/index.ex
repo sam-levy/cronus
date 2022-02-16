@@ -36,7 +36,12 @@ defmodule SigLive.Individuals.Index do
   def handle_params(%{"filters" => filters}, _url, socket) do
     filtered_individuals = filter_individuals(filters, socket.assigns.individuals)
 
-    {:noreply, assign(socket, filters: filters, filtered_individuals: filtered_individuals)}
+    {:noreply,
+     assign(socket,
+       filters: filters,
+       filtered_individuals: filtered_individuals,
+       filtered_individuals_count: Enum.count(filtered_individuals)
+     )}
   end
 
   @impl true
@@ -60,7 +65,11 @@ defmodule SigLive.Individuals.Index do
     filtered_individuals = filter_individuals(socket.assigns.filters, individuals)
 
     {:noreply,
-     assign(socket, individuals: individuals, filtered_individuals: filtered_individuals)}
+     assign(socket,
+       individuals: individuals,
+       filtered_individuals: filtered_individuals,
+       filtered_individuals_count: Enum.count(filtered_individuals)
+     )}
   end
 
   @impl true
@@ -91,8 +100,13 @@ defmodule SigLive.Individuals.Index do
     end)
   end
 
+  defp filter_individuals(%{"registered_at_company_entity_id" => "all"}, individuals) do
+    individuals
+  end
+
   defp filter_individuals(filters, individuals) do
-    Enum.reduce(individuals, [], fn individual, acc ->
+    individuals
+    |> Enum.reduce([], fn individual, acc ->
       filters
       |> Enum.reduce_while(individual, &apply_filter/2)
       |> case do
@@ -100,10 +114,7 @@ defmodule SigLive.Individuals.Index do
         _ -> [individual | acc]
       end
     end)
-  end
-
-  defp apply_filter({"registered_at_company_entity_id", "all"}, individual) do
-    {:cont, individual}
+    |> Enum.reverse()
   end
 
   defp apply_filter(
@@ -144,34 +155,40 @@ defmodule SigLive.Individuals.Index do
         {=@org}
       />
 
-      <table class="w-full bg-white shadow-lg">
+      <table class="w-full bg-white shadow-lg mb-5">
         <thead class="top-0 sticky">
           <tr class="bg-white">
             <th colspan="3">
               <div class="flex justify-between items-center py-3 px-6 text-gray-500 font-medium tracking-wider">
-                <Form for={:filter} change="filter_individuals">
-                  <select name="registered_at_company_entity_id" class="form-input py-1">
-                    <option value="all" selected={@filters["registered_at_company_entity_id"] == "all"}>
-                      Todas as Pessoas
-                    </option>
-
-                    <option
-                      value="active_employees"
-                      selected={@filters["registered_at_company_entity_id"] == "active_employees"}
-                    >
-                      Funcionários Ativos
-                    </option>
-
-                    {#for company <- @companies}
-                      <option
-                        value={company.entity_id}
-                        selected={company.entity_id == @filters["registered_at_company_entity_id"]}
-                      >
-                        {company.trade_name}
+                <div class="flex justify-start items-center space-x-3">
+                  <Form for={:filter} change="filter_individuals">
+                    <select name="registered_at_company_entity_id" class="form-input py-1">
+                      <option value="all" selected={@filters["registered_at_company_entity_id"] == "all"}>
+                        Todas as Pessoas
                       </option>
-                    {/for}
-                  </select>
-                </Form>
+
+                      <option
+                        value="active_employees"
+                        selected={@filters["registered_at_company_entity_id"] == "active_employees"}
+                      >
+                        Funcionários Ativos
+                      </option>
+
+                      {#for company <- @companies}
+                        <option
+                          value={company.entity_id}
+                          selected={company.entity_id == @filters["registered_at_company_entity_id"]}
+                        >
+                          {company.trade_name}
+                        </option>
+                      {/for}
+                    </select>
+                  </Form>
+
+                  <div class="font-extralight">
+                    {@filtered_individuals_count}
+                  </div>
+                </div>
 
                 <ButtonPlus on_click="open_new_individual_modal" />
               </div>

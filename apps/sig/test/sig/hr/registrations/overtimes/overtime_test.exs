@@ -224,7 +224,12 @@ defmodule Sig.HR.Registrations.Overtimes.OvertimeTest do
       org = insert(:org)
       registration = insert(:employee_registration, org: org, admission_date: date)
 
-      insert(:employee_overtime, org: org, registration: registration, date: date, hours_amount: "02:00")
+      insert(:employee_overtime,
+        org: org,
+        registration: registration,
+        date: date,
+        hours_amount: "02:00"
+      )
 
       attrs = %{
         org_id: org.id,
@@ -234,9 +239,9 @@ defmodule Sig.HR.Registrations.Overtimes.OvertimeTest do
       }
 
       assert {:error, changeset} =
-        attrs
-        |> Overtime.create_changeset()
-        |> Repo.insert()
+               attrs
+               |> Overtime.create_changeset()
+               |> Repo.insert()
 
       assert errors_on(changeset) == %{date: ["has already been taken"]}
     end
@@ -309,9 +314,21 @@ defmodule Sig.HR.Registrations.Overtimes.OvertimeTest do
       org = insert(:org)
       registration = insert(:employee_registration, org: org, admission_date: date)
 
-      _existing_overtime = insert(:employee_overtime, org: org, registration: registration, date: date, hours_amount: "02:00")
+      _existing_overtime =
+        insert(:employee_overtime,
+          org: org,
+          registration: registration,
+          date: date,
+          hours_amount: "02:00"
+        )
 
-      overtime = insert(:employee_overtime, org: org, registration: registration, date: ~D[2021-02-01], hours_amount: "01:00")
+      overtime =
+        insert(:employee_overtime,
+          org: org,
+          registration: registration,
+          date: ~D[2021-02-01],
+          hours_amount: "01:00"
+        )
 
       attrs = %{
         date: date,
@@ -319,9 +336,9 @@ defmodule Sig.HR.Registrations.Overtimes.OvertimeTest do
       }
 
       assert {:error, changeset} =
-        overtime
-        |> Overtime.update_changeset(attrs)
-        |> Repo.update()
+               overtime
+               |> Overtime.update_changeset(attrs)
+               |> Repo.update()
 
       assert errors_on(changeset) == %{date: ["has already been taken"]}
     end
