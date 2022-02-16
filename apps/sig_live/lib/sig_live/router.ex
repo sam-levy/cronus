@@ -85,6 +85,8 @@ defmodule SigLive.Router do
            EmployeeRegistrations.Show,
            :payslip
 
+      live "/reports/hr", Reports.HR, :hr_reports
+
       live "/users", Users.IndexLive, :users
     end
   end
