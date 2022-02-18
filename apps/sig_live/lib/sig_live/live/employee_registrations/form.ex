@@ -75,13 +75,13 @@ defmodule SigLive.EmployeeRegistrations.Form do
         <div class="flex space-x-5 form-field">
           <Field name={:number}>
             <Label class="form-label">Número do Registro</Label>
-            <TextInput {...props_for(:number, @form_state)}/>
+            <TextInput {...props_for(:number, @form_state)} />
             <ErrorTag class="form-error-tag" />
           </Field>
 
           <Field name={:e_social_number}>
             <Label class="form-label">Matrícula eSocial</Label>
-            <TextInput {...props_for(:number, @form_state)}/>
+            <TextInput {...props_for(:number, @form_state)} />
             <ErrorTag class="form-error-tag" />
           </Field>
         </div>

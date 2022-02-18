@@ -34,7 +34,9 @@ defmodule Sig.HR do
   defdelegate get_registration(schema, id, opts \\ []), to: Registrations, as: :get
   defdelegate subscribe_to_individual_registrations(individual), to: Registrations
   defdelegate broadcast_individual_registrations(individual), to: Registrations
-  defdelegate broadcast_new_individual_registration(individual, registration, opts \\ []), to: Registrations
+
+  defdelegate broadcast_new_individual_registration(individual, registration, opts \\ []),
+    to: Registrations
 
   defdelegate broadcast_updated_individual_registration(individual, registration, opts \\ []),
     to: Registrations

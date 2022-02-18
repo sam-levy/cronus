@@ -489,7 +489,8 @@ defmodule Sig.HR.RegistrationsTest do
 
       @endpoint.subscribe(topic)
 
-      assert Registrations.broadcast_updated_individual_registration(individual, registration) == :ok
+      assert Registrations.broadcast_updated_individual_registration(individual, registration) ==
+               :ok
 
       assert_receive {:updated_individual_registration, received_registration}
 

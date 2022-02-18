@@ -69,7 +69,10 @@ defmodule SigLive.Individuals.Show do
     <div>
       <AppMenu id="app_menu" {=@org}>
         <AppMenu.Breadcrumb noslash name="RH" />
-        <AppMenu.Breadcrumb name="Pessoas" path={Routes.sig_individuals_index_path(@socket, :index, @org)} />
+        <AppMenu.Breadcrumb
+          name="Pessoas"
+          path={Routes.sig_individuals_index_path(@socket, :index, @org)}
+        />
         <AppMenu.Breadcrumb name={@individual.name} />
       </AppMenu>
 
