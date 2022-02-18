@@ -9,7 +9,7 @@ defmodule SigLive.EmployeeRegistrations.Show do
   alias Sig.HR
 
   alias SigLive.EmployeeRegistrations.{
-    Information,
+    Summary,
     Salaries,
     Benefits,
     Warnings,
@@ -44,29 +44,33 @@ defmodule SigLive.EmployeeRegistrations.Show do
         preload: [:org, :registered_at, :sector, :position]
       )
 
+    individual = Entities.get_individual(org, registration.individual_id)
+
+    if connected?(socket) do
+      HR.subscribe_to_individual_registrations(individual)
+    end
+
     socket =
       assign(
         socket,
         assigns_built_for: MapSet.new(),
-        individual: Entities.get_individual(org, registration.individual_id),
         registration: registration,
+        individual: individual,
         payslips: [],
         selected_payslip: nil,
         selected_payslip_items: [],
-        selected_payslip_payables: []
+        selected_payslip_payables: [],
+        registration_salaries: [],
+        registration_company_assignments: [],
+        registration_recurring_payslip_items: [],
+        registration_overtimes: [],
+        registration_benefits: [],
+        registration_warnings: [],
+        registration_suspensions: [],
+        registration_leave_periods: []
       )
 
-    {:ok, socket,
-     temporary_assigns: [
-       registration_salaries: [],
-       registration_company_assignments: [],
-       registration_recurring_payslip_items: [],
-       registration_overtimes: [],
-       registration_benefits: [],
-       registration_warnings: [],
-       registration_suspensions: [],
-       registration_leave_periods: []
-     ]}
+    {:ok, socket}
   end
 
   @impl true
@@ -206,6 +210,13 @@ defmodule SigLive.EmployeeRegistrations.Show do
     |> assign_active_screen(:payslips)
     |> assign(:payslips, payslips)
     |> assign_selected_payslip(selected_payslip)
+  end
+
+  @impl true
+  def handle_info({:updated_individual_registration, value}, socket) do
+    if value.id == socket.assigns.registration.id do
+      maybe_assign(socket, :registration_summary, :registration, value)
+    end
   end
 
   @impl true
@@ -389,7 +400,13 @@ defmodule SigLive.EmployeeRegistrations.Show do
 
         <div class="w-4/5">
           <div :show={@active_screen == :registration_summary} class="space-y-7">
-            <Information :if={@active_screen == :registration_summary} {=@registration} />
+            <Summary
+              id="registration_summary"
+              :if={@active_screen == :registration_summary}
+              {=@registration}
+              {=@individual}
+              {=@org}
+            />
             <Salaries.List id="registration_salaries" salaries={@registration_salaries} {=@registration} />
             <CompanyAssignments.List
               id="company_assignment"
