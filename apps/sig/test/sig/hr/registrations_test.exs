@@ -455,4 +455,48 @@ defmodule Sig.HR.RegistrationsTest do
       @endpoint.unsubscribe(topic)
     end
   end
+
+  describe "broadcast_new_individual_registration/1" do
+    test "broadcasts a new registration from an individual" do
+      org = insert(:org)
+      individual = insert(:individual, org: org)
+
+      registration = insert(:employee_registration, org: org, individual: individual)
+
+      topic = "individual_id:" <> individual.entity_id <> ":registrations"
+
+      @endpoint.subscribe(topic)
+
+      assert Registrations.broadcast_new_individual_registration(individual, registration) == :ok
+
+      assert_receive {:new_individual_registration, received_registration}
+
+      assert received_registration.org_id == org.id
+      assert received_registration.individual_id == individual.entity_id
+
+      @endpoint.unsubscribe(topic)
+    end
+  end
+
+  describe "broadcast_updated_individual_registration/1" do
+    test "broadcasts an updated registration from an individual" do
+      org = insert(:org)
+      individual = insert(:individual, org: org)
+
+      registration = insert(:employee_registration, org: org, individual: individual)
+
+      topic = "individual_id:" <> individual.entity_id <> ":registrations"
+
+      @endpoint.subscribe(topic)
+
+      assert Registrations.broadcast_updated_individual_registration(individual, registration) == :ok
+
+      assert_receive {:updated_individual_registration, received_registration}
+
+      assert received_registration.org_id == org.id
+      assert received_registration.individual_id == individual.entity_id
+
+      @endpoint.unsubscribe(topic)
+    end
+  end
 end

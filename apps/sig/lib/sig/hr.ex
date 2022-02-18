@@ -29,11 +29,15 @@ defmodule Sig.HR do
 
   defdelegate create_registration(org, individual, attrs), to: Registrations, as: :create
   defdelegate update_registration(individual, attrs), to: Registrations, as: :update
-  defdelegate list_registrations_by(schema, opts), to: Registrations, as: :list_by
+  defdelegate list_registrations_by(schema, opts \\ []), to: Registrations, as: :list_by
   defdelegate count_registrations_by(schema), to: Registrations, as: :count_by
-  defdelegate get_registration(schema, id, opts), to: Registrations, as: :get
+  defdelegate get_registration(schema, id, opts \\ []), to: Registrations, as: :get
   defdelegate subscribe_to_individual_registrations(individual), to: Registrations
-  defdelegate broadcast_individual_registrations(indiviual), to: Registrations
+  defdelegate broadcast_individual_registrations(individual), to: Registrations
+  defdelegate broadcast_new_individual_registration(individual, registration, opts \\ []), to: Registrations
+
+  defdelegate broadcast_updated_individual_registration(individual, registration, opts \\ []),
+    to: Registrations
 
   defdelegate create_payslip_template_change(attrs \\ %{}),
     to: PayslipTemplates,
