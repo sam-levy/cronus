@@ -713,8 +713,12 @@ defmodule Sig.HR.Registrations.RegistrationTest do
       registration = insert(:employee_registration)
 
       attrs = %{
+        number: "123",
+        e_social_number: "456",
+        admission_date: ~D[2020-01-01],
         sector_id: UUID.generate(),
-        position_id: UUID.generate()
+        position_id: UUID.generate(),
+        registered_at_id: UUID.generate()
       }
 
       assert changeset = Registration.update_changeset(registration, attrs)
@@ -727,8 +731,12 @@ defmodule Sig.HR.Registrations.RegistrationTest do
       registration = insert(:employee_registration)
 
       attrs = %{
+        number: :invalid,
+        e_social_number: :invalid,
+        admission_date: :invalid,
         sector_id: :invalid,
-        position_id: :invalid
+        position_id: :invalid,
+        registered_at_id: :invalid
       }
 
       assert changeset = Registration.update_changeset(registration, attrs)
@@ -737,7 +745,11 @@ defmodule Sig.HR.Registrations.RegistrationTest do
 
       assert errors_on(changeset) == %{
                position_id: ["is invalid"],
-               sector_id: ["is invalid"]
+               sector_id: ["is invalid"],
+               admission_date: ["is invalid"],
+               e_social_number: ["is invalid"],
+               number: ["is invalid"],
+               registered_at_id: ["is invalid"]
              }
     end
 
@@ -761,7 +773,105 @@ defmodule Sig.HR.Registrations.RegistrationTest do
       assert changeset = Registration.update_changeset(registration, attrs)
 
       assert changeset.valid?
-      assert changeset.changes == Map.take(attrs, [:position_id, :sector_id])
+
+      assert changeset.changes ==
+               Map.take(attrs, [
+                 :number,
+                 :e_social_number,
+                 :admission_date,
+                 :sector_id,
+                 :position_id,
+                 :registered_at_id
+               ])
+    end
+
+    test "number and e_social_number numericality" do
+      registration = insert(:employee_registration)
+
+      attrs = %{
+        number: "123a45",
+        e_social_number: "123a45",
+        admission_date: ~D[2020-01-01],
+        sector_id: UUID.generate(),
+        position_id: UUID.generate(),
+        registered_at_id: UUID.generate()
+      }
+
+      assert changeset = Registration.update_changeset(registration, attrs)
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+               number: ["has invalid format"],
+               e_social_number: ["has invalid format"]
+             }
+    end
+
+    test "[:registered_at_id, :individual_id, :org_id] conditional unique constraint" do
+      org = insert(:org)
+
+      individual = insert(:individual, org: org)
+      registered_at = insert(:company, org: org)
+
+      _existing_open_registration =
+        insert(:employee_registration,
+          org: org,
+          individual: individual,
+          registered_at: registered_at,
+          resignation_date: nil,
+          resignation_type: nil
+        )
+
+      registration = insert(:employee_registration, org: org, individual: individual)
+
+      attrs = %{
+        registered_at_id: registered_at.entity_id
+      }
+
+      assert {:error, changeset} =
+               registration
+               |> Registration.update_changeset(attrs)
+               |> Repo.update()
+
+      assert errors_on(changeset) == %{registered_at_id: ["has already been taken"]}
+    end
+
+    test "[:number, :org_id] unique constraint" do
+      org = insert(:org)
+
+      _existing_registration = insert(:employee_registration, org: org, number: "1234")
+
+      registration = insert(:employee_registration, org: org)
+
+      attrs = %{
+        number: "1234"
+      }
+
+      assert {:error, changeset} =
+               registration
+               |> Registration.update_changeset(attrs)
+               |> Repo.update()
+
+      assert errors_on(changeset) == %{number: ["has already been taken"]}
+    end
+
+    test "[:e_social_number, :org_id] unique constraint" do
+      org = insert(:org)
+
+      _existing_registration = insert(:employee_registration, org: org, e_social_number: "1234")
+
+      registration = insert(:employee_registration, org: org)
+
+      attrs = %{
+        e_social_number: "1234"
+      }
+
+      assert {:error, changeset} =
+               registration
+               |> Registration.update_changeset(attrs)
+               |> Repo.update()
+
+      assert errors_on(changeset) == %{e_social_number: ["has already been taken"]}
     end
 
     test "sector assoc_constraint" do
@@ -798,6 +908,21 @@ defmodule Sig.HR.Registrations.RegistrationTest do
                |> Repo.update()
 
       assert errors_on(changeset) == %{position: ["does not exist"]}
+    end
+
+    test "registered_at assoc_constraint" do
+      registration = insert(:employee_registration)
+
+      attrs = %{
+        registered_at_id: UUID.generate()
+      }
+
+      assert {:error, changeset} =
+               registration
+               |> Registration.update_changeset(attrs)
+               |> Repo.update()
+
+      assert errors_on(changeset) == %{registered_at: ["does not exist"]}
     end
   end
 
