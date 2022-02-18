@@ -21,6 +21,8 @@ defmodule SigLive.EmployeeRegistrations.Form do
 
   @form_states [:new_mode, :edit_mode, :closed]
 
+  @broadcast_opts [preload: [:registered_at, :sector, :position]]
+
   prop close_event, :event, required: true
   prop close_fun, :fun, required: true
   prop form_state, :atom, required: true, values!: @form_states
@@ -73,18 +75,18 @@ defmodule SigLive.EmployeeRegistrations.Form do
         <div class="flex space-x-5 form-field">
           <Field name={:number}>
             <Label class="form-label">Número do Registro</Label>
-            <TextInput {...props_for(:number, @form_state)}/>
+            <TextInput {...props_for(:number, @form_state)} />
             <ErrorTag class="form-error-tag" />
           </Field>
 
           <Field name={:e_social_number}>
             <Label class="form-label">Matrícula eSocial</Label>
-            <TextInput {...props_for(:number, @form_state)}/>
+            <TextInput {...props_for(:number, @form_state)} />
             <ErrorTag class="form-error-tag" />
           </Field>
         </div>
 
-        <Field :if={@form_state == :new_mode} name={:salary_amount} class="form-field">
+        <Field name={:salary_amount} :if={@form_state == :new_mode} class="form-field">
           <Label class="form-label">Salário Base</Label>
           <TextInput
             value={format_salary_amount(@changeset)}
@@ -103,7 +105,7 @@ defmodule SigLive.EmployeeRegistrations.Form do
           <ErrorTag class="form-error-tag" />
         </Field>
 
-        <Field name={:assigned_company_entity_id} class="form-field">
+        <Field name={:assigned_company_entity_id} :if={@form_state == :new_mode} class="form-field">
           <Label class="form-label">
             Empresa onde irá trabalhar
             <span class="form-label-complement">(opcional)</span>
@@ -170,12 +172,32 @@ defmodule SigLive.EmployeeRegistrations.Form do
     end
   end
 
+  defp validate_params(%{form_state: :edit_mode} = context) do
+    %{registration: registration} = context.socket.assigns
+
+    changeset = HR.update_registration_change(registration, context.params)
+
+    case apply_action(changeset, :update) do
+      {:error, changeset} -> Map.put(context, :validation, {:error, changeset})
+      {:ok, _schema} -> Map.put(context, :validation, {:ok, changeset})
+    end
+  end
+
   defp persist(%{validation: {:error, _}} = context), do: context
 
   defp persist(%{validation: {:ok, changeset}, form_state: :new_mode} = context) do
     %{org: org, individual: individual} = context.socket.assigns
 
     case HR.create_registration(org, individual, changeset.changes) do
+      {:ok, registration} -> Map.put(context, :return, {:ok, registration})
+      {:error, error} -> Map.put(context, :return, {:error, error})
+    end
+  end
+
+  defp persist(%{validation: {:ok, changeset}, form_state: :edit_mode} = context) do
+    %{registration: registration} = context.socket.assigns
+
+    case HR.update_registration(registration, changeset.changes) do
       {:ok, registration} -> Map.put(context, :return, {:ok, registration})
       {:error, error} -> Map.put(context, :return, {:error, error})
     end
@@ -195,14 +217,22 @@ defmodule SigLive.EmployeeRegistrations.Form do
     {:noreply, assign(socket, message: nil, changeset: changeset)}
   end
 
-  defp handle_return(%{return: {:ok, _registration}, socket: socket}) do
+  defp handle_return(%{return: {:ok, registration}, socket: socket}) do
     %{individual: individual, form_state: form_state, close_fun: close_fun} = socket.assigns
 
-    HR.broadcast_individual_registrations(individual)
+    handle_broadcast(form_state, individual, registration)
     handle_flash(form_state)
     close_fun.()
 
     {:noreply, socket}
+  end
+
+  defp handle_broadcast(:new_mode, individual, registration) do
+    HR.broadcast_new_individual_registration(individual, registration, @broadcast_opts)
+  end
+
+  defp handle_broadcast(:edit_mode, individual, registration) do
+    HR.broadcast_updated_individual_registration(individual, registration, @broadcast_opts)
   end
 
   defp handle_flash(:new_mode), do: flash_info("Registro criado")
@@ -215,7 +245,11 @@ defmodule SigLive.EmployeeRegistrations.Form do
   @input_disabled [opts: [disabled: true], class: ["form-input-disabled"]]
 
   defp props_for(_field, :new_mode), do: @input_enabled
-  defp props_for(_field, _form_state), do: @input_disabled
+
+  defp props_for(:salary_ammount, :edit_mode), do: @input_disabled
+  defp props_for(:assigned_company_entity_id, :edit_mode), do: @input_disabled
+
+  defp props_for(_field, :edit_mode), do: @input_enabled
 
   defp format_salary_amount(%{changes: %{salary_amount: amount}}), do: format_amount(amount)
   defp format_salary_amount(_), do: ""

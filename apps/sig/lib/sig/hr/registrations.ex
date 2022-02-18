@@ -145,6 +145,22 @@ defmodule Sig.HR.Registrations do
     broadcast(topic(individual), {:updated_individual_registrations, registrations})
   end
 
+  def broadcast_new_individual_registration(%Individual{} = individual, registration, opts \\ []) do
+    registration = get(individual, registration.id, opts)
+
+    broadcast(topic(individual), {:new_individual_registration, registration})
+  end
+
+  def broadcast_updated_individual_registration(
+        %Individual{} = individual,
+        registration,
+        opts \\ []
+      ) do
+    registration = get(individual, registration.id, opts)
+
+    broadcast(topic(individual), {:updated_individual_registration, registration})
+  end
+
   defp topic(%Individual{} = individual) do
     "individual_id:" <> individual.entity_id <> ":registrations"
   end

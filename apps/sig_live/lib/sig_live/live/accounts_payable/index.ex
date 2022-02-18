@@ -519,7 +519,6 @@ defmodule SigLive.AccountsPayable.Index do
   def render(assigns) do
     ~F"""
     <div>
-
       <div class="flex justify-between items-center">
         <AppMenu id="app_menu" {=@org}>
           <AppMenu.Breadcrumb noslash name="Financeiro" />

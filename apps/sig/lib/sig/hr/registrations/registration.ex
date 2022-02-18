@@ -60,6 +60,33 @@ defmodule Sig.HR.Registrations.Registration do
     |> cast(attrs, @create_fields)
     |> validate_required(@create_required_fields)
     |> maybe_put_assigned_company_entity_id()
+    |> base_validations()
+  end
+
+  @update_fields [
+    :number,
+    :e_social_number,
+    :admission_date,
+    :sector_id,
+    :position_id,
+    :registered_at_id
+  ]
+
+  def update_changeset(%__MODULE__{} = target, attrs) do
+    target
+    |> cast(attrs, @update_fields)
+    |> base_validations()
+  end
+
+  def resignation_changeset(%__MODULE__{} = target, attrs) do
+    target
+    |> cast(attrs, [:resignation_date, :resignation_type])
+    |> validate_required([:resignation_date, :resignation_type])
+    |> validate_dates(:admission_date, :lt, :resignation_date)
+  end
+
+  defp base_validations(changeset) do
+    changeset
     |> validate_numericality(:number)
     |> validate_numericality(:e_social_number)
     |> assoc_constraint(:sector)
@@ -70,20 +97,6 @@ defmodule Sig.HR.Registrations.Registration do
     |> unique_constraint([:registered_at_id, :individual_id, :org_id],
       name: :employee_registrations_resignation_date_is_null_unique
     )
-  end
-
-  def update_changeset(%__MODULE__{} = target, attrs) do
-    target
-    |> cast(attrs, [:sector_id, :position_id])
-    |> assoc_constraint(:sector)
-    |> assoc_constraint(:position)
-  end
-
-  def resignation_changeset(%__MODULE__{} = target, attrs) do
-    target
-    |> cast(attrs, [:resignation_date, :resignation_type])
-    |> validate_required([:resignation_date, :resignation_type])
-    |> validate_dates(:admission_date, :lt, :resignation_date)
   end
 
   defp maybe_put_assigned_company_entity_id(changeset) do

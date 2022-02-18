@@ -120,7 +120,7 @@ defmodule SigLive.Users.IndexLive do
           >
             <th class="py-3 px-6 text-left">Nome</th>
             <th class="py-3 px-3 text-left">Email</th>
-            <th class="py-3 px-3 text-left"></th>
+            <th class="py-3 px-3 text-left" />
           </tr>
         </thead>
 
@@ -141,23 +141,15 @@ defmodule SigLive.Users.IndexLive do
 
               <td class="pr-5 text-right">
                 <DropdownOpts>
-                {#if user.disabled_at == nil}
-                  <a
-                    :on-click="disable_user"
-                    phx-value-user_id={user.id}
-                    class="dropdown-item"
-                  >
-                    Desabilitar usuário
-                  </a>
-                {#else}
-                  <a
-                    :on-click="enable_user"
-                    phx-value-user_id={user.id}
-                    class="dropdown-item"
-                  >
-                    Habilitar usuário
-                  </a>
-                {/if}
+                  {#if user.disabled_at == nil}
+                    <a :on-click="disable_user" phx-value-user_id={user.id} class="dropdown-item">
+                      Desabilitar usuário
+                    </a>
+                  {#else}
+                    <a :on-click="enable_user" phx-value-user_id={user.id} class="dropdown-item">
+                      Habilitar usuário
+                    </a>
+                  {/if}
                 </DropdownOpts>
               </td>
             </tr>
