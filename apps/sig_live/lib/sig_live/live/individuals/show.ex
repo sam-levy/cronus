@@ -30,7 +30,7 @@ defmodule SigLive.Individuals.Show do
           HR.list_registrations_by(individual, preload: [:registered_at, :salaries])
       )
 
-    {:ok, socket, temporary_assigns: [employee_registrations: []]}
+    {:ok, socket}
   end
 
   @impl true
@@ -44,8 +44,23 @@ defmodule SigLive.Individuals.Show do
   end
 
   @impl true
-  def handle_info({:updated_individual_registrations, individual_registrations}, socket) do
-    {:noreply, assign(socket, employee_registrations: individual_registrations)}
+  def handle_info({:new_individual_registration, new_registration}, socket) do
+    {:noreply,
+     update(socket, :employee_registrations, fn registrations ->
+       [new_registration | registrations]
+     end)}
+  end
+
+  def handle_info({:updated_individual_registration, updated_registration}, socket) do
+    updated_registration_id = updated_registration.id
+
+    registrations =
+      Enum.map(socket.assigns.employee_registrations, fn
+        %{id: ^updated_registration_id} -> updated_registration
+        registration -> registration
+      end)
+
+    {:noreply, assign(socket, :employee_registrations, registrations)}
   end
 
   @impl true

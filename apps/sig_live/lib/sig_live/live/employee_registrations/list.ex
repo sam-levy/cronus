@@ -58,8 +58,7 @@ defmodule SigLive.EmployeeRegistrations.List do
           >
             <th class="py-3 px-6 text-left">Empresa</th>
             <th class="py-3 px-3 text-left">Início</th>
-            <th class="py-3 px-3 text-left">Término</th>
-            <th class="py-3 px-3 text-left">Salário</th>
+            <th class="py-3 px-3 text-left">Status</th>
           </tr>
         </thead>
 
@@ -80,11 +79,15 @@ defmodule SigLive.EmployeeRegistrations.List do
               </td>
 
               <td class="px-3 text-left select-all">
-                {format_date(registration.resignation_date)}
-              </td>
-
-              <td class="px-3 text-left">
-                {format_amount(registration.salary_amount)}
+                {#if registration.resignation_date}
+                  <span class="label-blue">
+                    Desligado em {format_date(registration.resignation_date)}
+                  </span>
+                {#else}
+                  <span class="label-green">
+                    Ativo
+                  </span>
+                {/if}
               </td>
             </tr>
           {/for}
