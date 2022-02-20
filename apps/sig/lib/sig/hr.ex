@@ -23,12 +23,18 @@ defmodule Sig.HR do
     to: Registrations,
     as: :update_change
 
-  defdelegate resignation_registration_change(registration, attrs),
+  defdelegate registration_resignation_change(registration, attrs \\ %{}),
     to: Registrations,
     as: :resignation_change
 
   defdelegate create_registration(org, individual, attrs), to: Registrations, as: :create
-  defdelegate update_registration(individual, attrs), to: Registrations, as: :update
+  defdelegate update_registration(registration, attrs), to: Registrations, as: :update
+  defdelegate resign_registration(registration, attrs), to: Registrations, as: :resign
+
+  defdelegate undo_registration_resignation(registration),
+    to: Registrations,
+    as: :undo_resignation
+
   defdelegate list_registrations_by(schema, opts \\ []), to: Registrations, as: :list_by
   defdelegate count_registrations_by(schema), to: Registrations, as: :count_by
   defdelegate get_registration(schema, id, opts \\ []), to: Registrations, as: :get
