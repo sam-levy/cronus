@@ -120,6 +120,13 @@ defmodule Sig.HR.Payslips do
     Money.subtract(Sig.sum_by(:credit, items), Sig.sum_by(:debit, items))
   end
 
+  def get_last_payslip(%Registration{} = registration) do
+    registration
+    |> query_by()
+    |> last(:end_date)
+    |> Repo.one()
+  end
+
   defp query_by(%Registration{} = registration) do
     init_query()
     |> where(org_id: ^registration.org_id)
