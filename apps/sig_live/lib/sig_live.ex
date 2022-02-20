@@ -21,7 +21,7 @@ defmodule SigLive do
     defmacro __using__(_) do
       quote do
         def handle_info({:flash, type, message}, socket) do
-          Process.send_after(self(), :clear_flash, 2000)
+          Process.send_after(self(), :clear_flash, 3000)
 
           {:noreply, put_flash(socket, type, message)}
         end
