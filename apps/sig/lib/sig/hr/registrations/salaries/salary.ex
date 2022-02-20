@@ -23,6 +23,12 @@ defmodule Sig.HR.Registrations.Salaries.Salary do
     |> validate_money(:amount, :gt, 0)
   end
 
-  # TODO: Create a DB trigger with a stored procedure to
-  # ensure that a registration always have at least one salary
+  def update_changeset(%__MODULE__{} = target, attrs) do
+    target
+    |> cast(attrs, [:start_date, :amount])
+    |> validate_money(:amount, :gt, 0)
+    |> unique_constraint([:start_date, :registration_id, :org_id],
+      name: :employee_salaries_start_date
+    )
+  end
 end

@@ -161,7 +161,7 @@ defmodule Sig.HR.Registrations.Salaries.SalaryTest do
     end
   end
 
-  describe "create_changeset/2" do
+  describe "create_changeset/1" do
     test "valid attrs" do
       attrs = %{
         org_id: UUID.generate(),
@@ -228,6 +228,98 @@ defmodule Sig.HR.Registrations.Salaries.SalaryTest do
       refute changeset.valid?
 
       assert errors_on(changeset) == %{amount: ["must be greater than 0,00"]}
+    end
+  end
+
+  describe "update_changeset/2" do
+    test "valid attrs" do
+      salary = insert(:employee_salary, start_date: ~D[2021-01-01], amount: 2_000_00)
+
+      attrs = %{
+        start_date: ~D[2021-02-01],
+        amount: 2_500_00
+      }
+
+      assert changeset = Salary.update_changeset(salary, attrs)
+
+      assert changeset.valid?
+
+      assert changeset.changes == %{
+               start_date: attrs[:start_date],
+               amount: %Money{amount: attrs[:amount], currency: :BRL}
+             }
+    end
+
+    test "invalid attrs types" do
+      salary = insert(:employee_salary, start_date: ~D[2021-01-01], amount: 2_000_00)
+
+      attrs = %{
+        start_date: :invalid,
+        amount: :invalid
+      }
+
+      assert changeset = Salary.update_changeset(salary, attrs)
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+               amount: ["is invalid"],
+               start_date: ["is invalid"]
+             }
+    end
+
+    test "negative amount" do
+      salary = insert(:employee_salary, start_date: ~D[2021-01-01], amount: 2_000_00)
+
+      attrs = %{
+        start_date: ~D[2021-02-01],
+        amount: -2_500_00
+      }
+
+      assert changeset = Salary.update_changeset(salary, attrs)
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+               amount: ["must be greater than 0,00"]
+             }
+    end
+
+    test "existing `start_date`" do
+      org = insert(:org)
+
+      admission_date = ~D[2021-01-01]
+
+      registration = insert(:employee_registration, org: org, admission_date: admission_date)
+
+      insert(:employee_salary,
+        org: org,
+        registration: registration,
+        start_date: admission_date,
+        amount: 2_000_00
+      )
+
+      salary_2 =
+        insert(:employee_salary,
+          org: org,
+          registration: registration,
+          start_date: ~D[2021-02-01],
+          amount: 2_500_00
+        )
+
+      attrs = %{
+        start_date: admission_date,
+        amount: 3_000_00
+      }
+
+      assert {:error, changeset} =
+               salary_2
+               |> Salary.update_changeset(attrs)
+               |> Repo.update()
+
+      assert errors_on(changeset) == %{
+               start_date: ["has already been taken"]
+             }
     end
   end
 end

@@ -16,19 +16,36 @@ defmodule SigLive.EmployeeRegistrations.Salaries.Form do
 
   alias SigLive.Components.Modal
 
-  @form_states [:new_mode, :closed]
+  @form_states [:new_mode, :edit_mode, :closed]
 
   prop close_event, :event, required: true
   prop close_fun, :fun, required: true
   prop form_state, :atom, required: true, values!: @form_states
   prop registration, :struct, required: true
+  prop salary_id, :string, default: nil
 
-  data changeset, :struct, default: HR.create_salary_change()
   data message, :string, default: nil
 
   @impl true
+  def update(assigns, socket) do
+    %{registration: registration, salary_id: salary_id} = assigns
+
+    salary = get_salary(registration, salary_id)
+
+    socket =
+      socket
+      |> assign(assigns)
+      |> assign(
+        salary: salary,
+        changeset: set_changeset(salary)
+      )
+
+    {:ok, socket}
+  end
+
+  @impl true
   def handle_event("save", %{"salary" => params}, socket) do
-    %{params: params, socket: socket}
+    %{params: params, form_state: socket.assigns.form_state, socket: socket}
     |> validate_params()
     |> persist()
     |> handle_return()
@@ -63,7 +80,13 @@ defmodule SigLive.EmployeeRegistrations.Salaries.Form do
 
   def states, do: @form_states
 
-  defp validate_params(context) do
+  defp get_salary(_registration, nil), do: nil
+  defp get_salary(registration, salary_id), do: HR.get_salary(registration, salary_id)
+
+  defp set_changeset(nil), do: HR.create_salary_change()
+  defp set_changeset(salary), do: HR.update_salary_change(salary)
+
+  defp validate_params(%{form_state: :new_mode} = context) do
     changeset =
       context.params
       |> Map.put("org_id", "org_id")
@@ -76,12 +99,29 @@ defmodule SigLive.EmployeeRegistrations.Salaries.Form do
     end
   end
 
+  defp validate_params(%{form_state: :edit_mode} = context) do
+    %{salary: salary} = context.socket.assigns
+
+    changeset = HR.update_salary_change(salary, context.params)
+
+    case apply_action(changeset, :update) do
+      {:error, changeset} -> Map.put(context, :validation, {:error, changeset})
+      {:ok, _schema} -> Map.put(context, :validation, {:ok, changeset})
+    end
+  end
+
   defp persist(%{validation: {:error, _}} = context), do: context
 
-  defp persist(%{validation: {:ok, changeset}} = context) do
+  defp persist(%{validation: {:ok, changeset}, form_state: :new_mode} = context) do
     %{registration: registration} = context.socket.assigns
 
     Map.put(context, :return, HR.create_salary(registration, changeset.changes))
+  end
+
+  defp persist(%{validation: {:ok, changeset}, form_state: :edit_mode} = context) do
+    %{salary: salary} = context.socket.assigns
+
+    Map.put(context, :return, HR.update_salary(salary, changeset.changes))
   end
 
   defp handle_return(%{validation: {:error, changeset}, socket: socket}) do
