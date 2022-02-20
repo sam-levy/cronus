@@ -6,6 +6,113 @@ defmodule Sig.HR.Registrations.SalariesTest do
 
   @endpoint SigLive.Endpoint
 
+  describe "create_change/1" do
+    test "returns a changeset" do
+      assert %Ecto.Changeset{data: %Salary{}} = Salaries.create_change()
+    end
+  end
+
+  describe "update_change/2" do
+    test "returns a changeset" do
+      assert %Ecto.Changeset{data: %Salary{}} = Salaries.update_change(%Salary{}, %{})
+
+      assert %Ecto.Changeset{data: %Salary{}} = Salaries.update_change(%Salary{})
+    end
+  end
+
+  describe "update/2" do
+    test "updates a salary" do
+      %{id: salary_id} =
+        salary = insert(:employee_salary, start_date: ~D[2021-01-01], amount: 2_000_00)
+
+      attrs = %{
+        start_date: ~D[2021-02-01],
+        amount: 2_500_00
+      }
+
+      assert {:ok, %Salary{id: ^salary_id}} = Salaries.update(salary, attrs)
+
+      assert Repo.get_by(Salary,
+               org_id: salary.org_id,
+               id: salary_id,
+               start_date: ~D[2021-02-01],
+               amount: 2_500_00
+             )
+    end
+
+    test "when `start_date` is before the registration `admission_date`" do
+      org = insert(:org)
+
+      admission_date = ~D[2021-01-01]
+
+      registration = insert(:employee_registration, org: org, admission_date: admission_date)
+
+      salary =
+        insert(:employee_salary,
+          org: org,
+          registration: registration,
+          start_date: admission_date,
+          amount: 2_000_00
+        )
+
+      attrs = %{
+        start_date: ~D[2020-12-01],
+        amount: 2_500_00
+      }
+
+      assert Salaries.update(salary, attrs) ==
+               {:error, "A data inicial deve ser igual ou posterir a data de registro"}
+
+      assert Repo.get_by(Salary,
+               org_id: salary.org_id,
+               id: salary.id,
+               start_date: ~D[2021-01-01],
+               amount: 2_000_00
+             )
+    end
+
+    test "returns changeset errors" do
+      org = insert(:org)
+
+      admission_date = ~D[2021-01-01]
+
+      registration = insert(:employee_registration, org: org, admission_date: admission_date)
+
+      insert(:employee_salary,
+        org: org,
+        registration: registration,
+        start_date: admission_date,
+        amount: 2_000_00
+      )
+
+      salary_2 =
+        insert(:employee_salary,
+          org: org,
+          registration: registration,
+          start_date: ~D[2021-02-01],
+          amount: 2_500_00
+        )
+
+      attrs = %{
+        start_date: admission_date,
+        amount: 3_000_00
+      }
+
+      assert {:error, changeset} = Salaries.update(salary_2, attrs)
+
+      assert errors_on(changeset) == %{
+               start_date: ["has already been taken"]
+             }
+
+      assert Repo.get_by(Salary,
+               org_id: salary_2.org_id,
+               id: salary_2.id,
+               start_date: ~D[2021-02-01],
+               amount: 2_500_00
+             )
+    end
+  end
+
   describe "list_by_registration/1" do
     test "lists salaries by registration ordered by start_date" do
       org = insert(:org)
