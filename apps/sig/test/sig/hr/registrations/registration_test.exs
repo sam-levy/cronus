@@ -1012,4 +1012,38 @@ defmodule Sig.HR.Registrations.RegistrationTest do
              }
     end
   end
+
+  describe "undo_resignation_changeset/2" do
+    test "sets the `resignation_date` and `resignation_type` fields to nil" do
+      registration =
+        insert(:employee_registration,
+          admission_date: ~D[2021-01-01],
+          resignation_date: ~D[2021-02-28],
+          resignation_type: :resigned
+        )
+
+      assert changeset = Registration.undo_resignation_changeset(registration)
+
+      assert changeset.valid?
+
+      assert changeset.changes == %{
+               resignation_date: nil,
+               resignation_type: nil
+             }
+    end
+
+    test "when the `resignation_date` and `resignation_type` fields are already nil" do
+      registration =
+        insert(:employee_registration,
+          admission_date: ~D[2021-01-01],
+          resignation_date: nil,
+          resignation_type: nil
+        )
+
+      assert changeset = Registration.undo_resignation_changeset(registration)
+
+      assert changeset.valid?
+      assert changeset.changes == %{}
+    end
+  end
 end
