@@ -8,6 +8,7 @@ defmodule Sig.HR.Registrations do
   alias Sig.Organizations.Position
   alias Sig.Organizations.Org
   alias Sig.Entities.Individuals.Individual
+  alias Sig.HR.Payslips
   alias Sig.HR.Registrations.Create
   alias Sig.HR.Registrations.Registration
   alias Sig.Repo
@@ -30,6 +31,39 @@ defmodule Sig.HR.Registrations do
     registration
     |> Registration.update_changeset(attrs)
     |> Repo.update()
+  end
+
+  def resign(%Registration{resignation_date: nil} = registration, %{} = attrs) do
+    case Payslips.get_last_payslip(registration) do
+      %{end_date: end_date} ->
+        if Date.compare(attrs.resignation_date, end_date) in [:eq, :gt] do
+          do_resign(registration, attrs)
+        else
+          {:error,
+           "A data de desligamento deve ser igual ou posterior a data final do último holerite"}
+        end
+
+      nil ->
+        do_resign(registration, attrs)
+    end
+  end
+
+  def resign(%Registration{resignation_date: %Date{}}, %{}), do: {:error, "Já foi desligado"}
+
+  defp do_resign(registration, attrs) do
+    registration
+    |> Registration.resignation_changeset(attrs)
+    |> Repo.update()
+  end
+
+  def undo_resignation(%Registration{resignation_date: %Date{}} = registration) do
+    registration
+    |> Registration.undo_resignation_changeset()
+    |> Repo.update()
+  end
+
+  def undo_resignation(%Registration{resignation_date: nil} = registration) do
+    {:ok, registration}
   end
 
   def list_by(schema, opts \\ [])

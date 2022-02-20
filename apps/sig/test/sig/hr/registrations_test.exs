@@ -77,6 +77,141 @@ defmodule Sig.HR.RegistrationsTest do
     end
   end
 
+  describe "resign/2" do
+    test "adds resignation fields to a registration without payslips" do
+      org = insert(:org)
+
+      %{id: registration_id} =
+        registration = insert(:employee_registration, org: org, admission_date: ~D[2021-01-01])
+
+      attrs = %{
+        resignation_date: ~D[2022-01-01],
+        resignation_type: :resigned
+      }
+
+      assert {:ok, %Registration{id: ^registration_id}} =
+               Registrations.resign(registration, attrs)
+
+      assert Repo.get_by(Registration,
+               id: registration_id,
+               org_id: org.id,
+               admission_date: registration.admission_date,
+               resignation_date: attrs.resignation_date,
+               resignation_type: attrs.resignation_type
+             )
+    end
+
+    test "when resgination is already resigned" do
+      org = insert(:org)
+
+      %{id: registration_id} =
+        registration =
+        insert(:employee_registration,
+          org: org,
+          admission_date: ~D[2021-01-01],
+          resignation_date: ~D[2022-01-01],
+          resignation_type: :resigned
+        )
+
+      attrs = %{
+        resignation_date: ~D[2022-02-01],
+        resignation_type: :dismissal
+      }
+
+      assert Registrations.resign(registration, attrs) == {:error, "Já foi desligado"}
+
+      assert Repo.get_by(Registration,
+               id: registration_id,
+               org_id: org.id,
+               admission_date: registration.admission_date,
+               resignation_date: registration.resignation_date,
+               resignation_type: registration.resignation_type
+             )
+    end
+
+    test "when the `resignation_date` is before the last payslip `end_date`" do
+      org = insert(:org)
+
+      admission_date = ~D[2021-01-01]
+
+      %{id: registration_id} =
+        registration = insert(:employee_registration, org: org, admission_date: admission_date)
+
+      insert(:payslip,
+        org: org,
+        registration: registration,
+        start_date: admission_date,
+        end_date: ~D[2021-01-31]
+      )
+
+      attrs = %{
+        resignation_date: ~D[2021-01-25],
+        resignation_type: :resigned
+      }
+
+      assert Registrations.resign(registration, attrs) ==
+               {:error,
+                "A data de desligamento deve ser igual ou posterior a data final do último holerite"}
+
+      assert registration = Repo.get_by(Registration, org_id: org.id, id: registration_id)
+
+      assert registration.resignation_date == nil
+      assert registration.resignation_type == nil
+    end
+  end
+
+  describe "undo_resignation/2" do
+    test "nilify a registration resignation fields" do
+      org = insert(:org)
+
+      %{id: registration_id} =
+        registration =
+        insert(:employee_registration,
+          org: org,
+          admission_date: ~D[2021-01-01],
+          resignation_date: ~D[2022-01-01],
+          resignation_type: :resigned
+        )
+
+      assert {:ok, %Registration{id: ^registration_id}} =
+               Registrations.undo_resignation(registration)
+
+      assert registration =
+               Repo.get_by(Registration,
+                 id: registration_id,
+                 org_id: org.id,
+                 admission_date: registration.admission_date
+               )
+
+      assert registration.resignation_date == nil
+      assert registration.resignation_type == nil
+    end
+
+    test "when registration resignation fields are already nil" do
+      org = insert(:org)
+
+      %{id: registration_id} =
+        registration =
+        insert(:employee_registration,
+          org: org,
+          admission_date: ~D[2021-01-01]
+        )
+
+      assert {:ok, %Registration{id: ^registration_id}} =
+               Registrations.undo_resignation(registration)
+
+      assert registration =
+               Repo.get_by(Registration,
+                 id: registration_id,
+                 org_id: org.id,
+                 admission_date: registration.admission_date
+               )
+
+      assert registration.resignation_date == nil
+      assert registration.resignation_type == nil
+    end
+  end
+
   describe "list_by/1 Individual" do
     test "lists registrations by individual ordered by admission_date" do
       org = insert(:org)

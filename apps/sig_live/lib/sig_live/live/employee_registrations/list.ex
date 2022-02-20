@@ -80,8 +80,8 @@ defmodule SigLive.EmployeeRegistrations.List do
 
               <td class="px-3 text-left select-all">
                 {#if registration.resignation_date}
-                  <span class="label-blue">
-                    Desligado em {format_date(registration.resignation_date)}
+                  <span class="label-yellow">
+                    Desligado: {format_date(registration.resignation_date)}
                   </span>
                 {#else}
                   <span class="label-green">

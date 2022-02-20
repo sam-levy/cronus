@@ -390,4 +390,41 @@ defmodule Sig.HR.PayslipsTest do
                Payslips.update_payslip_amount(payslip, items)
     end
   end
+
+  describe "get_last_payslip/1" do
+    test "returns the payslips with the greater `end_date`" do
+      org = insert(:org)
+
+      admission_date = ~D[2021-01-01]
+
+      registration = insert(:employee_registration, org: org, admission_date: admission_date)
+
+      insert(:payslip,
+        org: org,
+        registration: registration,
+        start_date: admission_date,
+        end_date: ~D[2021-01-31]
+      )
+
+      %{id: payslip_id} =
+        insert(:payslip,
+          org: org,
+          registration: registration,
+          start_date: ~D[2021-02-01],
+          end_date: ~D[2021-02-28]
+        )
+
+      assert %{id: ^payslip_id} = Payslips.get_last_payslip(registration)
+    end
+
+    test "when registration has no payslip" do
+      org = insert(:org)
+
+      admission_date = ~D[2021-01-01]
+
+      registration = insert(:employee_registration, org: org, admission_date: admission_date)
+
+      assert Payslips.get_last_payslip(registration) == nil
+    end
+  end
 end

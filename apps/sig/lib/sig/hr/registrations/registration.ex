@@ -85,6 +85,18 @@ defmodule Sig.HR.Registrations.Registration do
     |> validate_dates(:admission_date, :lt, :resignation_date)
   end
 
+  def undo_resignation_changeset(%__MODULE__{} = target) do
+    target
+    |> cast(%{resignation_date: nil, resignation_type: nil}, [
+      :resignation_date,
+      :resignation_type
+    ])
+    |> unique_constraint([:registered_at_id, :individual_id, :org_id],
+      name: :employee_registrations_resignation_date_is_null_unique,
+      message: "Existe um registro em aberto para esta empresa"
+    )
+  end
+
   defp base_validations(changeset) do
     changeset
     |> validate_numericality(:number)
