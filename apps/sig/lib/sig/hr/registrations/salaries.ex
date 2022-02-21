@@ -36,23 +36,40 @@ defmodule Sig.HR.Registrations.Salaries do
     |> Repo.update()
   end
 
+  def delete(%Salary{} = salary) do
+    salary
+    |> query_by()
+    |> Repo.aggregate(:count)
+    |> case do
+      1 -> {:error, "Deve existir pelo menos um salário"}
+      _ -> Repo.delete(salary)
+    end
+  end
+
   def get(%Registration{} = registration, id) when is_binary(id) do
     registration
-    |> query_by_registration()
+    |> query_by()
     |> where(id: ^id)
     |> Repo.one()
   end
 
+  def fetch(schema, id) do
+    case get(schema, id) do
+      nil -> {:error, :not_found}
+      %Salary{} = salary -> {:ok, salary}
+    end
+  end
+
   def list_by_registration(%Registration{} = registration) do
     registration
-    |> query_by_registration()
+    |> query_by()
     |> order_by(:start_date)
     |> Repo.all()
   end
 
   def in_effect_on_date(%Registration{} = registration, date) do
     registration
-    |> query_by_registration()
+    |> query_by()
     |> where([salary], salary.start_date <= ^date)
     |> last(:start_date)
     |> Repo.one()
@@ -73,9 +90,17 @@ defmodule Sig.HR.Registrations.Salaries do
     "registration_id:" <> registration.id <> ":salaries"
   end
 
-  defp query_by_registration(registration) do
-    Salary
+  defp query_by(%Registration{} = registration) do
+    init_query()
     |> where(org_id: ^registration.org_id)
     |> where(registration_id: ^registration.id)
   end
+
+  defp query_by(%Salary{} = salary) do
+    init_query()
+    |> where(org_id: ^salary.org_id)
+    |> where(registration_id: ^salary.registration_id)
+  end
+
+  def init_query, do: from(s in Salary, as: :salary)
 end
