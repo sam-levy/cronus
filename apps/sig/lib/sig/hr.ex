@@ -184,15 +184,24 @@ defmodule Sig.HR do
     to: CompanyAssignments,
     as: :create_change
 
+  defdelegate update_company_assignment_change(company_assignment, attrs \\ %{}),
+    to: CompanyAssignments,
+    as: :update_change
+
   defdelegate create_company_assignment(registration, attrs \\ %{}),
     to: CompanyAssignments,
     as: :create
+
+  defdelegate update_company_assignment(company_assignment, attrs \\ %{}),
+    to: CompanyAssignments,
+    as: :update
 
   defdelegate list_company_assignments_by(schema, opts \\ []),
     to: CompanyAssignments,
     as: :list_by
 
   defdelegate fetch_company_assignment(schema, id, opts \\ []), to: CompanyAssignments, as: :fetch
+  defdelegate get_company_assignment(schema, id, opts \\ []), to: CompanyAssignments, as: :get
   defdelegate delete_company_assignment(company_assignment), to: CompanyAssignments, as: :delete
   defdelegate subscribe_to_company_assignments(registration), to: CompanyAssignments
   defdelegate broadcast_updated_company_assignments(registration), to: CompanyAssignments

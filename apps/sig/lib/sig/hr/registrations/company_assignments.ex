@@ -3,6 +3,7 @@ defmodule Sig.HR.Registrations.CompanyAssignments do
 
   import Sig.Broadcaster
 
+  alias Sig.HR.Registrations
   alias Sig.HR.Registrations.CompanyAssignments.CompanyAssignment
   alias Sig.HR.Registrations.Registration
   alias Sig.Repo
@@ -11,12 +12,38 @@ defmodule Sig.HR.Registrations.CompanyAssignments do
 
   def create_change(%{} = attrs \\ %{}), do: CompanyAssignment.create_changeset(attrs)
 
+  def update_change(%CompanyAssignment{} = company_assignment, %{} = attrs \\ %{}) do
+    CompanyAssignment.update_changeset(company_assignment, attrs)
+  end
+
   def create(%Registration{} = registration, %{} = attrs) do
     attrs
     |> Map.put(:org_id, registration.org_id)
     |> Map.put(:registration_id, registration.id)
     |> CompanyAssignment.create_changeset()
     |> Repo.insert()
+  end
+
+  def update(%CompanyAssignment{} = company_assignment, %{start_date: start_date} = attrs) do
+    with %{admission_date: admission_date} <-
+           Registrations.get_by(
+             org_id: company_assignment.org_id,
+             id: company_assignment.registration_id
+           ),
+         comparison when comparison in [:gt, :eq] <- Date.compare(start_date, admission_date) do
+      do_update(company_assignment, attrs)
+    else
+      :lt -> {:error, "A data inicial deve ser igual ou posterir a data de registro"}
+    end
+  end
+
+  def update(%CompanyAssignment{} = company_assignment, %{} = attrs),
+    do: do_update(company_assignment, attrs)
+
+  defp do_update(company_assignment, attrs) do
+    company_assignment
+    |> CompanyAssignment.update_changeset(attrs)
+    |> Repo.update()
   end
 
   def delete(%CompanyAssignment{} = company_assignment) do
