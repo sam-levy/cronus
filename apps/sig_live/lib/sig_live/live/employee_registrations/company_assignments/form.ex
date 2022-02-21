@@ -17,22 +17,30 @@ defmodule SigLive.EmployeeRegistrations.CompanyAssignments.Form do
 
   alias SigLive.Components.Modal
 
-  @form_states [:new_mode, :closed]
+  @form_states [:new_mode, :edit_mode, :closed]
 
   prop close_event, :event, required: true
   prop close_fun, :fun, required: true
   prop form_state, :atom, required: true, values!: @form_states
   prop org, :struct, required: true
   prop registration, :struct, required: true
+  prop company_assignment_id, :string, default: nil
+
+  data message, :string, default: nil
 
   @impl true
   def update(assigns, socket) do
+    %{registration: registration, company_assignment_id: company_assignment_id} = assigns
+
+    company_assignment = get_company_assignment(registration, company_assignment_id)
+
     socket =
       socket
       |> assign(assigns)
       |> assign(
         companies: Entities.list_companies(assigns.org),
-        changeset: HR.create_company_assignment_change()
+        company_assignment: company_assignment,
+        changeset: set_changeset(company_assignment)
       )
 
     {:ok, socket}
@@ -67,6 +75,8 @@ defmodule SigLive.EmployeeRegistrations.CompanyAssignments.Form do
           <ErrorTag class="form-error-tag" />
         </Field>
 
+        <div :if={@message} class="form-error-tag mb-3">{@message}</div>
+
         <div class="flex justify-end">
           <Submit class="btn-blue" label="Salvar" opts={phx_disable_with: "Salvando..."} />
         </div>
@@ -76,6 +86,18 @@ defmodule SigLive.EmployeeRegistrations.CompanyAssignments.Form do
   end
 
   def states, do: @form_states
+
+  defp get_company_assignment(_registration, nil), do: nil
+
+  defp get_company_assignment(registration, company_assignment_id) do
+    HR.get_company_assignment(registration, company_assignment_id)
+  end
+
+  defp set_changeset(nil), do: HR.create_company_assignment_change()
+
+  defp set_changeset(company_assignment) do
+    HR.update_company_assignment_change(company_assignment)
+  end
 
   defp validate_params(%{form_state: :new_mode} = context) do
     changeset =
@@ -90,27 +112,50 @@ defmodule SigLive.EmployeeRegistrations.CompanyAssignments.Form do
     end
   end
 
+  defp validate_params(%{form_state: :edit_mode} = context) do
+    %{company_assignment: company_assignment} = context.socket.assigns
+
+    changeset = HR.update_company_assignment_change(company_assignment, context.params)
+
+    case apply_action(changeset, :update) do
+      {:error, changeset} -> Map.put(context, :validation, {:error, changeset})
+      {:ok, _schema} -> Map.put(context, :validation, {:ok, changeset})
+    end
+  end
+
   defp persist(%{validation: {:error, _}} = context), do: context
 
-  defp persist(%{validation: {:ok, changeset}} = context) do
+  defp persist(%{validation: {:ok, changeset}, form_state: :new_mode} = context) do
     %{registration: registration} = context.socket.assigns
 
     Map.put(context, :return, HR.create_company_assignment(registration, changeset.changes))
   end
 
-  defp handle_return(%{validation: {:error, changeset}, socket: socket}) do
-    {:noreply, assign(socket, changeset: changeset)}
+  defp persist(%{validation: {:ok, changeset}, form_state: :edit_mode} = context) do
+    %{company_assignment: company_assignment} = context.socket.assigns
+
+    Map.put(context, :return, HR.update_company_assignment(company_assignment, changeset.changes))
   end
 
-  defp handle_return(%{return: {:error, changeset}, socket: socket}) do
-    {:noreply, assign(socket, changeset: changeset)}
+  defp handle_return(%{validation: {:error, changeset}, socket: socket}) do
+    {:noreply, assign(socket, message: nil, changeset: changeset)}
+  end
+
+  defp handle_return(%{return: {:error, message}} = context) when is_binary(message) do
+    {_, changeset} = context.validation
+
+    {:noreply, assign(context.socket, message: message, changeset: changeset)}
+  end
+
+  defp handle_return(%{return: {:error, changeset}} = context) when is_struct(changeset) do
+    {:noreply, assign(context.socket, message: nil, changeset: changeset)}
   end
 
   defp handle_return(%{return: {:ok, _leave_period}, socket: socket}) do
     %{registration: registration, close_fun: close_fun} = socket.assigns
 
     HR.broadcast_updated_company_assignments(registration)
-    flash_info("Designação adicionada")
+    flash_info("Designação atualizada")
     close_fun.()
 
     {:noreply, socket}
