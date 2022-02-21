@@ -225,15 +225,18 @@ defmodule Sig.HR.Registrations.CompanyAssignmentsTest do
       org = insert(:org)
       registration = insert(:employee_registration, org: org)
 
-      company_assignment =
+      %{id: company_assignment_id} =
+        company_assignment =
         insert(:employee_company_assignment,
           org: org,
           registration: registration,
           start_date: ~D[2021-06-01]
         )
 
-      assert {:error, "Deve existir pelo menos uma designação"} =
-               CompanyAssignments.delete(company_assignment)
+      assert CompanyAssignments.delete(company_assignment) ==
+               {:error, "Deve existir pelo menos uma designação"}
+
+      assert Repo.get_by(CompanyAssignment, org_id: org.id, id: company_assignment_id)
     end
   end
 
