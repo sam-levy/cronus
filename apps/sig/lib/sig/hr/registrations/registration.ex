@@ -12,7 +12,8 @@ defmodule Sig.HR.Registrations.Registration do
   defenum(ResignationType, :employee_resignation_type, [
     :resigned,
     :dismissal,
-    :dismissal_due_cause
+    :dismissal_due_cause,
+    :dismissal_arbitration_agreement
   ])
 
   schema "employee_registrations" do
