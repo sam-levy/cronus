@@ -14,6 +14,146 @@ defmodule Sig.HR.Registrations.CompanyAssignmentsTest do
     end
   end
 
+  describe "update_change/2" do
+    test "returns a changeset" do
+      assert %Ecto.Changeset{data: %CompanyAssignment{}} =
+               CompanyAssignments.update_change(%CompanyAssignment{}, %{})
+
+      assert %Ecto.Changeset{data: %CompanyAssignment{}} =
+               CompanyAssignments.update_change(%CompanyAssignment{})
+    end
+  end
+
+  describe "update/2" do
+    test "updates a company assignment" do
+      start_date = ~D[2022-01-01]
+
+      org = insert(:org)
+
+      company_1 = insert(:company, org: org)
+      company_2 = insert(:company, org: org)
+
+      registration =
+        insert(:employee_registration,
+          org: org,
+          registered_at: company_1,
+          admission_date: start_date
+        )
+
+      %{id: assignment_id} =
+        assignment =
+        insert(:employee_company_assignment,
+          org: org,
+          registration: registration,
+          assigned_company: company_1,
+          start_date: start_date
+        )
+
+      attrs = %{
+        assigned_company_id: company_2.entity_id,
+        start_date: ~D[2022-02-01]
+      }
+
+      assert {:ok, %CompanyAssignment{id: ^assignment_id}} =
+               CompanyAssignments.update(assignment, attrs)
+
+      assert Repo.get_by(CompanyAssignment,
+               org_id: assignment.org_id,
+               id: assignment_id,
+               assigned_company_id: company_2.entity_id,
+               start_date: ~D[2022-02-01]
+             )
+    end
+
+    test "when `start_date` is before the registration `admission_date`" do
+      start_date = ~D[2022-01-01]
+
+      org = insert(:org)
+
+      company_1 = insert(:company, org: org)
+      company_2 = insert(:company, org: org)
+
+      registration =
+        insert(:employee_registration,
+          org: org,
+          registered_at: company_1,
+          admission_date: start_date
+        )
+
+      %{id: assignment_id} =
+        assignment =
+        insert(:employee_company_assignment,
+          org: org,
+          registration: registration,
+          assigned_company: company_1,
+          start_date: start_date
+        )
+
+      attrs = %{
+        assigned_company_id: company_2.entity_id,
+        start_date: ~D[2021-01-01]
+      }
+
+      assert CompanyAssignments.update(assignment, attrs) ==
+               {:error, "A data inicial deve ser igual ou posterir a data de registro"}
+
+      assert Repo.get_by(CompanyAssignment,
+               org_id: assignment.org_id,
+               id: assignment_id,
+               assigned_company_id: company_1.entity_id,
+               start_date: ~D[2022-01-01]
+             )
+    end
+
+    test "returns changeset errors" do
+      start_date = ~D[2022-01-01]
+
+      org = insert(:org)
+
+      company = insert(:company, org: org)
+
+      registration =
+        insert(:employee_registration,
+          org: org,
+          registered_at: company,
+          admission_date: start_date
+        )
+
+      insert(:employee_company_assignment,
+        org: org,
+        registration: registration,
+        assigned_company: company,
+        start_date: start_date
+      )
+
+      %{id: assignment_id} =
+        assignment =
+        insert(:employee_company_assignment,
+          org: org,
+          registration: registration,
+          assigned_company: company,
+          start_date: ~D[2022-02-01]
+        )
+
+      attrs = %{
+        start_date: ~D[2022-01-01]
+      }
+
+      assert {:error, changeset} = CompanyAssignments.update(assignment, attrs)
+
+      assert errors_on(changeset) == %{
+               start_date: ["has already been taken"]
+             }
+
+      assert Repo.get_by(CompanyAssignment,
+               org_id: assignment.org_id,
+               id: assignment_id,
+               assigned_company_id: company.entity_id,
+               start_date: ~D[2022-02-01]
+             )
+    end
+  end
+
   describe "create/2" do
     test "creates a company assignment" do
       org = insert(:org)

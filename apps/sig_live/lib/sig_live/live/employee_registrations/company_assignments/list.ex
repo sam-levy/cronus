@@ -23,6 +23,11 @@ defmodule SigLive.EmployeeRegistrations.CompanyAssignments.List do
   end
 
   @impl true
+  def handle_event("open_edit_company_assignment_form", %{"company_assignment_id" => id}, socket) do
+    {:noreply, assign(socket, form_state: :edit_mode, company_assignment_id: id)}
+  end
+
+  @impl true
   def handle_event("open_delete_confirmation_dialog", %{"company_assignment_id" => id}, socket) do
     {:noreply, assign(socket, confirmation_dialog_state: :open, company_assignment_id: id)}
   end
@@ -63,6 +68,7 @@ defmodule SigLive.EmployeeRegistrations.CompanyAssignments.List do
         {=@form_state}
         {=@org}
         {=@registration}
+        {=@company_assignment_id}
       />
 
       <ConfirmationDialog
@@ -112,6 +118,14 @@ defmodule SigLive.EmployeeRegistrations.CompanyAssignments.List do
 
               <td class="pr-5 text-right">
                 <DropdownOpts>
+                  <a
+                    :on-click="open_edit_company_assignment_form"
+                    phx-value-company_assignment_id={company_assignment.id}
+                    class="dropdown-item"
+                  >
+                    Editar
+                  </a>
+
                   <a
                     :on-click="open_delete_confirmation_dialog"
                     phx-value-company_assignment_id={company_assignment.id}

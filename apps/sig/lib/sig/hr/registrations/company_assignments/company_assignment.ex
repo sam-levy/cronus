@@ -23,6 +23,17 @@ defmodule Sig.HR.Registrations.CompanyAssignments.CompanyAssignment do
     |> cast(attrs, @fields)
     |> validate_required(@fields)
     |> assoc_constraint(:assigned_company)
-    |> unique_constraint(:start_date, name: :employee_company_assignments_company_start_date)
+    |> unique_constraint([:start_date, :assigned_company_id, :registration_id, :org_id],
+      name: :employee_company_assignments_company_start_date
+    )
+  end
+
+  def update_changeset(%__MODULE__{} = target, attrs) do
+    target
+    |> cast(attrs, [:start_date, :assigned_company_id])
+    |> assoc_constraint(:assigned_company)
+    |> unique_constraint([:start_date, :assigned_company_id, :registration_id, :org_id],
+      name: :employee_company_assignments_company_start_date
+    )
   end
 end
