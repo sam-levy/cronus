@@ -144,7 +144,7 @@ defmodule SigLive.EmployeeRegistrations.Salaries.Form do
     HR.broadcast_registration_salaries(registration)
     HR.broadcast_registration_recurring_payslip_items(registration)
 
-    flash_info("Salário Atualizado")
+    flash_info("Salário atualizado")
     close_fun.()
 
     {:noreply, socket}
