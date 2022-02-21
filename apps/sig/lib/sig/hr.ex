@@ -96,8 +96,10 @@ defmodule Sig.HR do
 
   defdelegate list_salaries_by_registration(registration), to: Salaries, as: :list_by_registration
   defdelegate get_salary(registration, salary_id), to: Salaries, as: :get
+  defdelegate fetch_salary(registration, salary_id), to: Salaries, as: :fetch
   defdelegate create_salary(registration, attrs), to: Salaries, as: :create
   defdelegate update_salary(salary, attrs), to: Salaries, as: :update
+  defdelegate delete_salary(salary), to: Salaries, as: :delete
   defdelegate subscribe_to_registration_salaries(registration), to: Salaries
   defdelegate broadcast_registration_salaries(registration), to: Salaries
   defdelegate create_salary_change(attrs \\ %{}), to: Salaries, as: :create_change

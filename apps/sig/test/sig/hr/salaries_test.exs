@@ -113,6 +113,41 @@ defmodule Sig.HR.Registrations.SalariesTest do
     end
   end
 
+  describe "delete/1" do
+    test "deletes a salary" do
+      start_date = ~D[2022-01-01]
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org, admission_date: start_date)
+
+      %{id: salary_1_id} =
+        insert(:employee_salary, org: org, registration: registration, start_date: start_date)
+
+      %{id: salary_2_id} =
+        salary_2 =
+        insert(:employee_salary, org: org, registration: registration, start_date: ~D[2022-06-01])
+
+      assert {:ok, %Salary{id: ^salary_2_id}} = Salaries.delete(salary_2)
+
+      refute Repo.get_by(Salary, org_id: org.id, id: salary_2_id)
+
+      assert Repo.get_by(Salary, org_id: org.id, id: salary_1_id)
+    end
+
+    test "when registration has only one salary" do
+      start_date = ~D[2022-01-01]
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org, admission_date: start_date)
+
+      %{id: salary_id} =
+        salary =
+        insert(:employee_salary, org: org, registration: registration, start_date: start_date)
+
+      assert Salaries.delete(salary) == {:error, "Deve existir pelo menos um salário"}
+
+      assert Repo.get_by(Salary, org_id: org.id, id: salary_id)
+    end
+  end
+
   describe "list_by_registration/1" do
     test "lists salaries by registration ordered by start_date" do
       org = insert(:org)
@@ -165,6 +200,40 @@ defmodule Sig.HR.Registrations.SalariesTest do
                Salaries.in_effect_on_date(registration, ~D[2021-06-01])
 
       assert Salaries.in_effect_on_date(registration, ~D[2020-01-01]) == nil
+    end
+  end
+
+  describe "get/2" do
+    test "gets a salary" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+
+      %{id: salary_id} = insert(:employee_salary, org: org, registration: registration)
+
+      assert %Salary{id: ^salary_id} = Salaries.get(registration, salary_id)
+    end
+
+    test "invalid id" do
+      registration = insert(:employee_registration)
+
+      assert Salaries.get(registration, UUID.generate()) == nil
+    end
+  end
+
+  describe "fetch/2" do
+    test "fetches a salary" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+
+      %{id: salary_id} = insert(:employee_salary, org: org, registration: registration)
+
+      assert {:ok, %Salary{id: ^salary_id}} = Salaries.fetch(registration, salary_id)
+    end
+
+    test "invalid id" do
+      registration = insert(:employee_registration)
+
+      assert Salaries.fetch(registration, UUID.generate()) == {:error, :not_found}
     end
   end
 
