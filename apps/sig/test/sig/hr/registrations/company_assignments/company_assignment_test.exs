@@ -257,4 +257,180 @@ defmodule Sig.HR.Registrations.CompanyAssignments.CompanyAssignmentTest do
              }
     end
   end
+
+  describe "update_changeset/2" do
+    test "valid attrs" do
+      start_date = ~D[2022-01-01]
+
+      org = insert(:org)
+      company_1 = insert(:company, org: org)
+
+      registration =
+        insert(:employee_registration,
+          org: org,
+          registered_at: company_1,
+          admission_date: start_date
+        )
+
+      assignment =
+        insert(:employee_company_assignment,
+          org: org,
+          registration: registration,
+          assigned_company: company_1,
+          start_date: start_date
+        )
+
+      attrs = %{
+        assigned_company_id: UUID.generate(),
+        start_date: ~D[2022-02-01]
+      }
+
+      assert changeset = CompanyAssignment.update_changeset(assignment, attrs)
+
+      assert changeset.valid?
+
+      assert changeset.changes == %{
+               assigned_company_id: attrs[:assigned_company_id],
+               start_date: attrs[:start_date]
+             }
+    end
+
+    test "ignores non permitted attrs" do
+      start_date = ~D[2022-01-01]
+
+      org = insert(:org)
+      company_1 = insert(:company, org: org)
+
+      registration =
+        insert(:employee_registration,
+          org: org,
+          registered_at: company_1,
+          admission_date: start_date
+        )
+
+      assignment =
+        insert(:employee_company_assignment,
+          org: org,
+          registration: registration,
+          assigned_company: company_1,
+          start_date: start_date
+        )
+
+      attrs = %{
+        org_id: UUID.generate(),
+        registration_id: UUID.generate(),
+        assigned_company_id: UUID.generate(),
+        start_date: ~D[2022-02-01]
+      }
+
+      assert changeset = CompanyAssignment.update_changeset(assignment, attrs)
+
+      assert changeset.valid?
+
+      assert changeset.changes == %{
+               assigned_company_id: attrs[:assigned_company_id],
+               start_date: attrs[:start_date]
+             }
+    end
+
+    test "invalid attrs types" do
+      assignment = insert(:employee_company_assignment)
+
+      attrs = %{
+        assigned_company_id: :invalid,
+        start_date: :invalid
+      }
+
+      assert changeset = CompanyAssignment.update_changeset(assignment, attrs)
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+               assigned_company_id: ["is invalid"],
+               start_date: ["is invalid"]
+             }
+    end
+
+    test "company assoc constraint" do
+      start_date = ~D[2022-01-01]
+
+      org = insert(:org)
+      company_1 = insert(:company, org: org)
+
+      registration =
+        insert(:employee_registration,
+          org: org,
+          registered_at: company_1,
+          admission_date: start_date
+        )
+
+      assignment =
+        insert(:employee_company_assignment,
+          org: org,
+          registration: registration,
+          assigned_company: company_1,
+          start_date: start_date
+        )
+
+      attrs = %{
+        assigned_company_id: UUID.generate(),
+        start_date: ~D[2022-02-01]
+      }
+
+      assert {:error, changeset} =
+               assignment
+               |> CompanyAssignment.update_changeset(attrs)
+               |> Repo.update()
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+               assigned_company: ["does not exist"]
+             }
+    end
+
+    test "[:start_date, :assigned_company_id, :registration_id, :org_id] unique constraint" do
+      start_date = ~D[2022-01-01]
+
+      org = insert(:org)
+      company_1 = insert(:company, org: org)
+
+      registration =
+        insert(:employee_registration,
+          org: org,
+          registered_at: company_1,
+          admission_date: start_date
+        )
+
+      insert(:employee_company_assignment,
+        org: org,
+        registration: registration,
+        assigned_company: company_1,
+        start_date: start_date
+      )
+
+      assignment =
+        insert(:employee_company_assignment,
+          org: org,
+          registration: registration,
+          assigned_company: company_1,
+          start_date: ~D[2022-02-01]
+        )
+
+      attrs = %{
+        start_date: start_date
+      }
+
+      assert {:error, changeset} =
+               assignment
+               |> CompanyAssignment.update_changeset(attrs)
+               |> Repo.update()
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+               start_date: ["has already been taken"]
+             }
+    end
+  end
 end
