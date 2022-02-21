@@ -1,6 +1,9 @@
 defmodule SigLive.EmployeeRegistrations.Salaries.List do
   use SigLive, :surface_live_component
 
+  alias Sig.HR
+
+  alias SigLive.Components.ConfirmationDialog
   alias SigLive.Components.ButtonPlus
   alias SigLive.Components.DropdownOpts
   alias SigLive.EmployeeRegistrations.Salaries.Form
@@ -9,7 +12,9 @@ defmodule SigLive.EmployeeRegistrations.Salaries.List do
   prop salaries, :list, required: true
 
   data form_state, :atom, default: :closed, values!: Form.states()
+  data confirmation_dialog_state, :atom, default: :closed
   data salary_id, :string, default: nil
+  data message, :string, default: nil
 
   @impl true
   def handle_event("open_new_salary_form", _, socket) do
@@ -22,8 +27,32 @@ defmodule SigLive.EmployeeRegistrations.Salaries.List do
   end
 
   @impl true
-  def handle_event("close_form", _, socket) do
+  def handle_event("open_delete_confirmation_dialog", %{"salary_id" => id}, socket) do
+    {:noreply, assign(socket, confirmation_dialog_state: :open, salary_id: id)}
+  end
+
+  @impl true
+  def handle_event("close_modals", _, socket) do
     {:noreply, assign(socket, closed_state())}
+  end
+
+  @impl true
+  def handle_event("delete_salary", _, socket) do
+    %{registration: registration, salary_id: id} = socket.assigns
+
+    with {:ok, salary} <- HR.fetch_salary(registration, id),
+         {:ok, _salary} <- HR.delete_salary(salary) do
+      HR.broadcast_registration_salaries(registration)
+      flash_info("Salário removido")
+
+      {:noreply, assign(socket, closed_state())}
+    else
+      {:error, message} when is_binary(message) ->
+        {:noreply, assign(socket, message: message)}
+
+      {:error, changeset} when is_struct(changeset) ->
+        {:noreply, assign(socket, message: Sig.Changeset.errors_to_string(changeset))}
+    end
   end
 
   @impl true
@@ -33,11 +62,21 @@ defmodule SigLive.EmployeeRegistrations.Salaries.List do
       <Form
         :if={@form_state != :closed}
         id="salary_form"
-        close_event="close_form"
-        close_fun={fn -> close_form(@id) end}
+        close_event="close_modals"
+        close_fun={fn -> close_modals(@id) end}
         {=@form_state}
         {=@registration}
         {=@salary_id}
+      />
+
+      <ConfirmationDialog
+        :if={@confirmation_dialog_state != :closed}
+        close_event="close_modals"
+        action_event="delete_salary"
+        dialog_title="Confirmar Remoção da Salário"
+        confirmation_msg="Deseja realmente remover este salário? Esta ação não poderá ser desfeita."
+        action_btn_msg="Remover"
+        error_message={@message}
       />
 
       <table class="w-full bg-white shadow-lg">
@@ -77,6 +116,14 @@ defmodule SigLive.EmployeeRegistrations.Salaries.List do
                   <a :on-click="open_edit_salary_form" phx-value-salary_id={salary.id} class="dropdown-item">
                     Editar
                   </a>
+
+                  <a
+                    :on-click="open_delete_confirmation_dialog"
+                    phx-value-salary_id={salary.id}
+                    class="dropdown-item"
+                  >
+                    Remover
+                  </a>
                 </DropdownOpts>
               </td>
             </tr>
@@ -87,8 +134,16 @@ defmodule SigLive.EmployeeRegistrations.Salaries.List do
     """
   end
 
-  def close_form(id), do: send_update(__MODULE__, closed_state(id))
+  def close_modals(id), do: send_update(__MODULE__, closed_state(id))
 
-  defp closed_state, do: [form_state: :closed, salary_id: nil]
   defp closed_state(id), do: closed_state() ++ [id: id]
+
+  defp closed_state do
+    [
+      message: nil,
+      form_state: :closed,
+      confirmation_dialog_state: :closed,
+      salary_id: nil
+    ]
+  end
 end
