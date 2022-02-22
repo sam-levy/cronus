@@ -94,7 +94,8 @@ defmodule Sig.HR.PayslipTemplates.PayslipTemplateItems.CreatorTest do
     test "returns changeset errors" do
       payslip_template = insert(:payslip_template)
 
-      assert {:error, changeset} = PayslipTemplateItems.create_payslip_template_item(payslip_template, %{})
+      assert {:error, changeset} =
+               PayslipTemplateItems.create_payslip_template_item(payslip_template, %{})
 
       assert errors_on(changeset) == %{
                payslip_category_id: ["can't be blank"],
