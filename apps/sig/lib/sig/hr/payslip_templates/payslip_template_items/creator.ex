@@ -6,17 +6,17 @@ defmodule Sig.HR.PayslipTemplates.PayslipTemplateItems.Creator do
   alias Sig.HR.PayslipTemplates.PayslipTemplateItems.PayslipTemplateItem
   alias Sig.Repo
 
-  def create_payslip_item(%PayslipTemplate{} = payslip_template, %{} = attrs) do
+  def create_payslip_template_item(%PayslipTemplate{} = payslip_template, %{} = attrs) do
     attrs
     |> assign_fks(payslip_template)
-    |> PayslipTemplateItem.create_payslip_item_changeset()
+    |> PayslipTemplateItem.create_payslip_template_item_changeset()
     |> create_multi()
   end
 
-  def create_payslip_model_item(%PayslipTemplate{} = payslip_template, %{} = attrs) do
+  def create_payslip_template_model_item(%PayslipTemplate{} = payslip_template, %{} = attrs) do
     attrs
     |> assign_fks(payslip_template)
-    |> PayslipTemplateItem.create_payslip_model_item_changeset()
+    |> PayslipTemplateItem.create_payslip_template_model_item_changeset()
     |> create_multi()
   end
 

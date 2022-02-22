@@ -81,7 +81,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.PayslipItemForm do
       |> Map.put("code", "code")
       |> Map.put("entry_type", "credit")
       |> Map.put("description", "description")
-      |> HR.create_payslip_item_change()
+      |> HR.create_payslip_template_item_change()
 
     case apply_action(changeset, :insert) do
       {:error, changeset} -> Map.put(context, :validation, {:error, changeset})
