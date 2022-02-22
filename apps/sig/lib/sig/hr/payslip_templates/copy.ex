@@ -9,18 +9,18 @@ defmodule Sig.HR.PayslipTemplates.Copy do
   def call(%PayslipTemplate{} = payslip_template, %{} = attrs) do
     Multi.new()
     |> Multi.insert(
-      :payslip_template_copy,
+      :new_payslip_template,
       build_payslip_template_changeset(payslip_template, attrs)
     )
     |> Multi.insert_all(
       :payslip_template_items,
       PayslipTemplateItem,
-      &build_payslip_template_items_attrs(payslip_template, &1.payslip_template_copy)
+      &build_payslip_template_items_attrs(payslip_template, &1.new_payslip_template)
     )
     |> Repo.transaction()
     |> case do
       {:error, _operation, reason, _changes} -> {:error, reason}
-      {:ok, %{payslip_template_copy: payslip_template_copy}} -> {:ok, payslip_template_copy}
+      {:ok, %{new_payslip_template: new_payslip_template}} -> {:ok, new_payslip_template}
     end
   end
 
@@ -30,14 +30,14 @@ defmodule Sig.HR.PayslipTemplates.Copy do
     |> PayslipTemplate.create_changeset()
   end
 
-  defp build_payslip_template_items_attrs(payslip_template, payslip_template_copy) do
+  defp build_payslip_template_items_attrs(payslip_template, new_payslip_template) do
     payslip_template
     |> PayslipTemplateItems.list()
     |> Enum.map(fn pti ->
       pti
       |> Map.from_struct()
-      |> Map.put(:org_id, payslip_template_copy.org_id)
-      |> Map.put(:payslip_template_id, payslip_template_copy.id)
+      |> Map.put(:org_id, new_payslip_template.org_id)
+      |> Map.put(:payslip_template_id, new_payslip_template.id)
       |> build_payslip_template_item_attrs()
       |> Map.get(:changes)
       |> Sig.Changeset.add_timestamps()
