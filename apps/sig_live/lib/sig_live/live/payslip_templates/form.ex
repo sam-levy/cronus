@@ -15,7 +15,7 @@ defmodule SigLive.PayslipTemplates.Form do
 
   alias SigLive.Components.Modal
 
-  @form_states [:new_mode, :edit_mode, :show_mode, :closed]
+  @form_states [:new_mode, :edit_mode, :copy_mode, :show_mode, :closed]
 
   prop close_event, :event, required: true
   prop close_fun, :fun, required: true
@@ -77,7 +77,8 @@ defmodule SigLive.PayslipTemplates.Form do
   defp set_changeset(nil), do: HR.create_payslip_template_change()
   defp set_changeset(payslip_template), do: HR.update_payslip_template_change(payslip_template)
 
-  defp validate_params(%{form_state: :new_mode} = context) do
+  defp validate_params(%{form_state: form_state} = context)
+       when form_state in [:new_mode, :copy_mode] do
     changeset =
       context.params
       |> Map.put("org_id", "org_id")
@@ -114,6 +115,12 @@ defmodule SigLive.PayslipTemplates.Form do
     Map.put(context, :return, HR.update_payslip_template(payslip_template, changeset.changes))
   end
 
+  defp persist(%{validation: {:ok, changeset}, form_state: :copy_mode} = context) do
+    %{payslip_template: payslip_template} = context.socket.assigns
+
+    Map.put(context, :return, HR.copy_payslip_template(payslip_template, changeset.changes))
+  end
+
   defp handle_return(%{validation: {:error, changeset}, socket: socket}) do
     {:noreply, assign(socket, changeset: changeset)}
   end
@@ -132,7 +139,8 @@ defmodule SigLive.PayslipTemplates.Form do
     {:noreply, socket}
   end
 
-  defp handle_broadcast(:new_mode, payslip_template) do
+  defp handle_broadcast(form_state, payslip_template)
+       when form_state in [:new_mode, :copy_mode] do
     HR.broadcast_new_payslip_template(payslip_template)
   end
 
@@ -142,7 +150,9 @@ defmodule SigLive.PayslipTemplates.Form do
 
   defp handle_flash(:new_mode), do: flash_info("Modelo de Holerite criado")
   defp handle_flash(:edit_mode), do: flash_info("Modelo de Holerite alterado")
+  defp handle_flash(:copy_mode), do: flash_info("Modelo de Holerite copiado")
 
   defp handle_title(:new_mode), do: "Novo Modelo de Holerite"
   defp handle_title(:edit_mode), do: "Renomear Modelo de Holerite"
+  defp handle_title(:copy_mode), do: "Nova Cópia de Modelo de Holerite"
 end

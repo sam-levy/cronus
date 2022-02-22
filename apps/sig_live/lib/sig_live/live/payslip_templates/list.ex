@@ -39,6 +39,11 @@ defmodule SigLive.PayslipTemplates.List do
   end
 
   @impl true
+  def handle_event("open_copy_payslip_template_form", %{"payslip_template_id" => id}, socket) do
+    {:noreply, assign(socket, form_state: :copy_mode, payslip_template_id: id)}
+  end
+
+  @impl true
   def handle_event(
         "open_delete_payslip_template_confirmation_dialog",
         %{"payslip_template_id" => id},
@@ -136,6 +141,14 @@ defmodule SigLive.PayslipTemplates.List do
 
               <td class="pr-5 text-right">
                 <DropdownOpts>
+                  <a
+                    :on-click="open_copy_payslip_template_form"
+                    phx-value-payslip_template_id={payslip_template.id}
+                    class="dropdown-item"
+                  >
+                    Copiar
+                  </a>
+
                   <a
                     :on-click="open_edit_payslip_template_form"
                     phx-value-payslip_template_id={payslip_template.id}
