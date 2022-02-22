@@ -101,6 +101,25 @@ defmodule Sig.HR.PayslipTemplates.PayslipTemplateTest do
                name: ["should be at most 255 character(s)"]
              }
     end
+
+    test "[:name, :org_id] unique_constraint" do
+      org = insert(:org)
+      insert(:payslip_template, org: org, name: "Template Name")
+
+      attrs = %{
+        org_id: org.id,
+        name: "Template Name"
+      }
+
+      assert {:error, changeset} =
+               attrs
+               |> PayslipTemplate.create_changeset()
+               |> Repo.insert()
+
+      assert errors_on(changeset) == %{
+               name: ["has already been taken"]
+             }
+    end
   end
 
   describe "update_changeset/2" do
@@ -158,6 +177,27 @@ defmodule Sig.HR.PayslipTemplates.PayslipTemplateTest do
 
       assert errors_on(changeset) == %{
                name: ["should be at most 255 character(s)"]
+             }
+    end
+
+    test "[:name, :org_id] unique_constraint" do
+      org = insert(:org)
+
+      insert(:payslip_template, org: org, name: "Template Name")
+
+      template_item = insert(:payslip_template, org: org)
+
+      attrs = %{
+        name: "Template Name"
+      }
+
+      assert {:error, changeset} =
+               template_item
+               |> PayslipTemplate.update_changeset(attrs)
+               |> Repo.update()
+
+      assert errors_on(changeset) == %{
+               name: ["has already been taken"]
              }
     end
   end

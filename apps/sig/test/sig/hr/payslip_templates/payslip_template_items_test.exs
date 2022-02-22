@@ -8,17 +8,17 @@ defmodule Sig.HR.PayslipTemplates.PayslipTemplateItemsTest do
 
   @endpoint SigLive.Endpoint
 
-  describe "create_payslip_item_change/1" do
+  describe "create_payslip_template_item_change/1" do
     test "returns a changeset" do
       assert %Ecto.Changeset{data: %PayslipTemplateItem{}, changes: %{type: :payslip_item}} =
-               PayslipTemplateItems.create_payslip_item_change()
+               PayslipTemplateItems.create_payslip_template_item_change()
     end
   end
 
-  describe "create_payslip_model_item_change/1" do
+  describe "create_payslip_template_model_item_change/1" do
     test "returns a changeset" do
       assert %Ecto.Changeset{data: %PayslipTemplateItem{}, changes: %{type: :payslip_item_model}} =
-               PayslipTemplateItems.create_payslip_model_item_change()
+               PayslipTemplateItems.create_payslip_template_model_item_change()
     end
   end
 

@@ -55,6 +55,7 @@ defmodule Sig.HR do
     to: PayslipTemplates,
     as: :update_change
 
+  defdelegate copy_payslip_template(payslip_template, attrs), to: PayslipTemplates, as: :copy
   defdelegate list_payslip_templates(org), to: PayslipTemplates, as: :list
   defdelegate get_payslip_template(registration, id), to: PayslipTemplates, as: :get
   defdelegate fetch_payslip_template(registration, id), to: PayslipTemplates, as: :fetch
@@ -66,21 +67,12 @@ defmodule Sig.HR do
   defdelegate broadcast_updated_payslip_template(payslip_template), to: PayslipTemplates
   defdelegate broadcast_deleted_payslip_template(payslip_template), to: PayslipTemplates
 
-  defdelegate create_payslip_template_item_change(attrs \\ %{}),
-    to: PayslipTemplateItems,
-    as: :create_payslip_item_change
-
-  defdelegate create_payslip_template_model_item_change(attrs \\ %{}),
-    to: PayslipTemplateItems,
-    as: :create_payslip_model_item_change
-
-  defdelegate create_payslip_template_item(payslip_template, attrs),
-    to: PayslipTemplateItems,
-    as: :create_payslip_item
+  defdelegate create_payslip_template_item_change(attrs \\ %{}), to: PayslipTemplateItems
+  defdelegate create_payslip_template_model_item_change(attrs \\ %{}), to: PayslipTemplateItems
+  defdelegate create_payslip_template_item(payslip_template, attrs), to: PayslipTemplateItems
 
   defdelegate create_payslip_template_model_item(payslip_template, attrs),
-    to: PayslipTemplateItems,
-    as: :create_payslip_model_item
+    to: PayslipTemplateItems
 
   defdelegate delete_payslip_template_item(payslip_template_item),
     to: PayslipTemplateItems,

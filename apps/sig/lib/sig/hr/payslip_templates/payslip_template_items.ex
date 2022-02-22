@@ -7,15 +7,15 @@ defmodule Sig.HR.PayslipTemplates.PayslipTemplateItems do
   alias Sig.HR.PayslipTemplates.PayslipTemplateItems.PayslipTemplateItem
   alias Sig.Repo
 
-  defdelegate create_payslip_item(payslip_template, attrs), to: Creator
-  defdelegate create_payslip_model_item(payslip_template, attrs), to: Creator
+  defdelegate create_payslip_template_item(payslip_template, attrs), to: Creator
+  defdelegate create_payslip_template_model_item(payslip_template, attrs), to: Creator
 
-  def create_payslip_item_change(%{} = attrs \\ %{}) do
-    PayslipTemplateItem.create_payslip_item_changeset(attrs)
+  def create_payslip_template_item_change(%{} = attrs \\ %{}) do
+    PayslipTemplateItem.create_payslip_template_item_changeset(attrs)
   end
 
-  def create_payslip_model_item_change(%{} = attrs \\ %{}) do
-    PayslipTemplateItem.create_payslip_model_item_changeset(attrs)
+  def create_payslip_template_model_item_change(%{} = attrs \\ %{}) do
+    PayslipTemplateItem.create_payslip_template_model_item_changeset(attrs)
   end
 
   def delete(%PayslipTemplateItem{} = payslip_template_item) do

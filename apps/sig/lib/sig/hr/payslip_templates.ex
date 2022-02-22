@@ -4,10 +4,13 @@ defmodule Sig.HR.PayslipTemplates do
 
   alias Ecto.Multi
 
+  alias Sig.HR.PayslipTemplates.Copy
   alias Sig.HR.PayslipTemplates.PayslipTemplate
   alias Sig.HR.PayslipTemplates.PayslipTemplateItems.PayslipTemplateItem
   alias Sig.Organizations.Org
   alias Sig.Repo
+
+  defdelegate copy(payslip_template, attrs), to: Copy, as: :call
 
   def create_change(%{} = attrs \\ %{}) do
     PayslipTemplate.create_changeset(attrs)

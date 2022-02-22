@@ -18,6 +18,7 @@ defmodule Sig.HR.PayslipTemplates.PayslipTemplate do
     |> cast(attrs, @create_fields)
     |> validate_required(@create_fields)
     |> validate_length(:name, max: 255)
+    |> unique_constraint([:name, :org_id], name: :payslip_templates_name_unique)
   end
 
   def update_changeset(%__MODULE__{} = target, attrs) do
@@ -25,5 +26,6 @@ defmodule Sig.HR.PayslipTemplates.PayslipTemplate do
     |> cast(attrs, [:name])
     |> validate_required([:name])
     |> validate_length(:name, max: 255)
+    |> unique_constraint([:name, :org_id], name: :payslip_templates_name_unique)
   end
 end

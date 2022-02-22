@@ -264,7 +264,7 @@ defmodule Sig.HR.PayslipTemplates.PayslipTemplateItems.PayslipTemplateItemTest d
     end
   end
 
-  describe "create_payslip_model_item_changeset/1" do
+  describe "create_payslip_template_model_item_changeset/1" do
     test "valid attrs" do
       attrs = %{
         org_id: UUID.generate(),
@@ -272,7 +272,7 @@ defmodule Sig.HR.PayslipTemplates.PayslipTemplateItems.PayslipTemplateItemTest d
         payslip_recurring_item_model_id: UUID.generate()
       }
 
-      assert changeset = PayslipTemplateItem.create_payslip_model_item_changeset(attrs)
+      assert changeset = PayslipTemplateItem.create_payslip_template_model_item_changeset(attrs)
 
       assert changeset.valid?
 
@@ -285,7 +285,7 @@ defmodule Sig.HR.PayslipTemplates.PayslipTemplateItems.PayslipTemplateItemTest d
     end
 
     test "missing required attrs" do
-      assert changeset = PayslipTemplateItem.create_payslip_model_item_changeset(%{})
+      assert changeset = PayslipTemplateItem.create_payslip_template_model_item_changeset(%{})
 
       refute changeset.valid?
 
@@ -305,7 +305,7 @@ defmodule Sig.HR.PayslipTemplates.PayslipTemplateItems.PayslipTemplateItemTest d
         amount: 100_00
       }
 
-      assert changeset = PayslipTemplateItem.create_payslip_model_item_changeset(attrs)
+      assert changeset = PayslipTemplateItem.create_payslip_template_model_item_changeset(attrs)
 
       assert changeset.valid?
 
@@ -324,7 +324,7 @@ defmodule Sig.HR.PayslipTemplates.PayslipTemplateItems.PayslipTemplateItemTest d
         payslip_recurring_item_model_id: :invalid
       }
 
-      assert changeset = PayslipTemplateItem.create_payslip_model_item_changeset(attrs)
+      assert changeset = PayslipTemplateItem.create_payslip_template_model_item_changeset(attrs)
 
       refute changeset.valid?
 
@@ -347,7 +347,7 @@ defmodule Sig.HR.PayslipTemplates.PayslipTemplateItems.PayslipTemplateItemTest d
 
       assert {:error, changeset} =
                attrs
-               |> PayslipTemplateItem.create_payslip_model_item_changeset()
+               |> PayslipTemplateItem.create_payslip_template_model_item_changeset()
                |> Repo.insert()
 
       refute changeset.valid?
@@ -376,7 +376,7 @@ defmodule Sig.HR.PayslipTemplates.PayslipTemplateItems.PayslipTemplateItemTest d
 
       assert {:error, changeset} =
                attrs
-               |> PayslipTemplateItem.create_payslip_model_item_changeset()
+               |> PayslipTemplateItem.create_payslip_template_model_item_changeset()
                |> Repo.insert()
 
       refute changeset.valid?
@@ -387,7 +387,7 @@ defmodule Sig.HR.PayslipTemplates.PayslipTemplateItems.PayslipTemplateItemTest d
     end
   end
 
-  describe "create_payslip_item_changeset/1" do
+  describe "create_payslip_template_item_changeset/1" do
     test "valid attrs" do
       attrs = %{
         org_id: UUID.generate(),
@@ -396,7 +396,7 @@ defmodule Sig.HR.PayslipTemplates.PayslipTemplateItems.PayslipTemplateItemTest d
         amount: 100_00
       }
 
-      assert changeset = PayslipTemplateItem.create_payslip_item_changeset(attrs)
+      assert changeset = PayslipTemplateItem.create_payslip_template_item_changeset(attrs)
 
       assert changeset.valid?
 
@@ -410,7 +410,7 @@ defmodule Sig.HR.PayslipTemplates.PayslipTemplateItems.PayslipTemplateItemTest d
     end
 
     test "missing required attrs" do
-      assert changeset = PayslipTemplateItem.create_payslip_item_changeset(%{})
+      assert changeset = PayslipTemplateItem.create_payslip_template_item_changeset(%{})
 
       refute changeset.valid?
 
@@ -431,7 +431,7 @@ defmodule Sig.HR.PayslipTemplates.PayslipTemplateItems.PayslipTemplateItemTest d
         payslip_recurring_item_model_id: UUID.generate()
       }
 
-      assert changeset = PayslipTemplateItem.create_payslip_item_changeset(attrs)
+      assert changeset = PayslipTemplateItem.create_payslip_template_item_changeset(attrs)
 
       assert changeset.valid?
 
@@ -452,7 +452,7 @@ defmodule Sig.HR.PayslipTemplates.PayslipTemplateItems.PayslipTemplateItemTest d
         amount: :invalid
       }
 
-      assert changeset = PayslipTemplateItem.create_payslip_item_changeset(attrs)
+      assert changeset = PayslipTemplateItem.create_payslip_template_item_changeset(attrs)
 
       refute changeset.valid?
 
@@ -472,7 +472,7 @@ defmodule Sig.HR.PayslipTemplates.PayslipTemplateItems.PayslipTemplateItemTest d
         amount: -100_00
       }
 
-      assert changeset = PayslipTemplateItem.create_payslip_item_changeset(attrs)
+      assert changeset = PayslipTemplateItem.create_payslip_template_item_changeset(attrs)
 
       refute changeset.valid?
 
@@ -494,7 +494,7 @@ defmodule Sig.HR.PayslipTemplates.PayslipTemplateItems.PayslipTemplateItemTest d
 
       assert {:error, changeset} =
                attrs
-               |> PayslipTemplateItem.create_payslip_item_changeset()
+               |> PayslipTemplateItem.create_payslip_template_item_changeset()
                |> Repo.insert()
 
       refute changeset.valid?
@@ -524,7 +524,7 @@ defmodule Sig.HR.PayslipTemplates.PayslipTemplateItems.PayslipTemplateItemTest d
 
       assert {:error, changeset} =
                attrs
-               |> PayslipTemplateItem.create_payslip_item_changeset()
+               |> PayslipTemplateItem.create_payslip_template_item_changeset()
                |> Repo.insert()
 
       refute changeset.valid?

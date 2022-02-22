@@ -4,7 +4,7 @@ defmodule Sig.HR.PayslipTemplates.PayslipTemplateItems.CreatorTest do
   alias Sig.HR.PayslipTemplates.PayslipTemplateItems
   alias Sig.HR.PayslipTemplates.PayslipTemplateItems.PayslipTemplateItem
 
-  describe "create_payslip_item/2" do
+  describe "create_payslip_template_item/2" do
     test "creates a payslip template item" do
       org = insert(:org)
       payslip_template = insert(:payslip_template, org: org)
@@ -28,7 +28,7 @@ defmodule Sig.HR.PayslipTemplates.PayslipTemplateItems.CreatorTest do
       }
 
       assert {:ok, %PayslipTemplateItem{}} =
-               PayslipTemplateItems.create_payslip_item(payslip_template, attrs)
+               PayslipTemplateItems.create_payslip_template_item(payslip_template, attrs)
 
       assert Repo.get_by(PayslipTemplateItem,
                org_id: org.id,
@@ -61,7 +61,7 @@ defmodule Sig.HR.PayslipTemplates.PayslipTemplateItems.CreatorTest do
         amount: 100_00
       }
 
-      assert PayslipTemplateItems.create_payslip_item(payslip_template, attrs) ==
+      assert PayslipTemplateItems.create_payslip_template_item(payslip_template, attrs) ==
                {:error, "Já exsite um item com o mesmo código neste modelo de holerite"}
 
       refute Repo.get_by(PayslipTemplateItem,
@@ -84,7 +84,7 @@ defmodule Sig.HR.PayslipTemplates.PayslipTemplateItems.CreatorTest do
       }
 
       assert {:error, changeset} =
-               PayslipTemplateItems.create_payslip_item(payslip_template, attrs)
+               PayslipTemplateItems.create_payslip_template_item(payslip_template, attrs)
 
       assert errors_on(changeset) == %{
                payslip_category: ["does not exist"]
@@ -94,7 +94,8 @@ defmodule Sig.HR.PayslipTemplates.PayslipTemplateItems.CreatorTest do
     test "returns changeset errors" do
       payslip_template = insert(:payslip_template)
 
-      assert {:error, changeset} = PayslipTemplateItems.create_payslip_item(payslip_template, %{})
+      assert {:error, changeset} =
+               PayslipTemplateItems.create_payslip_template_item(payslip_template, %{})
 
       assert errors_on(changeset) == %{
                payslip_category_id: ["can't be blank"],
@@ -103,7 +104,7 @@ defmodule Sig.HR.PayslipTemplates.PayslipTemplateItems.CreatorTest do
     end
   end
 
-  describe "create_payslip_model_item/2" do
+  describe "create_payslip_template_model_item/2" do
     test "creates a payslip template item" do
       org = insert(:org)
       payslip_template = insert(:payslip_template, org: org)
@@ -118,7 +119,7 @@ defmodule Sig.HR.PayslipTemplates.PayslipTemplateItems.CreatorTest do
       attrs = %{payslip_recurring_item_model_id: rim.id}
 
       assert {:ok, %PayslipTemplateItem{}} =
-               PayslipTemplateItems.create_payslip_model_item(payslip_template, attrs)
+               PayslipTemplateItems.create_payslip_template_model_item(payslip_template, attrs)
 
       assert Repo.get_by(PayslipTemplateItem,
                org_id: org.id,
@@ -141,7 +142,7 @@ defmodule Sig.HR.PayslipTemplates.PayslipTemplateItems.CreatorTest do
 
       attrs = %{payslip_recurring_item_model_id: rim.id}
 
-      assert PayslipTemplateItems.create_payslip_model_item(payslip_template, attrs) ==
+      assert PayslipTemplateItems.create_payslip_template_model_item(payslip_template, attrs) ==
                {:error, "Já exsite um item com o mesmo código neste modelo de holerite"}
 
       refute Repo.get_by(PayslipTemplateItem,
@@ -161,7 +162,7 @@ defmodule Sig.HR.PayslipTemplates.PayslipTemplateItems.CreatorTest do
       attrs = %{payslip_recurring_item_model_id: rim.id}
 
       assert {:error, changeset} =
-               PayslipTemplateItems.create_payslip_model_item(payslip_template, attrs)
+               PayslipTemplateItems.create_payslip_template_model_item(payslip_template, attrs)
 
       assert errors_on(changeset) == %{
                payslip_recurring_item_model: ["does not exist"]
@@ -172,7 +173,7 @@ defmodule Sig.HR.PayslipTemplates.PayslipTemplateItems.CreatorTest do
       payslip_template = insert(:payslip_template)
 
       assert {:error, changeset} =
-               PayslipTemplateItems.create_payslip_model_item(payslip_template, %{})
+               PayslipTemplateItems.create_payslip_template_model_item(payslip_template, %{})
 
       assert errors_on(changeset) == %{
                payslip_recurring_item_model_id: ["can't be blank"]

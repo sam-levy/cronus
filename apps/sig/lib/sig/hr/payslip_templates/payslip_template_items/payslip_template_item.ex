@@ -27,7 +27,7 @@ defmodule Sig.HR.PayslipTemplates.PayslipTemplateItems.PayslipTemplateItem do
   @payslip_item_fields @base_fields ++ [:amount, :payslip_category_id]
   @payslip_item_model_fields @base_fields ++ [:payslip_recurring_item_model_id]
 
-  def create_payslip_item_changeset(attrs) do
+  def create_payslip_template_item_changeset(attrs) do
     %__MODULE__{}
     |> cast(attrs, @payslip_item_fields)
     |> validate_required(@payslip_item_fields)
@@ -37,7 +37,7 @@ defmodule Sig.HR.PayslipTemplates.PayslipTemplateItems.PayslipTemplateItem do
     |> unique_constraint(:payslip_category_id, name: :payslip_template_items_category_unique)
   end
 
-  def create_payslip_model_item_changeset(attrs) do
+  def create_payslip_template_model_item_changeset(attrs) do
     %__MODULE__{}
     |> cast(attrs, @payslip_item_model_fields)
     |> validate_required(@payslip_item_model_fields)
