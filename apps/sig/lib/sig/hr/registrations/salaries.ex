@@ -90,6 +90,8 @@ defmodule Sig.HR.Registrations.Salaries do
     "registration_id:" <> registration.id <> ":salaries"
   end
 
+  defp init_query, do: from(s in Salary, as: :salary)
+
   defp query_by(%Registration{} = registration) do
     init_query()
     |> where(org_id: ^registration.org_id)
@@ -101,6 +103,4 @@ defmodule Sig.HR.Registrations.Salaries do
     |> where(org_id: ^salary.org_id)
     |> where(registration_id: ^salary.registration_id)
   end
-
-  def init_query, do: from(s in Salary, as: :salary)
 end
