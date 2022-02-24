@@ -40,11 +40,9 @@ defmodule Sig.HR.RegistrationsTest do
       registration = insert(:employee_registration, org: org)
 
       sector = insert(:org_sector, org: org)
-      position = insert(:org_position, org: org)
 
       attrs = %{
-        sector_id: sector.id,
-        position_id: position.id
+        sector_id: sector.id
       }
 
       assert {:ok, return} = Registrations.update(registration, attrs)
@@ -71,7 +69,6 @@ defmodule Sig.HR.RegistrationsTest do
       assert {:error, changeset} = Registrations.update(registration, attrs)
 
       assert errors_on(changeset) == %{
-               position_id: ["is invalid"],
                sector_id: ["is invalid"]
              }
     end
@@ -455,9 +452,14 @@ defmodule Sig.HR.RegistrationsTest do
 
     test "count registrations by position" do
       org = insert(:org)
+
+      [registration_1, registration_2] = insert_list(2, :employee_registration, org: org)
+
       position = insert(:org_position, org: org)
 
-      insert_list(2, :employee_registration, org: org, position: position)
+      insert(:registration_position, org: org, registration: registration_1, position: position)
+      insert(:registration_position, org: org, registration: registration_2, position: position)
+
       _to_ignore_1 = insert(:employee_registration, org: org)
       _to_ignore_2 = insert(:employee_registration)
 
