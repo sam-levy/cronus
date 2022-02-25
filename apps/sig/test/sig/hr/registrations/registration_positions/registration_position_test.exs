@@ -67,7 +67,7 @@ defmodule Sig.HR.Registrations.RegistrationPositions.RegistrationPositionTest do
                    fn -> Repo.insert(registration_position) end
     end
 
-    test "[:start_date, :org_position_id, :registration_id, :org_id] unique_constraint" do
+    test "[:start_date, :registration_id, :org_id] unique_constraint" do
       org = insert(:org)
       registration = insert(:employee_registration, org: org)
       position = insert(:org_position, org: org)
@@ -87,13 +87,6 @@ defmodule Sig.HR.Registrations.RegistrationPositions.RegistrationPositionTest do
         start_date: registration.admission_date
       )
 
-      # Allow same start_date for different position
-      insert(:employee_salary,
-        org: org,
-        registration: registration,
-        start_date: registration.admission_date
-      )
-
       # Allow same registration and position for different start_date
       insert(:employee_salary,
         org: org,
@@ -102,10 +95,12 @@ defmodule Sig.HR.Registrations.RegistrationPositions.RegistrationPositionTest do
         start_date: Date.add(registration.admission_date, 10)
       )
 
+      new_position = insert(:org_position, org: org)
+
       registration_position = %RegistrationPosition{
         org: org,
         registration_id: registration.id,
-        position_id: position.id,
+        position_id: new_position.id,
         start_date: registration.admission_date
       }
 
@@ -258,7 +253,7 @@ defmodule Sig.HR.Registrations.RegistrationPositions.RegistrationPositionTest do
              }
     end
 
-    test "[:start_date, :org_position_id, :registration_id, :org_id] unique_constraint" do
+    test "[:start_date, :registration_id, :org_id] unique_constraint" do
       org = insert(:org)
       registration = insert(:employee_registration, org: org)
       position = insert(:org_position, org: org)
@@ -271,10 +266,12 @@ defmodule Sig.HR.Registrations.RegistrationPositions.RegistrationPositionTest do
           start_date: registration.admission_date
         )
 
+      new_position = insert(:org_position, org: org)
+
       attrs = %{
         org_id: org.id,
         registration_id: registration.id,
-        position_id: position.id,
+        position_id: new_position.id,
         start_date: registration.admission_date
       }
 
@@ -364,7 +361,7 @@ defmodule Sig.HR.Registrations.RegistrationPositions.RegistrationPositionTest do
              }
     end
 
-    test "[:start_date, :org_position_id, :registration_id, :org_id] unique_constraint" do
+    test "[:start_date, :registration_id, :org_id] unique_constraint" do
       org = insert(:org)
       registration = insert(:employee_registration, org: org)
       position = insert(:org_position, org: org)
@@ -385,10 +382,12 @@ defmodule Sig.HR.Registrations.RegistrationPositions.RegistrationPositionTest do
           start_date: Date.add(registration.admission_date, 10)
         )
 
+      new_position = insert(:org_position, org: org)
+
       attrs = %{
         org_id: org.id,
         registration_id: registration.id,
-        position_id: position.id,
+        position_id: new_position.id,
         start_date: registration.admission_date
       }
 

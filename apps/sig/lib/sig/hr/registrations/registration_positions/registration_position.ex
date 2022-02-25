@@ -23,7 +23,7 @@ defmodule Sig.HR.Registrations.RegistrationPositions.RegistrationPosition do
     |> cast(attrs, @fields)
     |> validate_required(@fields)
     |> assoc_constraint(:position)
-    |> unique_constraint([:start_date, :org_position_id, :registration_id, :org_id],
+    |> unique_constraint([:start_date, :registration_id, :org_id],
       name: :registration_org_positions_start_date
     )
   end
@@ -32,7 +32,7 @@ defmodule Sig.HR.Registrations.RegistrationPositions.RegistrationPosition do
     target
     |> cast(attrs, [:position_id, :start_date])
     |> assoc_constraint(:position)
-    |> unique_constraint([:start_date, :org_position_id, :registration_id, :org_id],
+    |> unique_constraint([:start_date, :registration_id, :org_id],
       name: :registration_org_positions_start_date
     )
   end

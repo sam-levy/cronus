@@ -17,7 +17,7 @@ defmodule Sig.Repo.Migrations.CreateRegistrationOrgPositionsTable do
 
     create unique_index(
              :registration_org_positions,
-             [:start_date, :position_id, :registration_id, :org_id],
+             [:start_date, :registration_id, :org_id],
              name: :registration_org_positions_start_date
            )
 
@@ -35,7 +35,7 @@ defmodule Sig.Repo.Migrations.CreateRegistrationOrgPositionsTable do
       ON registration_org_positions;
     """)
 
-    drop index(:registration_org_positions, [:start_date, :position_id, :registration_id, :org_id])
+    drop index(:registration_org_positions, [:start_date, :registration_id, :org_id])
 
     drop table(:registration_org_positions)
   end
