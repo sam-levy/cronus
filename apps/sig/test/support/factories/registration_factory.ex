@@ -15,7 +15,6 @@ defmodule Sig.Factories.RegistrationFactory do
           e_social_number: random_string_number(),
           admission_date: Faker.Date.between(~D[2000-01-01], ~D[2010-01-01]),
           sector: build(:org_sector, org: org),
-          position: build(:org_position, org: org),
           individual: individual,
           registered_at: registered_at
         }

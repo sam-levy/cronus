@@ -4,10 +4,11 @@ defmodule Sig.HR.Registrations.CreateTest do
   alias Sig.HR.Registrations.CompanyAssignments.CompanyAssignment
   alias Sig.HR.Registrations.Create
   alias Sig.HR.Registrations.Registration
+  alias Sig.HR.Registrations.RegistrationPositions.RegistrationPosition
   alias Sig.HR.Registrations.Salaries.Salary
 
   describe "call/3" do
-    test "creates a registration, salary and company assignment" do
+    test "creates a registration, salary, registration position and company assignment" do
       org = insert(:org)
 
       other_company = insert(:company, org: org)
@@ -55,7 +56,7 @@ defmodule Sig.HR.Registrations.CreateTest do
 
       get_by =
         attrs
-        |> Map.drop([:salary_amount, :assigned_company_entity_id])
+        |> Map.drop([:salary_amount, :position_id, :assigned_company_entity_id])
         |> Enum.into(%{
           id: registration.id,
           org_id: org.id,
@@ -68,6 +69,13 @@ defmodule Sig.HR.Registrations.CreateTest do
                org_id: org.id,
                registration_id: registration.id,
                amount: salary_amount,
+               start_date: registration.admission_date
+             )
+
+      assert Repo.get_by(RegistrationPosition,
+               org_id: org.id,
+               registration_id: registration.id,
+               position_id: position.id,
                start_date: registration.admission_date
              )
 
@@ -105,7 +113,7 @@ defmodule Sig.HR.Registrations.CreateTest do
 
       get_by =
         attrs
-        |> Map.drop([:salary_amount])
+        |> Map.drop([:salary_amount, :position_id])
         |> Enum.into(%{
           id: registration.id,
           org_id: org.id,
@@ -118,6 +126,13 @@ defmodule Sig.HR.Registrations.CreateTest do
                org_id: org.id,
                registration_id: registration.id,
                amount: salary_amount,
+               start_date: registration.admission_date
+             )
+
+      assert Repo.get_by(RegistrationPosition,
+               org_id: org.id,
+               registration_id: registration.id,
+               position_id: position.id,
                start_date: registration.admission_date
              )
 
@@ -162,7 +177,7 @@ defmodule Sig.HR.Registrations.CreateTest do
 
       get_by =
         attrs
-        |> Map.drop([:salary_amount, :assigned_company_entity_id])
+        |> Map.drop([:salary_amount, :position_id, :assigned_company_entity_id])
         |> Enum.into(%{
           org_id: org.id,
           individual_id: individual.entity_id
@@ -173,6 +188,11 @@ defmodule Sig.HR.Registrations.CreateTest do
       refute Repo.get_by(Salary,
                org_id: org.id,
                amount: salary_amount
+             )
+
+      refute Repo.get_by(RegistrationPosition,
+               org_id: org.id,
+               position_id: position.id
              )
 
       refute Repo.get_by(CompanyAssignment,

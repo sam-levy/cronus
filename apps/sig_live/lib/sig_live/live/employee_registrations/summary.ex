@@ -121,11 +121,6 @@ defmodule SigLive.EmployeeRegistrations.Summary do
               <dd class="text-sm text-gray-500">{@registration.sector.name}</dd>
             </div>
 
-            <div class="px-4 py-2 grid grid-cols-2 hover:bg-gray-50">
-              <dt class="text-sm font-medium text-gray-500">Cargo</dt>
-              <dd class="text-sm text-gray-500">{@registration.position.name}</dd>
-            </div>
-
             {#if @registration.resignation_date}
               <div class="px-4 py-2 grid grid-cols-2 hover:bg-gray-50">
                 <dt class="text-sm font-medium text-gray-500">Data de desligamento</dt>

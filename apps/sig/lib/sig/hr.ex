@@ -9,6 +9,7 @@ defmodule Sig.HR do
   alias Sig.HR.Payslips.RecurringItemModels
   alias Sig.HR.Registrations
   alias Sig.HR.Registrations.Salaries
+  alias Sig.HR.Registrations.RegistrationPositions
   alias Sig.HR.Registrations.Overtimes
   alias Sig.HR.Registrations.Benefits
   alias Sig.HR.Registrations.Warnings
@@ -96,6 +97,43 @@ defmodule Sig.HR do
   defdelegate broadcast_registration_salaries(registration), to: Salaries
   defdelegate create_salary_change(attrs \\ %{}), to: Salaries, as: :create_change
   defdelegate update_salary_change(salary, attrs \\ %{}), to: Salaries, as: :update_change
+
+  defdelegate list_registration_positions_by(schema, opts \\ []),
+    to: RegistrationPositions,
+    as: :list_by
+
+  defdelegate get_registration_position(registration, registration_position_id, opts \\ []),
+    to: RegistrationPositions,
+    as: :get
+
+  defdelegate fetch_registration_position(registration, registration_position_id, opts \\ []),
+    to: RegistrationPositions,
+    as: :fetch
+
+  defdelegate create_registration_position(registration, attrs),
+    to: RegistrationPositions,
+    as: :create
+
+  defdelegate update_registration_position(registration_position, attrs),
+    to: RegistrationPositions,
+    as: :update
+
+  defdelegate delete_registration_position(registration_position),
+    to: RegistrationPositions,
+    as: :delete
+
+  defdelegate subscribe_to_registration_positions(registration), to: RegistrationPositions
+
+  defdelegate broadcast_updated_registration_positions(registration, opts \\ []),
+    to: RegistrationPositions
+
+  defdelegate create_registration_position_change(attrs \\ %{}),
+    to: RegistrationPositions,
+    as: :create_change
+
+  defdelegate update_registration_position_change(registration_position, attrs \\ %{}),
+    to: RegistrationPositions,
+    as: :update_change
 
   defdelegate create_benefit_model_change(attrs \\ %{}), to: BenefitModels, as: :create_change
 

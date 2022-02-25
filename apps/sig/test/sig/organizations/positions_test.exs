@@ -125,9 +125,10 @@ defmodule Sig.Organizations.PositionsTest do
 
     test "when position is being used by a registration" do
       org = insert(:org)
+      registration = insert(:employee_registration, org: org)
       position = insert(:org_position, org: org)
 
-      insert(:employee_registration, org: org, position: position)
+      insert(:registration_position, org: org, registration: registration, position: position)
 
       assert Positions.delete(position) ==
                {:error, "Existem registros de funcionários associados"}

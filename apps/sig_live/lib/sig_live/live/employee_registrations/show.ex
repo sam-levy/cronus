@@ -18,6 +18,7 @@ defmodule SigLive.EmployeeRegistrations.Show do
     LeavePeriods,
     CompanyAssignments,
     RecurringPayslipItems,
+    RegistrationPositions,
     Payslips
   }
 
@@ -40,9 +41,7 @@ defmodule SigLive.EmployeeRegistrations.Show do
     %{org: org} = socket.assigns
 
     registration =
-      HR.get_registration(org, registration_id,
-        preload: [:org, :registered_at, :sector, :position]
-      )
+      HR.get_registration(org, registration_id, preload: [:org, :registered_at, :sector])
 
     individual = Entities.get_individual(org, registration.individual_id)
 
@@ -89,6 +88,7 @@ defmodule SigLive.EmployeeRegistrations.Show do
 
     if connected?(socket) do
       HR.subscribe_to_registration_salaries(registration)
+      HR.subscribe_to_registration_positions(registration)
       HR.subscribe_to_company_assignments(registration)
     end
 
@@ -96,6 +96,7 @@ defmodule SigLive.EmployeeRegistrations.Show do
     |> assign_active_screen(:registration_summary)
     |> assign(
       registration_salaries: HR.list_salaries_by_registration(registration),
+      registration_positions: HR.list_registration_positions_by(registration),
       registration_company_assignments: HR.list_company_assignments_by(registration)
     )
   end
@@ -225,6 +226,11 @@ defmodule SigLive.EmployeeRegistrations.Show do
   end
 
   @impl true
+  def handle_info({:updated_registration_positions, value}, socket) do
+    maybe_assign(socket, :registration_summary, :registration_positions, value)
+  end
+
+  @impl true
   def handle_info({:updated_registration_company_assignments, value}, socket) do
     maybe_assign(socket, :registration_summary, :registration_company_assignments, value)
   end
@@ -309,7 +315,7 @@ defmodule SigLive.EmployeeRegistrations.Show do
             replace
             class={tab_classes_for(@active_screen, registration_tab_screens())}
           >
-            Cadastros
+            Cadastro
           </LivePatch>
 
           <LivePatch
@@ -407,13 +413,28 @@ defmodule SigLive.EmployeeRegistrations.Show do
               {=@individual}
               {=@org}
             />
-            <Salaries.List id="registration_salaries" salaries={@registration_salaries} {=@registration} />
+
             <CompanyAssignments.List
               id="company_assignment"
               company_assignments={@registration_company_assignments}
               {=@registration}
               {=@org}
             />
+
+            <div class="flex gap-6">
+              <div class="w-1/2">
+                <RegistrationPositions.List
+                  id="registration_positions"
+                  {=@registration_positions}
+                  {=@registration}
+                  {=@org}
+                />
+              </div>
+
+              <div class="w-1/2">
+                <Salaries.List id="registration_salaries" salaries={@registration_salaries} {=@registration} />
+              </div>
+            </div>
           </div>
 
           <div :show={@active_screen == :registration_recurring_payslip_items}>

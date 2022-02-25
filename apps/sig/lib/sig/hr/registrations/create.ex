@@ -7,6 +7,7 @@ defmodule Sig.HR.Registrations.Create do
   alias Sig.Entities.Individuals.Individual
   alias Sig.HR.Registrations.CompanyAssignments.CompanyAssignment
   alias Sig.HR.Registrations.Registration
+  alias Sig.HR.Registrations.RegistrationPositions.RegistrationPosition
   alias Sig.HR.Registrations.Salaries.Salary
   alias Sig.Organizations.Org
   alias Sig.Repo
@@ -15,7 +16,6 @@ defmodule Sig.HR.Registrations.Create do
     defstruct status: :ok, attrs: nil, changeset: nil, org: nil, individual: nil, result: nil
   end
 
-  # REFACTOR: Remove unnecessary org
   def call(%Org{} = org, %Individual{} = individual, %{} = attrs) do
     %Context{attrs: attrs, org: org, individual: individual}
     |> build_registration_changeset()
@@ -91,6 +91,11 @@ defmodule Sig.HR.Registrations.Create do
       |> build_salary_attrs(changeset.changes.salary_amount)
       |> Salary.create_changeset()
     end)
+    |> Multi.insert(:registration_position, fn %{registration: registration} ->
+      registration
+      |> build_registration_position_attrs(changeset.changes.position_id)
+      |> RegistrationPosition.create_changeset()
+    end)
     |> Multi.insert(:comapany_assignment, fn %{registration: registration} ->
       registration
       |> build_company_assignment_attrs(changeset.changes.assigned_company_entity_id)
@@ -111,6 +116,15 @@ defmodule Sig.HR.Registrations.Create do
       registration_id: registration.id,
       start_date: registration.admission_date,
       amount: salary_amount
+    }
+  end
+
+  defp build_registration_position_attrs(registration, position_id) do
+    %{
+      org_id: registration.org_id,
+      registration_id: registration.id,
+      start_date: registration.admission_date,
+      position_id: position_id
     }
   end
 
