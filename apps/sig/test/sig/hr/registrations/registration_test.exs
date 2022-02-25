@@ -9,7 +9,6 @@ defmodule Sig.HR.Registrations.RegistrationTest do
 
       individual = insert(:individual, org: org)
       sector = insert(:org_sector, org: org)
-      position = insert(:org_position, org: org)
       registered_at = insert(:company, org: org)
 
       registration = %Registration{
@@ -19,7 +18,6 @@ defmodule Sig.HR.Registrations.RegistrationTest do
         resignation_date: Faker.Date.between(~D[2010-01-02], ~D[2020-01-01]),
         resignation_type: random_enum_value(:resignation_type),
         sector_id: sector.id,
-        position_id: position.id,
         individual_id: individual.entity_id,
         registered_at_id: registered_at.entity_id
       }
@@ -34,7 +32,6 @@ defmodule Sig.HR.Registrations.RegistrationTest do
 
       individual = insert(:individual, org: org)
       sector = insert(:org_sector, org: org)
-      position = insert(:org_position, org: org)
       registered_at = insert(:company, org: org)
 
       registration = %Registration{
@@ -45,7 +42,6 @@ defmodule Sig.HR.Registrations.RegistrationTest do
         resignation_date: Faker.Date.between(~D[2010-01-02], ~D[2020-01-01]),
         resignation_type: random_enum_value(:resignation_type),
         sector_id: sector.id,
-        position_id: position.id,
         individual_id: individual.entity_id,
         registered_at_id: registered_at.entity_id
       }
@@ -59,7 +55,6 @@ defmodule Sig.HR.Registrations.RegistrationTest do
       org = insert(:org)
 
       sector = insert(:org_sector, org: org)
-      position = insert(:org_position, org: org)
       registered_at = insert(:company, org: org)
 
       registration = %Registration{
@@ -70,7 +65,6 @@ defmodule Sig.HR.Registrations.RegistrationTest do
         resignation_date: Faker.Date.between(~D[2010-01-02], ~D[2020-01-01]),
         resignation_type: random_enum_value(:resignation_type),
         sector_id: sector.id,
-        position_id: position.id,
         registered_at_id: registered_at.entity_id
       }
 
@@ -83,7 +77,6 @@ defmodule Sig.HR.Registrations.RegistrationTest do
       org = insert(:org)
 
       sector = insert(:org_sector, org: org)
-      position = insert(:org_position, org: org)
       registered_at = insert(:company, org: org)
 
       registration = %Registration{
@@ -94,7 +87,6 @@ defmodule Sig.HR.Registrations.RegistrationTest do
         resignation_date: Faker.Date.between(~D[2010-01-02], ~D[2020-01-01]),
         resignation_type: random_enum_value(:resignation_type),
         sector_id: sector.id,
-        position_id: position.id,
         individual_id: UUID.generate(),
         registered_at_id: registered_at.entity_id
       }
@@ -109,7 +101,6 @@ defmodule Sig.HR.Registrations.RegistrationTest do
 
       individual = insert(:individual, org: org)
       sector = insert(:org_sector, org: org)
-      position = insert(:org_position, org: org)
       registered_at = insert(:company, org: org)
 
       _existing_open_registration =
@@ -127,7 +118,6 @@ defmodule Sig.HR.Registrations.RegistrationTest do
         e_social_number: random_string_number(),
         admission_date: Faker.Date.between(~D[2000-01-01], ~D[2010-01-01]),
         sector_id: sector.id,
-        position_id: position.id,
         individual_id: individual.entity_id,
         registered_at_id: registered_at.entity_id
       }
@@ -142,7 +132,6 @@ defmodule Sig.HR.Registrations.RegistrationTest do
 
       individual = insert(:individual, org: org)
       sector = insert(:org_sector, org: org)
-      position = insert(:org_position, org: org)
       registered_at = insert(:company, org: org)
 
       registration = %Registration{
@@ -152,7 +141,6 @@ defmodule Sig.HR.Registrations.RegistrationTest do
         admission_date: Faker.Date.between(~D[2000-01-01], ~D[2010-01-01]),
         resignation_date: Faker.Date.between(~D[2010-01-02], ~D[2020-01-01]),
         sector_id: sector.id,
-        position_id: position.id,
         individual_id: individual.entity_id,
         registered_at_id: registered_at.entity_id
       }
@@ -167,7 +155,6 @@ defmodule Sig.HR.Registrations.RegistrationTest do
 
       individual = insert(:individual, org: org)
       sector = insert(:org_sector, org: org)
-      position = insert(:org_position, org: org)
       registered_at = insert(:company, org: org)
 
       registration = %Registration{
@@ -178,7 +165,6 @@ defmodule Sig.HR.Registrations.RegistrationTest do
         resignation_date: ~D[2000-01-01],
         resignation_type: random_enum_value(:resignation_type),
         sector_id: sector.id,
-        position_id: position.id,
         individual_id: individual.entity_id,
         registered_at_id: registered_at.entity_id
       }
@@ -193,7 +179,6 @@ defmodule Sig.HR.Registrations.RegistrationTest do
 
       individual = insert(:individual, org: org)
       sector = insert(:org_sector, org: org)
-      position = insert(:org_position, org: org)
       registered_at = insert(:company, org: org)
 
       _existing_registration = insert(:employee_registration, org: org, number: "1234")
@@ -204,7 +189,6 @@ defmodule Sig.HR.Registrations.RegistrationTest do
         e_social_number: random_string_number(),
         admission_date: Faker.Date.between(~D[2000-01-01], ~D[2010-01-01]),
         sector_id: sector.id,
-        position_id: position.id,
         individual_id: individual.entity_id,
         registered_at_id: registered_at.entity_id
       }
@@ -219,7 +203,6 @@ defmodule Sig.HR.Registrations.RegistrationTest do
 
       individual = insert(:individual, org: org)
       sector = insert(:org_sector, org: org)
-      position = insert(:org_position, org: org)
       registered_at = insert(:company, org: org)
 
       _existing_registration = insert(:employee_registration, org: org, e_social_number: "1234")
@@ -230,7 +213,6 @@ defmodule Sig.HR.Registrations.RegistrationTest do
         e_social_number: "1234",
         admission_date: Faker.Date.between(~D[2000-01-01], ~D[2010-01-01]),
         sector_id: sector.id,
-        position_id: position.id,
         individual_id: individual.entity_id,
         registered_at_id: registered_at.entity_id
       }
@@ -595,62 +577,6 @@ defmodule Sig.HR.Registrations.RegistrationTest do
       assert errors_on(changeset) == %{sector: ["does not exist"]}
     end
 
-    test "position assoc_constraint" do
-      org = insert(:org)
-
-      individual = insert(:individual, org: org)
-      sector = insert(:org_sector, org: org)
-      registered_at = insert(:company, org: org)
-
-      attrs = %{
-        org_id: org.id,
-        number: random_string_number(),
-        e_social_number: random_string_number(),
-        admission_date: Faker.Date.between(~D[2000-01-01], ~D[2010-01-01]),
-        sector_id: sector.id,
-        position_id: UUID.generate(),
-        individual_id: individual.entity_id,
-        registered_at_id: registered_at.entity_id,
-        salary_amount: Enum.random(1_200_00..4_000_00)
-      }
-
-      assert {:error, changeset} =
-               attrs
-               |> Registration.create_changeset()
-               |> Repo.insert()
-
-      assert errors_on(changeset) == %{position: ["does not exist"]}
-    end
-
-    test "position from other org" do
-      org = insert(:org)
-
-      individual = insert(:individual, org: org)
-      sector = insert(:org_sector, org: org)
-      registered_at = insert(:company, org: org)
-
-      other_org_position = insert(:org_position)
-
-      attrs = %{
-        org_id: org.id,
-        number: random_string_number(),
-        e_social_number: random_string_number(),
-        admission_date: Faker.Date.between(~D[2000-01-01], ~D[2010-01-01]),
-        sector_id: sector.id,
-        position_id: other_org_position.id,
-        individual_id: individual.entity_id,
-        registered_at_id: registered_at.entity_id,
-        salary_amount: Enum.random(1_200_00..4_000_00)
-      }
-
-      assert {:error, changeset} =
-               attrs
-               |> Registration.create_changeset()
-               |> Repo.insert()
-
-      assert errors_on(changeset) == %{position: ["does not exist"]}
-    end
-
     test "registered_at assoc_constraint" do
       org = insert(:org)
 
@@ -717,7 +643,6 @@ defmodule Sig.HR.Registrations.RegistrationTest do
         e_social_number: "456",
         admission_date: ~D[2020-01-01],
         sector_id: UUID.generate(),
-        position_id: UUID.generate(),
         registered_at_id: UUID.generate()
       }
 
@@ -735,7 +660,6 @@ defmodule Sig.HR.Registrations.RegistrationTest do
         e_social_number: :invalid,
         admission_date: :invalid,
         sector_id: :invalid,
-        position_id: :invalid,
         registered_at_id: :invalid
       }
 
@@ -744,12 +668,11 @@ defmodule Sig.HR.Registrations.RegistrationTest do
       refute changeset.valid?
 
       assert errors_on(changeset) == %{
-               position_id: ["is invalid"],
+               registered_at_id: ["is invalid"],
                sector_id: ["is invalid"],
                admission_date: ["is invalid"],
                e_social_number: ["is invalid"],
-               number: ["is invalid"],
-               registered_at_id: ["is invalid"]
+               number: ["is invalid"]
              }
     end
 
@@ -780,7 +703,6 @@ defmodule Sig.HR.Registrations.RegistrationTest do
                  :e_social_number,
                  :admission_date,
                  :sector_id,
-                 :position_id,
                  :registered_at_id
                ])
     end
@@ -793,7 +715,6 @@ defmodule Sig.HR.Registrations.RegistrationTest do
         e_social_number: "123a45",
         admission_date: ~D[2020-01-01],
         sector_id: UUID.generate(),
-        position_id: UUID.generate(),
         registered_at_id: UUID.generate()
       }
 
@@ -890,24 +811,6 @@ defmodule Sig.HR.Registrations.RegistrationTest do
                |> Repo.update()
 
       assert errors_on(changeset) == %{sector: ["does not exist"]}
-    end
-
-    test "position assoc_constraint" do
-      registration = insert(:employee_registration)
-
-      sector = insert(:org_sector, org: registration.org)
-
-      attrs = %{
-        sector_id: sector.id,
-        position_id: UUID.generate()
-      }
-
-      assert {:error, changeset} =
-               registration
-               |> Registration.update_changeset(attrs)
-               |> Repo.update()
-
-      assert errors_on(changeset) == %{position: ["does not exist"]}
     end
 
     test "registered_at assoc_constraint" do
