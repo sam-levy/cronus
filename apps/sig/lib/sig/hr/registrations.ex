@@ -11,6 +11,7 @@ defmodule Sig.HR.Registrations do
   alias Sig.HR.Payslips
   alias Sig.HR.Registrations.Create
   alias Sig.HR.Registrations.Registration
+  alias Sig.HR.Registrations.RegistrationPositions.RegistrationPosition
   alias Sig.Repo
 
   defdelegate create(org, individual, attrs), to: Create, as: :call
@@ -130,7 +131,11 @@ defmodule Sig.HR.Registrations do
   defp query_by(%Position{} = position) do
     init_query()
     |> where(org_id: ^position.org_id)
-    |> where(position_id: ^position.id)
+    |> join(:left, [registration: r], rp in RegistrationPosition,
+      on: rp.registration_id == r.id and rp.org_id == r.org_id,
+      as: :registration_position
+    )
+    |> where([registration_position: rp], rp.position_id == ^position.id)
   end
 
   defp handle_salary_amount(registrations) when is_list(registrations) do
