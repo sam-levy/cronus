@@ -83,6 +83,7 @@ defmodule Sig.HR.Registrations.CreateTest do
                org_id: org.id,
                registration_id: registration.id,
                assigned_company_id: assigned_company.entity_id,
+               sector_id: sector.id,
                start_date: registration.admission_date
              )
     end
@@ -140,6 +141,7 @@ defmodule Sig.HR.Registrations.CreateTest do
                org_id: org.id,
                registration_id: registration.id,
                assigned_company_id: company.entity_id,
+               sector_id: sector.id,
                start_date: registration.admission_date
              )
     end
