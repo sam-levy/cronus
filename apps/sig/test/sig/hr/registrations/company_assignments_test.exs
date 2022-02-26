@@ -159,9 +159,11 @@ defmodule Sig.HR.Registrations.CompanyAssignmentsTest do
       org = insert(:org)
       registration = insert(:employee_registration, org: org)
       assigned_company = insert(:company, org: org)
+      sector = insert(:org_sector, org: org)
 
       attrs = %{
         assigned_company_id: assigned_company.entity_id,
+        sector_id: sector.id,
         start_date: ~D[2022-01-01]
       }
 
@@ -183,6 +185,7 @@ defmodule Sig.HR.Registrations.CompanyAssignmentsTest do
 
       assert errors_on(changeset) == %{
                assigned_company_id: ["can't be blank"],
+               sector_id: ["can't be blank"],
                start_date: ["can't be blank"]
              }
 
