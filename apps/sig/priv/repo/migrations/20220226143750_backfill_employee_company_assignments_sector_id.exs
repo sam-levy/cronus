@@ -13,18 +13,17 @@ defmodule Sig.Repo.Migrations.BackfillEmployeeCompanyAssignmentsSectorId do
     if should_backfill?() do
       Repo.transaction(
         fn ->
-          registration_positions_attrs =
-            registrations_query()
-            |> Repo.all()
-            |> Enum.each(fn registration ->
-              Repo.update_all(
-                from(ca in "employee_company_assignments",
-                  where:
-                    ca.org_id == ^registration.org_id and ca.registration_id == ^registration.id
-                ),
-                set: [sector_id: registration.sector_id]
-              )
-            end)
+          registrations_query()
+          |> Repo.all()
+          |> Enum.each(fn registration ->
+            Repo.update_all(
+              from(ca in "employee_company_assignments",
+                where:
+                  ca.org_id == ^registration.org_id and ca.registration_id == ^registration.id
+              ),
+              set: [sector_id: registration.sector_id]
+            )
+          end)
         end,
         timeout: :infinity
       )
