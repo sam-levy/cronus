@@ -4,6 +4,7 @@ defmodule Sig.HR.Registrations.CompanyAssignments.CompanyAssignment do
   alias Sig.Entities.Companies.Company
   alias Sig.HR.Registrations.Registration
   alias Sig.Organizations.Org
+  alias Sig.Organizations.Sector
 
   schema "employee_company_assignments" do
     belongs_to :org, Org, primary_key: true
@@ -12,17 +13,19 @@ defmodule Sig.HR.Registrations.CompanyAssignments.CompanyAssignment do
 
     belongs_to :registration, Registration
     belongs_to :assigned_company, Company, references: :entity_id
+    belongs_to :sector, Sector
 
     timestamps()
   end
 
-  @fields [:org_id, :start_date, :registration_id, :assigned_company_id]
+  @fields [:org_id, :start_date, :registration_id, :assigned_company_id, :sector_id]
 
   def create_changeset(attrs) do
     %__MODULE__{}
     |> cast(attrs, @fields)
     |> validate_required(@fields)
     |> assoc_constraint(:assigned_company)
+    |> assoc_constraint(:sector)
     |> unique_constraint([:start_date, :assigned_company_id, :registration_id, :org_id],
       name: :employee_company_assignments_company_start_date
     )
@@ -30,8 +33,9 @@ defmodule Sig.HR.Registrations.CompanyAssignments.CompanyAssignment do
 
   def update_changeset(%__MODULE__{} = target, attrs) do
     target
-    |> cast(attrs, [:start_date, :assigned_company_id])
+    |> cast(attrs, [:start_date, :assigned_company_id, :sector_id])
     |> assoc_constraint(:assigned_company)
+    |> assoc_constraint(:sector)
     |> unique_constraint([:start_date, :assigned_company_id, :registration_id, :org_id],
       name: :employee_company_assignments_company_start_date
     )

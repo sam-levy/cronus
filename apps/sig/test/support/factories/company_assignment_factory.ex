@@ -18,6 +18,7 @@ defmodule Sig.Factories.CompanyAssignmentFactory do
           org: org,
           registration: registration,
           assigned_company: assigned_company,
+          sector: build(:org_sector, org: org),
           start_date: start_date
         }
       end
