@@ -6,6 +6,7 @@ defmodule Sig.HR.RegistrationsTest do
   alias Sig.HR.Registrations.Salaries.Salary
   alias Sig.HR.Registrations.Registration
   alias Sig.Organizations.Org
+  alias Sig.Organizations.Sector
 
   @endpoint SigLive.Endpoint
 
@@ -39,10 +40,8 @@ defmodule Sig.HR.RegistrationsTest do
       org = insert(:org)
       registration = insert(:employee_registration, org: org)
 
-      sector = insert(:org_sector, org: org)
-
       attrs = %{
-        sector_id: sector.id
+        admission_date: Date.add(registration.admission_date, 10)
       }
 
       assert {:ok, return} = Registrations.update(registration, attrs)
@@ -62,14 +61,13 @@ defmodule Sig.HR.RegistrationsTest do
       registration = insert(:employee_registration, org: org)
 
       attrs = %{
-        sector_id: :invalid,
-        position_id: :invalid
+        admission_date: :invalid
       }
 
       assert {:error, changeset} = Registrations.update(registration, attrs)
 
       assert errors_on(changeset) == %{
-               sector_id: ["is invalid"]
+               admission_date: ["is invalid"]
              }
     end
   end
@@ -387,41 +385,61 @@ defmodule Sig.HR.RegistrationsTest do
                )
     end
 
-    test "filter by sectors" do
+    test "filter by last sector" do
       org = insert(:org)
 
-      %{id: ktchen_sector_id} = kitchen_sector = insert(:org_sector, org: org, name: "kitchen")
-
-      %{id: cleaning_sector_id} =
-        cleaning_sector = insert(:org_sector, org: org, name: "cleaning")
-
+      kitchen_sector = insert(:org_sector, org: org, name: "kitchen")
+      cleaning_sector = insert(:org_sector, org: org, name: "cleaning")
       delivery_sector = insert(:org_sector, org: org, name: "delivery")
 
-      insert(:employee_registration,
+      kitchen_sector_registration =
+        %{id: kitchen_sector_registration_id} =
+        insert(:employee_registration,
+          org: org,
+          admission_date: ~D[2012-01-01]
+        )
+
+      cleaning_sector_registration =
+        %{id: cleaning_sector_registration_id} =
+        insert(:employee_registration,
+          org: org,
+          admission_date: ~D[2012-02-01]
+        )
+
+      delivery_sector_registration =
+        insert(:employee_registration,
+          org: org,
+          admission_date: ~D[2012-03-01]
+        )
+
+      insert(:employee_company_assignment,
         org: org,
-        admission_date: ~D[2012-01-01],
-        sector: kitchen_sector
+        registration: kitchen_sector_registration,
+        sector: kitchen_sector,
+        start_date: kitchen_sector_registration.admission_date
       )
 
-      insert(:employee_registration,
+      insert(:employee_company_assignment,
         org: org,
-        admission_date: ~D[2012-02-01],
-        sector: cleaning_sector
+        registration: cleaning_sector_registration,
+        sector: cleaning_sector,
+        start_date: cleaning_sector_registration.admission_date
       )
 
-      insert(:employee_registration,
+      insert(:employee_company_assignment,
         org: org,
-        admission_date: ~D[2012-03-01],
-        sector: delivery_sector
+        registration: delivery_sector_registration,
+        sector: delivery_sector,
+        start_date: delivery_sector_registration.admission_date
       )
 
       assert [
-               %Registration{sector_id: ^ktchen_sector_id},
-               %Registration{sector_id: ^cleaning_sector_id}
+               %Registration{id: ^kitchen_sector_registration_id},
+               %Registration{id: ^cleaning_sector_registration_id}
              ] =
                Registrations.list_by(org,
                  filter_by: [
-                   sector_id: [kitchen_sector.id, cleaning_sector.id],
+                   last_sector_id: [kitchen_sector.id, cleaning_sector.id],
                    active_in_period: [start_date: ~D[2020-01-01], end_date: ~D[2020-01-31]]
                  ]
                )
@@ -441,9 +459,31 @@ defmodule Sig.HR.RegistrationsTest do
   describe "count_by/1" do
     test "count registrations by sector" do
       org = insert(:org)
+
+      [registration_1, registration_2] = insert_list(2, :employee_registration, org: org)
+
       sector = insert(:org_sector, org: org)
 
-      insert_list(2, :employee_registration, org: org, sector: sector)
+      insert(:employee_company_assignment,
+        org: org,
+        registration: registration_1,
+        sector: sector,
+        start_date: registration_1.admission_date
+      )
+
+      insert(:employee_company_assignment,
+        org: org,
+        registration: registration_2,
+        start_date: registration_2.admission_date
+      )
+
+      insert(:employee_company_assignment,
+        org: org,
+        registration: registration_2,
+        sector: sector,
+        start_date: Date.add(registration_2.admission_date, 10)
+      )
+
       _to_ignore_1 = insert(:employee_registration, org: org)
       _to_ignore_2 = insert(:employee_registration)
 
@@ -508,7 +548,32 @@ defmodule Sig.HR.RegistrationsTest do
       assert Registrations.get(org_2, registration.id) == nil
     end
 
-    test "preloads" do
+    test "preloads the last sector" do
+      org = insert(:org)
+      individual = insert(:individual, org: org)
+      registration = insert(:employee_registration, org: org, individual: individual)
+      kitchen_sector = insert(:org_sector, org: org, name: "kitchen")
+      cleaning_sector = insert(:org_sector, org: org, name: "cleaning")
+
+      insert(:employee_company_assignment,
+        org: org,
+        start_date: registration.admission_date,
+        registration: registration,
+        sector: kitchen_sector
+      )
+
+      insert(:employee_company_assignment,
+        org: org,
+        start_date: registration.admission_date |> Date.add(30),
+        registration: registration,
+        sector: cleaning_sector
+      )
+
+      assert %Registration{last_sector: %Sector{name: "cleaning"}} =
+               Registrations.get(individual, registration.id, preload: :last_sector)
+    end
+
+    test "preloads org and salaries" do
       %{id: org_id} = org = insert(:org)
       individual = insert(:individual, org: org)
       registration = insert(:employee_registration, org: org, individual: individual)

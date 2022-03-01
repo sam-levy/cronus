@@ -1,5 +1,8 @@
 defmodule Sig.HR.Registrations do
-  use Sig.Query, schema: __MODULE__.Registration, as: :registration
+  use Sig.Query,
+    schema: __MODULE__.Registration,
+    as: :registration,
+    impl_do_join_for: :last_sector
 
   import Ecto.Query
   import Sig.Broadcaster
@@ -125,9 +128,11 @@ defmodule Sig.HR.Registrations do
   defp query_by(%Sector{} = sector) do
     init_query()
     |> where(org_id: ^sector.org_id)
-    |> where(sector_id: ^sector.id)
+    |> do_join(:last_sector)
+    |> where([last_sector: ls], ls.id == ^sector.id)
   end
 
+  # TODO: Refactor -> should be the last position
   defp query_by(%Position{} = position) do
     init_query()
     |> where(org_id: ^position.org_id)
@@ -156,6 +161,38 @@ defmodule Sig.HR.Registrations do
     [salary | _] = Enum.sort_by(salaries, & &1.start_date, {:desc, Date})
 
     %{registration | salary_amount: salary.amount}
+  end
+
+  @impl Sig.Query
+  def do_join(queryable, :last_sector) do
+    if has_named_binding?(queryable, :last_sector) do
+      queryable
+    else
+      queryable
+      |> join(
+        :inner_lateral,
+        [registration: r],
+        last_company_assignment in fragment(
+          "SELECT * FROM employee_company_assignments WHERE org_id = ? AND registration_id = ? ORDER BY start_date DESC LIMIT 1",
+          r.org_id,
+          r.id
+        ),
+        as: :last_company_assignment
+      )
+      |> join(:left, [last_company_assignment: lca], s in Sector,
+        on: lca.sector_id == s.id,
+        as: :last_sector
+      )
+    end
+  end
+
+  @impl Sig.Query
+  def filter_by(queryable, :last_sector_id, sectors_ids) do
+    sectors_ids = List.wrap(sectors_ids)
+
+    queryable
+    |> do_join(:last_sector)
+    |> where([last_sector: ls], ls.id in ^sectors_ids)
   end
 
   @impl Sig.Query
