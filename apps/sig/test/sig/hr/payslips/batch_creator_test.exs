@@ -73,26 +73,36 @@ defmodule Sig.HR.Payslips.BatchCreatorTest do
       kitchen_sector = insert(:org_sector, org: org, name: "kitchen")
       cleaning_sector = insert(:org_sector, org: org, name: "cleaning")
 
-      date = ~D[2021-01-01]
-      type = :regular
-
-      kitchen_individual = insert(:individual, org: org, name: "Zenon")
-      cleaning_individual = insert(:individual, org: org, name: "Allan")
-
-      registration_without_payables = [
+      kitchen_individual_registration =
         insert(:employee_registration,
           org: org,
-          individual: kitchen_individual,
-          sector: kitchen_sector,
-          admission_date: ~D[2020-01-01]
-        ),
-        insert(:employee_registration,
-          org: org,
-          individual: cleaning_individual,
-          sector: cleaning_sector,
+          individual: build(:individual, org: org, name: "Zenon"),
           admission_date: ~D[2020-01-01]
         )
-      ]
+
+      cleaning_individual_registration =
+        insert(:employee_registration,
+          org: org,
+          individual: build(:individual, org: org, name: "Allan"),
+          admission_date: ~D[2020-01-01]
+        )
+
+      insert(:employee_company_assignment,
+        org: org,
+        start_date: kitchen_individual_registration.admission_date,
+        registration: kitchen_individual_registration,
+        sector: kitchen_sector
+      )
+
+      insert(:employee_company_assignment,
+        org: org,
+        start_date: cleaning_individual_registration.admission_date,
+        registration: cleaning_individual_registration,
+        sector: cleaning_sector
+      )
+
+      date = ~D[2021-01-01]
+      type = :regular
 
       attrs = %{
         type: type,
@@ -104,25 +114,77 @@ defmodule Sig.HR.Payslips.BatchCreatorTest do
               [
                 %Registration{
                   individual: %Individual{name: "Allan"},
-                  sector: %Sector{},
+                  last_sector: %Sector{name: "cleaning"},
                   registered_at: %Company{}
                 },
                 %Registration{
                   individual: %Individual{name: "Zenon"},
-                  sector: %Sector{},
+                  last_sector: %Sector{name: "kitchen"},
                   registered_at: %Company{}
                 }
-              ] = return} = BatchCreator.verify(org, attrs)
+              ]} = BatchCreator.verify(org, attrs)
 
       refute Repo.get_by(Group, org_id: org.id, date: date, type: type)
 
-      returned_registrations_ids = Enum.map(return, & &1.id)
+      refute Repo.get_by(Payslip,
+               org_id: org.id,
+               registration_id: kitchen_individual_registration.id
+             )
 
-      Enum.each(registration_without_payables, fn new_registration ->
-        refute Repo.get_by(Payslip, org_id: org.id, registration_id: new_registration.id)
+      refute Repo.get_by(Payslip,
+               org_id: org.id,
+               registration_id: cleaning_individual_registration.id
+             )
+    end
 
-        assert new_registration.id in returned_registrations_ids
-      end)
+    test "ignores registrations from non selected sectors" do
+      org = insert(:org)
+
+      kitchen_sector = insert(:org_sector, org: org, name: "kitchen")
+      cleaning_sector = insert(:org_sector, org: org, name: "cleaning")
+
+      kitchen_individual_registration =
+        insert(:employee_registration,
+          org: org,
+          individual: build(:individual, org: org, name: "Zenon"),
+          admission_date: ~D[2020-01-01]
+        )
+
+      cleaning_individual_registration =
+        insert(:employee_registration,
+          org: org,
+          individual: build(:individual, org: org, name: "Allan"),
+          admission_date: ~D[2020-01-01]
+        )
+
+      insert(:employee_company_assignment,
+        org: org,
+        start_date: kitchen_individual_registration.admission_date,
+        registration: kitchen_individual_registration,
+        sector: kitchen_sector
+      )
+
+      insert(:employee_company_assignment,
+        org: org,
+        start_date: cleaning_individual_registration.admission_date,
+        registration: cleaning_individual_registration,
+        sector: cleaning_sector
+      )
+
+      attrs = %{
+        type: :regular,
+        start_date: ~D[2021-01-01],
+        sectors_ids: [cleaning_sector.id]
+      }
+
+      assert {:ok,
+              [
+                %Registration{
+                  individual: %Individual{name: "Allan"},
+                  last_sector: %Sector{name: "cleaning"},
+                  registered_at: %Company{}
+                }
+              ]} = BatchCreator.verify(org, attrs)
     end
 
     test "returns the registrations from the payslips to be created when group and other payslips already exist" do
@@ -136,19 +198,35 @@ defmodule Sig.HR.Payslips.BatchCreatorTest do
 
       %{id: group_id} = group = insert(:payslip_group, org: org, date: date, type: type)
 
-      existing_kitchen_sector_registration =
+      # Existing registrations
+
+      existing_kitchen_registration =
         insert(:employee_registration,
           org: org,
-          sector: kitchen_sector,
           admission_date: ~D[2020-01-01]
         )
 
-      existing_cleaning_sector_registration =
+      existing_cleaning_registration =
         insert(:employee_registration,
           org: org,
-          sector: cleaning_sector,
           admission_date: ~D[2020-01-01]
         )
+
+      # Existing company assignments
+
+      insert(:employee_company_assignment,
+        org: org,
+        start_date: existing_kitchen_registration.admission_date,
+        registration: existing_kitchen_registration,
+        sector: kitchen_sector
+      )
+
+      insert(:employee_company_assignment,
+        org: org,
+        start_date: existing_cleaning_registration.admission_date,
+        registration: existing_cleaning_registration,
+        sector: cleaning_sector
+      )
 
       # Existing payslips
 
@@ -157,7 +235,7 @@ defmodule Sig.HR.Payslips.BatchCreatorTest do
         group: group,
         start_date: date,
         type: type,
-        registration: existing_kitchen_sector_registration
+        registration: existing_kitchen_registration
       )
 
       insert(:payslip,
@@ -165,21 +243,38 @@ defmodule Sig.HR.Payslips.BatchCreatorTest do
         group: group,
         start_date: date,
         type: type,
-        registration: existing_cleaning_sector_registration
+        registration: existing_cleaning_registration
       )
 
-      registrations_without_payables = [
+      # Registrations without payables
+
+      kitchen_individual_registration =
         insert(:employee_registration,
           org: org,
-          sector: kitchen_sector,
-          admission_date: ~D[2020-01-01]
-        ),
-        insert(:employee_registration,
-          org: org,
-          sector: cleaning_sector,
+          individual: build(:individual, org: org, name: "Zenon"),
           admission_date: ~D[2020-01-01]
         )
-      ]
+
+      cleaning_individual_registration =
+        insert(:employee_registration,
+          org: org,
+          individual: build(:individual, org: org, name: "Allan"),
+          admission_date: ~D[2020-01-01]
+        )
+
+      insert(:employee_company_assignment,
+        org: org,
+        start_date: kitchen_individual_registration.admission_date,
+        registration: kitchen_individual_registration,
+        sector: kitchen_sector
+      )
+
+      insert(:employee_company_assignment,
+        org: org,
+        start_date: cleaning_individual_registration.admission_date,
+        registration: cleaning_individual_registration,
+        sector: cleaning_sector
+      )
 
       attrs = %{
         type: type,
@@ -190,26 +285,70 @@ defmodule Sig.HR.Payslips.BatchCreatorTest do
       assert {:ok,
               [
                 %Registration{
-                  individual: %Individual{},
-                  sector: %Sector{},
+                  individual: %Individual{name: "Allan"},
+                  last_sector: %Sector{name: "cleaning"},
                   registered_at: %Company{}
                 },
                 %Registration{
-                  individual: %Individual{},
-                  sector: %Sector{},
+                  individual: %Individual{name: "Zenon"},
+                  last_sector: %Sector{name: "kitchen"},
                   registered_at: %Company{}
                 }
-              ] = return} = BatchCreator.verify(org, attrs)
+              ]} = BatchCreator.verify(org, attrs)
 
       assert Repo.get_by(Group, org_id: org.id, id: group_id, date: date, type: type)
 
-      returned_registrations_ids = Enum.map(return, & &1.id)
+      refute Repo.get_by(Payslip,
+               org_id: org.id,
+               registration_id: kitchen_individual_registration.id
+             )
 
-      Enum.each(registrations_without_payables, fn registration ->
-        refute Repo.get_by(Payslip, org_id: org.id, registration_id: registration.id)
+      refute Repo.get_by(Payslip,
+               org_id: org.id,
+               registration_id: cleaning_individual_registration.id
+             )
+    end
 
-        assert registration.id in returned_registrations_ids
-      end)
+    test "considers only the last company assignment sector" do
+      org = insert(:org)
+
+      kitchen_sector = insert(:org_sector, org: org, name: "kitchen")
+      cleaning_sector = insert(:org_sector, org: org, name: "cleaning")
+
+      registration =
+        insert(:employee_registration,
+          org: org,
+          individual: build(:individual, org: org, name: "Allan"),
+          admission_date: ~D[2020-01-01]
+        )
+
+      insert(:employee_company_assignment,
+        org: org,
+        start_date: registration.admission_date,
+        registration: registration,
+        sector: kitchen_sector
+      )
+
+      insert(:employee_company_assignment,
+        org: org,
+        start_date: registration.admission_date |> Date.add(30),
+        registration: registration,
+        sector: cleaning_sector
+      )
+
+      attrs = %{
+        type: :regular,
+        start_date: ~D[2021-01-01],
+        sectors_ids: [kitchen_sector.id, cleaning_sector.id]
+      }
+
+      assert {:ok,
+              [
+                %Registration{
+                  individual: %Individual{name: "Allan"},
+                  last_sector: %Sector{name: "cleaning"}
+                }
+              ]} = BatchCreator.verify(org, attrs)
     end
   end
 
@@ -224,21 +363,51 @@ defmodule Sig.HR.Payslips.BatchCreatorTest do
       kitchen_registrations =
         insert_list(2, :employee_registration,
           org: org,
-          sector: kitchen_sector,
           admission_date: ~D[2020-01-01]
         )
 
       cleaning_registrations =
         insert_list(2, :employee_registration,
           org: org,
-          sector: cleaning_sector,
           admission_date: ~D[2020-01-01]
         )
 
-      insert_list(2, :employee_registration,
-        org: org,
-        sector: delivery_sector,
-        admission_date: ~D[2020-01-01]
+      # To ignore
+      delivery_registrations =
+        insert_list(2, :employee_registration,
+          org: org,
+          admission_date: ~D[2020-01-01]
+        )
+
+      Enum.each(
+        kitchen_registrations,
+        &insert(:employee_company_assignment,
+          org: org,
+          registration: &1,
+          sector: kitchen_sector,
+          start_date: &1.admission_date
+        )
+      )
+
+      Enum.each(
+        cleaning_registrations,
+        &insert(:employee_company_assignment,
+          org: org,
+          registration: &1,
+          sector: cleaning_sector,
+          start_date: &1.admission_date
+        )
+      )
+
+      # To ignore
+      Enum.each(
+        delivery_registrations,
+        &insert(:employee_company_assignment,
+          org: org,
+          registration: &1,
+          sector: delivery_sector,
+          start_date: &1.admission_date
+        )
       )
 
       salary_category =
@@ -360,29 +529,51 @@ defmodule Sig.HR.Payslips.BatchCreatorTest do
       cleaning_sector = insert(:org_sector, org: org, name: "cleaning")
       delivery_sector = insert(:org_sector, org: org, name: "delivery")
 
-      registrations = [
+      kitchen_registration =
         insert(:employee_registration,
           org: org,
-          sector: kitchen_sector,
-          admission_date: ~D[2020-01-01]
-        ),
-        insert(:employee_registration,
-          org: org,
-          sector: cleaning_sector,
           admission_date: ~D[2020-01-01]
         )
-      ]
 
-      insert(:employee_registration,
+      cleaning_registration =
+        insert(:employee_registration,
+          org: org,
+          admission_date: ~D[2020-01-01]
+        )
+
+      # To ignore
+      delivery_registration =
+        insert(:employee_registration,
+          org: org,
+          admission_date: ~D[2020-01-01]
+        )
+
+      insert(:employee_company_assignment,
         org: org,
+        registration: kitchen_registration,
+        sector: kitchen_sector,
+        start_date: kitchen_registration.admission_date
+      )
+
+      insert(:employee_company_assignment,
+        org: org,
+        registration: cleaning_registration,
+        sector: cleaning_sector,
+        start_date: cleaning_registration.admission_date
+      )
+
+      # To ignore
+      insert(:employee_company_assignment,
+        org: org,
+        registration: delivery_registration,
         sector: delivery_sector,
-        admission_date: ~D[2020-01-01]
+        start_date: delivery_registration.admission_date
       )
 
       salary_category =
         insert(:payslip_category, org: org, code: "1", entry_type: :credit, description: "SALÁRIO")
 
-      Enum.each(registrations, fn registration ->
+      Enum.each([kitchen_registration, cleaning_registration], fn registration ->
         insert({:employee_registration_recurring_payslip_item, :payslip_item},
           org: org,
           registration: registration,
@@ -410,7 +601,7 @@ defmodule Sig.HR.Payslips.BatchCreatorTest do
 
       assert group = Repo.get_by(Group, org_id: org.id, date: ~D[2021-01-01], type: :regular)
 
-      Enum.each(registrations, fn registration ->
+      Enum.each([kitchen_registration, cleaning_registration], fn registration ->
         assert payslip =
                  Repo.get_by(Payslip,
                    org_id: org.id,
@@ -462,16 +653,28 @@ defmodule Sig.HR.Payslips.BatchCreatorTest do
       existing_kitchen_sector_registration =
         insert(:employee_registration,
           org: org,
-          sector: kitchen_sector,
-          admission_date: ~D[2020-01-01]
+          admission_date: date
         )
 
       existing_cleaning_sector_registration =
         insert(:employee_registration,
           org: org,
-          sector: cleaning_sector,
-          admission_date: ~D[2020-01-01]
+          admission_date: date
         )
+
+      insert(:employee_company_assignment,
+        org: org,
+        registration: existing_kitchen_sector_registration,
+        sector: kitchen_sector,
+        start_date: existing_kitchen_sector_registration.admission_date
+      )
+
+      insert(:employee_company_assignment,
+        org: org,
+        registration: existing_cleaning_sector_registration,
+        sector: cleaning_sector,
+        start_date: existing_cleaning_sector_registration.admission_date
+      )
 
       # Existing payslips
 
@@ -491,29 +694,51 @@ defmodule Sig.HR.Payslips.BatchCreatorTest do
         registration: existing_cleaning_sector_registration
       )
 
-      registrations_without_payables = [
+      kitchen_registration =
         insert(:employee_registration,
           org: org,
-          sector: kitchen_sector,
-          admission_date: ~D[2020-01-01]
-        ),
-        insert(:employee_registration,
-          org: org,
-          sector: cleaning_sector,
           admission_date: ~D[2020-01-01]
         )
-      ]
 
-      insert(:employee_registration,
+      cleaning_registration =
+        insert(:employee_registration,
+          org: org,
+          admission_date: ~D[2020-01-01]
+        )
+
+      # To ignore
+      delivery_registration =
+        insert(:employee_registration,
+          org: org,
+          admission_date: ~D[2020-01-01]
+        )
+
+      insert(:employee_company_assignment,
         org: org,
+        registration: kitchen_registration,
+        sector: kitchen_sector,
+        start_date: kitchen_registration.admission_date
+      )
+
+      insert(:employee_company_assignment,
+        org: org,
+        registration: cleaning_registration,
+        sector: cleaning_sector,
+        start_date: cleaning_registration.admission_date
+      )
+
+      # To ignore
+      insert(:employee_company_assignment,
+        org: org,
+        registration: delivery_registration,
         sector: delivery_sector,
-        admission_date: ~D[2020-01-01]
+        start_date: delivery_registration.admission_date
       )
 
       salary_category =
         insert(:payslip_category, org: org, code: "1", entry_type: :credit, description: "SALÁRIO")
 
-      Enum.each(registrations_without_payables, fn registration ->
+      Enum.each([kitchen_registration, cleaning_registration], fn registration ->
         insert({:employee_registration_recurring_payslip_item, :payslip_item},
           org: org,
           registration: registration,
@@ -549,7 +774,7 @@ defmodule Sig.HR.Payslips.BatchCreatorTest do
 
       assert Repo.aggregate(Payslip, :count) == 4
 
-      Enum.each(registrations_without_payables, fn registration ->
+      Enum.each([kitchen_registration, cleaning_registration], fn registration ->
         assert payslip =
                  Repo.get_by(Payslip,
                    org_id: org.id,
@@ -629,11 +854,17 @@ defmodule Sig.HR.Payslips.BatchCreatorTest do
       registration =
         insert(:employee_registration,
           org: org,
-          sector: kitchen_sector,
           admission_date: ~D[2021-01-10],
           resignation_date: ~D[2021-01-20],
           resignation_type: :dismissal
         )
+
+      insert(:employee_company_assignment,
+        org: org,
+        registration: registration,
+        sector: kitchen_sector,
+        start_date: registration.admission_date
+      )
 
       insert({:employee_registration_recurring_payslip_item, :outside_item},
         org: org,
@@ -684,9 +915,15 @@ defmodule Sig.HR.Payslips.BatchCreatorTest do
         insert(:employee_registration,
           org: org,
           individual: individual,
-          sector: kitchen_sector,
           admission_date: ~D[2020-01-01]
         )
+
+      insert(:employee_company_assignment,
+        org: org,
+        registration: registration,
+        sector: kitchen_sector,
+        start_date: registration.admission_date
+      )
 
       insert({:employee_registration_recurring_payslip_item, :outside_item},
         org: org,
@@ -727,17 +964,29 @@ defmodule Sig.HR.Payslips.BatchCreatorTest do
       first_kitchen_registration =
         insert(:employee_registration,
           org: org,
-          sector: kitchen_sector,
           admission_date: ~D[2020-01-01]
         )
 
       second_kitchen_registration =
         insert(:employee_registration,
           org: org,
-          sector: kitchen_sector,
           individual: individual,
           admission_date: ~D[2020-01-01]
         )
+
+      insert(:employee_company_assignment,
+        org: org,
+        registration: first_kitchen_registration,
+        sector: kitchen_sector,
+        start_date: first_kitchen_registration.admission_date
+      )
+
+      insert(:employee_company_assignment,
+        org: org,
+        registration: second_kitchen_registration,
+        sector: kitchen_sector,
+        start_date: second_kitchen_registration.admission_date
+      )
 
       salary_category =
         insert(:payslip_category, org: org, code: "1", entry_type: :credit, description: "SALÁRIO")
@@ -801,20 +1050,33 @@ defmodule Sig.HR.Payslips.BatchCreatorTest do
       kitchen_sector = insert(:org_sector, org: org, name: "kitchen")
       cleaning_sector = insert(:org_sector, org: org, name: "cleaning")
 
-      registrations = [
+      kitchen_registration =
         insert(:employee_registration,
           org: org,
-          sector: kitchen_sector,
-          admission_date: ~D[2020-01-01]
-        ),
-        insert(:employee_registration,
-          org: org,
-          sector: cleaning_sector,
           admission_date: ~D[2020-01-01]
         )
-      ]
 
-      Enum.each(registrations, fn registration ->
+      cleaning_registration =
+        insert(:employee_registration,
+          org: org,
+          admission_date: ~D[2020-01-01]
+        )
+
+      insert(:employee_company_assignment,
+        org: org,
+        registration: kitchen_registration,
+        sector: kitchen_sector,
+        start_date: kitchen_registration.admission_date
+      )
+
+      insert(:employee_company_assignment,
+        org: org,
+        registration: cleaning_registration,
+        sector: cleaning_sector,
+        start_date: cleaning_registration.admission_date
+      )
+
+      Enum.each([kitchen_registration, cleaning_registration], fn registration ->
         insert({:employee_registration_recurring_payslip_item, :outside_item},
           org: org,
           registration: registration,
@@ -872,18 +1134,31 @@ defmodule Sig.HR.Payslips.BatchCreatorTest do
       kitchen_sector = insert(:org_sector, org: org, name: "kitchen")
       cleaning_sector = insert(:org_sector, org: org, name: "cleaning")
 
-      registrations = [
+      kitchen_registration =
         insert(:employee_registration,
           org: org,
-          sector: kitchen_sector,
-          admission_date: ~D[2020-01-01]
-        ),
-        insert(:employee_registration,
-          org: org,
-          sector: cleaning_sector,
           admission_date: ~D[2020-01-01]
         )
-      ]
+
+      cleaning_registration =
+        insert(:employee_registration,
+          org: org,
+          admission_date: ~D[2020-01-01]
+        )
+
+      insert(:employee_company_assignment,
+        org: org,
+        registration: kitchen_registration,
+        sector: kitchen_sector,
+        start_date: kitchen_registration.admission_date
+      )
+
+      insert(:employee_company_assignment,
+        org: org,
+        registration: cleaning_registration,
+        sector: cleaning_sector,
+        start_date: cleaning_registration.admission_date
+      )
 
       attrs = %{
         type: :regular,
@@ -903,7 +1178,7 @@ defmodule Sig.HR.Payslips.BatchCreatorTest do
 
       assert group = Repo.get_by(Group, org_id: org.id, date: ~D[2021-01-01], type: :regular)
 
-      Enum.each(registrations, fn registration ->
+      Enum.each([kitchen_registration, cleaning_registration], fn registration ->
         assert payslip =
                  Repo.get_by(Payslip,
                    org_id: org.id,
