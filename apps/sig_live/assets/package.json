@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "@tailwindcss/forms": "^0.3.3",
-    "alpinejs": "^3.3.2"
+    "alpinejs": "^3.3.2",
+    "chart.js": "^3.7.1"
   }
 }

@@ -6,12 +6,14 @@ import Alpine from "alpinejs";
 import { InitToast } from "./init_toast.js"
 import { CopyToClipboard } from "./copy_to_clipboard"
 
+import { employeeCountPerDesignatedCompany } from "./charts.js"
+
 window.Alpine = Alpine;
 Alpine.start();
 
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 
-let hooks = { InitToast, CopyToClipboard };
+let hooks = { InitToast, CopyToClipboard, employeeCountPerDesignatedCompany };
 
 let liveSocket = new LiveSocket("/live", Socket, {
   params: { _csrf_token: csrfToken },

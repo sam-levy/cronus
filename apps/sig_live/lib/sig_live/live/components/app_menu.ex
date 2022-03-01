@@ -83,6 +83,13 @@ defmodule SigLive.Components.AppMenu do
           </div>
 
           <div>
+            <div class="dropdown-title mb-1">Relatórios</div>
+            <LivePatch class="dropdown-item" to={Routes.sig_reports_hr_path(@socket, :hr_reports, @org)}>
+              RH
+            </LivePatch>
+          </div>
+
+          <div>
             <div class="dropdown-title mb-1">Configurações</div>
 
             <LivePatch

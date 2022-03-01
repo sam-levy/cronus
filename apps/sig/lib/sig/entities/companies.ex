@@ -6,6 +6,21 @@ defmodule Sig.Entities.Companies do
   alias Sig.Organizations.Org
   alias Sig.Repo
 
+  # TODO: REFACTOR -> Add color field to companies table
+  @color_by_trade_name %{
+    "CiB Penha" => "#059669",
+    "CiB São Miguel" => "#2563EB",
+    "CiB Suzano" => "#6366F1",
+    "CiB Mogi" => "#8B5CF6",
+    "Escritório" => "#FBBF24",
+    "Call Center" => "#6B7280",
+    "Central de Processamento" => "#EF4444"
+  }
+
+  def get_color_by_trade_name(trade_same) do
+    Map.get(@color_by_trade_name, trade_same, "black")
+  end
+
   def fetch(%Org{} = org, entity_id) when is_binary(entity_id) do
     Company
     |> where(org_id: ^org.id)
