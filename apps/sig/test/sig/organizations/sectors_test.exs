@@ -126,8 +126,14 @@ defmodule Sig.Organizations.SectorsTest do
     test "when sector is being used by a registration" do
       org = insert(:org)
       sector = insert(:org_sector, org: org)
+      registration = insert(:employee_registration, org: org)
 
-      insert(:employee_registration, org: org, sector: sector)
+      insert(:employee_company_assignment,
+        org: org,
+        registration: registration,
+        sector: sector,
+        start_date: registration.admission_date
+      )
 
       assert Sectors.delete(sector) == {:error, "Existem registros de funcionários associados"}
 
