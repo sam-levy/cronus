@@ -79,9 +79,9 @@ defmodule Sig.Reports.HRTest do
       )
 
       assert HR.employee_count_per_designated_company(org) == %{
-        "Company 1" => %{count: 2},
-        "Company 2" => %{count: 1}
-      }
+               "Company 1" => %{count: 2},
+               "Company 2" => %{count: 1}
+             }
     end
   end
 end
