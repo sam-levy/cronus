@@ -41,7 +41,7 @@ defmodule SigLive.EmployeeRegistrations.Show do
     %{org: org} = socket.assigns
 
     registration =
-      HR.get_registration(org, registration_id, preload: [:org, :registered_at, :sector])
+      HR.get_registration(org, registration_id, preload: [:org, :registered_at])
 
     individual = Entities.get_individual(org, registration.individual_id)
 

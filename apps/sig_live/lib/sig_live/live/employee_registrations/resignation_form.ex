@@ -17,7 +17,7 @@ defmodule SigLive.EmployeeRegistrations.ResignationForm do
 
   alias SigLive.Components.Modal
 
-  @broadcast_opts [preload: [:registered_at, :sector, :position]]
+  @broadcast_opts [preload: [:registered_at]]
 
   prop close_event, :event, required: true
   prop close_fun, :fun, required: true
