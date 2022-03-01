@@ -10,8 +10,21 @@ defmodule Sig.Query do
               preload_name :: atom()
             ) :: Ecto.Queryable.t()
 
-  defmacro __using__([{:schema, schema}, {:as, named_binding}]) do
-    quote bind_quoted: [schema: schema, named_binding: named_binding] do
+  @callback do_join(
+              queryable :: Ecto.Queryable.t(),
+              assoc :: atom()
+            ) :: Ecto.Queryable.t()
+
+  defmacro __using__(opts) do
+    schema = Keyword.fetch!(opts, :schema)
+    named_binding = Keyword.fetch!(opts, :as)
+    assocs_to_impl_do_join = opts |> Keyword.get(:impl_do_join_for, []) |> List.wrap()
+
+    quote bind_quoted: [
+            schema: schema,
+            named_binding: named_binding,
+            assocs_to_impl_do_join: assocs_to_impl_do_join
+          ] do
       @behaviour Sig.Query
 
       import Ecto.Query
@@ -26,8 +39,8 @@ defmodule Sig.Query do
 
       defoverridable init_query: 0
 
-      for assoc <- schema.__schema__(:associations) do
-        defp do_join(queryable, unquote(assoc)) do
+      for assoc <- schema.__schema__(:associations) -- assocs_to_impl_do_join do
+        def do_join(queryable, unquote(assoc)) do
           if has_named_binding?(queryable, unquote(assoc)) do
             queryable
           else
@@ -40,7 +53,9 @@ defmodule Sig.Query do
             )
           end
         end
+      end
 
+      for assoc <- schema.__schema__(:associations) do
         defp do_shallow_preload(queryable, unquote(assoc)) do
           preload(queryable, [{unquote(assoc), field}], [{unquote(assoc), field}])
         end
