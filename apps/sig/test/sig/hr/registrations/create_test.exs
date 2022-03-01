@@ -56,7 +56,7 @@ defmodule Sig.HR.Registrations.CreateTest do
 
       get_by =
         attrs
-        |> Map.drop([:salary_amount, :position_id, :assigned_company_entity_id])
+        |> Map.drop([:salary_amount, :position_id, :sector_id, :assigned_company_entity_id])
         |> Enum.into(%{
           id: registration.id,
           org_id: org.id,
@@ -114,7 +114,7 @@ defmodule Sig.HR.Registrations.CreateTest do
 
       get_by =
         attrs
-        |> Map.drop([:salary_amount, :position_id])
+        |> Map.drop([:salary_amount, :sector_id, :position_id])
         |> Enum.into(%{
           id: registration.id,
           org_id: org.id,
@@ -179,7 +179,7 @@ defmodule Sig.HR.Registrations.CreateTest do
 
       get_by =
         attrs
-        |> Map.drop([:salary_amount, :position_id, :assigned_company_entity_id])
+        |> Map.drop([:salary_amount, :position_id, :sector_id, :assigned_company_entity_id])
         |> Enum.into(%{
           org_id: org.id,
           individual_id: individual.entity_id
