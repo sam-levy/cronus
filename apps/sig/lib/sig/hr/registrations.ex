@@ -173,7 +173,14 @@ defmodule Sig.HR.Registrations do
         :inner_lateral,
         [registration: r],
         last_company_assignment in fragment(
-          "SELECT * FROM employee_company_assignments WHERE org_id = ? AND registration_id = ? ORDER BY start_date DESC LIMIT 1",
+          """
+          SELECT *
+          FROM employee_company_assignments
+          WHERE org_id = ? AND
+          registration_id = ?
+          ORDER BY start_date DESC
+          LIMIT 1
+        """,
           r.org_id,
           r.id
         ),
