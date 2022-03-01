@@ -3,7 +3,7 @@ defmodule Sig.Repo.Migrations.AddSectorIdToEmployeeCompanyAssignments do
 
   def up do
     alter table(:employee_company_assignments) do
-      add :sector_id, references(:org_sectors, with: [org_id: :org_id]), null: false
+      add :sector_id, references(:org_sectors, with: [org_id: :org_id])
     end
   end
 
