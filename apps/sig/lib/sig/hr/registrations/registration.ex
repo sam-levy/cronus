@@ -6,7 +6,6 @@ defmodule Sig.HR.Registrations.Registration do
   alias Sig.HR.Registrations.CompanyAssignments.CompanyAssignment
   alias Sig.HR.Registrations.Salaries.Salary
   alias Sig.Organizations.Org
-  alias Sig.Organizations.Sector
 
   defenum(ResignationType, :employee_resignation_type, [
     :resigned,
@@ -24,14 +23,16 @@ defmodule Sig.HR.Registrations.Registration do
     field :resignation_date, :date
     field :resignation_type, ResignationType
 
-    belongs_to :sector, Sector
     belongs_to :individual, Individual, references: :entity_id
     belongs_to :registered_at, Company, references: :entity_id
 
     has_many :salaries, Salary
     has_many :company_assignments, CompanyAssignment
 
+    has_one :last_sector, through: [:company_assignments, :sector]
+
     field :salary_amount, Money.Ecto.Amount.Type, virtual: true
+    field :sector_id, Ecto.UUID, virtual: true
     field :position_id, Ecto.UUID, virtual: true
     field :assigned_company_entity_id, Ecto.UUID, virtual: true
 
@@ -67,7 +68,6 @@ defmodule Sig.HR.Registrations.Registration do
     :number,
     :e_social_number,
     :admission_date,
-    :sector_id,
     :registered_at_id
   ]
 
@@ -100,7 +100,6 @@ defmodule Sig.HR.Registrations.Registration do
     changeset
     |> validate_numericality(:number)
     |> validate_numericality(:e_social_number)
-    |> assoc_constraint(:sector)
     |> assoc_constraint(:registered_at)
     |> unique_constraint([:number, :org_id])
     |> unique_constraint([:e_social_number, :org_id])

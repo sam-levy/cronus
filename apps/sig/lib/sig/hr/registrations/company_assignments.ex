@@ -1,5 +1,5 @@
 defmodule Sig.HR.Registrations.CompanyAssignments do
-  use Sig.Preloader, company_assignment: [:assigned_company]
+  use Sig.Preloader, company_assignment: [:assigned_company, :sector]
 
   import Sig.Broadcaster
 
@@ -8,7 +8,7 @@ defmodule Sig.HR.Registrations.CompanyAssignments do
   alias Sig.HR.Registrations.Registration
   alias Sig.Repo
 
-  def default_preloads(), do: [:assigned_company]
+  def default_preloads(), do: [:assigned_company, :sector]
 
   def create_change(%{} = attrs \\ %{}), do: CompanyAssignment.create_changeset(attrs)
 

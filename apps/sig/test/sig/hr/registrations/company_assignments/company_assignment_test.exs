@@ -8,10 +8,12 @@ defmodule Sig.HR.Registrations.CompanyAssignments.CompanyAssignmentTest do
       org = insert(:org)
       registration = insert(:employee_registration, org: org)
       company = insert(:company, org: org)
+      sector = insert(:org_sector, org: org)
 
       assignment = %CompanyAssignment{
         registration_id: registration.id,
         assigned_company_id: company.entity_id,
+        sector_id: sector.id,
         start_date: Faker.Date.backward(100)
       }
 
@@ -23,10 +25,12 @@ defmodule Sig.HR.Registrations.CompanyAssignments.CompanyAssignmentTest do
     test "registration_id not_null_violation" do
       org = insert(:org)
       company = insert(:company, org: org)
+      sector = insert(:org_sector, org: org)
 
       assignment = %CompanyAssignment{
         org_id: org.id,
         assigned_company_id: company.entity_id,
+        sector_id: sector.id,
         start_date: Faker.Date.backward(100)
       }
 
@@ -38,10 +42,12 @@ defmodule Sig.HR.Registrations.CompanyAssignments.CompanyAssignmentTest do
     test "assigned_company_id not_null_violation" do
       org = insert(:org)
       registration = insert(:employee_registration, org: org)
+      sector = insert(:org_sector, org: org)
 
       assignment = %CompanyAssignment{
         org_id: org.id,
         registration_id: registration.id,
+        sector_id: sector.id,
         start_date: Faker.Date.backward(100)
       }
 
@@ -50,11 +56,29 @@ defmodule Sig.HR.Registrations.CompanyAssignments.CompanyAssignmentTest do
                    fn -> Repo.insert(assignment) end
     end
 
+    test "sector_id not_null_violation" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+      company = insert(:company, org: org)
+
+      assignment = %CompanyAssignment{
+        org_id: org.id,
+        registration_id: registration.id,
+        assigned_company_id: company.entity_id,
+        start_date: Faker.Date.backward(100)
+      }
+
+      assert_raise Postgrex.Error,
+                   ~r/\(not_null_violation\) null value in column \"sector_id\" of relation \"employee_company_assignments\" violates not-null constraint/,
+                   fn -> Repo.insert(assignment) end
+    end
+
     test "[:start_date, :assigned_company_id, :registration_id, :org_id] unique_constraint" do
       org = insert(:org)
       start_date = ~D[2022-01-01]
       registration = insert(:employee_registration, org: org, admission_date: start_date)
       company = insert(:company, org: org)
+      sector = insert(:org_sector, org: org)
 
       _existing_assignment =
         insert(:employee_company_assignment,
@@ -76,6 +100,7 @@ defmodule Sig.HR.Registrations.CompanyAssignments.CompanyAssignmentTest do
         org_id: org.id,
         registration_id: registration.id,
         assigned_company_id: company.entity_id,
+        sector_id: sector.id,
         start_date: start_date
       }
 
@@ -152,6 +177,7 @@ defmodule Sig.HR.Registrations.CompanyAssignments.CompanyAssignmentTest do
         org_id: UUID.generate(),
         registration_id: UUID.generate(),
         assigned_company_id: UUID.generate(),
+        sector_id: UUID.generate(),
         start_date: ~D[2022-01-01]
       }
 
@@ -163,6 +189,7 @@ defmodule Sig.HR.Registrations.CompanyAssignments.CompanyAssignmentTest do
                org_id: attrs[:org_id],
                registration_id: attrs[:registration_id],
                assigned_company_id: attrs[:assigned_company_id],
+               sector_id: attrs[:sector_id],
                start_date: attrs[:start_date]
              }
     end
@@ -176,6 +203,7 @@ defmodule Sig.HR.Registrations.CompanyAssignments.CompanyAssignmentTest do
                org_id: ["can't be blank"],
                registration_id: ["can't be blank"],
                assigned_company_id: ["can't be blank"],
+               sector_id: ["can't be blank"],
                start_date: ["can't be blank"]
              }
     end
@@ -185,6 +213,7 @@ defmodule Sig.HR.Registrations.CompanyAssignments.CompanyAssignmentTest do
         org_id: :invalid,
         registration_id: :invalid,
         assigned_company_id: :invalid,
+        sector_id: :invalid,
         start_date: :invalid
       }
 
@@ -196,19 +225,22 @@ defmodule Sig.HR.Registrations.CompanyAssignments.CompanyAssignmentTest do
                org_id: ["is invalid"],
                registration_id: ["is invalid"],
                assigned_company_id: ["is invalid"],
+               sector_id: ["is invalid"],
                start_date: ["is invalid"]
              }
     end
 
-    test "company assoc constraint" do
+    test "assigned company assoc constraint" do
       org = insert(:org)
       start_date = ~D[2022-01-01]
       registration = insert(:employee_registration, org: org, admission_date: start_date)
+      sector = insert(:org_sector, org: org)
 
       attrs = %{
         org_id: org.id,
         registration_id: registration.id,
         assigned_company_id: UUID.generate(),
+        sector_id: sector.id,
         start_date: start_date
       }
 
@@ -224,11 +256,38 @@ defmodule Sig.HR.Registrations.CompanyAssignments.CompanyAssignmentTest do
              }
     end
 
+    test "sector assoc constraint" do
+      org = insert(:org)
+      start_date = ~D[2022-01-01]
+      registration = insert(:employee_registration, org: org, admission_date: start_date)
+      company = insert(:company, org: org)
+
+      attrs = %{
+        org_id: org.id,
+        registration_id: registration.id,
+        assigned_company_id: company.entity_id,
+        sector_id: UUID.generate(),
+        start_date: start_date
+      }
+
+      assert {:error, changeset} =
+               attrs
+               |> CompanyAssignment.create_changeset()
+               |> Repo.insert()
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+               sector: ["does not exist"]
+             }
+    end
+
     test "[:start_date, :assigned_company_id, :registration_id, :org_id] unique constraint" do
       org = insert(:org)
       start_date = ~D[2022-01-01]
       registration = insert(:employee_registration, org: org, admission_date: start_date)
       company = insert(:company, org: org)
+      sector = insert(:org_sector, org: org)
 
       _existing_assignment =
         insert(:employee_company_assignment,
@@ -242,6 +301,7 @@ defmodule Sig.HR.Registrations.CompanyAssignments.CompanyAssignmentTest do
         org_id: org.id,
         registration_id: registration.id,
         assigned_company_id: company.entity_id,
+        sector_id: sector.id,
         start_date: start_date
       }
 
@@ -263,12 +323,12 @@ defmodule Sig.HR.Registrations.CompanyAssignments.CompanyAssignmentTest do
       start_date = ~D[2022-01-01]
 
       org = insert(:org)
-      company_1 = insert(:company, org: org)
+      company = insert(:company, org: org)
 
       registration =
         insert(:employee_registration,
           org: org,
-          registered_at: company_1,
+          registered_at: company,
           admission_date: start_date
         )
 
@@ -276,12 +336,13 @@ defmodule Sig.HR.Registrations.CompanyAssignments.CompanyAssignmentTest do
         insert(:employee_company_assignment,
           org: org,
           registration: registration,
-          assigned_company: company_1,
+          assigned_company: company,
           start_date: start_date
         )
 
       attrs = %{
         assigned_company_id: UUID.generate(),
+        sector_id: UUID.generate(),
         start_date: ~D[2022-02-01]
       }
 
@@ -291,6 +352,7 @@ defmodule Sig.HR.Registrations.CompanyAssignments.CompanyAssignmentTest do
 
       assert changeset.changes == %{
                assigned_company_id: attrs[:assigned_company_id],
+               sector_id: attrs[:sector_id],
                start_date: attrs[:start_date]
              }
     end
@@ -299,12 +361,12 @@ defmodule Sig.HR.Registrations.CompanyAssignments.CompanyAssignmentTest do
       start_date = ~D[2022-01-01]
 
       org = insert(:org)
-      company_1 = insert(:company, org: org)
+      company = insert(:company, org: org)
 
       registration =
         insert(:employee_registration,
           org: org,
-          registered_at: company_1,
+          registered_at: company,
           admission_date: start_date
         )
 
@@ -312,7 +374,7 @@ defmodule Sig.HR.Registrations.CompanyAssignments.CompanyAssignmentTest do
         insert(:employee_company_assignment,
           org: org,
           registration: registration,
-          assigned_company: company_1,
+          assigned_company: company,
           start_date: start_date
         )
 
@@ -320,6 +382,7 @@ defmodule Sig.HR.Registrations.CompanyAssignments.CompanyAssignmentTest do
         org_id: UUID.generate(),
         registration_id: UUID.generate(),
         assigned_company_id: UUID.generate(),
+        sector_id: UUID.generate(),
         start_date: ~D[2022-02-01]
       }
 
@@ -329,6 +392,7 @@ defmodule Sig.HR.Registrations.CompanyAssignments.CompanyAssignmentTest do
 
       assert changeset.changes == %{
                assigned_company_id: attrs[:assigned_company_id],
+               sector_id: attrs[:sector_id],
                start_date: attrs[:start_date]
              }
     end
@@ -338,6 +402,7 @@ defmodule Sig.HR.Registrations.CompanyAssignments.CompanyAssignmentTest do
 
       attrs = %{
         assigned_company_id: :invalid,
+        sector_id: :invalid,
         start_date: :invalid
       }
 
@@ -347,20 +412,22 @@ defmodule Sig.HR.Registrations.CompanyAssignments.CompanyAssignmentTest do
 
       assert errors_on(changeset) == %{
                assigned_company_id: ["is invalid"],
+               sector_id: ["is invalid"],
                start_date: ["is invalid"]
              }
     end
 
-    test "company assoc constraint" do
+    test "assigned company assoc constraint" do
       start_date = ~D[2022-01-01]
 
       org = insert(:org)
-      company_1 = insert(:company, org: org)
+      company = insert(:company, org: org)
+      sector = insert(:org_sector, org: org)
 
       registration =
         insert(:employee_registration,
           org: org,
-          registered_at: company_1,
+          registered_at: company,
           admission_date: start_date
         )
 
@@ -368,12 +435,13 @@ defmodule Sig.HR.Registrations.CompanyAssignments.CompanyAssignmentTest do
         insert(:employee_company_assignment,
           org: org,
           registration: registration,
-          assigned_company: company_1,
+          assigned_company: company,
           start_date: start_date
         )
 
       attrs = %{
         assigned_company_id: UUID.generate(),
+        sector_id: sector.id,
         start_date: ~D[2022-02-01]
       }
 
@@ -389,23 +457,62 @@ defmodule Sig.HR.Registrations.CompanyAssignments.CompanyAssignmentTest do
              }
     end
 
-    test "[:start_date, :assigned_company_id, :registration_id, :org_id] unique constraint" do
+    test "sector assoc constraint" do
       start_date = ~D[2022-01-01]
 
       org = insert(:org)
-      company_1 = insert(:company, org: org)
+      company = insert(:company, org: org)
 
       registration =
         insert(:employee_registration,
           org: org,
-          registered_at: company_1,
+          registered_at: company,
+          admission_date: start_date
+        )
+
+      assignment =
+        insert(:employee_company_assignment,
+          org: org,
+          registration: registration,
+          assigned_company: company,
+          start_date: start_date
+        )
+
+      attrs = %{
+        assigned_company_id: company.entity_id,
+        sector_id: UUID.generate(),
+        start_date: ~D[2022-02-01]
+      }
+
+      assert {:error, changeset} =
+               assignment
+               |> CompanyAssignment.update_changeset(attrs)
+               |> Repo.update()
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+               sector: ["does not exist"]
+             }
+    end
+
+    test "[:start_date, :assigned_company_id, :registration_id, :org_id] unique constraint" do
+      start_date = ~D[2022-01-01]
+
+      org = insert(:org)
+      company = insert(:company, org: org)
+
+      registration =
+        insert(:employee_registration,
+          org: org,
+          registered_at: company,
           admission_date: start_date
         )
 
       insert(:employee_company_assignment,
         org: org,
         registration: registration,
-        assigned_company: company_1,
+        assigned_company: company,
         start_date: start_date
       )
 
@@ -413,7 +520,7 @@ defmodule Sig.HR.Registrations.CompanyAssignments.CompanyAssignmentTest do
         insert(:employee_company_assignment,
           org: org,
           registration: registration,
-          assigned_company: company_1,
+          assigned_company: company,
           start_date: ~D[2022-02-01]
         )
 

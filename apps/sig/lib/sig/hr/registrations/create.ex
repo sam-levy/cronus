@@ -98,7 +98,7 @@ defmodule Sig.HR.Registrations.Create do
     end)
     |> Multi.insert(:comapany_assignment, fn %{registration: registration} ->
       registration
-      |> build_company_assignment_attrs(changeset.changes.assigned_company_entity_id)
+      |> build_company_assignment_attrs(changeset.changes)
       |> CompanyAssignment.create_changeset()
     end)
     |> Repo.transaction()
@@ -128,12 +128,13 @@ defmodule Sig.HR.Registrations.Create do
     }
   end
 
-  defp build_company_assignment_attrs(registration, assigned_company_entity_id) do
+  defp build_company_assignment_attrs(registration, changes) do
     %{
       org_id: registration.org_id,
       registration_id: registration.id,
-      start_date: registration.admission_date,
-      assigned_company_id: assigned_company_entity_id
+      assigned_company_id: changes.assigned_company_entity_id,
+      sector_id: changes.sector_id,
+      start_date: registration.admission_date
     }
   end
 

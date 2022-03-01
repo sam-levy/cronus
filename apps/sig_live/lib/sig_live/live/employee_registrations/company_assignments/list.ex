@@ -84,7 +84,7 @@ defmodule SigLive.EmployeeRegistrations.CompanyAssignments.List do
       <table class="w-full bg-white shadow-lg">
         <thead class="top-0 z-20">
           <tr class="bg-white">
-            <th colspan="3">
+            <th colspan="4">
               <div class="flex justify-between items-center py-3 px-6">
                 <span class="text-gray-500 font-medium tracking-wider">
                   Designações
@@ -100,6 +100,7 @@ defmodule SigLive.EmployeeRegistrations.CompanyAssignments.List do
             class="bg-gray-100 uppercase text-xs font-medium text-gray-500 tracking-wider"
           >
             <th class="py-3 pl-6 pr-3 text-left">Empresa</th>
+            <th class="py-3 pl-6 pr-3 text-left">Setor</th>
             <th class="py-3 px-3 text-right">Início</th>
             <th class="py-3 px-3 text-right" />
           </tr>
@@ -110,6 +111,10 @@ defmodule SigLive.EmployeeRegistrations.CompanyAssignments.List do
             <tr class="border-b border-gray-200 hover:bg-gray-50">
               <td phx-value-company_assignment_id={company_assignment.id} class="py-3 pl-6 pr-3 text-left">
                 {company_assignment.assigned_company.trade_name}
+              </td>
+
+              <td class="py-3 pl-6 pr-3 text-left">
+                {company_assignment.sector.name}
               </td>
 
               <td class="py-3 px-3 text-right">

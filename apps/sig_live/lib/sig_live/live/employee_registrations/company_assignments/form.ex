@@ -3,6 +3,7 @@ defmodule SigLive.EmployeeRegistrations.CompanyAssignments.Form do
 
   alias Sig.HR
   alias Sig.Entities
+  alias Sig.Organizations
 
   alias Surface.Components.Form
 
@@ -30,7 +31,8 @@ defmodule SigLive.EmployeeRegistrations.CompanyAssignments.Form do
 
   @impl true
   def update(assigns, socket) do
-    %{registration: registration, company_assignment_id: company_assignment_id} = assigns
+    %{org: org, registration: registration, company_assignment_id: company_assignment_id} =
+      assigns
 
     company_assignment = get_company_assignment(registration, company_assignment_id)
 
@@ -38,7 +40,8 @@ defmodule SigLive.EmployeeRegistrations.CompanyAssignments.Form do
       socket
       |> assign(assigns)
       |> assign(
-        companies: Entities.list_companies(assigns.org),
+        companies: Entities.list_companies(org),
+        sectors: Organizations.list_org_sectors(org),
         company_assignment: company_assignment,
         changeset: set_changeset(company_assignment)
       )
@@ -65,6 +68,16 @@ defmodule SigLive.EmployeeRegistrations.CompanyAssignments.Form do
             prompt=""
             options={companies_for_select(@companies)}
             {...props_for(:assigned_company_id, @form_state)}
+          />
+          <ErrorTag class="form-error-tag" />
+        </Field>
+
+        <Field name={:sector_id} class="form-field">
+          <Label class="form-label">Setor</Label>
+          <Select
+            prompt=""
+            options={id_by_name_for_select(@sectors)}
+            {...props_for(:sector_id, @form_state)}
           />
           <ErrorTag class="form-error-tag" />
         </Field>

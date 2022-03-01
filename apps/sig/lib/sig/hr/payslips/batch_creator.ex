@@ -80,9 +80,8 @@ defmodule Sig.HR.Payslips.BatchCreator do
     end_date = Date.end_of_month(start_date)
 
     case Registrations.list_by(org,
-           preload: :salaries,
            filter_by: [
-             sector_id: sectors_ids,
+             last_sector_id: sectors_ids,
              active_in_period: [start_date: start_date, end_date: end_date]
            ]
          ) do
@@ -285,7 +284,7 @@ defmodule Sig.HR.Payslips.BatchCreator do
       Registrations.list_by(org,
         order_by: [individual: :name],
         filter_by: [id: registration_ids],
-        preload: [:individual, :sector, :registered_at]
+        preload: [:individual, :last_sector, :registered_at]
       )
 
     {:ok, registrations}
