@@ -35,7 +35,7 @@ export const employeeCountPerDesignatedCompany = {
 
     const chart = new Chart(ctx, config);
 
-    this.handleEvent("employee_count_per_designated_company", ({ data }) => {
+    this.handleEvent("employee_count_per_assigned_company", ({ data }) => {
       const values = Object.values(data)
 
       chart.data.labels = Object.keys(data)

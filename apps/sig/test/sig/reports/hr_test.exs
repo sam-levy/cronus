@@ -3,7 +3,7 @@ defmodule Sig.Reports.HRTest do
 
   alias Sig.Reports.HR
 
-  describe "employee_count_per_designated_company/1" do
+  describe "employee_count_per_assigned_company/1" do
     test "returns the employee count per designated company" do
       org = insert(:org)
       date = ~D[2020-01-01]
@@ -78,7 +78,7 @@ defmodule Sig.Reports.HRTest do
         start_date: date
       )
 
-      assert HR.employee_count_per_designated_company(org) == %{
+      assert HR.employee_count_per_assigned_company(org) == %{
                "Company 1" => %{count: 2},
                "Company 2" => %{count: 1}
              }

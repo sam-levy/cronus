@@ -10,16 +10,16 @@ defmodule SigLive.Reports.HR do
   def mount(_params, _session, socket) do
     %{org: org} = socket.assigns
 
-    {:ok, push_employee_count_per_designated_company(socket, org)}
+    {:ok, push_employee_count_per_assigned_company(socket, org)}
   end
 
-  defp push_employee_count_per_designated_company(socket, org) do
+  defp push_employee_count_per_assigned_company(socket, org) do
     data =
       org
-      |> Reports.employee_count_per_designated_company()
+      |> Reports.employee_count_per_assigned_company()
       |> put_company_colors()
 
-    push_event(socket, "employee_count_per_designated_company", %{data: data})
+    push_event(socket, "employee_count_per_assigned_company", %{data: data})
   end
 
   defp put_company_colors(data) do
@@ -53,7 +53,7 @@ defmodule SigLive.Reports.HR do
         <div class="border-t border-gray-200 flex justify-center">
           <div class="w-96 p-3">
             <canvas
-              id="employee_count_per_designated_company"
+              id="employee_count_per_assigned_company"
               phx-hook="employeeCountPerDesignatedCompany"
               phx-update="ignore"
             />

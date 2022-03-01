@@ -6,7 +6,7 @@ defmodule Sig.Reports.HR do
   alias Sig.Organizations.Org
   alias Sig.Repo
 
-  def employee_count_per_designated_company(%Org{} = org) do
+  def employee_count_per_assigned_company(%Org{} = org) do
     from(r in Registration, as: :registrations)
     |> where(org_id: ^org.id)
     |> where([registrations: r], is_nil(r.resignation_date))
