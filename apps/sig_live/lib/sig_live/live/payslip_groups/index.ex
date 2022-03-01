@@ -150,7 +150,7 @@ defmodule SigLive.PayslipGroups.Index do
         <tbody class="text-gray-600 text-sm font-light">
           {#for group <- @groups}
             <tr class="border-b border-gray-200 hover:bg-gray-50">
-              <td class="py-3 pl-6 text-left cursor-pointer hover:underline">
+              <td class="py-3 pl-6 text-left">
                 <LiveRedirect
                   to={Routes.sig_payslip_groups_show_path(@socket, :payslip_groups, @org, group)}
                   class="hover:underline"

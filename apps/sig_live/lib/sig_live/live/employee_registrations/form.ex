@@ -21,7 +21,7 @@ defmodule SigLive.EmployeeRegistrations.Form do
 
   @form_states [:new_mode, :edit_mode, :closed]
 
-  @broadcast_opts [preload: [:registered_at, :sector]]
+  @broadcast_opts [preload: [:registered_at]]
 
   prop close_event, :event, required: true
   prop close_fun, :fun, required: true
@@ -118,7 +118,7 @@ defmodule SigLive.EmployeeRegistrations.Form do
           <ErrorTag class="form-error-tag" />
         </Field>
 
-        <Field name={:sector_id} class="form-field">
+        <Field name={:sector_id} :if={@form_state == :new_mode} class="form-field">
           <Label class="form-label">Setor</Label>
           <Select
             prompt=""
@@ -248,6 +248,7 @@ defmodule SigLive.EmployeeRegistrations.Form do
 
   defp props_for(:salary_ammount, :edit_mode), do: @input_disabled
   defp props_for(:position_id, :edit_mode), do: @input_disabled
+  defp props_for(:sector_id, :edit_mode), do: @input_disabled
   defp props_for(:assigned_company_entity_id, :edit_mode), do: @input_disabled
 
   defp props_for(_field, :edit_mode), do: @input_enabled

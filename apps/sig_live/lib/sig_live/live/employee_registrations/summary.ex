@@ -7,7 +7,7 @@ defmodule SigLive.EmployeeRegistrations.Summary do
 
   alias Sig.HR
 
-  @broadcast_opts [preload: [:registered_at, :sector, :position]]
+  @broadcast_opts [preload: [:registered_at]]
 
   prop registration, :struct, required: true
   prop individual, :struct, required: true
@@ -114,11 +114,6 @@ defmodule SigLive.EmployeeRegistrations.Summary do
             <div class="px-4 py-2 grid grid-cols-2 hover:bg-gray-50">
               <dt class="text-sm font-medium text-gray-500">Matrícula eSocial</dt>
               <dd class="text-sm text-gray-500">{@registration.e_social_number}</dd>
-            </div>
-
-            <div class="px-4 py-2  grid grid-cols-2 hover:bg-gray-50">
-              <dt class="text-sm font-medium text-gray-500">Setor</dt>
-              <dd class="text-sm text-gray-500">{@registration.sector.name}</dd>
             </div>
 
             {#if @registration.resignation_date}
