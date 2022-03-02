@@ -4,7 +4,9 @@ import { LiveSocket } from "phoenix_live_view"
 import topbar from "../vendor/topbar"
 import Alpine from "alpinejs";
 import { InitToast } from "./init_toast.js"
+
 import { CopyToClipboard } from "./copy_to_clipboard"
+import { SelectInputContent } from "./select_input_content"
 
 import { employeeCountPerDesignatedCompany } from "./charts.js"
 
@@ -13,7 +15,7 @@ Alpine.start();
 
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 
-let hooks = { InitToast, CopyToClipboard, employeeCountPerDesignatedCompany };
+let hooks = { InitToast, CopyToClipboard, SelectInputContent, employeeCountPerDesignatedCompany };
 
 let liveSocket = new LiveSocket("/live", Socket, {
   params: { _csrf_token: csrfToken },
