@@ -98,7 +98,7 @@ defmodule SigLive.PayslipGroups.Show do
         <AppMenu.Breadcrumb name={group_name} />
       </AppMenu>
 
-      <div class="flex mt-4 divide-x divide-gray-400 divide-opacity-50">
+      <div class="w-full flex mt-4 divide-x divide-gray-400 divide-opacity-50">
         <div class="w-3/4 pr-5">
           <ShowWithPayables
             hide_payslip_date

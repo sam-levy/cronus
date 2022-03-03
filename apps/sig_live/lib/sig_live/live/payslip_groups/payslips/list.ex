@@ -16,7 +16,7 @@ defmodule SigLive.PayslipGroups.Payslips.List do
   def render(assigns) do
     ~F"""
     <div class="w-full flex flex-col items-end space-y-4">
-      <div class="bg-white shadow-md py-2 px-2 text-sm rounded-md border-2 border-white">
+      <div class="w-full bg-white shadow-md py-2 px-2 text-sm rounded-md border-2 border-white">
         <form :on-change={@filter_payslips} :on-keyup={@filter_payslips} class="space-y-3">
           <select :if={@companies} name="company_entity_id" class="form-input text-gray-500">
             <option value="" selected={is_nil(@payslips_filters.company_entity_id)}>
