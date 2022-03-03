@@ -158,7 +158,7 @@ defmodule SigLive.AccountsPayable.List do
     ~F"""
     <div>
       <Form for={:selected_payable_ids} change="select_payable">
-        <table class="w-full bg-white shadow-lg">
+        <table class="w-full bg-white shadow-lg mb-5">
           <thead class="top-0 z-10 bg-white sticky">
             <tr class="bg-white">
               <th colspan="7">

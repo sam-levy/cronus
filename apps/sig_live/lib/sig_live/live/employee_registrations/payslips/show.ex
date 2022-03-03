@@ -12,6 +12,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
   alias SigLive.EmployeeRegistrations.Payslips.OutsideItemForm
   alias SigLive.EmployeeRegistrations.Payslips.PayslipItemForm
   alias SigLive.EmployeeRegistrations.Payslips.UpdateItemAmountForm
+  alias SigLive.EmployeeRegistrations.Payslips.PayslipItemAmount
 
   prop registration, :struct, required: true
   prop payslip, :struct, default: nil
@@ -271,9 +272,9 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
           >
             <th class="py-3 px-6 text-left">Código</th>
             <th class="py-3 px-6 text-left">Descrição</th>
-            <th class="py-3 px-6 text-right">Vencimentos</th>
-            <th class="py-3 px-6 text-right">Descontos</th>
-            <th class="py-3 px-6 text-right" />
+            <th class="py-3 px-7 text-right">Vencimentos</th>
+            <th class="py-3 px-7 text-right">Descontos</th>
+            <th class="py-3 px-3 text-right" />
           </tr>
         </thead>
 
@@ -289,11 +290,21 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
               </td>
 
               <td class="py-3 px-6 text-right">
-                {if item.entry_type == :credit, do: item.amount}
+                <PayslipItemAmount
+                  {=item}
+                  :if={item.entry_type == :credit}
+                  is_editable={!@payslip.is_closed}
+                  edit_event="open_update_item_amount_form"
+                />
               </td>
 
               <td class="py-3 px-6 text-right">
-                {if item.entry_type == :debit, do: item.amount}
+                <PayslipItemAmount
+                  {=item}
+                  :if={item.entry_type == :debit}
+                  is_editable={!@payslip.is_closed}
+                  edit_event="open_update_item_amount_form"
+                />
               </td>
 
               <td class="pr-5 text-right">
@@ -301,6 +312,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
                   <a :on-click="open_update_item_amount_form" phx-value-item_id={item.id} class="dropdown-item">
                     Alterar Valor
                   </a>
+
                   <a :on-click="open_delete_confirmation_dialog" phx-value-item_id={item.id} class="dropdown-item">
                     Remover
                   </a>
@@ -337,11 +349,21 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
               </td>
 
               <td class="py-3 px-6 text-right">
-                {if item.entry_type == :credit, do: item.amount}
+                <PayslipItemAmount
+                  {=item}
+                  :if={item.entry_type == :credit}
+                  is_editable={!@payslip.is_closed}
+                  edit_event="open_update_item_amount_form"
+                />
               </td>
 
               <td class="py-3 px-6 text-right">
-                {if item.entry_type == :debit, do: item.amount}
+                <PayslipItemAmount
+                  {=item}
+                  :if={item.entry_type == :debit}
+                  is_editable={!@payslip.is_closed}
+                  edit_event="open_update_item_amount_form"
+                />
               </td>
 
               <td class="pr-5 text-right">
@@ -349,6 +371,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
                   <a :on-click="open_update_item_amount_form" phx-value-item_id={item.id} class="dropdown-item">
                     Alterar Valor
                   </a>
+
                   <a :on-click="open_delete_confirmation_dialog" phx-value-item_id={item.id} class="dropdown-item">
                     Remover
                   </a>
