@@ -6,7 +6,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
 
   alias SigLive.Components.ConfirmationDialog
   alias SigLive.Components.DropdownBtn
-  alias SigLive.Components.DropdownOpts
+  alias SigLive.Components.Icon
   alias SigLive.Components.ToggleIcon
   alias SigLive.EmployeeRegistrations.Payslips.Form, as: PayslipForm
   alias SigLive.EmployeeRegistrations.Payslips.OutsideItemForm
@@ -307,16 +307,17 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
                 />
               </td>
 
-              <td class="pr-5 text-right">
-                <DropdownOpts :if={!@payslip.is_closed}>
-                  <a :on-click="open_update_item_amount_form" phx-value-item_id={item.id} class="dropdown-item">
-                    Alterar Valor
-                  </a>
-
-                  <a :on-click="open_delete_confirmation_dialog" phx-value-item_id={item.id} class="dropdown-item">
-                    Remover
-                  </a>
-                </DropdownOpts>
+              <td class="pr-3 text-right">
+                <div class="flex justify-center">
+                  <span
+                    :if={!@payslip.is_closed}
+                    :on-click="open_delete_confirmation_dialog"
+                    phx-value-item_id={item.id}
+                    class="hover:bg-gray-200 p-1 rounded-md cursor-pointer"
+                  >
+                    <Icon name="trash" size="5" />
+                  </span>
+                </div>
               </td>
             </tr>
           {/for}
@@ -366,16 +367,17 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
                 />
               </td>
 
-              <td class="pr-5 text-right">
-                <DropdownOpts :if={!@payslip.is_closed}>
-                  <a :on-click="open_update_item_amount_form" phx-value-item_id={item.id} class="dropdown-item">
-                    Alterar Valor
-                  </a>
-
-                  <a :on-click="open_delete_confirmation_dialog" phx-value-item_id={item.id} class="dropdown-item">
-                    Remover
-                  </a>
-                </DropdownOpts>
+              <td class="pr-3 text-right">
+                <div class="flex justify-center">
+                  <span
+                    :if={!@payslip.is_closed}
+                    :on-click="open_delete_confirmation_dialog"
+                    phx-value-item_id={item.id}
+                    class="hover:bg-gray-200 p-1 rounded-md cursor-pointer"
+                  >
+                    <Icon name="trash" size="5" />
+                  </span>
+                </div>
               </td>
             </tr>
           {/for}
