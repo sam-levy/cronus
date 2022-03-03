@@ -274,7 +274,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
             <th class="py-3 px-6 text-left">Descrição</th>
             <th class="py-3 px-7 text-right">Vencimentos</th>
             <th class="py-3 px-7 text-right">Descontos</th>
-            <th class="py-3 px-3 text-right" />
+            <th class="py-3 px-6 text-right" />
           </tr>
         </thead>
 
