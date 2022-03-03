@@ -59,6 +59,7 @@ defmodule SigLive.EmployeeRegistrations.Show do
         selected_payslip_items: [],
         selected_payslip_payables: [],
         registration_salaries: [],
+        registration_positions: [],
         registration_company_assignments: [],
         registration_recurring_payslip_items: [],
         registration_overtimes: [],
