@@ -31,7 +31,10 @@ defmodule SigLive.Payslips.ShowWithPayables do
   @impl true
   def render(assigns) do
     ~F"""
-    <div>
+    <div
+      class="w-full overflow-y-auto overflow-hidden scrollbar-none"
+      style="height: calc(100vh - 65px);"
+    >
       <Show
         id="payslip_show"
         items={@payslip_items}
