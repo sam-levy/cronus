@@ -467,9 +467,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.Form do
   @input_focused [opts: [disabled: false, phx_hook: "FocusElement"], class: ["form-input"]]
   @input_disabled [opts: [disabled: true], class: ["form-input-disabled"]]
 
-  defp props_for(:description, mode) when mode in [:new_mode, :edit_mode] do
-    @input_focused
-  end
+  defp props_for(:description, :new_mode), do: @input_focused
 
   defp props_for(_field, :show_mode), do: @input_disabled
   defp props_for(_field, _form_state), do: @input_enabled
