@@ -245,7 +245,6 @@ defmodule SigLive.EmployeeRegistrations.Form do
   @input_focused [opts: [disabled: false, phx_hook: "FocusElement"], class: ["form-input"]]
   @input_disabled [opts: [disabled: true], class: ["form-input-disabled"]]
 
-
   defp props_for(:admission_date, :new_mode), do: @input_focused
 
   defp props_for(_field, :new_mode), do: @input_enabled

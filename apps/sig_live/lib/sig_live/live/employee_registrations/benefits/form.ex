@@ -266,7 +266,10 @@ defmodule SigLive.EmployeeRegistrations.Benefits.Form do
 
   @input_enabled [opts: [disabled: false], class: ["form-input"]]
   @input_focused [opts: [disabled: false, phx_hook: "FocusElement"], class: ["form-input"]]
-  @input_content_selected [opts: [disabled: false, phx_hook: "SelectInputContent"], class: ["form-input"]]
+  @input_content_selected [
+    opts: [disabled: false, phx_hook: "SelectInputContent"],
+    class: ["form-input"]
+  ]
   @input_disabled [opts: [disabled: true], class: ["form-input-disabled"]]
 
   @checkbox_enabled [opts: [disabled: false], class: ["form-checkbox"]]

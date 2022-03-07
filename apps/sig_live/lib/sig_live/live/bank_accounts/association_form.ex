@@ -94,7 +94,11 @@ defmodule SigLive.BankAccounts.AssociationForm do
               <span class="form-label-complement">(CPF ou CNPJ)</span>
             </Label>
 
-            <TextInput value={format_document(@document)} class="form-input" opts={phx_hook: "FocusElement"} />
+            <TextInput
+              value={format_document(@document)}
+              class="form-input"
+              opts={phx_hook: "FocusElement"}
+            />
             <ErrorTag class="form-error-tag" />
           </Field>
 

@@ -72,7 +72,7 @@ defmodule SigLive.EmployeeRegistrations.ResignationForm do
       <Form for={@changeset} submit="save" opts={autocomplete: "off"}>
         <Field name={:resignation_date}>
           <Label class="form-label">Data de Desligamento</Label>
-          <DateInput class="form-input" opts={phx_hook: "FocusElement"}/>
+          <DateInput class="form-input" opts={phx_hook: "FocusElement"} />
           <ErrorTag class="form-error-tag" />
         </Field>
 
