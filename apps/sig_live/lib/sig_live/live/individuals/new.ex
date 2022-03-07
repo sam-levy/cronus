@@ -69,7 +69,7 @@ defmodule SigLive.Individuals.New do
         <Form for={:validate_cpf} submit="fetch_individual_by_cpf" opts={autocomplete: "off"}>
           <Field name={:cpf} class="form-field">
             <Label class="form-label">CPF</Label>
-            <TextInput class="form-input" opts={autofocus: true} />
+            <TextInput class="form-input" opts={phx_hook: "FocusElement"} />
             <ErrorTag class="form-error-tag" />
           </Field>
 
@@ -95,7 +95,7 @@ defmodule SigLive.Individuals.New do
 
           <Field name={:name} class="form-field">
             <Label class="form-label">Nome</Label>
-            <TextInput class="form-input" opts={autofocus: true} />
+            <TextInput class="form-input" opts={phx_hook: "FocusElement"} />
             <ErrorTag class="form-error-tag" />
           </Field>
 

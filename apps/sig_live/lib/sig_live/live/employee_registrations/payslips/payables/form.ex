@@ -464,7 +464,12 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.Form do
   defp handle_title(:show_mode, _payable), do: "Valor Pago"
 
   @input_enabled [opts: [disabled: false], class: ["form-input"]]
+  @input_focused [opts: [disabled: false, phx_hook: "FocusElement"], class: ["form-input"]]
   @input_disabled [opts: [disabled: true], class: ["form-input-disabled"]]
+
+  defp props_for(:description, mode) when mode in [:new_mode, :edit_mode] do
+    @input_focused
+  end
 
   defp props_for(_field, :show_mode), do: @input_disabled
   defp props_for(_field, _form_state), do: @input_enabled

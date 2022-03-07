@@ -54,7 +54,7 @@ defmodule SigLive.PayslipTemplates.Form do
       <Form for={@changeset} submit="save" opts={autocomplete: "off"}>
         <Field name={:name} class="form-field">
           <Label class="form-label">Nome</Label>
-          <TextInput class="form-input" />
+          <TextInput {...props_for(:name, @form_state)} />
           <ErrorTag class="form-error-tag" />
         </Field>
 
@@ -155,4 +155,8 @@ defmodule SigLive.PayslipTemplates.Form do
   defp handle_title(:new_mode), do: "Novo Modelo de Holerite"
   defp handle_title(:edit_mode), do: "Renomear Modelo de Holerite"
   defp handle_title(:copy_mode), do: "Nova Cópia de Modelo de Holerite"
+
+  defp props_for(:name, _form_state) do
+    [opts: [phx_hook: "SelectInputContent"], class: ["form-input"]]
+  end
 end

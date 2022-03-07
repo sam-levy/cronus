@@ -244,9 +244,11 @@ defmodule SigLive.BenefitModels.Form do
   defp show_field?(:historical_amounts, _mode, _benefit_model), do: false
 
   @input_enabled [opts: [disabled: false], class: ["form-input"]]
+  @input_focused [opts: [disabled: false, phx_hook: "FocusElement"], class: ["form-input"]]
+  @input_content_selected [opts: [disabled: false, phx_hook: "SelectInputContent"], class: ["form-input"]]
   @input_disabled [opts: [disabled: true], class: ["form-input-disabled"]]
 
-  defp props_for(:description, :new_mode), do: @input_enabled
+  defp props_for(:description, :new_mode), do: @input_content_selected
   defp props_for(:description, :edit_mode), do: @input_enabled
   defp props_for(:description, _mode), do: @input_disabled
 
@@ -255,13 +257,13 @@ defmodule SigLive.BenefitModels.Form do
   defp props_for(:type, _mode), do: @input_disabled
 
   defp props_for(:amount, :new_mode), do: @input_enabled
-  defp props_for(:amount, :edit_amount_mode), do: @input_enabled
+  defp props_for(:amount, :edit_amount_mode), do: @input_content_selected
   defp props_for(:amount, _mode), do: @input_disabled
 
   defp props_for(:amount_date, :new_mode), do: @input_enabled
   defp props_for(:amount_date, :edit_amount_mode), do: @input_enabled
   defp props_for(:amount_date, _mode), do: @input_disabled
 
-  defp props_for(:disabled_at, :disable_mode), do: @input_enabled
+  defp props_for(:disabled_at, :disable_mode), do: @input_focused
   defp props_for(:disabled_at, _mode), do: @input_disabled
 end

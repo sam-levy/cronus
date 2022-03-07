@@ -11,7 +11,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.PayslipItemAmount do
       <a
         :on-click={@edit_event}
         phx-value-item_id={@item.id}
-        class="p-1.5 rounded hover:bg-gray-200 border border-transparent hover:border-gray-400"
+        class="p-1.5 rounded hover:bg-gray-200 border border-transparent hover:border-gray-400 cursor-text"
       >
         {@item.amount}
       </a>

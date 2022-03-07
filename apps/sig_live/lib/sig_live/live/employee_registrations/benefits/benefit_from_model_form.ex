@@ -172,14 +172,17 @@ defmodule SigLive.EmployeeRegistrations.Benefits.BenefitFromModelForm do
 
   defp handle_flash(:new_mode), do: flash_info("Benefício criado")
 
-  defp handle_title(:new_mode), do: "Adicionar Benefício de um Modelo"
+  defp handle_title(:new_mode), do: "Adicionar Benefício a Partir de Modelo"
   defp handle_title(:show_mode), do: "Benefício"
 
   @input_enabled [opts: [disabled: false], class: ["form-input"]]
+  @input_focused [opts: [disabled: false, phx_hook: "FocusElement"], class: ["form-input"]]
   @input_disabled [opts: [disabled: true], class: ["form-input-disabled"]]
 
   @checkbox_enabled [opts: [disabled: false], class: ["form-checkbox"]]
   @checkbox_disabled [opts: [disabled: true], class: ["form-checkbox-disabled"]]
+
+  defp props_for(:start_date, :new_mode), do: @input_focused
 
   defp props_for(_field, :new_mode), do: @input_enabled
   defp props_for(_field, _form_state), do: @input_disabled

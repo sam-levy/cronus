@@ -148,7 +148,7 @@ defmodule SigLive.EmployeeRegistrations.Benefits.List do
                       phx-value-benefit_id={benefit.id}
                       class="dropdown-item"
                     >
-                      Alterar Valor
+                      Atualizar Valor
                     </a>
 
                     <a :on-click="open_finalize_benefit_form" phx-value-benefit_id={benefit.id} class="dropdown-item">

@@ -70,7 +70,7 @@ defmodule SigLive.PayslipCategories.Form do
       <Form for={@changeset} submit="save" change="form_change" opts={autocomplete: "off"}>
         <Field name={:code} class="form-field">
           <Label class="form-label">Código</Label>
-          <TextInput class="form-input" />
+          <TextInput {...props_for(:code, @form_state)} />
           <ErrorTag class="form-error-tag" />
         </Field>
 
@@ -183,11 +183,17 @@ defmodule SigLive.PayslipCategories.Form do
   defp handle_flash(:new_mode), do: flash_info("Categoria de Item de Holerite criada")
   defp handle_flash(:edit_mode), do: flash_info("Categoria de Item de Holerite alterada")
 
-  defp handle_title(:new_mode), do: "Novo Categoria de Item de Holerite"
-  defp handle_title(:edit_mode), do: "Renomear Categoria de Item de Holerite"
+  defp handle_title(:new_mode), do: "Nova Categoria de Item de Holerite"
+  defp handle_title(:edit_mode), do: "Editar Categoria de Item de Holerite"
 
   defp show?(%{changes: %{entry_type: :credit}}), do: false
   defp show?(%{changes: %{entry_type: :debit}}), do: true
   defp show?(%{data: %{entry_type: :debit}}), do: true
   defp show?(_), do: false
+
+  defp props_for(:code, :new_mode) do
+    [opts: [phx_hook: "FocusElement"], class: ["form-input"]]
+  end
+
+  defp props_for(__field, _form_state), do: [opts: [class: ["form-input"]]]
 end

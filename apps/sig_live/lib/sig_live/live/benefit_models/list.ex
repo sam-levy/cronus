@@ -198,7 +198,7 @@ defmodule SigLive.BenefitModels.List do
                     phx-value-benefit_model_id={benefit_model.id}
                     class="dropdown-item"
                   >
-                    Alterar Valor
+                    Atualizar Valor
                   </a>
 
                   {#if !is_nil(benefit_model.disabled_at)}

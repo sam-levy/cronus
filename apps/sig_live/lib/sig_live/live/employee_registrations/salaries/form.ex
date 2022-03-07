@@ -54,11 +54,11 @@ defmodule SigLive.EmployeeRegistrations.Salaries.Form do
   @impl true
   def render(assigns) do
     ~F"""
-    <Modal title="Atualizar Salário" close={@close_event}>
+    <Modal title={handle_title(@form_state)} close={@close_event}>
       <Form for={@changeset} submit="save" opts={autocomplete: "off"}>
         <Field name={:start_date}>
           <Label class="form-label">Data de Início</Label>
-          <DateInput class="form-input" />
+          <DateInput {...props_for(:start_date, @form_state)} />
           <ErrorTag class="form-error-tag" />
         </Field>
 
@@ -77,6 +77,9 @@ defmodule SigLive.EmployeeRegistrations.Salaries.Form do
     </Modal>
     """
   end
+
+  defp handle_title(:new_mode), do: "Novo Salário"
+  defp handle_title(:edit_mode), do: "Editar Salário"
 
   def states, do: @form_states
 
@@ -152,4 +155,10 @@ defmodule SigLive.EmployeeRegistrations.Salaries.Form do
 
   defp format_salary_amount(%{changes: %{amount: amount}}), do: format_amount(amount)
   defp format_salary_amount(_), do: ""
+
+  @input_enabled [opts: [disabled: false], class: ["form-input"]]
+  @input_focused [opts: [disabled: false, phx_hook: "FocusElement"], class: ["form-input"]]
+
+  defp props_for(:start_date, :new_mode), do: @input_focused
+  defp props_for(:start_date, :edit_mode), do: @input_enabled
 end

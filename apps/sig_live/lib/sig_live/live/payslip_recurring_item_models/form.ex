@@ -282,12 +282,15 @@ defmodule SigLive.PayslipRecurringItemModels.Form do
   defp is_fixed_amount?(_), do: false
 
   @input_enabled [opts: [disabled: false], class: ["form-input"]]
+  @input_focused [opts: [disabled: false, phx_hook: "FocusElement"], class: ["form-input"]]
   @input_disabled [opts: [disabled: true], class: ["form-input-disabled"]]
 
   @radio_enabled [opts: [disabled: false], class: ["form-radio"]]
   @radio_disabled [opts: [disabled: true], class: ["form-radio-disabled"]]
 
+  defp props_for(:description, :new_mode), do: @input_focused
   defp props_for(:description, :edit_mode), do: @input_enabled
+
   defp props_for(:amount, :edit_mode), do: @input_enabled
   defp props_for(:percentage, :edit_mode), do: @input_enabled
 

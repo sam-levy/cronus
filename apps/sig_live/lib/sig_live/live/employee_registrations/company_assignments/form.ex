@@ -60,7 +60,7 @@ defmodule SigLive.EmployeeRegistrations.CompanyAssignments.Form do
   @impl true
   def render(assigns) do
     ~F"""
-    <Modal title="Nova Designação" close={@close_event}>
+    <Modal title={handle_title(@form_state)} close={@close_event}>
       <Form for={@changeset} submit="save" opts={autocomplete: "off"}>
         <Field name={:assigned_company_id} class="form-field">
           <Label class="form-label">Empresa</Label>
@@ -97,6 +97,9 @@ defmodule SigLive.EmployeeRegistrations.CompanyAssignments.Form do
     </Modal>
     """
   end
+
+  defp handle_title(:new_mode), do: "Nova Designação"
+  defp handle_title(:edit_mode), do: "Editar Designação"
 
   def states, do: @form_states
 
