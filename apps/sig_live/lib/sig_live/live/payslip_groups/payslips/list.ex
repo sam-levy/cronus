@@ -44,7 +44,10 @@ defmodule SigLive.PayslipGroups.Payslips.List do
         </form>
       </div>
 
-      <div class="w-full space-y-3">
+      <div
+        class="w-full space-y-3 overflow-y-auto scrollbar-none pb-5"
+        style="height: calc(100vh - 190px);"
+      >
         {#for payslip <- @payslips}
           <div
             :on-click={@select_payslip}

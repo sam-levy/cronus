@@ -25,7 +25,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.List do
   @impl true
   def render(assigns) do
     ~F"""
-    <div>
+    <div class="w-full flex flex-col items-end space-y-4">
       <Form
         :if={@form_state != :closed}
         id="payslip_form"
@@ -36,42 +36,45 @@ defmodule SigLive.EmployeeRegistrations.Payslips.List do
         {=@payslip_id}
       />
 
-      <div class="w-full flex flex-col items-end space-y-4">
-        <div class="mb-2">
-          <button :on-click="open_form" class="btn-dark-gray flex-auto">
-            <svg class="" width="12" height="20" fill="currentColor">
-              <path
-                fill-rule="evenodd"
-                clip-rule="evenodd"
-                d="M6 5a1 1 0 011 1v3h3a1 1 0 110 2H7v3a1 1 0 11-2 0v-3H2a1 1 0 110-2h3V6a1 1 0 011-1z"
-              />
-            </svg>
+      <div class="w-full mb-2">
+        <button :on-click="open_form" class="w-full btn-dark-gray flex justify-center">
+          <svg class="" width="12" height="20" fill="currentColor">
+            <path
+              fill-rule="evenodd"
+              clip-rule="evenodd"
+              d="M6 5a1 1 0 011 1v3h3a1 1 0 110 2H7v3a1 1 0 11-2 0v-3H2a1 1 0 110-2h3V6a1 1 0 011-1z"
+            />
+          </svg>
 
-            <span class="ml-2">Holerite</span>
-          </button>
-        </div>
+          <span class="ml-2">
+            Holerite
+          </span>
+        </button>
+      </div>
 
-        <div class="w-full space-y-3">
-          {#for payslip <- @payslips}
-            <div
-              :on-click={@select_payslip}
-              phx-value-payslip_id={payslip.id}
-              class={classes_for_card(payslip.id, @selected_payslip_id)}
-            >
-              <div class="text-gray-500">
-                {format_month(payslip.start_date)}
-              </div>
-
-              <div class="flex">
-                <div :if={payslip.type != :regular} class={~w(text-xs) ++ payslip_type_text_color(payslip.type)}>
-                  {capitalize_type(payslip.type)}
-                </div>
-
-                <Icon name="lock_open" :if={!payslip.is_closed} size="4" class="ml-2" />
-              </div>
+      <div
+        class="w-full space-y-3 overflow-y-auto scrollbar-none pb-5"
+        style="height: calc(100vh - 180px);"
+      >
+        {#for payslip <- @payslips}
+          <div
+            :on-click={@select_payslip}
+            phx-value-payslip_id={payslip.id}
+            class={classes_for_card(payslip.id, @selected_payslip_id)}
+          >
+            <div class="text-gray-500">
+              {format_month(payslip.start_date)}
             </div>
-          {/for}
-        </div>
+
+            <div class="flex">
+              <div :if={payslip.type != :regular} class={~w(text-xs) ++ payslip_type_text_color(payslip.type)}>
+                {capitalize_type(payslip.type)}
+              </div>
+
+              <Icon name="lock_open" :if={!payslip.is_closed} size="4" class="ml-2" />
+            </div>
+          </div>
+        {/for}
       </div>
     </div>
     """

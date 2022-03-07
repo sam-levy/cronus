@@ -101,10 +101,6 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
       {:ok, payslip} ->
         HR.broadcast_updated_payslip(payslip, nil, refetch: true, preload_registration: true)
 
-        message = if payslip.is_closed, do: "Holerite bloqueado", else: "Holerite desbloqueado"
-
-        flash_info(message)
-
         {:noreply, socket}
 
       {:error, _changeset} ->
@@ -219,7 +215,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Show do
       />
 
       <table class="w-full bg-white shadow-lg mb-7">
-        <thead class="top-0 z-20">
+        <thead class="top-0 z-10 sticky">
           <tr class="bg-white">
             <th colspan="5">
               <div class="flex justify-between items-center py-2 px-6">
