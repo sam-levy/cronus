@@ -108,7 +108,8 @@ defmodule SigLive.EmployeeRegistrations.Payslips.PayslipItemForm do
   end
 
   defp handle_return(%{return: {:error, changeset}, socket: socket}) when is_struct(changeset) do
-    {:noreply, assign(socket, message: nil, changeset: changeset)}
+    {:noreply,
+     assign(socket, message: Sig.Changeset.errors_to_string(changeset), changeset: changeset)}
   end
 
   defp handle_return(%{return: {:ok, _item}, socket: socket}) do
