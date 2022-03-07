@@ -55,7 +55,7 @@ defmodule SigLive.Organizations.Sectors.Form do
       <Form for={@changeset} submit="save" opts={autocomplete: "off"}>
         <Field name={:name} class="form-field">
           <Label class="form-label">Nome</Label>
-          <TextInput class="form-input" />
+          <TextInput class="form-input" opts={phx_hook: "SelectInputContent"} />
           <ErrorTag class="form-error-tag" />
         </Field>
 

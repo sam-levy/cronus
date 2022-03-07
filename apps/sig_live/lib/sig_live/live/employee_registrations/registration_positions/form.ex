@@ -58,7 +58,7 @@ defmodule SigLive.EmployeeRegistrations.RegistrationPositions.Form do
   @impl true
   def render(assigns) do
     ~F"""
-    <Modal title="Novo Cargo" close={@close_event}>
+    <Modal title={handle_title(@form_state)} close={@close_event}>
       <Form for={@changeset} submit="save" opts={autocomplete: "off"}>
         <Field name={:position_id} class="form-field">
           <Label class="form-label">Cargo</Label>
@@ -85,6 +85,9 @@ defmodule SigLive.EmployeeRegistrations.RegistrationPositions.Form do
     </Modal>
     """
   end
+
+  defp handle_title(:new_mode), do: "Novo Cargo"
+  defp handle_title(:edit_mode), do: "Editar Cargo"
 
   def states, do: @form_states
 

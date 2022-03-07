@@ -248,24 +248,27 @@ defmodule SigLive.AccountsPayable.List do
                   </div>
                 </td>
 
-                <td class="px-3 text-right">
-                  {#case payable}
-                    {#match %{authorized_by_id: nil}}
-                      <span class="label-gray not-italic mr-1">
-                        bloqueado
-                      </span>
-                    {#match %{financial_transaction: %{clearing_date: nil}}}
-                      <span class="label-yellow not-italic mr-1">
-                        liq pendente
-                      </span>
-                    {#match %{financial_transaction: %{clearing_date: clearing_date}}}
-                      <span class="label-blue not-italic mr-1">
-                        pago {format_date(clearing_date)}
-                      </span>
-                    {#match _}
-                  {/case}
+                <td class="px-3">
+                  <div class="flex justify-between items-center">
+                    {#case payable}
+                      {#match %{authorized_by_id: nil}}
+                        <div class="label-gray not-italic mr-1">
+                          bloqueado
+                        </div>
+                      {#match %{financial_transaction: %{clearing_date: nil}}}
+                        <div class="label-yellow not-italic mr-1">
+                          liq pendente
+                        </div>
+                      {#match %{financial_transaction: %{clearing_date: clearing_date}}}
+                        <div class="label-blue not-italic mr-1">
+                          pago {format_date(clearing_date)}
+                        </div>
+                      {#match _}
+                        <div />
+                    {/case}
 
-                  {payable.amount}
+                    <div>{payable.amount}</div>
+                  </div>
                 </td>
 
                 <td class="pr-5 text-right">

@@ -109,8 +109,8 @@ defmodule SigLive.AccountsPayable.FinancialTransactionsList do
         error_message={@message}
       />
 
-      <table class="w-full bg-white shadow-lg">
-        <thead class="top-0 z-20">
+      <table class="w-full bg-white shadow-lg mb-5">
+        <thead class="top-0 z-10 bg-white sticky">
           <tr class="bg-white">
             <th colspan="5">
               <div class="flex justify-between items-center py-3 px-6">
