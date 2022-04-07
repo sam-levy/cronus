@@ -231,7 +231,7 @@ defmodule SigLive.AccountsPayable.List do
 
                   <div class="text-gray-400">
                     {#if payable.target == :payslip}
-                      {payable.employee.name}
+                      {payable.employee.name} - {payable.employee_registration_last_sector.name}
                     {/if}
                   </div>
                 </td>
