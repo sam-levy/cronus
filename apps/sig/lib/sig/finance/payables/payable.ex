@@ -31,6 +31,7 @@ defmodule Sig.Finance.Payables.Payable do
     has_one :payslip, through: [:payslip_payable, :payslip]
     has_one :employee, through: [:payslip, :registration, :individual]
     has_one :employee_registration_company, through: [:payslip, :registration, :registered_at]
+    has_one :employee_registration_last_sector, through: [:payslip, :registration, :last_sector]
     has_one :financial_transaction_created_by, through: [:financial_transaction, :created_by]
 
     # TODO: Remove once Summary is removed

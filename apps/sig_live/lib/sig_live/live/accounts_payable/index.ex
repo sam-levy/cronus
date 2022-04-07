@@ -158,7 +158,7 @@ defmodule SigLive.AccountsPayable.Index do
     indexed_payables =
       org
       |> Finance.list_payables_by(
-        preload: Finance.default_payable_preloads(),
+        preload: Finance.default_payable_preloads() ++ [:employee_registration_last_sector],
         due_date: [period_start: start_date, period_end: end_date, overdue_at: overdue_at]
       )
       |> Map.new(&{&1.id, &1})
@@ -442,7 +442,7 @@ defmodule SigLive.AccountsPayable.Index do
 
     payables =
       payables
-      |> Enum.sort_by(& &1.inserted_at, DateTime)
+      |> Enum.sort_by(&String.downcase(&1.employee.name))
       |> Enum.sort_by(& &1.due_date, Date)
 
     assign(socket, payables: payables, payables_amount_sum: payables_amount_sum)

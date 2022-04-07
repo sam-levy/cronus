@@ -3,6 +3,7 @@ defmodule Sig.Finance.Payables do
     payable: [
       :employee,
       :employee_registration_company,
+      :employee_registration_last_sector,
       :payslip,
       :payslip_payable,
       :financial_transaction,
