@@ -256,7 +256,7 @@ defmodule SigLive.PayslipGroups.Form do
   def states, do: @form_states
 
   defp build_dates_for_select(selected_date) do
-    prior = selected_date |> Sig.Date.list_by_month(:prior, 4) |> Enum.reverse()
+    prior = selected_date |> Sig.Date.list_by_month(:prior, 5) |> Enum.reverse()
     next = Sig.Date.list_by_month(selected_date, :next, 3)
 
     dates = prior ++ [selected_date] ++ next
