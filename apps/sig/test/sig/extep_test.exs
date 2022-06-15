@@ -10,7 +10,7 @@ defmodule Sig.ExtepTest do
   end
 
   describe "new/1" do
-    test "returns an `Extep` struct with given context" do
+    test "returns an `Extep` struct with the given context" do
       context = %{key: "value"}
 
       assert Extep.new(context) == %Extep{status: :ok, context: context, error: nil}
@@ -40,7 +40,7 @@ defmodule Sig.ExtepTest do
   end
 
   describe "return/2" do
-    test "returns the value from the given context key to an `:ok` tuple" do
+    test "returns the value from the given context key as an `:ok` tuple" do
       context = %{key: "value", another_key: "antother value"}
       extep = %Extep{status: :ok, context: context, error: nil}
 
