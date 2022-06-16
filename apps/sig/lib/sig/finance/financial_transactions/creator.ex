@@ -46,8 +46,7 @@ defmodule Sig.Finance.FinancialTransactions.Creator do
   alias Sig.Repo
 
   defmodule Context do
-    defstruct status: :ok,
-              org: nil,
+    defstruct org: nil,
               attrs: nil,
               payables: nil,
               amount: nil,
