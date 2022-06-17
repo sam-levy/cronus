@@ -9,14 +9,13 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateStandardPayables do
   alias Sig.Repo
 
   defmodule Context do
-    defstruct status: :ok,
-              return: nil,
-              payslip: nil,
+    defstruct payslip: nil,
               due_dates: nil,
               registration: nil,
               bank_account: nil,
               payslip_items: nil,
-              financial_transaction_type: nil
+              financial_transaction_type: nil,
+              create_multi_changes: nil
   end
 
   def call(%Registration{} = registration, %Payslip{} = payslip, payslip_items, %{} = due_dates)
@@ -27,12 +26,13 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateStandardPayables do
       payslip_items: payslip_items,
       due_dates: due_dates
     }
-    |> validate_payslip_items()
-    |> validate_due_dates()
-    |> get_bank_account()
-    |> set_financial_transaction_type()
-    |> create_multi()
-    |> handle_return()
+    |> Extep.new()
+    |> Extep.run(&validate_payslip_items/1)
+    |> Extep.run(&validate_due_dates/1)
+    |> Extep.run(&get_bank_account/1)
+    |> Extep.run(&set_financial_transaction_type/1)
+    |> Extep.run(&create_multi/1)
+    |> Extep.return(:create_multi_changes)
   end
 
   defp validate_payslip_items(%{payslip_items: []} = context), do: context
@@ -41,23 +41,19 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateStandardPayables do
     if Enum.all?(payslip_items, &valid_item?(&1, payslip.id)) do
       context
     else
-      put_error(context, "payslip items doesn't belong to payslip")
+      {:error, "payslip items doesn't belong to payslip"}
     end
   end
 
   defp valid_item?(%Item{payslip_id: payslip_id}, payslip_id), do: true
   defp valid_item?(_item, _payslip_id), do: false
 
-  defp validate_due_dates(%{status: :halted} = context), do: context
-
   defp validate_due_dates(context) do
     case context.due_dates do
       %{payment_advance_date: %Date{}, salary_date: %Date{}} -> context
-      _ -> put_error(context, "invalid payments due dates")
+      _ -> {:error, "invalid payments due dates"}
     end
   end
-
-  defp get_bank_account(%{status: :halted} = context), do: context
 
   defp get_bank_account(context) do
     %{registration: registration, payslip: payslip} = context
@@ -71,15 +67,11 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateStandardPayables do
     end
   end
 
-  defp set_financial_transaction_type(%{status: :halted} = context), do: context
-
   defp set_financial_transaction_type(%{bank_account: :not_found} = context),
     do: %{context | financial_transaction_type: :cash}
 
   defp set_financial_transaction_type(context),
     do: %{context | financial_transaction_type: :bank_transfer}
-
-  defp create_multi(%{status: :halted} = context), do: context
 
   defp create_multi(context) do
     Multi.new()
@@ -87,8 +79,8 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateStandardPayables do
     |> Multi.run(:salary, fn _, _ -> create_salary(context) end)
     |> Repo.transaction()
     |> case do
-      {:ok, changes} -> %{context | return: changes}
-      {:error, _operation, reason, _changes} -> put_error(context, reason)
+      {:ok, changes} -> %{context | create_multi_changes: changes}
+      {:error, _operation, reason, _changes} -> {:error, reason}
     end
   end
 
@@ -135,9 +127,4 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateStandardPayables do
   defp handle_bank_account(%{financial_transaction_type: :bank_transfer} = attrs, account) do
     Map.put(attrs, :credit_bank_account_id, account.id)
   end
-
-  defp put_error(context, error), do: %{context | status: :halted, return: {:error, error}}
-
-  defp handle_return(%{status: :ok, return: return}), do: {:ok, return}
-  defp handle_return(%{status: :halted, return: {:error, error}}), do: {:error, error}
 end
