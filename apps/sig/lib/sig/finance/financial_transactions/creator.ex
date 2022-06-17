@@ -35,6 +35,7 @@ defmodule Sig.Finance.FinancialTransactions.Creator do
 
   alias Ecto.Multi
 
+  alias Sig.Extep
   alias Sig.Finance.Banks.Accounts
   alias Sig.Finance.FinancialTransactions.BankTransactions.BankTransaction
   alias Sig.Finance.FinancialTransactions.Creator.Attrs
@@ -45,36 +46,34 @@ defmodule Sig.Finance.FinancialTransactions.Creator do
   alias Sig.Repo
 
   defmodule Context do
-    defstruct status: :ok,
-              org: nil,
+    defstruct org: nil,
               attrs: nil,
               payables: nil,
               amount: nil,
               changeset: nil,
-              return: nil
+              financial_transaction: nil
   end
 
   def pay_payables_change(%{} = params \\ %{}), do: Attrs.changeset(params)
 
   def pay_payables(%Org{} = org, %{} = attrs) do
     %Context{org: org, attrs: attrs}
-    |> validate_attrs()
-    |> list_payables()
-    |> validate_payables()
-    |> validate_bank_account()
-    |> build_financial_transaction_changeset()
-    |> create_multi()
-    |> handle_return()
+    |> Extep.new()
+    |> Extep.run(&validate_attrs/1)
+    |> Extep.run(&list_payables/1)
+    |> Extep.run(&validate_payables/1)
+    |> Extep.run(&validate_bank_account/1)
+    |> Extep.run(&build_financial_transaction_changeset/1)
+    |> Extep.run(&create_multi/1)
+    |> Extep.return(:financial_transaction)
   end
 
   defp validate_attrs(%{attrs: attrs} = context) do
     case Attrs.changeset(attrs) do
       %{valid?: true, changes: changes} -> %{context | attrs: changes}
-      changeset -> put_error(context, changeset)
+      changeset -> {:error, changeset}
     end
   end
-
-  defp list_payables(%{status: :halted} = context), do: context
 
   defp list_payables(context) do
     %{org: org, attrs: attrs} = context
@@ -86,22 +85,20 @@ defmodule Sig.Finance.FinancialTransactions.Creator do
     if payables_count == Enum.count(payable_ids) do
       %{context | payables: payables}
     else
-      put_error(context, "Existem pagáveis não encontrados")
+      {:error, "Existem pagáveis não encontrados"}
     end
   end
-
-  defp validate_payables(%{status: :halted} = context), do: context
 
   defp validate_payables(%{attrs: %{type: :check}, payables: [payable]} = context) do
     if payable.check_debit_bank_account_id == context.attrs.bank_account_id do
       %{context | amount: payable.amount}
     else
-      put_error(context, "A conta bancária deve ser igual a do cheque")
+      {:error, "A conta bancária deve ser igual a do cheque"}
     end
   end
 
-  defp validate_payables(%{attrs: %{type: :check}, payables: [_ | _]} = context) do
-    put_error(context, "Não é possivel fazer pagamentos em lote de contas em cheque")
+  defp validate_payables(%{attrs: %{type: :check}, payables: [_ | _]}) do
+    {:error, "Não é possivel fazer pagamentos em lote de contas em cheque"}
   end
 
   defp validate_payables(context) do
@@ -109,7 +106,7 @@ defmodule Sig.Finance.FinancialTransactions.Creator do
 
     case Enum.reduce_while(payables, Money.new(0), &validate_payable(&1, &2, type)) do
       %Money{} = amount -> %{context | amount: amount}
-      {:error, message} -> put_error(context, message)
+      {:error, message} -> {:error, message}
     end
   end
 
@@ -130,21 +127,17 @@ defmodule Sig.Finance.FinancialTransactions.Creator do
     end
   end
 
-  defp validate_bank_account(%{status: :halted} = context), do: context
-
   defp validate_bank_account(%{attrs: %{type: type}} = context) when is_bank_type(type) do
     %{org: org, attrs: %{bank_account_id: id}} = context
 
     case Accounts.fetch(org, id) do
       {:ok, %{is_managed: true}} -> context
-      {:ok, %{is_managed: false}} -> put_error(context, "A conta não é administrada")
-      {:error, :not_found} -> put_error(context, "Conta não encontrada")
+      {:ok, %{is_managed: false}} -> {:error, "A conta não é administrada"}
+      {:error, :not_found} -> {:error, "Conta não encontrada"}
     end
   end
 
   defp validate_bank_account(context), do: context
-
-  defp build_financial_transaction_changeset(%{status: :halted} = context), do: context
 
   defp build_financial_transaction_changeset(context) do
     %{org: org, attrs: attrs, amount: amount} = context
@@ -156,11 +149,9 @@ defmodule Sig.Finance.FinancialTransactions.Creator do
     |> FinancialTransaction.create_changeset()
     |> case do
       %{valid?: true} = changeset -> %{context | changeset: changeset}
-      changeset -> put_error(context, changeset)
+      changeset -> {:error, changeset}
     end
   end
-
-  defp create_multi(%{status: :halted} = context), do: context
 
   defp create_multi(context) do
     %{org: org, attrs: attrs, payables: payables, changeset: changeset, amount: amount} = context
@@ -174,10 +165,7 @@ defmodule Sig.Finance.FinancialTransactions.Creator do
     |> Multi.run(:validate_payables_amount, &validate_payables_amount(&1, &2, amount))
     |> Repo.transaction()
     |> case do
-      {:error, _operation, reason, _changes} ->
-        put_error(context, reason)
-
-      {:ok, %{financial_transaction: transaction}} ->
+      {:ok, %{financial_transaction: ft}} ->
         Task.Supervisor.start_child(
           Sig.BroadcastSupervisor,
           fn ->
@@ -186,26 +174,30 @@ defmodule Sig.Finance.FinancialTransactions.Creator do
           restart: :transient
         )
 
-        %{context | return: transaction}
+
+        %{context | financial_transaction: ft}
+
+      {:error, _operation, reason, _changes} ->
+        {:error, reason}
     end
   end
 
-  defp insert_underling(%{financial_transaction: %{type: type} = transaction}, org, attrs)
+  defp insert_underling(%{financial_transaction: %{type: type} = ft}, org, attrs)
        when is_bank_type(type) do
     Multi.insert(Multi.new(), :bank_transaction, %BankTransaction{
       org_id: org.id,
-      financial_transaction_id: transaction.id,
+      financial_transaction_id: ft.id,
       bank_account_id: attrs.bank_account_id
     })
   end
 
   defp insert_underling(_transaction, _org, _attrs), do: Multi.new()
 
-  defp update_payables_query(%{financial_transaction: transaction}, org, payable_ids) do
+  defp update_payables_query(%{financial_transaction: ft}, org, payable_ids) do
     Payable
     |> where(org_id: ^org.id)
     |> where([p], p.id in ^payable_ids)
-    |> update(set: [financial_transaction_id: ^transaction.id])
+    |> update(set: [financial_transaction_id: ^ft.id])
     |> select([p], p)
   end
 
@@ -216,9 +208,4 @@ defmodule Sig.Finance.FinancialTransactions.Creator do
       {:error, "difference in payables amount sum"}
     end
   end
-
-  defp put_error(context, error), do: %{context | status: :halted, return: {:error, error}}
-
-  defp handle_return(%{status: :ok, return: return}), do: {:ok, return}
-  defp handle_return(%{status: :halted, return: {:error, error}}), do: {:error, error}
 end
