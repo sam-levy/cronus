@@ -35,7 +35,6 @@ defmodule Sig.Finance.FinancialTransactions.Creator do
 
   alias Ecto.Multi
 
-  alias Sig.Extep
   alias Sig.Finance.Banks.Accounts
   alias Sig.Finance.FinancialTransactions.BankTransactions.BankTransaction
   alias Sig.Finance.FinancialTransactions.Creator.Attrs
