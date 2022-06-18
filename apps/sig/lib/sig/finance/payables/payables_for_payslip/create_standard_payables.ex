@@ -19,7 +19,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateStandardPayables do
     |> Extep.new()
     |> Extep.run(&validate_payslip_items/1)
     |> Extep.run(&validate_due_dates/1)
-    |> Extep.run(&get_bank_account/1, :bank_account)
+    |> Extep.run(&fetch_bank_account/1, :bank_account)
     |> Extep.run(&set_financial_transaction_type/1, :financial_transaction_type)
     |> Extep.run(&create_multi/1, :create_multi_changes)
     |> Extep.return(:create_multi_changes)
@@ -43,7 +43,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateStandardPayables do
     end
   end
 
-  defp get_bank_account(context) do
+  defp fetch_bank_account(context) do
     %{registration: registration, payslip: payslip} = context
 
     case Banks.fetch_entity_active_primary_bank_account(
