@@ -9,28 +9,21 @@ defmodule Sig.Finance.Payables.DeleteByIds do
   alias Sig.Organizations.Org
   alias Sig.Repo
 
-  defmodule Context do
-    defstruct org: nil,
-              payables: nil,
-              payable_ids: nil,
-              deleted_payables: nil
-  end
-
   def call(%Org{}, []), do: {:ok, nil}
 
   def call(%Org{} = org, payable_ids) when is_list(payable_ids) do
-    %Context{org: org, payable_ids: payable_ids}
+    %{org: org, payable_ids: payable_ids}
     |> Extep.new()
-    |> Extep.run(&list_payables/1)
+    |> Extep.run(&list_payables/1, :payables)
     |> Extep.run(&ensure_can_be_deleted/1)
-    |> Extep.run(&delete_multi/1)
+    |> Extep.run(&delete_multi/1, :deleted_payables)
     |> Extep.return(:deleted_payables)
   end
 
-  defp list_payables(%{org: org, payable_ids: payable_ids} = context) do
+  defp list_payables(%{org: org, payable_ids: payable_ids}) do
     case Payables.list_by(org, payable_ids: payable_ids, preload: [:payslip_payable]) do
       [] -> {:error, nil}
-      payables -> %{context | payables: payables}
+      payables -> {:ok, payables}
     end
   end
 
@@ -42,11 +35,11 @@ defmodule Sig.Finance.Payables.DeleteByIds do
        end) do
       {:error, "existem pagamentos autorizados ou pagos"}
     else
-      context
+      :ok
     end
   end
 
-  defp delete_multi(%{org: org, payable_ids: payable_ids} = context) do
+  defp delete_multi(%{org: org, payable_ids: payable_ids}) do
     Multi.new()
     |> Multi.delete_all(
       :payslip_payables,
@@ -63,7 +56,7 @@ defmodule Sig.Finance.Payables.DeleteByIds do
     )
     |> Repo.transaction()
     |> case do
-      {:ok, %{payables: {_, payables}}} -> %{context | deleted_payables: payables}
+      {:ok, %{payables: {_, payables}}} -> {:ok, payables}
       {:error, _operation, reason, _changes} -> {:error, reason}
     end
   end
