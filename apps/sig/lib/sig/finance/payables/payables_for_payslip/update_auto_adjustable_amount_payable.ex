@@ -7,48 +7,33 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.UpdateAutoAdjustableAmountPaya
   alias Sig.HR.Payslips.Payslip
   alias Sig.Repo
 
-  defmodule Context do
-    defstruct status: :ok,
-              opts: nil,
-              return: nil,
-              payslip: nil,
-              payables: nil,
-              auto_adjustable_amount_payable: nil,
-              non_adjustable_payables_amount_sum: nil
-  end
-
   def call(%Payslip{} = payslip, opts \\ []) do
-    %Context{payslip: payslip, opts: opts}
-    |> list_payables()
-    |> get_auto_adjustable_amount_payable()
-    |> sum_non_adjustable_payables_amounts()
-    |> do_update_auto_adjustable_amount_payable()
-    |> handle_return()
+    %{payslip: payslip, opts: opts}
+    |> Extep.new()
+    |> Extep.run(&list_payables/1, :payables)
+    |> Extep.run(&fetch_auto_adjustable_amount_payable/1, :auto_adjustable_amount_payable)
+    |> Extep.run(&sum_non_adjustable_payables_amounts/1, :non_adjustable_payables_amount_sum)
+    |> Extep.run(
+      &update_auto_adjustable_amount_payable/1,
+      :updated_auto_adjustable_amount_payable
+    )
+    |> Extep.return(:updated_auto_adjustable_amount_payable)
   end
 
   defp list_payables(context) do
     case Payables.list_by(context.payslip) do
-      [] -> halt(context)
-      payables -> %{context | payables: payables}
+      [] -> :halt
+      payables -> {:ok, payables}
     end
   end
 
-  defp get_auto_adjustable_amount_payable(%{status: :halt} = context), do: context
-
-  defp get_auto_adjustable_amount_payable(context) do
+  defp fetch_auto_adjustable_amount_payable(context) do
     case Enum.find(context.payables, & &1.payslip_payable.is_auto_adjustable_amount) do
-      %Payable{financial_transaction_id: nil} = payable ->
-        %{context | auto_adjustable_amount_payable: payable}
-
-      %Payable{} ->
-        halt(context)
-
-      nil ->
-        halt(context)
+      %Payable{financial_transaction_id: nil} = payable -> {:ok, payable}
+      %Payable{} -> :halt
+      nil -> :halt
     end
   end
-
-  defp sum_non_adjustable_payables_amounts(%{status: :halt} = context), do: context
 
   defp sum_non_adjustable_payables_amounts(context) do
     sum =
@@ -64,12 +49,10 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.UpdateAutoAdjustableAmountPaya
           acc
       end)
 
-    %{context | non_adjustable_payables_amount_sum: sum}
+    {:ok, sum}
   end
 
-  defp do_update_auto_adjustable_amount_payable(%{status: :halt} = context), do: context
-
-  defp do_update_auto_adjustable_amount_payable(context) do
+  defp update_auto_adjustable_amount_payable(context) do
     %{
       opts: opts,
       payslip: payslip,
@@ -91,8 +74,8 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.UpdateAutoAdjustableAmountPaya
     |> Payable.update_changeset(%{amount: adjusted_amount})
     |> Repo.update()
     |> case do
-      {:ok, payable} -> %{context | return: payable}
-      {:error, changeset} -> %{context | status: :halt, return: {:error, changeset}}
+      {:ok, payable} -> {:ok, payable}
+      {:error, changeset} -> {:error, changeset}
     end
   end
 
@@ -102,10 +85,4 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.UpdateAutoAdjustableAmountPaya
       amount_to_subtract -> Money.subtract(amount, amount_to_subtract)
     end
   end
-
-  defp halt(context), do: %{context | status: :halt}
-
-  defp handle_return(%{status: :ok, return: return}), do: {:ok, return}
-  defp handle_return(%{status: :halt, return: nil}), do: {:ok, nil}
-  defp handle_return(%{status: :halt, return: {:error, error}}), do: {:error, error}
 end

@@ -22,7 +22,7 @@ defmodule Sig.Finance.Payables.DeleteByIds do
 
   defp list_payables(%{org: org, payable_ids: payable_ids}) do
     case Payables.list_by(org, payable_ids: payable_ids, preload: [:payslip_payable]) do
-      [] -> {:error, nil}
+      [] -> :error
       payables -> {:ok, payables}
     end
   end
