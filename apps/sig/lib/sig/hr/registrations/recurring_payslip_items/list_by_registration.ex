@@ -7,45 +7,35 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistration do
   alias Sig.HR.Registrations.Benefits
   alias Sig.Repo
 
-  defmodule Context do
-    defstruct status: :ok,
-              start_date: nil,
-              registration: nil,
-              indexed_items: %{},
-              salary_amount: nil,
-              indexed_benefits: %{}
-  end
-
   def call(%Registration{} = registration, opts \\ []) do
-    start_date = Keyword.get(opts, :start_date, Date.utc_today())
+    case list_recurring_payslip_items(registration) do
+      [] ->
+        []
 
-    context = %Context{registration: registration, start_date: start_date}
+      items ->
+        start_date = Keyword.get(opts, :start_date, Date.utc_today())
 
-    registration
-    |> query_by_registration()
-    |> preload_payslip_category()
-    |> preload_payslip_recurring_item_model()
-    |> Repo.all()
-    |> put_in_context(context)
-    |> handle_salary_amount()
-    |> handle_benefit_types()
-    |> handle_benefits()
-    |> handle_virtual_fields()
+        %{registration: registration, items: items, start_date: start_date}
+        |> Extep.new()
+        |> Extep.run(&index_items/1, :indexed_items)
+        |> Extep.run(&handle_salary_amount/1, :salary_amount)
+        |> Extep.run(&handle_benefit_types/1, :indexed_benefits)
+        |> Extep.run(&handle_benefits/1, :indexed_benefits)
+        |> Extep.return(&handle_virtual_fields/1)
+    end
   end
 
-  defp put_in_context([], context), do: %{context | status: :halted}
+  defp index_items(%{items: items}) do
+    indexed_items = Enum.reduce(items, %{}, &handle_index/2)
 
-  defp put_in_context(result, context) do
-    %{context | indexed_items: Enum.reduce(result, %{}, &handle_index/2)}
+    {:ok, indexed_items}
   end
 
-  defp handle_index(%RecurringPayslipItem{type: :outside_item} = item, acc) do
-    Sig.Map.flat_put(acc, :outside_item, item)
-  end
+  defp handle_index(%RecurringPayslipItem{type: :outside_item} = item, acc),
+    do: Sig.Map.flat_put(acc, :outside_item, item)
 
-  defp handle_index(%RecurringPayslipItem{type: :payslip_item} = item, acc) do
-    Sig.Map.flat_put(acc, :payslip_item, item)
-  end
+  defp handle_index(%RecurringPayslipItem{type: :payslip_item} = item, acc),
+    do: Sig.Map.flat_put(acc, :payslip_item, item)
 
   defp handle_index(
          %RecurringPayslipItem{
@@ -83,26 +73,22 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistration do
     Sig.Map.flat_put(acc, {:payslip_item_model, :employee_benefit}, item)
   end
 
-  defp handle_salary_amount(%{status: :halted} = context), do: context
-
   defp handle_salary_amount(%{indexed_items: indexed_items, start_date: start_date} = context) do
     if Map.has_key?(indexed_items, {:payslip_item_model, :employee_salary}) do
       salary_in_effect = Salaries.in_effect_on_date(context.registration, start_date)
 
       salary_amount = if salary_in_effect, do: salary_in_effect.amount, else: Money.new(0)
 
-      %{context | salary_amount: salary_amount}
+      {:ok, salary_amount}
     else
-      context
+      {:ok, nil}
     end
   end
 
-  defp handle_benefit_types(%{status: :halted} = context), do: context
-
-  defp handle_benefit_types(%{indexed_items: indexed_items} = context) do
+  defp handle_benefit_types(%{indexed_items: indexed_items}) do
     case Map.get(indexed_items, {:payslip_item_model, :employee_benefit}, []) do
       [] ->
-        context
+        {:ok, %{}}
 
       benefit_items ->
         indexed_benefits =
@@ -111,13 +97,11 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistration do
             &{&1.payslip_recurring_item_model.employee_benefit_type_percentage_target, []}
           )
 
-        %{context | indexed_benefits: indexed_benefits}
+        {:ok, indexed_benefits}
     end
   end
 
-  defp handle_benefits(%{status: :halted} = context), do: context
-
-  defp handle_benefits(%{indexed_benefits: map} = context) when map == %{}, do: context
+  defp handle_benefits(%{indexed_benefits: map}) when map == %{}, do: {:ok, %{}}
 
   defp handle_benefits(%{indexed_benefits: indexed_benefits} = context) do
     benefits =
@@ -126,10 +110,8 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistration do
         in_effect_on_date: context.start_date
       )
 
-    %{context | indexed_benefits: Enum.reduce(benefits, %{}, &Sig.Map.flat_put(&2, &1.type, &1))}
+    {:ok, Enum.reduce(benefits, %{}, &Sig.Map.flat_put(&2, &1.type, &1))}
   end
-
-  defp handle_virtual_fields(%{status: :halted}), do: []
 
   defp handle_virtual_fields(%{indexed_items: indexed_items} = context) do
     salary_amount = Map.get(context, :salary_amount)
@@ -263,6 +245,14 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.ListByRegistration do
           |> Money.add(acc)
         end)
     end
+  end
+
+  defp list_recurring_payslip_items(registration) do
+    registration
+    |> query_by_registration()
+    |> preload_payslip_category()
+    |> preload_payslip_recurring_item_model()
+    |> Repo.all()
   end
 
   defp query_by_registration(registration) do
