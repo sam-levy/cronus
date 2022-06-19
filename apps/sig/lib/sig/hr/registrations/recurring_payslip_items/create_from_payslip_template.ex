@@ -1,39 +1,27 @@
 defmodule Sig.HR.Registrations.RecurringPayslipItems.CreateFromPayslipTemplate do
-  alias Ecto.Multi
-
   alias Sig.HR
   alias Sig.HR.Registrations.Registration
   alias Sig.HR.Registrations.RecurringPayslipItems
   alias Sig.HR.Registrations.RecurringPayslipItems.RecurringPayslipItem
   alias Sig.Repo
 
-  defmodule Context do
-    defstruct status: :ok,
-              return: nil,
-              registration: nil,
-              payslip_template_id: nil,
-              payslip_template_items: nil,
-              recurring_payslip_items_attrs: nil
-  end
-
-  def call(%Registration{} = registration, template_id) when is_binary(template_id) do
-    %Context{registration: registration, payslip_template_id: template_id}
-    |> validate_no_recurring_payslip_items()
-    |> list_template_items()
-    |> validate_unique_category_code()
-    |> build_attrs()
-    |> insert_all_multi()
-    |> handle_return()
+  def call(%Registration{} = registration, payslip_template_id)
+      when is_binary(payslip_template_id) do
+    %{registration: registration, payslip_template_id: payslip_template_id}
+    |> Extep.new()
+    |> Extep.run(&validate_no_recurring_payslip_items/1)
+    |> Extep.run(&list_template_items/1, :payslip_template_items)
+    |> Extep.run(&validate_unique_category_code/1)
+    |> Extep.run(&build_attrs/1, :attrs)
+    |> Extep.return(&insert_all/1)
   end
 
   def validate_no_recurring_payslip_items(context) do
     case RecurringPayslipItems.count_by(context.registration) do
-      0 -> context
-      _ -> error(context, "o holerite modelo deve estar vazio")
+      0 -> :ok
+      _ -> {:error, "o holerite modelo deve estar vazio"}
     end
   end
-
-  defp list_template_items(%{status: :halted} = context), do: context
 
   defp list_template_items(context) do
     attrs = [
@@ -42,28 +30,22 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.CreateFromPayslipTemplate d
     ]
 
     case HR.list_payslip_template_items_by(attrs) do
-      [] -> error(context, "não há items no modelo de holerite")
-      items -> %{context | payslip_template_items: items}
+      [] -> {:error, "não há items no modelo de holerite"}
+      items -> {:ok, items}
     end
   end
 
-  defp validate_unique_category_code(%{status: :halted} = context), do: context
-
-  defp validate_unique_category_code(%{payslip_template_items: items} = context) do
+  defp validate_unique_category_code(%{payslip_template_items: items}) do
     Enum.reduce_while(items, MapSet.new(), fn item, acc ->
-      if MapSet.member?(acc, item.category_code) do
-        {:halt, {:error, "Existem itens duplicados no modelo de holerite"}}
-      else
-        {:cont, MapSet.put(acc, item.category_code)}
-      end
+      if MapSet.member?(acc, item.category_code),
+        do: {:halt, {:error, "Existem itens duplicados no modelo de holerite"}},
+        else: {:cont, MapSet.put(acc, item.category_code)}
     end)
     |> case do
-      %MapSet{} -> context
-      {:error, message} -> error(context, message)
+      %MapSet{} -> :ok
+      {:error, message} -> {:error, message}
     end
   end
-
-  defp build_attrs(%{status: :halted} = context), do: context
 
   defp build_attrs(context) do
     %{registration: regsitration, payslip_template_items: template_items} = context
@@ -71,8 +53,8 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.CreateFromPayslipTemplate d
     template_items
     |> Enum.reduce_while([], &handle_attrs(&1, &2, regsitration))
     |> case do
-      attrs when is_list(attrs) -> %{context | recurring_payslip_items_attrs: attrs}
-      {:error, changeset} -> error(context, changeset)
+      attrs when is_list(attrs) -> {:ok, attrs}
+      {:error, changeset} -> {:error, changeset}
     end
   end
 
@@ -97,30 +79,19 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.CreateFromPayslipTemplate d
     |> handle_changeset(acc)
   end
 
-  def handle_changeset(%{valid?: true} = changeset, acc) do
-    {:cont, [Sig.Changeset.add_timestamps(changeset.changes) | acc]}
-  end
+  def handle_changeset(%{valid?: true} = changeset, acc),
+    do: {:cont, [Sig.Changeset.add_timestamps(changeset.changes) | acc]}
 
-  def handle_changeset(%{valid?: false} = changeset, _acc) do
-    {:halt, {:error, changeset}}
-  end
+  def handle_changeset(%{valid?: false} = changeset, _acc), do: {:halt, {:error, changeset}}
 
-  defp insert_all_multi(%{status: :halted} = context), do: context
+  defp insert_all(%{attrs: attrs}) do
+    attrs_count = Enum.count(attrs)
 
-  defp insert_all_multi(context) do
-    %{recurring_payslip_items_attrs: attrs} = context
-
-    Multi.new()
-    |> Multi.insert_all(:recurring_payslip_items, RecurringPayslipItem, attrs, returning: true)
-    |> Repo.transaction()
+    RecurringPayslipItem
+    |> Repo.insert_all(attrs, returning: true)
     |> case do
-      {:error, _operation, reason, _changes} -> error(context, reason)
-      {:ok, %{recurring_payslip_items: {_, items}}} -> %{context | return: items}
+      {insert_count, items} when insert_count == attrs_count -> {:ok, items}
+      _ -> {:error, nil}
     end
   end
-
-  defp error(context, error), do: %{context | status: :halted, return: {:error, error}}
-
-  defp handle_return(%{status: :ok, return: return}), do: {:ok, return}
-  defp handle_return(%{status: :halted, return: {:error, error}}), do: {:error, error}
 end

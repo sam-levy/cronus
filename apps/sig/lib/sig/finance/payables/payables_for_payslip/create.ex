@@ -12,29 +12,19 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.Create do
   alias Sig.HR.Payslips.Payslip
   alias Sig.Repo
 
-  defmodule Context do
-    defstruct status: :ok,
-              opts: nil,
-              attrs: nil,
-              return: nil,
-              payslip: nil,
-              changeset: nil,
-              is_auto_adjustable_amount: nil
-  end
-
   def call(%Payslip{} = payslip, %{} = attrs, opts \\ []) do
-    %Context{
+    %{
       opts: opts,
       attrs: attrs,
       payslip: payslip,
       is_auto_adjustable_amount: Keyword.get(opts, :is_auto_adjustable_amount, false)
     }
-    |> build_changeset()
-    |> validate_amount()
-    |> validate_credit_bank_account()
-    |> validate_check_debit_bank_account()
-    |> create_multi()
-    |> handle_return()
+    |> Extep.new()
+    |> Extep.run(&build_changeset/1, :changeset)
+    |> Extep.run(&validate_amount/1)
+    |> Extep.run(&validate_credit_bank_account/1)
+    |> Extep.run(&validate_check_debit_bank_account/1)
+    |> Extep.return(&create_multi/1)
   end
 
   defp build_changeset(context) do
@@ -47,17 +37,15 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.Create do
     |> Payable.create_changeset()
     |> handle_changeset_amount(context.is_auto_adjustable_amount)
     |> case do
-      %{valid?: true} = changeset -> %{context | changeset: changeset}
-      changeset -> put_error(context, changeset)
+      %{valid?: true} = changeset -> {:ok, changeset}
+      changeset -> {:error, changeset}
     end
   end
 
   defp handle_changeset_amount(changeset, true), do: Changeset.drop_changes(changeset, :amount)
   defp handle_changeset_amount(changeset, false), do: changeset
 
-  defp validate_amount(%{status: :halt} = context), do: context
-
-  defp validate_amount(%{is_auto_adjustable_amount: true} = context), do: context
+  defp validate_amount(%{is_auto_adjustable_amount: true}), do: :ok
 
   defp validate_amount(context) do
     %{payslip: payslip, changeset: changeset} = context
@@ -75,7 +63,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.Create do
     payments_in_advance_sum = HR.sum_payments_in_advance_items_by_payslip(payslip)
 
     if Money.add(payslip.amount, payments_in_advance_sum) >= new_non_adjustable_amount_sum do
-      context
+      :ok
     else
       {:error, changeset} =
         changeset
@@ -85,33 +73,27 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.Create do
         )
         |> apply_action(:insert)
 
-      put_error(context, changeset)
+      {:error, changeset}
     end
   end
-
-  defp validate_credit_bank_account(%{status: :halt} = context), do: context
 
   defp validate_credit_bank_account(context) do
     %{payslip: payslip, changeset: changeset} = context
 
     case PayablesForPayslip.validate_credit_bank_account(changeset, payslip) do
-      {:ok, _} -> context
-      {:error, changeset} -> put_error(context, changeset)
+      {:ok, _} -> :ok
+      {:error, changeset} -> {:error, changeset}
     end
   end
-
-  defp validate_check_debit_bank_account(%{status: :halt} = context), do: context
 
   defp validate_check_debit_bank_account(context) do
     %{payslip: payslip, changeset: changeset} = context
 
     case PayablesForPayslip.validate_check_debit_bank_account(changeset, payslip) do
-      {:ok, _} -> context
-      {:error, changeset} -> put_error(context, changeset)
+      {:ok, _} -> :ok
+      {:error, changeset} -> {:error, changeset}
     end
   end
-
-  defp create_multi(%{status: :halt} = context), do: context
 
   defp create_multi(context) do
     %{payslip: payslip, changeset: changeset, opts: opts} = context
@@ -129,8 +111,8 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.Create do
     end)
     |> Repo.transaction()
     |> case do
-      {:ok, %{payable: payable}} -> %{context | return: payable}
-      {:error, _operation, reason, _changes} -> put_error(context, reason)
+      {:ok, %{payable: payable}} -> {:ok, payable}
+      {:error, _operation, reason, _changes} -> {:error, reason}
     end
   end
 
@@ -150,9 +132,4 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.Create do
   end
 
   defp handle_auto_adjustable_amount(_context), do: {:ok, nil}
-
-  defp put_error(context, error), do: %{context | status: :halt, return: {:error, error}}
-
-  defp handle_return(%{status: :ok, return: return}), do: {:ok, return}
-  defp handle_return(%{status: :halt, return: {:error, error}}), do: {:error, error}
 end

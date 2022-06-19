@@ -5,16 +5,12 @@ defmodule Sig.HR.Registrations.RegistrationPositions.Create do
   alias Sig.HR.Registrations.RegistrationPositions.RegistrationPosition
   alias Sig.Repo
 
-  defmodule Context do
-    defstruct status: :ok, attrs: nil, changeset: nil, registration: nil, result: nil
-  end
-
   def call(%Registration{} = registration, %{} = attrs) do
-    %Context{attrs: attrs, registration: registration}
-    |> build_registration_position_changeset()
-    |> validate_start_date()
-    |> create_registration_position()
-    |> handle_result()
+    %{attrs: attrs, registration: registration}
+    |> Extep.new()
+    |> Extep.run(&build_registration_position_changeset/1, :changeset)
+    |> Extep.run(&validate_start_date/1)
+    |> Extep.return(&Repo.insert(&1.changeset))
   end
 
   defp build_registration_position_changeset(context) do
@@ -25,12 +21,12 @@ defmodule Sig.HR.Registrations.RegistrationPositions.Create do
     |> Map.put(:registration_id, registration.id)
     |> RegistrationPosition.create_changeset()
     |> case do
-      %{valid?: true} = changeset -> %{context | changeset: changeset}
-      changeset -> put_error(context, changeset)
+      %{valid?: true} = changeset -> {:ok, changeset}
+      changeset -> {:error, changeset}
     end
   end
 
-  defp validate_start_date(%{status: :ok} = context) do
+  defp validate_start_date(context) do
     %{attrs: %{start_date: start_date}, registration: registration} = context
 
     RegistrationPosition
@@ -38,36 +34,14 @@ defmodule Sig.HR.Registrations.RegistrationPositions.Create do
     |> where(registration_id: ^registration.id)
     |> last(:start_date)
     |> Repo.one()
-    |> do_validate_satart_date(start_date, context)
+    |> do_validate_satart_date(start_date)
   end
 
-  defp validate_start_date(context), do: context
+  defp do_validate_satart_date(nil, _start_date), do: :ok
 
-  defp do_validate_satart_date(nil, _start_date, context), do: context
-
-  defp do_validate_satart_date(
-         %RegistrationPosition{start_date: last_start_date},
-         start_date,
-         context
-       ) do
-    if Date.compare(last_start_date, start_date) == :lt do
-      context
-    else
-      put_error(context, "a data de início deve ser posterior a data de início da última posição")
-    end
+  defp do_validate_satart_date(%RegistrationPosition{start_date: last_start_date}, start_date) do
+    if Date.compare(last_start_date, start_date) == :lt,
+      do: :ok,
+      else: {:error, "a data de início deve ser posterior a data de início da última posição"}
   end
-
-  defp create_registration_position(%{status: :ok} = context) do
-    case Repo.insert(context.changeset) do
-      {:ok, registration_position} -> %{context | result: registration_position}
-      {:error, changeset} -> put_error(context, changeset)
-    end
-  end
-
-  defp create_registration_position(context), do: context
-
-  defp put_error(context, error), do: %{context | status: {:error, error}}
-
-  defp handle_result(%{status: {:error, error}}), do: {:error, error}
-  defp handle_result(%{result: registration_position}), do: {:ok, registration_position}
 end
