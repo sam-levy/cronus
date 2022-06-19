@@ -46,6 +46,7 @@ defmodule Sig.MixProject do
       {:ecto_enum_migration, "~> 0.3.3"},
       {:brazilian_documents, "~> 0.3.0"},
       {:money, "~> 1.4"},
+      {:extep, git: "https://github.com/sam-levy/extep.git"},
       {:faker, "~> 0.17.0", only: [:dev, :test]}
     ]
   end
