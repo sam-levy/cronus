@@ -18,8 +18,7 @@ defmodule Sig.HR.Registrations.Benefits.Creator do
     |> Extep.run(&build_benefit_changeset/1, :changeset)
     |> Extep.run(&fetch_benefit_model/1, :benefit_model)
     |> Extep.run(&validate_existing_benefit/1)
-    |> Extep.run(&Repo.insert(&1.changeset), :benefit)
-    |> Extep.return(:benefit)
+    |> Extep.return(&Repo.insert(&1.changeset))
   end
 
   defp set_attrs_primary_keys(%{attrs: attrs, registration: registration}) do

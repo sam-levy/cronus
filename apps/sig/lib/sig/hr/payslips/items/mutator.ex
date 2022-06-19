@@ -17,8 +17,7 @@ defmodule Sig.HR.Payslips.Items.Mutator do
     |> Extep.run(&validate_payslip/1)
     |> Extep.run(&set_attrs_primary_keys/1, :attrs)
     |> Extep.run(&build_payslip_item_changeset/1, :changeset)
-    |> Extep.run(&create_multi/1, :item)
-    |> Extep.return(:item)
+    |> Extep.return(&create_multi/1)
   end
 
   def create_outside_item(%Payslip{} = payslip, %{} = attrs) do
@@ -27,8 +26,7 @@ defmodule Sig.HR.Payslips.Items.Mutator do
     |> Extep.run(&validate_payslip/1)
     |> Extep.run(&set_attrs_primary_keys/1, :attrs)
     |> Extep.run(&build_outside_item_changeset/1, :changeset)
-    |> Extep.run(&create_multi/1, :item)
-    |> Extep.return(:item)
+    |> Extep.return(&create_multi/1)
   end
 
   def update_amount(%Payslip{} = payslip, %Item{} = item, %{} = attrs) do
@@ -36,16 +34,14 @@ defmodule Sig.HR.Payslips.Items.Mutator do
     |> Extep.new()
     |> Extep.run(&validate_payslip/1)
     |> Extep.run(&build_update_amount_changeset/1, :changeset)
-    |> Extep.run(&update_multi/1, :updated_item)
-    |> Extep.return(:updated_item)
+    |> Extep.return(&update_multi/1)
   end
 
   def delete_item(%Payslip{} = payslip, %Item{} = item) do
     %{item: item, payslip: payslip}
     |> Extep.new()
     |> Extep.run(&validate_payslip/1)
-    |> Extep.run(&delete_multi/1, :deleted_item)
-    |> Extep.return(:deleted_item)
+    |> Extep.return(&delete_multi/1)
   end
 
   defp validate_payslip(%{payslip: %{is_closed: true}}), do: {:error, @closed_payslip_message}

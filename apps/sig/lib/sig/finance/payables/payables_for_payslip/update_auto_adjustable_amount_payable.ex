@@ -13,11 +13,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.UpdateAutoAdjustableAmountPaya
     |> Extep.run(&list_payables/1, :payables)
     |> Extep.run(&fetch_auto_adjustable_amount_payable/1, :auto_adjustable_amount_payable)
     |> Extep.run(&sum_non_adjustable_payables_amounts/1, :non_adjustable_payables_amount_sum)
-    |> Extep.run(
-      &update_auto_adjustable_amount_payable/1,
-      :updated_auto_adjustable_amount_payable
-    )
-    |> Extep.return(:updated_auto_adjustable_amount_payable)
+    |> Extep.return(&update_auto_adjustable_amount_payable/1)
   end
 
   defp list_payables(context) do

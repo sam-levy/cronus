@@ -18,8 +18,7 @@ defmodule Sig.HR.Registrations.Create do
     |> Extep.run(&build_changeset/1, :changeset)
     |> Extep.run(&validate_real_company/1)
     |> Extep.run(&validate_admission_date/1)
-    |> Extep.run(&create_multi/1, :registration)
-    |> Extep.return(:registration)
+    |> Extep.return(&create_multi/1)
   end
 
   defp build_changeset(context) do

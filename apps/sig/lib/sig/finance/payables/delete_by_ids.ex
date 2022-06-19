@@ -16,8 +16,7 @@ defmodule Sig.Finance.Payables.DeleteByIds do
     |> Extep.new()
     |> Extep.run(&list_payables/1, :payables)
     |> Extep.run(&ensure_can_be_deleted/1)
-    |> Extep.run(&delete_multi/1, :deleted_payables)
-    |> Extep.return(:deleted_payables)
+    |> Extep.return(&delete_multi/1)
   end
 
   defp list_payables(%{org: org, payable_ids: payable_ids}) do

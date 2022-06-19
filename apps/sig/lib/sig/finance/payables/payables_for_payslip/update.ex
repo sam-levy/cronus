@@ -36,8 +36,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.Update do
     |> Extep.run(&validate_amount/1)
     |> Extep.run(&validate_credit_bank_account/1)
     |> Extep.run(&validate_check_debit_bank_account/1)
-    |> Extep.run(&update_multi/1, :updated_payable)
-    |> Extep.return(:updated_payable)
+    |> Extep.return(&update_multi/1)
   end
 
   defp set_is_auto_adjustable_amount(context) do

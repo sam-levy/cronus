@@ -21,8 +21,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateStandardPayables do
     |> Extep.run(&validate_due_dates/1)
     |> Extep.run(&fetch_bank_account/1, :bank_account)
     |> Extep.run(&set_financial_transaction_type/1, :financial_transaction_type)
-    |> Extep.run(&create_multi/1, :create_multi_changes)
-    |> Extep.return(:create_multi_changes)
+    |> Extep.return(&create_multi/1)
   end
 
   defp validate_payslip_items(%{payslip_items: []}), do: :ok
@@ -55,10 +54,8 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.CreateStandardPayables do
     end
   end
 
-  defp set_financial_transaction_type(%{bank_account: :not_found} = context),
-    do: {:ok, :cash}
-
-  defp set_financial_transaction_type(context), do: {:ok, :bank_transfer}
+  defp set_financial_transaction_type(%{bank_account: :not_found}), do: {:ok, :cash}
+  defp set_financial_transaction_type(_context), do: {:ok, :bank_transfer}
 
   defp create_multi(context) do
     Multi.new()

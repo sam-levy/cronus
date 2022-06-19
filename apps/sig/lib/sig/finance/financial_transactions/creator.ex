@@ -54,11 +54,10 @@ defmodule Sig.Finance.FinancialTransactions.Creator do
     |> Extep.run(&sum_payables_amount/1, :amount)
     |> Extep.run(&validate_bank_account/1)
     |> Extep.run(&build_financial_transaction_changeset/1, :changeset)
-    |> Extep.run(&create_multi/1, :financial_transaction)
-    |> Extep.return(:financial_transaction)
+    |> Extep.return(&create_multi/1)
   end
 
-  defp validate_attrs(%{attrs: attrs} = context) do
+  defp validate_attrs(%{attrs: attrs}) do
     case Attrs.changeset(attrs) do
       %{valid?: true, changes: changes} -> {:ok, changes}
       changeset -> {:error, changeset}

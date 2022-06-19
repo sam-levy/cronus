@@ -17,8 +17,7 @@ defmodule Sig.HR.Payslips.DeleteByIds do
     |> Extep.new()
     |> Extep.run(&list_payslips/1, :payslips)
     |> Extep.run(&handle_resource_ids/1, :resource_ids_to_delete)
-    |> Extep.run(&delete_multi/1, :deleted_payslips_and_payables)
-    |> Extep.return(:deleted_payslips_and_payables)
+    |> Extep.return(&delete_multi/1)
   end
 
   defp list_payslips(%{org: org, payslip_ids: payslip_ids}) do

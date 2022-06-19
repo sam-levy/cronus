@@ -24,8 +24,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.Create do
     |> Extep.run(&validate_amount/1)
     |> Extep.run(&validate_credit_bank_account/1)
     |> Extep.run(&validate_check_debit_bank_account/1)
-    |> Extep.run(&create_multi/1, :payable)
-    |> Extep.return(:payable)
+    |> Extep.return(&create_multi/1)
   end
 
   defp build_changeset(context) do
