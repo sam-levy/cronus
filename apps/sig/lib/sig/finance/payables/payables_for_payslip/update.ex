@@ -16,16 +16,6 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.Update do
   @fulfilled_payable_message "can't modify a fulfilled payable"
   @authorized_payable_message "can't modify an authorized payable"
 
-  defmodule Context do
-    defstruct status: :ok,
-              attrs: nil,
-              return: nil,
-              payslip: nil,
-              payable: nil,
-              changeset: nil,
-              is_auto_adjustable_amount: nil
-  end
-
   def call(%Payslip{}, %Payable{financial_transaction_id: ft_id}, %{}) when is_binary(ft_id) do
     {:error, @fulfilled_payable_message}
   end
@@ -35,18 +25,19 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.Update do
   end
 
   def call(%Payslip{} = payslip, %Payable{} = payable, %{} = attrs) do
-    %Context{
+    %{
       attrs: attrs,
       payslip: payslip,
       payable: payable
     }
-    |> set_is_auto_adjustable_amount()
-    |> build_changeset()
-    |> validate_amount()
-    |> validate_credit_bank_account()
-    |> validate_check_debit_bank_account()
-    |> update_multi()
-    |> handle_return()
+    |> Extep.new()
+    |> Extep.run(&set_is_auto_adjustable_amount/1, :is_auto_adjustable_amount)
+    |> Extep.run(&build_changeset/1, :changeset)
+    |> Extep.run(&validate_amount/1)
+    |> Extep.run(&validate_credit_bank_account/1)
+    |> Extep.run(&validate_check_debit_bank_account/1)
+    |> Extep.run(&update_multi/1, :updated_payable)
+    |> Extep.return(:updated_payable)
   end
 
   defp set_is_auto_adjustable_amount(context) do
@@ -60,31 +51,27 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.Update do
     )
     |> case do
       %PayslipPayable{} = payslip_payable ->
-        %{context | is_auto_adjustable_amount: payslip_payable.is_auto_adjustable_amount}
+        {:ok, payslip_payable.is_auto_adjustable_amount}
 
       nil ->
-        put_error(context, "payable doesn't belong to payslip")
+        {:error, "payable doesn't belong to payslip"}
     end
   end
-
-  defp build_changeset(%{status: :halt} = context), do: context
 
   defp build_changeset(context) do
     context.payable
     |> Payable.update_changeset(context.attrs)
     |> handle_changeset_amount(context.is_auto_adjustable_amount)
     |> case do
-      %{valid?: true} = changeset -> %{context | changeset: changeset}
-      changeset -> put_error(context, changeset)
+      %{valid?: true} = changeset -> {:ok, changeset}
+      changeset -> {:error, changeset}
     end
   end
 
   defp handle_changeset_amount(changeset, true), do: Changeset.drop_changes(changeset, :amount)
   defp handle_changeset_amount(changeset, false), do: changeset
 
-  defp validate_amount(%{status: :halt} = context), do: context
-
-  defp validate_amount(%{is_auto_adjustable_amount: true} = context), do: context
+  defp validate_amount(%{is_auto_adjustable_amount: true}), do: :ok
 
   defp validate_amount(context) do
     %{payslip: payslip, payable: payable, changeset: changeset} = context
@@ -102,7 +89,7 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.Update do
     payments_in_advance_sum = HR.sum_payments_in_advance_items_by_payslip(payslip)
 
     if Money.add(payslip.amount, payments_in_advance_sum) >= new_non_adjustable_amount_sum do
-      context
+      :ok
     else
       {:error, changeset} =
         changeset
@@ -112,33 +99,27 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.Update do
         )
         |> apply_action(:update)
 
-      put_error(context, changeset)
+      {:error, changeset}
     end
   end
-
-  defp validate_credit_bank_account(%{status: :halt} = context), do: context
 
   defp validate_credit_bank_account(context) do
     %{payslip: payslip, changeset: changeset} = context
 
     case PayablesForPayslip.validate_credit_bank_account(changeset, payslip) do
-      {:ok, _} -> context
-      {:error, changeset} -> put_error(context, changeset)
+      {:ok, _} -> :ok
+      {:error, changeset} -> {:error, changeset}
     end
   end
-
-  defp validate_check_debit_bank_account(%{status: :halt} = context), do: context
 
   defp validate_check_debit_bank_account(context) do
     %{payslip: payslip, changeset: changeset} = context
 
     case PayablesForPayslip.validate_check_debit_bank_account(changeset, payslip) do
-      {:ok, _} -> context
-      {:error, changeset} -> put_error(context, changeset)
+      {:ok, _} -> :ok
+      {:error, changeset} -> {:error, changeset}
     end
   end
-
-  defp update_multi(%{status: :halt} = context), do: context
 
   defp update_multi(context) do
     Multi.new()
@@ -152,8 +133,8 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.Update do
     end)
     |> Repo.transaction()
     |> case do
-      {:ok, %{update_payable: payable}} -> %{context | return: payable}
-      {:error, _operation, reason, _changes} -> put_error(context, reason)
+      {:ok, %{update_payable: payable}} -> {:ok, payable}
+      {:error, _operation, reason, _changes} -> {:error, reason}
     end
   end
 
@@ -213,11 +194,4 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.Update do
         {:ok, nil}
     end
   end
-
-  defp handle_non_auto_adjustable_amount(_context, _payable), do: {:ok, nil}
-
-  defp put_error(context, error), do: %{context | status: :halt, return: {:error, error}}
-
-  defp handle_return(%{status: :ok, return: return}), do: {:ok, return}
-  defp handle_return(%{status: :halt, return: {:error, error}}), do: {:error, error}
 end
