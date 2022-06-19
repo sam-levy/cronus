@@ -10,36 +10,25 @@ defmodule Sig.HR.Payslips.DeleteByIds do
   alias Sig.HR.Payslips.Payslip
   alias Sig.Repo
 
-  defmodule Context do
-    defstruct status: :ok,
-              org: nil,
-              return: nil,
-              payslips: nil,
-              item_ids: nil,
-              payslip_ids: nil,
-              payable_ids: nil
-  end
-
   def call(%Org{}, []), do: {:ok, nil}
 
   def call(%Org{} = org, payslip_ids) when is_list(payslip_ids) do
-    %Context{org: org, payslip_ids: payslip_ids}
-    |> list_payslips()
-    |> put_ids()
-    |> delete_multi()
-    |> handle_return()
+    %{org: org, payslip_ids: payslip_ids}
+    |> Extep.new()
+    |> Extep.run(&list_payslips/1, :payslips)
+    |> Extep.run(&handle_resource_ids/1, :resource_ids_to_delete)
+    |> Extep.run(&delete_multi/1, :deleted_payslips_and_payables)
+    |> Extep.return(:deleted_payslips_and_payables)
   end
 
-  defp list_payslips(%{org: org, payslip_ids: payslip_ids} = context) do
+  defp list_payslips(%{org: org, payslip_ids: payslip_ids}) do
     case Payslips.list_by_ids(org, payslip_ids, preload: [:items, :payslip_payables, :overtimes]) do
-      [] -> halt(context)
-      payslips -> %{context | payslips: payslips}
+      [] -> :halt
+      payslips -> {:ok, payslips}
     end
   end
 
-  defp put_ids(%{status: :halted} = context), do: context
-
-  defp put_ids(%{payslips: payslips} = context) do
+  defp handle_resource_ids(%{payslips: payslips}) do
     payslips
     |> Enum.reduce_while(%{}, fn
       %{is_closed: true}, _acc ->
@@ -58,15 +47,20 @@ defmodule Sig.HR.Payslips.DeleteByIds do
         {:cont, acc}
     end)
     |> case do
-      {:error, message} -> error(context, message)
-      acc -> struct(context, acc)
+      {:error, message} -> {:error, message}
+      acc -> {:ok, acc}
     end
   end
 
-  defp delete_multi(%{status: :halted} = context), do: context
-
   defp delete_multi(context) do
-    %{org: org, payable_ids: payable_ids, item_ids: item_ids, payslip_ids: payslip_ids} = context
+    %{
+      org: org,
+      resource_ids_to_delete: %{
+        payable_ids: payable_ids,
+        item_ids: item_ids,
+        payslip_ids: payslip_ids
+      }
+    } = context
 
     Multi.new()
     |> Multi.run(:payables, fn _, _ -> Finance.Payables.delete_by_ids(org, payable_ids) end)
@@ -86,18 +80,10 @@ defmodule Sig.HR.Payslips.DeleteByIds do
     |> Repo.transaction()
     |> case do
       {:ok, %{payslips: {_, payslips}, payables: payables}} ->
-        %{context | return: %{payslips: payslips, payables: payables}}
+        {:ok, %{payslips: payslips, payables: payables}}
 
       {:error, _operation, reason, _changes} ->
-        error(context, reason)
+        {:error, reason}
     end
   end
-
-  defp halt(context), do: %{context | status: :halted}
-
-  defp error(context, error), do: %{context | status: :halted, return: {:error, error}}
-
-  defp handle_return(%{status: :ok, return: return}), do: {:ok, return}
-  defp handle_return(%{status: :halted, return: nil}), do: {:ok, nil}
-  defp handle_return(%{status: :halted, return: {:error, error}}), do: {:error, error}
 end
