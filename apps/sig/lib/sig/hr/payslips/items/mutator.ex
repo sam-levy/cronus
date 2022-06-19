@@ -11,78 +11,62 @@ defmodule Sig.HR.Payslips.Items.Mutator do
 
   @closed_payslip_message "can't modify a closed payslip"
 
-  defmodule Context do
-    defstruct status: :ok,
-              type: nil,
-              item: nil,
-              attrs: nil,
-              return: nil,
-              payslip: nil,
-              changeset: nil,
-              entry_type: nil
-  end
-
   def create_payslip_item(%Payslip{} = payslip, %{} = attrs) do
-    %Context{type: :payslip_item, attrs: attrs, payslip: payslip}
-    |> validate_payslip()
-    |> set_attrs_primary_keys()
-    |> build_payslip_item_changeset()
-    |> create_multi()
-    |> handle_return()
+    %{type: :payslip_item, item: nil, attrs: attrs, payslip: payslip}
+    |> Extep.new()
+    |> Extep.run(&validate_payslip/1)
+    |> Extep.run(&set_attrs_primary_keys/1, :attrs)
+    |> Extep.run(&build_payslip_item_changeset/1, :changeset)
+    |> Extep.run(&create_multi/1, :item)
+    |> Extep.return(:item)
   end
 
   def create_outside_item(%Payslip{} = payslip, %{} = attrs) do
-    %Context{type: :outside_item, attrs: attrs, payslip: payslip}
-    |> validate_payslip()
-    |> set_attrs_primary_keys()
-    |> build_outside_item_changeset()
-    |> create_multi()
-    |> handle_return()
+    %{type: :outside_item, item: nil, attrs: attrs, payslip: payslip}
+    |> Extep.new()
+    |> Extep.run(&validate_payslip/1)
+    |> Extep.run(&set_attrs_primary_keys/1, :attrs)
+    |> Extep.run(&build_outside_item_changeset/1, :changeset)
+    |> Extep.run(&create_multi/1, :item)
+    |> Extep.return(:item)
   end
 
   def update_amount(%Payslip{} = payslip, %Item{} = item, %{} = attrs) do
-    %Context{attrs: attrs, item: item, payslip: payslip}
-    |> validate_payslip()
-    |> build_update_amount_changeset()
-    |> update_multi()
-    |> handle_return()
+    %{item: item, attrs: attrs, payslip: payslip}
+    |> Extep.new()
+    |> Extep.run(&validate_payslip/1)
+    |> Extep.run(&build_update_amount_changeset/1, :changeset)
+    |> Extep.run(&update_multi/1, :updated_item)
+    |> Extep.return(:updated_item)
   end
 
   def delete_item(%Payslip{} = payslip, %Item{} = item) do
-    %Context{item: item, payslip: payslip}
-    |> validate_payslip()
-    |> delete_multi()
-    |> handle_return()
+    %{item: item, payslip: payslip}
+    |> Extep.new()
+    |> Extep.run(&validate_payslip/1)
+    |> Extep.run(&delete_multi/1, :deleted_item)
+    |> Extep.return(:deleted_item)
   end
 
-  defp validate_payslip(%{payslip: %{is_closed: true}} = context) do
-    put_error(context, @closed_payslip_message)
-  end
+  defp validate_payslip(%{payslip: %{is_closed: true}}), do: {:error, @closed_payslip_message}
+  defp validate_payslip(%{item: %{payslip_id: id}, payslip: %{id: id}}), do: :ok
+  defp validate_payslip(%{item: nil}), do: :ok
+  defp validate_payslip(_context), do: {:error, "item doesn't belong to payslip"}
 
-  defp validate_payslip(%{item: %{payslip_id: id}, payslip: %{id: id}} = context), do: context
-
-  defp validate_payslip(%{item: nil} = context), do: context
-
-  defp validate_payslip(context), do: put_error(context, "item doesn't belong to payslip")
-
-  defp set_attrs_primary_keys(%{status: :halt} = context), do: context
-
-  defp set_attrs_primary_keys(%{attrs: attrs, payslip: payslip} = context) do
+  defp set_attrs_primary_keys(%{attrs: attrs, payslip: payslip}) do
     attrs =
       attrs
       |> Map.put(:org_id, payslip.org_id)
       |> Map.put(:payslip_id, payslip.id)
 
-    %{context | attrs: attrs}
+    {:ok, attrs}
   end
 
-  defp build_payslip_item_changeset(%{status: :halt} = context), do: context
-
-  defp build_payslip_item_changeset(%{attrs: attrs} = context) do
+  defp build_payslip_item_changeset(%{attrs: attrs}) do
     attrs
     |> fill_category_fields()
     |> Item.create_changeset()
-    |> handle_changeset(context)
+    |> handle_changeset()
   end
 
   defp fill_category_fields(%{category_id: category_id} = attrs) when not is_nil(category_id) do
@@ -101,29 +85,20 @@ defmodule Sig.HR.Payslips.Items.Mutator do
 
   defp fill_category_fields(attrs), do: attrs
 
-  defp build_outside_item_changeset(%{status: :halt} = context), do: context
-
-  defp build_outside_item_changeset(%{attrs: attrs} = context) do
+  defp build_outside_item_changeset(%{attrs: attrs}) do
     attrs
     |> Item.create_outside_item_changeset()
-    |> handle_changeset(context)
+    |> handle_changeset()
   end
 
-  defp build_update_amount_changeset(%{status: :halt} = context), do: context
-
-  defp build_update_amount_changeset(%{item: item, attrs: attrs} = context) do
+  defp build_update_amount_changeset(%{item: item, attrs: attrs}) do
     item
     |> Item.update_amount_changeset(attrs)
-    |> handle_changeset(context)
+    |> handle_changeset()
   end
 
-  defp handle_changeset(%{valid?: true} = changeset, context) do
-    %{context | changeset: changeset}
-  end
-
-  defp handle_changeset(changeset, context), do: put_error(context, changeset)
-
-  defp create_multi(%{status: :halt} = context), do: context
+  defp handle_changeset(%{valid?: true} = changeset), do: {:ok, changeset}
+  defp handle_changeset(changeset), do: {:error, changeset}
 
   defp create_multi(context) do
     %{payslip: payslip, changeset: changeset} = context
@@ -134,10 +109,8 @@ defmodule Sig.HR.Payslips.Items.Mutator do
     |> Multi.run(:update_payslip_amount, &update_payslip_amount/2)
     |> Multi.run(:update_auto_adjustable_amount_payable, &update_auto_adjustable_amount_payable/2)
     |> Repo.transaction()
-    |> handle_multi_return(context)
+    |> handle_multi()
   end
-
-  defp update_multi(%{status: :halt} = context), do: context
 
   defp update_multi(context) do
     %{payslip: payslip, changeset: changeset} = context
@@ -148,10 +121,8 @@ defmodule Sig.HR.Payslips.Items.Mutator do
     |> Multi.run(:update_payslip_amount, &update_payslip_amount/2)
     |> Multi.run(:update_auto_adjustable_amount_payable, &update_auto_adjustable_amount_payable/2)
     |> Repo.transaction()
-    |> handle_multi_return(context)
+    |> handle_multi()
   end
-
-  defp delete_multi(%{status: :halt} = context), do: context
 
   defp delete_multi(context) do
     %{payslip: payslip, item: item} = context
@@ -162,7 +133,7 @@ defmodule Sig.HR.Payslips.Items.Mutator do
     |> Multi.run(:update_payslip_amount, &update_payslip_amount/2)
     |> Multi.run(:update_auto_adjustable_amount_payable, &update_auto_adjustable_amount_payable/2)
     |> Repo.transaction()
-    |> handle_multi_return(context)
+    |> handle_multi()
   end
 
   defp ensure_payslip_is_open(%Payslip{id: id, org_id: org_id}) do
@@ -182,11 +153,6 @@ defmodule Sig.HR.Payslips.Items.Mutator do
     PayablesForPayslip.update_auto_adjustable_amount_payable(payslip)
   end
 
-  defp handle_multi_return({:ok, %{item: item}}, context), do: %{context | return: item}
-  defp handle_multi_return({:error, _, reason, _}, context), do: put_error(context, reason)
-
-  defp put_error(context, error), do: %{context | status: :halt, return: error}
-
-  defp handle_return(%{status: :ok, return: item}), do: {:ok, item}
-  defp handle_return(%{status: :halt, return: error}), do: {:error, error}
+  defp handle_multi({:ok, %{item: item}}), do: {:ok, item}
+  defp handle_multi({:error, _, reason, _}), do: {:error, reason}
 end
