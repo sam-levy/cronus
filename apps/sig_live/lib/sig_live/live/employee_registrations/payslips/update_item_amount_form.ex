@@ -59,7 +59,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.UpdateItemAmountForm do
         <Field name={:amount} class="form-field">
           <Label class="form-label">Valor</Label>
           <TextInput
-            value={format_amount(@changeset)}
+            value={format_amount(@changeset.data.amount)}
             class="form-input"
             opts={phx_hook: "SelectInputContent"}
           />
