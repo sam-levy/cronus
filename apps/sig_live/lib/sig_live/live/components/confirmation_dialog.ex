@@ -9,16 +9,22 @@ defmodule SigLive.Components.ConfirmationDialog do
   prop action_event, :event, required: true
 
   prop dialog_title, :string, default: "Confirmar"
-  prop confirmation_msg, :string, default: "Confirmar a ação"
+  prop confirmation_msg, :string
   prop cancel_btn_msg, :string, default: "Cancelar"
   prop action_btn_msg, :string, default: "Confirmar"
   prop error_message, :string, default: nil
+
+  slot default
 
   @impl true
   def render(assigns) do
     ~F"""
     <Modal title={@dialog_title} close={@close_event}>
-      <h2 class="text-md leading-6 font-normal text-gray-600">{@confirmation_msg}</h2>
+      <h2 :if={@confirmation_msg} class="text-md leading-6 font-normal text-gray-600">{@confirmation_msg}</h2>
+
+      <#slot :if={!@confirmation_msg}>
+        <h2 class="text-md leading-6 font-normal text-gray-600">Confirmar a ação</h2>
+      </#slot>
 
       <div :if={@error_message} class="mt-2 form-error-tag">{@error_message}</div>
 
