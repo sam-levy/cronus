@@ -50,7 +50,7 @@ defmodule Sig.Changeset do
 
     with {_, first_date} when not is_nil(first_date) <-
            fetch_field(changeset, first_date_field),
-         {_, second_date} when not is_nil(first_date) <-
+         {_, second_date} when not is_nil(second_date) <-
            fetch_field(changeset, second_date_field),
          comparison <- Date.compare(first_date, second_date),
          true <- Enum.member?(criteria, comparison) do
@@ -234,9 +234,11 @@ defmodule Sig.Changeset do
   end
 
   def add_timestamps(%{} = attrs) do
+    utc_now = DateTime.utc_now()
+
     attrs
-    |> Map.put(:inserted_at, DateTime.utc_now())
-    |> Map.put(:updated_at, DateTime.utc_now())
+    |> Map.put(:inserted_at, utc_now)
+    |> Map.put(:updated_at, utc_now)
   end
 
   defp compare_numbers(num, num), do: :eq

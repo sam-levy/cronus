@@ -63,6 +63,17 @@ defmodule Sig.HR.Registrations.Benefits do
     |> Repo.update()
   end
 
+  def delete_by_id(%Registration{} = registration, id) when is_binary(id) do
+    registration
+    |> query_by()
+    |> where(id: ^id)
+    |> Repo.one()
+    |> case do
+      %Benefit{} = benefit -> Repo.delete(benefit)
+      nil -> {:error, :not_found}
+    end
+  end
+
   def subscribe_to_registration_benefits(%Registration{} = registration) do
     Phoenix.PubSub.subscribe(Sig.PubSub, topic(registration))
   end

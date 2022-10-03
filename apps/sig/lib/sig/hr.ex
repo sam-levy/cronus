@@ -173,6 +173,7 @@ defmodule Sig.HR do
   defdelegate subscribe_to_registration_benefits(registration), to: Benefits
   defdelegate broadcast_registration_benefits(registration), to: Benefits
   defdelegate create_benefit_change(attrs \\ %{}), to: Benefits, as: :create_change
+  defdelegate delete_benefit_by_id(registration, id), to: Benefits, as: :delete_by_id
 
   defdelegate create_benefit_from_model_change(attrs \\ %{}),
     to: Benefits,

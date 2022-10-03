@@ -38,17 +38,17 @@ defmodule Sig.HR.PayslipTemplates.Copy do
       |> Map.from_struct()
       |> Map.put(:org_id, new_payslip_template.org_id)
       |> Map.put(:payslip_template_id, new_payslip_template.id)
-      |> build_payslip_template_item_attrs()
+      |> build_payslip_template_item_changeset()
       |> Map.get(:changes)
       |> Sig.Changeset.add_timestamps()
     end)
   end
 
-  defp build_payslip_template_item_attrs(%{type: :payslip_item} = pti) do
+  defp build_payslip_template_item_changeset(%{type: :payslip_item} = pti) do
     PayslipTemplateItem.create_payslip_template_item_changeset(pti)
   end
 
-  defp build_payslip_template_item_attrs(%{type: :payslip_item_model} = pti) do
+  defp build_payslip_template_item_changeset(%{type: :payslip_item_model} = pti) do
     PayslipTemplateItem.create_payslip_template_model_item_changeset(pti)
   end
 end

@@ -131,7 +131,7 @@ defmodule SigLive.Organizations.Sectors.List do
                     phx-value-org_sector_id={org_sector.id}
                     class="dropdown-item"
                   >
-                    Remover
+                    <span class="text-red-500">Remover</span>
                   </a>
                 </DropdownOpts>
               </td>

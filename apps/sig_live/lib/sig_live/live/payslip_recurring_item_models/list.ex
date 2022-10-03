@@ -185,7 +185,7 @@ defmodule SigLive.PayslipRecurringItemModels.List do
                     phx-value-payslip_recurring_item_model_id={item_model.id}
                     class="dropdown-item"
                   >
-                    Remover
+                    <span class="text-red-500">Remover</span>
                   </a>
                 </DropdownOpts>
               </td>

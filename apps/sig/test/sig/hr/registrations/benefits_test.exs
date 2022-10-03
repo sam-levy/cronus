@@ -642,6 +642,23 @@ defmodule Sig.HR.Registrations.BenefitsTest do
     end
   end
 
+  describe "delete_by_id/2" do
+    test "deletes a benefit by id" do
+      org = insert(:org)
+      registration = insert(:employee_registration, org: org)
+      benefit = insert(:employee_benefit, org: org, registration: registration)
+
+      assert {:ok, %Benefit{}} = Benefits.delete_by_id(registration, benefit.id)
+    end
+
+    test "when benefit belongs to another registration" do
+      other_registration = insert(:employee_registration)
+      benefit = insert(:employee_benefit)
+
+      assert Benefits.delete_by_id(other_registration, benefit.id) == {:error, :not_found}
+    end
+  end
+
   describe "subscribe_to_registration_benefits/1" do
     test "subscribes to registration benefits topic" do
       registration = insert(:employee_registration)

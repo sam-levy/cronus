@@ -1,6 +1,9 @@
 defmodule SigLive.EmployeeRegistrations.Benefits.List do
   use SigLive, :surface_live_component
 
+  alias Sig.HR
+
+  alias SigLive.Components.ConfirmationDialog
   alias SigLive.Components.DropdownBtn
   alias SigLive.Components.DropdownOpts
   alias SigLive.EmployeeRegistrations.Benefits.Form
@@ -10,12 +13,19 @@ defmodule SigLive.EmployeeRegistrations.Benefits.List do
   prop benefits, :list, required: true
 
   data form_state, :atom, default: :closed, values!: Form.states()
+  data confirmation_dialog_state, :atom, default: :closed
 
   data benefit_from_model_form_state, :atom,
     default: :closed,
     values!: BenefitFromModelForm.states()
 
   data benefit_id, :string, default: nil
+  data message, :string, default: nil
+
+  @impl true
+  def handle_event("close_modals", _, socket) do
+    {:noreply, assign(socket, closed_state())}
+  end
 
   @impl true
   def handle_event("open_new_benefit_form", _, socket) do
@@ -48,8 +58,27 @@ defmodule SigLive.EmployeeRegistrations.Benefits.List do
   end
 
   @impl true
-  def handle_event("close_form", _, socket) do
-    {:noreply, assign(socket, closed_state())}
+  def handle_event("open_delete_confirmation_dialog", %{"benefit_id" => id}, socket) do
+    {:noreply, assign(socket, confirmation_dialog_state: :open, benefit_id: id)}
+  end
+
+  @impl true
+  def handle_event("delete_benefit", _, socket) do
+    %{registration: registration, benefit_id: id} = socket.assigns
+
+    case HR.delete_benefit_by_id(registration, id) do
+      {:ok, _benefit} ->
+        HR.broadcast_registration_benefits(registration)
+        flash_info("Benefício removido")
+
+        {:noreply, assign(socket, closed_state())}
+
+      {:error, changeset} when is_struct(changeset) ->
+        {:noreply, assign(socket, message: Sig.Changeset.errors_to_string(changeset))}
+
+      {:error, message} ->
+        {:noreply, assign(socket, message: message)}
+    end
   end
 
   @impl true
@@ -59,8 +88,8 @@ defmodule SigLive.EmployeeRegistrations.Benefits.List do
       <Form
         :if={@form_state != :closed}
         id="benefit_form"
-        close_event="close_form"
-        close_fun={fn -> close_form(@id) end}
+        close_event="close_modals"
+        close_fun={fn -> close_modals(@id) end}
         {=@form_state}
         {=@registration}
         {=@benefit_id}
@@ -69,12 +98,31 @@ defmodule SigLive.EmployeeRegistrations.Benefits.List do
       <BenefitFromModelForm
         :if={@benefit_from_model_form_state != :closed}
         id="benefit_from_model_form"
-        close_event="close_form"
-        close_fun={fn -> close_form(@id) end}
+        close_event="close_modals"
+        close_fun={fn -> close_modals(@id) end}
         form_state={@benefit_from_model_form_state}
         {=@registration}
         {=@benefit_id}
       />
+
+      <ConfirmationDialog
+        :if={@confirmation_dialog_state != :closed}
+        close_event="close_modals"
+        action_event="delete_benefit"
+        dialog_title="Confirmar Remoção do Benefício"
+        action_btn_msg="Remover"
+        error_message={@message}
+      >
+        <h2 class="text-md leading-6 font-normal text-gray-600">
+          Caso deseje cancelar o benefício utilize a opção <strong><i>Finalizar Benefício</i></strong>.
+        </h2>
+
+        <br>
+
+        <h2 class="text-md leading-6 font-normal text-gray-600">
+          Deseja realmente remover este benefício? Esta ação não poderá ser desfeita.
+        </h2>
+      </ConfirmationDialog>
 
       <table class="w-full bg-white shadow-lg">
         <thead class="top-0 z-20">
@@ -118,6 +166,10 @@ defmodule SigLive.EmployeeRegistrations.Benefits.List do
                   {capitalize_type(benefit.type)}
                 </a>
 
+                <span :if={benefit.is_from_model} class="ml-2 label-blue">
+                  Do Modelo
+                </span>
+
                 <span :if={benefit.is_for_dependent} class="ml-2 label-gray">
                   Dependente
                 </span>
@@ -140,22 +192,33 @@ defmodule SigLive.EmployeeRegistrations.Benefits.List do
               </td>
 
               <td class="pr-5 text-right">
-                <span :if={is_nil(benefit.end_date)}>
-                  <DropdownOpts>
-                    <a
-                      :if={!benefit.is_from_model}
-                      :on-click="open_edit_benefit_amount_form"
-                      phx-value-benefit_id={benefit.id}
-                      class="dropdown-item"
-                    >
-                      Atualizar Valor
-                    </a>
+                <DropdownOpts>
+                  <a
+                    :if={is_active(benefit) and !benefit.is_from_model}
+                    :on-click="open_edit_benefit_amount_form"
+                    phx-value-benefit_id={benefit.id}
+                    class="dropdown-item"
+                  >
+                    Atualizar Valor
+                  </a>
 
-                    <a :on-click="open_finalize_benefit_form" phx-value-benefit_id={benefit.id} class="dropdown-item">
-                      Finalizar Benefício
-                    </a>
-                  </DropdownOpts>
-                </span>
+                  <a
+                    :if={is_active(benefit)}
+                    :on-click="open_finalize_benefit_form"
+                    phx-value-benefit_id={benefit.id}
+                    class="dropdown-item"
+                  >
+                    Finalizar Benefício
+                  </a>
+
+                  <a
+                    :on-click="open_delete_confirmation_dialog"
+                    phx-value-benefit_id={benefit.id}
+                    class="dropdown-item"
+                  >
+                    <span class="text-red-500">Remover</span>
+                  </a>
+                </DropdownOpts>
               </td>
             </tr>
           {/for}
@@ -165,10 +228,19 @@ defmodule SigLive.EmployeeRegistrations.Benefits.List do
     """
   end
 
-  def close_form(id), do: send_update(__MODULE__, closed_state(id))
+  def close_modals(id), do: send_update(__MODULE__, closed_state(id))
 
   defp closed_state(id), do: closed_state() ++ [id: id]
 
-  defp closed_state,
-    do: [form_state: :closed, benefit_from_model_form_state: :closed, benefit_id: nil]
+  defp closed_state do
+    [
+      form_state: :closed,
+      benefit_id: nil,
+      benefit_from_model_form_state: :closed,
+      confirmation_dialog_state: :closed
+    ]
+  end
+
+  defp is_active(%{end_date: nil}), do: true
+  defp is_active(_benefit), do: false
 end

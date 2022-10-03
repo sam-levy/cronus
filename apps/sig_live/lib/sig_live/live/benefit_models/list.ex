@@ -224,7 +224,7 @@ defmodule SigLive.BenefitModels.List do
                     phx-value-benefit_model_id={benefit_model.id}
                     class="dropdown-item"
                   >
-                    Remover
+                    <span class="text-red-500">Remover</span>
                   </a>
                 </DropdownOpts>
               </td>

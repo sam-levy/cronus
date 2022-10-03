@@ -162,7 +162,7 @@ defmodule SigLive.PayslipTemplates.List do
                     phx-value-payslip_template_id={payslip_template.id}
                     class="dropdown-item"
                   >
-                    Remover
+                    <span class="text-red-500">Remover</span>
                   </a>
                 </DropdownOpts>
               </td>

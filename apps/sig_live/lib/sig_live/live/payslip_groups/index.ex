@@ -170,7 +170,7 @@ defmodule SigLive.PayslipGroups.Index do
                     phx-value-group_id={group.id}
                     class="dropdown-item"
                   >
-                    Remover
+                    <span class="text-red-500">Remover</span>
                   </a>
                 </DropdownOpts>
               </td>

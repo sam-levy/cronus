@@ -131,7 +131,7 @@ defmodule SigLive.Organizations.Positions.List do
                     phx-value-org_position_id={org_position.id}
                     class="dropdown-item"
                   >
-                    Remover
+                    <span class="text-red-500">Remover</span>
                   </a>
                 </DropdownOpts>
               </td>

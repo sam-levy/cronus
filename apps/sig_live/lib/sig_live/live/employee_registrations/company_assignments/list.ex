@@ -136,7 +136,7 @@ defmodule SigLive.EmployeeRegistrations.CompanyAssignments.List do
                     phx-value-company_assignment_id={company_assignment.id}
                     class="dropdown-item"
                   >
-                    Remover
+                    <span class="text-red-500">Remover</span>
                   </a>
                 </DropdownOpts>
               </td>

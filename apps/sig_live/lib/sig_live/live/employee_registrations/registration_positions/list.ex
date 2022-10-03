@@ -138,7 +138,7 @@ defmodule SigLive.EmployeeRegistrations.RegistrationPositions.List do
                     phx-value-registration_position_id={registration_position.id}
                     class="dropdown-item"
                   >
-                    Remover
+                    <span class="text-red-500">Remover</span>
                   </a>
                 </DropdownOpts>
               </td>
