@@ -212,7 +212,7 @@ defmodule SigLive.EmployeeRegistrations.Overtimes.List do
                     phx-value-overtime_id={overtime.id}
                     class="dropdown-item"
                   >
-                    Remover
+                    <span class="text-red-500">Remover</span>
                   </a>
                 </DropdownOpts>
               </td>

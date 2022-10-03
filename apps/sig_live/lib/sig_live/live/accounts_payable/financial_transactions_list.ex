@@ -196,7 +196,7 @@ defmodule SigLive.AccountsPayable.FinancialTransactionsList do
                     phx-value-financial_transaction_id={transaction.id}
                     class="dropdown-item not-italic"
                   >
-                    Remover
+                    <span class="text-red-500">Remover Benefício</span>
                   </a>
                 </DropdownOpts>
               </td>

@@ -318,7 +318,7 @@ defmodule SigLive.EmployeeRegistrations.Payslips.Payables.List do
                       phx-value-payable_id={payable.id}
                       class="dropdown-item"
                     >
-                      Remover
+                      <span class="text-red-500">Remover</span>
                     </a>
                   </DropdownOpts>
                 {/if}

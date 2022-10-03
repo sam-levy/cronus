@@ -153,7 +153,7 @@ defmodule SigLive.PayslipCategories.List do
                     phx-value-payslip_category_id={category.id}
                     class="dropdown-item"
                   >
-                    Remover
+                    <span class="text-red-500">Remover</span>
                   </a>
                 </DropdownOpts>
               </td>
