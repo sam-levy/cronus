@@ -1,5 +1,6 @@
 defmodule SigLive.InitAssigns do
   import Phoenix.LiveView
+  import Phoenix.Component
 
   alias Sig.Accounts
   alias Sig.Organizations

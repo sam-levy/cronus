@@ -2,7 +2,13 @@
   <div class="px-8 py-6 w-2/6 bg-white shadow-lg">
     <h1 class="text-xl text-gray-600 font-bold text-center">Log in</h1>
 
-    <.form let={f} for={@conn} action={Routes.user_session_path(@conn, :create)} as={:user} class="flex flex-col space-y-5">
+    <.form
+      :let={f}
+      for={@conn}
+      as={:user}
+      action={Routes.user_session_path(@conn, :create)}
+      class="flex flex-col space-y-5"
+    >
       <%= email_input f, :email, required: true, class: "form-input", placeholder: "Email" %>
 
       <%= password_input f, :password, required: true, class: "form-input", placeholder: "Senha" %>
