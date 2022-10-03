@@ -6,6 +6,7 @@ defmodule Sig.Application do
     children = [
       Sig.Repo,
       {Phoenix.PubSub, name: Sig.PubSub},
+      # Use `PartitionSupervisor` when migrating to Elixir 1.14
       {Task.Supervisor, name: Sig.BroadcastSupervisor},
       Sig.StoresSupervisor
     ]
