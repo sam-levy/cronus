@@ -159,7 +159,7 @@ defmodule SigLive.PayslipGroups.Index do
                 </LiveRedirect>
               </td>
 
-              <td class="px-3 text-left">
+              <td class={~w(px-3 text-left) ++ payslip_type_text_color(group.type)}>
                 {capitalize_type(group.type)}
               </td>
 
