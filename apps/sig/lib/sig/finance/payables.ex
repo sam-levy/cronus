@@ -30,7 +30,8 @@ defmodule Sig.Finance.Payables do
     :payslip_payable,
     :credit_bank_account,
     :financial_transaction,
-    :employee_registration_company
+    :employee_registration_company,
+    :employee_registration_last_sector
   ]
 
   defdelegate subscribe_to_payables(schema), to: Broadcaster
