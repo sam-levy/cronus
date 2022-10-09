@@ -20,16 +20,12 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.Update do
     {:error, @fulfilled_payable_message}
   end
 
-  def call(%Payslip{}, %Payable{authorized_by_id: id}, %{}) when is_binary(id) do
+  def call(%Payslip{}, %Payable{authorized_by_id: ab_id}, %{}) when is_binary(ab_id) do
     {:error, @authorized_payable_message}
   end
 
   def call(%Payslip{} = payslip, %Payable{} = payable, %{} = attrs) do
-    %{
-      attrs: attrs,
-      payslip: payslip,
-      payable: payable
-    }
+    %{payslip: payslip, payable: payable, attrs: attrs}
     |> Extep.new()
     |> Extep.run(&set_is_auto_adjustable_amount/1, :is_auto_adjustable_amount)
     |> Extep.run(&build_changeset/1, :changeset)
@@ -103,21 +99,11 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.Update do
   end
 
   defp validate_credit_bank_account(context) do
-    %{payslip: payslip, changeset: changeset} = context
-
-    case PayablesForPayslip.validate_credit_bank_account(changeset, payslip) do
-      {:ok, _} -> :ok
-      {:error, changeset} -> {:error, changeset}
-    end
+    PayablesForPayslip.validate_credit_bank_account(context.changeset, context.payslip)
   end
 
   defp validate_check_debit_bank_account(context) do
-    %{payslip: payslip, changeset: changeset} = context
-
-    case PayablesForPayslip.validate_check_debit_bank_account(changeset, payslip) do
-      {:ok, _} -> :ok
-      {:error, changeset} -> {:error, changeset}
-    end
+    PayablesForPayslip.validate_check_debit_bank_account(context.changeset, context.payslip)
   end
 
   defp update_multi(context) do
@@ -193,4 +179,6 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.Update do
         {:ok, nil}
     end
   end
+
+  defp handle_non_auto_adjustable_amount(_context, _payable), do: {:ok, nil}
 end

@@ -56,6 +56,55 @@ defmodule Sig.Finance.Payables.PayablesForPayslip.UpdateTest do
              )
     end
 
+    test "updates a payable when amount doesn't change" do
+      org = insert(:org)
+      payslip = insert(:payslip, org: org)
+
+      insert(:payslip_outside_item,
+        org: org,
+        payslip: payslip,
+        entry_type: :credit,
+        amount: 100_00
+      )
+
+      # Update payslip amount
+      Repo.update!(change(payslip, amount: 100_00))
+
+      %{id: id} =
+        payable = insert(:payable_cash, org: org, target: :payslip, amount: Money.new(100_00))
+
+      insert(:payslip_payable,
+        org: org,
+        payslip: payslip,
+        payable: payable,
+        is_auto_adjustable_amount: false
+      )
+
+      attrs = %{
+        due_date: ~D[2021-01-15],
+        reference_date: ~D[2021-01-01],
+        description: "Updated description",
+        note: "Updated note",
+        financial_transaction_type: :billet,
+        billet_barcode: random_string_number()
+      }
+
+      assert {:ok, %Payable{id: ^id} = return} = Update.call(payslip, payable, attrs)
+
+      assert Repo.get_by(Payable,
+               org_id: return.org_id,
+               id: id,
+               target: payable.target,
+               due_date: attrs[:due_date],
+               reference_date: attrs[:reference_date],
+               amount: payable.amount,
+               description: attrs[:description],
+               note: attrs[:note],
+               financial_transaction_type: attrs[:financial_transaction_type],
+               billet_barcode: attrs[:billet_barcode]
+             )
+    end
+
     test "decreases an auto adjustable payable amount when a fixed payable amount is increased" do
       org = insert(:org)
       payslip = insert(:payslip, org: org)

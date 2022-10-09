@@ -193,13 +193,28 @@ defmodule SigLive.ViewHelpersTest do
   end
 
   describe "format_amount/1" do
-    test "formats amount" do
+    test "formats money amount" do
+      assert ViewHelpers.format_amount(%Money{amount: 1_500_00}) == "1.500,00"
+      assert ViewHelpers.format_amount(nil) == ""
+    end
+
+    test "formats changeset changes amount" do
       assert ViewHelpers.format_amount(%Ecto.Changeset{
                changes: %{amount: %Money{amount: 2_000_00}}
              }) == "2.000,00"
+    end
 
-      assert ViewHelpers.format_amount(%Money{amount: 1_500_00}) == "1.500,00"
-      assert ViewHelpers.format_amount(nil) == ""
+    test "formats changeset data amount" do
+      assert ViewHelpers.format_amount(%Ecto.Changeset{
+               data: %{amount: %Money{amount: 2_000_00}}
+             }) == "2.000,00"
+    end
+
+    test "gives priority to changeset data amount" do
+      assert ViewHelpers.format_amount(%Ecto.Changeset{
+               data: %{amount: %Money{amount: 2_000_00}},
+               changes: %{amount: %Money{amount: 3_000_00}}
+             }) == "2.000,00"
     end
   end
 
