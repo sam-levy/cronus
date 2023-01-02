@@ -151,13 +151,7 @@ defmodule Sig.Finance.FinancialTransactions.Creator do
     |> Repo.transaction()
     |> case do
       {:ok, %{financial_transaction: financial_transaction}} ->
-        Task.Supervisor.start_child(
-          Sig.BroadcastSupervisor,
-          fn ->
-            Payables.broadcast_payables(org, payable_ids)
-          end,
-          restart: :transient
-        )
+        Sig.Broadcaster.spawn(fn -> Payables.broadcast_payables(org, payable_ids) end)
 
         {:ok, financial_transaction}
 
@@ -186,10 +180,8 @@ defmodule Sig.Finance.FinancialTransactions.Creator do
   end
 
   defp validate_payables_amount(_repo, %{payables: {_, payables}}, amount) do
-    if Enum.reduce(payables, Money.new(0), &Money.add(&1.amount, &2)) == amount do
-      {:ok, nil}
-    else
-      {:error, "difference in payables amount sum"}
-    end
+    if Enum.reduce(payables, Money.new(0), &Money.add(&1.amount, &2)) == amount,
+      do: {:ok, nil},
+      else: {:error, "difference in payables amount sum"}
   end
 end

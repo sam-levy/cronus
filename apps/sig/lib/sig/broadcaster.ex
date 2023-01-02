@@ -12,4 +12,8 @@ defmodule Sig.Broadcaster do
   def broadcast(topic, message) when is_binary(topic) do
     Phoenix.PubSub.broadcast(Sig.PubSub, topic, message)
   end
+
+  def spawn(fun) do
+    Task.Supervisor.start_child(Sig.BroadcastSupervisor, fun, restart: :transient)
+  end
 end

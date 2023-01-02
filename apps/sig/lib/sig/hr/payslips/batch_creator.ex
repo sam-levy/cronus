@@ -295,9 +295,7 @@ defmodule Sig.HR.Payslips.BatchCreator do
   defp handle_create_return({:error, _operation, reason, _changes}), do: {:error, reason}
 
   defp handle_create_return({:ok, %{group: {:existing, _}, payslips: {_, payslips}}}) do
-    Task.Supervisor.start_child(Sig.BroadcastSupervisor, fn ->
-      handle_payslip_broadcasts(payslips)
-    end)
+    Sig.Broadcaster.spawn(fn -> handle_payslip_broadcasts(payslips) end)
 
     {:ok, payslips}
   end
