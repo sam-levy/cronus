@@ -241,6 +241,18 @@ defmodule Sig.Changeset do
     |> Map.put(:updated_at, utc_now)
   end
 
+  def add_timestamps_placeholders(%{} = attrs) do
+    attrs
+    |> Map.put(:inserted_at, {:placeholder, :utc_now})
+    |> Map.put(:updated_at, {:placeholder, :utc_now})
+  end
+
+  def add_timestamps_placeholders_opts(opts \\ []) do
+    utc_now = DateTime.utc_now()
+
+    [placeholders: %{utc_now: utc_now}] ++ opts
+  end
+
   defp compare_numbers(num, num), do: :eq
   defp compare_numbers(first, second) when first < second, do: :lt
   defp compare_numbers(_first, _second), do: :gt

@@ -902,4 +902,25 @@ defmodule Sig.ChangesetTest do
                Sig.Changeset.add_timestamps(%{})
     end
   end
+
+  describe "add_timestamps_placeholders/1" do
+    test "adds timestmaps placeholders" do
+      assert Sig.Changeset.add_timestamps_placeholders(%{}) == %{
+               inserted_at: {:placeholder, :utc_now},
+               updated_at: {:placeholder, :utc_now}
+             }
+    end
+  end
+
+  describe "timestamps_placeholders_opts/1" do
+    test "returns a Keyword list with the timestamps placeholder" do
+      assert [placeholders: %{utc_now: %DateTime{}}] =
+               Sig.Changeset.add_timestamps_placeholders_opts()
+    end
+
+    test "when an opts Keyword list is given" do
+      assert [placeholders: %{utc_now: %DateTime{}}, returning: true] =
+               Sig.Changeset.add_timestamps_placeholders_opts(returning: true)
+    end
+  end
 end

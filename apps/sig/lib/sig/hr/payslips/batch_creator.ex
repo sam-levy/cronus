@@ -47,11 +47,18 @@ defmodule Sig.HR.Payslips.BatchCreator do
   @spec create(Org.t(), map(), list()) ::
           {:ok, list(Payslip.t())} | {:error, Ecto.Changeset.t() | String.t()}
   def create(%Org{} = org, %{} = attrs, opts \\ []) do
+    insert_all_opts = Sig.Changeset.add_timestamps_placeholders_opts(returning: true)
+
     Multi.new()
     |> base_multi(org, attrs)
-    |> Multi.insert_all(:payslips, Payslip, &build_payslips_attrs(&1, org, attrs), returning: true)
+    |> Multi.insert_all(
+      :payslips,
+      Payslip,
+      &build_payslips_attrs(&1, org, attrs),
+      insert_all_opts
+    )
     |> Multi.run(:payslip_items_attrs, &build_payslip_items_attrs/2)
-    |> Multi.insert_all(:payslip_items, Item, & &1.payslip_items_attrs, returning: true)
+    |> Multi.insert_all(:payslip_items, Item, & &1.payslip_items_attrs, insert_all_opts)
     |> Multi.run(:indexed_payslip_items, &index_payslip_items/2)
     |> Multi.merge(&update_payslips_amounts/1)
     |> Multi.merge(&create_payables(&1, opts))
@@ -196,7 +203,7 @@ defmodule Sig.HR.Payslips.BatchCreator do
   defp build_payslip_item_attrs(changeset) do
     changeset.changes
     |> Map.drop([:category_id])
-    |> Sig.Changeset.add_timestamps()
+    |> Sig.Changeset.add_timestamps_placeholders()
   end
 
   defp handle_acc(acc, %{type: :outside_item} = attrs) do

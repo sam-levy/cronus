@@ -10,12 +10,14 @@ defmodule Sig.HR.Payslips.CreateFromModel do
   alias Sig.Repo
 
   def call(%Registration{} = registration, %{} = attrs, opts \\ []) do
+    insert_all_opts = Sig.Changeset.add_timestamps_placeholders_opts(returning: true)
+
     Multi.new()
     |> Multi.run(:payslip, fn _, _ -> Payslips.create(registration, attrs) end)
     |> Multi.run(:payslip_items_attrs, fn _, %{payslip: payslip} ->
       build_payslip_items_attrs(registration, payslip)
     end)
-    |> Multi.insert_all(:payslip_items, Item, & &1.payslip_items_attrs, returning: true)
+    |> Multi.insert_all(:payslip_items, Item, & &1.payslip_items_attrs, insert_all_opts)
     |> Multi.run(
       :update_payslip_amount,
       fn _, %{payslip: payslip, payslip_items: {_, items}} ->
@@ -48,7 +50,7 @@ defmodule Sig.HR.Payslips.CreateFromModel do
       attrs =
         changeset.changes
         |> Map.drop([:category_id])
-        |> Sig.Changeset.add_timestamps()
+        |> Sig.Changeset.add_timestamps_placeholders()
 
       {:cont, handle_acc(acc, attrs)}
     else

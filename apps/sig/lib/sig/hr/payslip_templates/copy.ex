@@ -15,7 +15,8 @@ defmodule Sig.HR.PayslipTemplates.Copy do
     |> Multi.insert_all(
       :payslip_template_items,
       PayslipTemplateItem,
-      &build_payslip_template_items_attrs(payslip_template, &1.new_payslip_template)
+      &build_payslip_template_items_attrs(payslip_template, &1.new_payslip_template),
+      Sig.Changeset.add_timestamps_placeholders_opts()
     )
     |> Repo.transaction()
     |> case do
@@ -40,7 +41,7 @@ defmodule Sig.HR.PayslipTemplates.Copy do
       |> Map.put(:payslip_template_id, new_payslip_template.id)
       |> build_payslip_template_item_changeset()
       |> Map.get(:changes)
-      |> Sig.Changeset.add_timestamps()
+      |> Sig.Changeset.add_timestamps_placeholders()
     end)
   end
 

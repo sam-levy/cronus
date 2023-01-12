@@ -80,15 +80,16 @@ defmodule Sig.HR.Registrations.RecurringPayslipItems.CreateFromPayslipTemplate d
   end
 
   def handle_changeset(%{valid?: true} = changeset, acc),
-    do: {:cont, [Sig.Changeset.add_timestamps(changeset.changes) | acc]}
+    do: {:cont, [Sig.Changeset.add_timestamps_placeholders(changeset.changes) | acc]}
 
   def handle_changeset(%{valid?: false} = changeset, _acc), do: {:halt, {:error, changeset}}
 
   defp insert_all(%{attrs: attrs}) do
     attrs_count = Enum.count(attrs)
+    insert_all_opts = Sig.Changeset.add_timestamps_placeholders_opts(returning: true)
 
     RecurringPayslipItem
-    |> Repo.insert_all(attrs, returning: true)
+    |> Repo.insert_all(attrs, insert_all_opts)
     |> case do
       {insert_count, items} when insert_count == attrs_count -> {:ok, items}
       _ -> {:error, nil}
