@@ -123,7 +123,7 @@ defmodule SigLive.PayslipGroups.Index do
         {=@org}
       />
 
-      <table class="w-full bg-white shadow-lg">
+      <table class="w-full bg-white shadow-lg mb-5">
         <thead class="top-0 z-20">
           <tr class="bg-white">
             <th colspan="6">

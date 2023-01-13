@@ -11,9 +11,9 @@ defmodule SigLive.PayslipGroups.VerifiedRegistrations do
         <tbody>
           {#for %{individual: individual, registered_at: company, last_sector: sector} <- @registrations}
             <tr class="text-xs font-medium text-gray-500 tracking-wider odd:bg-gray-200">
-              <td class="py-1 px-2 rounded-md text-left">{individual.name}</td>
-              <td class="py-1 px-2 rounded-md text-left">{sector.name}</td>
-              <td class="py-1 px-2 rounded-md text-right">{company.trade_name}</td>
+              <td class="py-1 px-2 text-left">{individual.name}</td>
+              <td class="py-1 px-2 text-left">{sector.name}</td>
+              <td class="py-1 px-2 text-right">{company.trade_name}</td>
             </tr>
           {/for}
         </tbody>
