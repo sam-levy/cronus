@@ -12,7 +12,7 @@ defmodule SigLive.Individuals.Index do
 
   @individuals_list_opts [preload: :active_registered_at_companies]
 
-  @filters %{"registered_at_company_entity_id" => "all"}
+  @default_filters %{"registered_at_company_entity_id" => "active_employees"}
 
   @impl true
   def mount(_params, _session, socket) do
@@ -22,7 +22,7 @@ defmodule SigLive.Individuals.Index do
 
     socket =
       assign(socket,
-        filters: @filters,
+        filters: @default_filters,
         companies: Entities.list_companies(org, filter: [is_virtual: false]),
         individuals: Entities.list_individuals(org, @individuals_list_opts),
         individuals_list_opts: @individuals_list_opts,
@@ -177,7 +177,7 @@ defmodule SigLive.Individuals.Index do
                       {#for company <- @companies}
                         <option
                           value={company.entity_id}
-                          selected={company.entity_id == @filters["registered_at_company_entity_id"]}
+                          selected={@filters["registered_at_company_entity_id"] == company.entity_id}
                         >
                           {company.trade_name}
                         </option>
