@@ -124,7 +124,7 @@ defmodule SigLive.PayslipGroups.Index do
       />
 
       <table class="w-full bg-white shadow-lg mb-5">
-        <thead class="top-0 z-20 sticky">
+        <thead class="top-0 z-10 sticky">
           <tr class="bg-white">
             <th colspan="6">
               <div class="flex justify-between items-center py-3 px-6">
