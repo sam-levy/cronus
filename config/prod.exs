@@ -49,3 +49,13 @@ config :sig_live, SigLive.Endpoint,
 
 # Do not print debug messages in production
 config :logger, level: :info
+
+config :sentry,
+  dsn: "https://beec3ef07da54b178efde3905c913d0c@o4504494316716032.ingest.sentry.io/4504494320058368",
+  environment_name: :prod,
+  enable_source_code_context: true,
+  root_source_code_path: File.cwd!(),
+  tags: %{
+    env: "production"
+  },
+  included_environments: [:prod]
