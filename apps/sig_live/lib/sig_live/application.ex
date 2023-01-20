@@ -7,8 +7,9 @@ defmodule SigLive.Application do
 
   @impl true
   def start(_type, _args) do
+    Logger.add_backend(Sentry.LoggerBackend)
+
     children = [
-      Logger.add_backend(Sentry.LoggerBackend),
       # Start the Telemetry supervisor
       SigLive.Telemetry,
       # Start the Endpoint (http/https)
