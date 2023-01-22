@@ -12,7 +12,10 @@ defmodule SigLive.Individuals.Index do
 
   @individuals_list_opts [preload: [:active_registered_at_companies, :active_assigned_companies]]
 
-  @default_filters %{"registered_at_company_entity_id" => "active_employees"}
+  @default_filters %{
+    "registered_at_company_entity_id" => "active_employees",
+    "assigned_company_entity_id" => "all"
+  }
 
   @impl true
   def mount(_params, _session, socket) do
@@ -23,7 +26,8 @@ defmodule SigLive.Individuals.Index do
     socket =
       assign(socket,
         filters: @default_filters,
-        companies: Entities.list_companies(org, filter: [is_virtual: false]),
+        default_filters: @default_filters,
+        companies: Entities.list_companies(org),
         individuals: Entities.list_individuals(org, @individuals_list_opts),
         individuals_list_opts: @individuals_list_opts,
         new_individual_modal_open: false
@@ -83,21 +87,30 @@ defmodule SigLive.Individuals.Index do
   end
 
   @impl true
-  def handle_event("filter_individuals", params, socket) do
-    %{org: org, filters: filters} = socket.assigns
-
-    filters = update_filters(filters, params)
+  def handle_event("update_filters", params, socket) do
+    org = socket.assigns.org
+    filters = update_filters(params)
 
     {:noreply, push_patch(socket, to: build_route(socket, org, filters), replace: true)}
   end
 
-  defp update_filters(filters, params) do
-    Enum.reduce(filters, filters, fn {filter_k, _old_value}, acc ->
-      case Map.get(params, filter_k) do
-        nil -> acc
-        new_value -> Map.put(acc, filter_k, new_value)
-      end
-    end)
+  @impl true
+  def handle_event("reset_filters", _params, socket) do
+    org = socket.assigns.org
+
+    {:noreply, push_patch(socket, to: build_route(socket, org, @default_filters), replace: true)}
+  end
+
+  defp update_filters(params) do
+    params
+    |> Map.filter(fn {k, _v} -> Map.has_key?(@default_filters, k) end)
+    |> case do
+      %{"registered_at_company_entity_id" => "all"} = filters ->
+        Map.put(filters, "assigned_company_entity_id", "")
+
+      filters ->
+        filters
+    end
   end
 
   defp filter_individuals(%{"registered_at_company_entity_id" => "all"}, individuals) do
@@ -138,6 +151,27 @@ defmodule SigLive.Individuals.Index do
     end
   end
 
+  defp apply_filter(
+         {"assigned_company_entity_id", "all"},
+         %{assigned_companies: []}
+       ) do
+    {:halt, :reject}
+  end
+
+  defp apply_filter(
+         {"assigned_company_entity_id", "all"},
+         %{assigned_companies: [_ | _]} = individual
+       ) do
+    {:cont, individual}
+  end
+
+  defp apply_filter({"assigned_company_entity_id", entity_id}, individual) do
+    case Enum.find(individual.assigned_companies, &(&1.entity_id == entity_id)) do
+      nil -> {:halt, :reject}
+      _found -> {:cont, individual}
+    end
+  end
+
   @impl true
   def render(assigns) do
     ~F"""
@@ -158,39 +192,74 @@ defmodule SigLive.Individuals.Index do
       <table class="w-full bg-white shadow-lg mb-5">
         <thead class="top-0 sticky">
           <tr class="bg-white">
-            <th colspan="4">
-              <div class="flex justify-between items-center py-3 px-6 text-gray-500 font-medium tracking-wider">
-                <div class="flex justify-start items-center space-x-3">
-                  <Form for={:filter} change="filter_individuals">
-                    <select name="registered_at_company_entity_id" class="form-input py-1">
-                      <option value="all" selected={@filters["registered_at_company_entity_id"] == "all"}>
-                        Todas as Pessoas
-                      </option>
+            <th colspan="2">
+              <div class="flex justify-between items-center py-3 px-6">
+                <ButtonPlus on_click="open_new_individual_modal" />
 
-                      <option
-                        value="active_employees"
-                        selected={@filters["registered_at_company_entity_id"] == "active_employees"}
-                      >
-                        Funcionários Ativos
-                      </option>
-
-                      {#for company <- @companies}
-                        <option
-                          value={company.entity_id}
-                          selected={@filters["registered_at_company_entity_id"] == company.entity_id}
-                        >
-                          {company.trade_name}
-                        </option>
-                      {/for}
-                    </select>
-                  </Form>
-
-                  <div class="font-extralight">
-                    {@filtered_individuals_count}
-                  </div>
+                <div class="text-gray-600 text-sm font-light">
+                  Contagem: {@filtered_individuals_count}
                 </div>
 
-                <ButtonPlus on_click="open_new_individual_modal" />
+
+                <div class="w-35">
+                  <a
+                    class="btn-yellow"
+                    style="padding: 0.2em 1em; font-size: 0.8em;"
+                    :on-click="reset_filters"
+                    :show={@filters != @default_filters}
+                  >
+                    Limpar filtros
+                  </a>
+                </div>
+              </div>
+            </th>
+
+            <Form for={:filter} change="update_filters" id="filter" />
+
+            <th colspan="1" class="text-gray-500 font-medium tracking-wider">
+              <div class="flex justify-start px-6">
+                <select name="registered_at_company_entity_id" form="filter" class="form-input py-1">
+                  <option value="all" selected={@filters["registered_at_company_entity_id"] == "all"}>
+                    Todas as Pessoas
+                  </option>
+
+                  <option
+                    value="active_employees"
+                    selected={@filters["registered_at_company_entity_id"] == "active_employees"}
+                  >
+                    Funcionários Ativos
+                  </option>
+
+                  {#for real_company <- Enum.reject(@companies, & &1.is_virtual)}
+                    <option
+                      value={real_company.entity_id}
+                      selected={@filters["registered_at_company_entity_id"] == real_company.entity_id}
+                    >
+                      {real_company.trade_name}
+                    </option>
+                  {/for}
+                </select>
+              </div>
+            </th>
+
+            <th colspan="1" class="text-gray-500 font-medium tracking-wider">
+              <div class="flex justify-start px-6">
+                <select name="assigned_company_entity_id" form="filter" class="form-input py-1">
+                  <option value="" selected={@filters["assigned_company_entity_id"] == ""} disabled />
+
+                  <option value="all" selected={@filters["assigned_company_entity_id"] == "all"}>
+                    Todas as Empresas
+                  </option>
+
+                  {#for company <- Enum.sort_by(@companies, & &1.is_virtual)}
+                    <option
+                      value={company.entity_id}
+                      selected={@filters["assigned_company_entity_id"] == company.entity_id}
+                    >
+                      {company.trade_name}
+                    </option>
+                  {/for}
+                </select>
               </div>
             </th>
           </tr>
