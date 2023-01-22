@@ -20,6 +20,8 @@ defmodule Sig.Entities.Individuals.Individual do
 
     has_many :registrations, Registration, references: :entity_id, foreign_key: :individual_id
     has_many :registered_at_companies, through: [:registrations, :registered_at]
+    has_many :company_assignments, through: [:registrations, :company_assignments]
+    has_many :assigned_companies, through: [:company_assignments, :assigned_company]
 
     timestamps()
   end
