@@ -1,6 +1,8 @@
 defmodule SigLive.Individuals.Index do
   use SigLive, :surface_live_view
 
+  import Sig.UUID, only: [is_uuid?: 1]
+
   alias Surface.Components.LiveRedirect
   alias Surface.Components.Form
 
@@ -105,6 +107,13 @@ defmodule SigLive.Individuals.Index do
     params
     |> Map.filter(fn {k, _v} -> Map.has_key?(@default_filters, k) end)
     |> case do
+      %{
+        "registered_at_company_entity_id" => "all",
+        "assigned_company_entity_id" => assigned_company_entity_id
+      } = filters
+      when is_uuid?(assigned_company_entity_id) ->
+        Map.put(filters, "registered_at_company_entity_id", "active_employees")
+
       %{"registered_at_company_entity_id" => "all"} = filters ->
         Map.put(filters, "assigned_company_entity_id", "")
 
