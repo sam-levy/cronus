@@ -17,8 +17,8 @@ defmodule Sig.Entities.Companies do
     "Central de Processamento" => "#EF4444"
   }
 
-  def get_color_by_trade_name(trade_same) do
-    Map.get(@color_by_trade_name, trade_same, "black")
+  def get_color_by_trade_name(trade_name) do
+    Map.get(@color_by_trade_name, trade_name, "black")
   end
 
   def fetch(%Org{} = org, entity_id) when is_binary(entity_id) do
