@@ -5,10 +5,10 @@ defmodule Sig.Entities.Individuals do
 
   alias Ecto.Multi
 
+  alias Sig.Documents
   alias Sig.Entities.Companies.Company
   alias Sig.Entities.Entity
   alias Sig.Entities.Individuals.Individual
-  alias Sig.Documents
   alias Sig.Organizations.Org
   alias Sig.Repo
 
@@ -94,7 +94,13 @@ defmodule Sig.Entities.Individuals do
       :left_lateral,
       [individual: individual],
       r in fragment(
-        "SELECT * FROM employee_registrations AS r WHERE r.org_id = ? AND r.individual_id = ? AND r.resignation_date IS NULL",
+        """
+          SELECT *
+          FROM employee_registrations AS r
+          WHERE r.org_id = ?
+          AND r.individual_id = ? AND
+          r.resignation_date IS NULL
+        """,
         individual.org_id,
         individual.entity_id
       ),
@@ -105,5 +111,44 @@ defmodule Sig.Entities.Individuals do
       as: :active_registered_at_companies
     )
     |> preload([active_registered_at_companies: c], registered_at_companies: c)
+  end
+
+  @impl Sig.Query
+  def shallow_preload(queryable, :active_assigned_companies) do
+    if has_named_binding?(queryable, :active_registered_at_companies) do
+      do_shallow_preload(queryable, :active_assigned_companies)
+    else
+      queryable
+      |> shallow_preload(:active_registered_at_companies)
+      |> do_shallow_preload(:active_assigned_companies)
+    end
+  end
+
+  defp do_shallow_preload(queryable, :active_assigned_companies) do
+    queryable
+    |> join(
+      :left_lateral,
+      [
+        individual: individual,
+        active_registrations: active_registrations
+      ],
+      ca in fragment(
+        """
+          SELECT DISTINCT ON (eca.registration_id) *
+          FROM employee_company_assignments AS eca
+          WHERE eca.org_id = ?
+          AND eca.registration_id = ?
+          ORDER BY eca.registration_id, eca.start_date DESC
+        """,
+        individual.org_id,
+        active_registrations.id
+      ),
+      as: :active_company_assignments
+    )
+    |> join(:left, [active_company_assignments: aca], c in Company,
+      on: c.entity_id == aca.assigned_company_id,
+      as: :active_assigned_companies
+    )
+    |> preload([active_assigned_companies: aac], assigned_companies: aac)
   end
 end

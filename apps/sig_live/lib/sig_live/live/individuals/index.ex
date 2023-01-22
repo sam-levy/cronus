@@ -10,7 +10,7 @@ defmodule SigLive.Individuals.Index do
   alias SigLive.Components.ButtonPlus
   alias SigLive.Individuals.New
 
-  @individuals_list_opts [preload: :active_registered_at_companies]
+  @individuals_list_opts [preload: [:active_registered_at_companies, :active_assigned_companies]]
 
   @default_filters %{"registered_at_company_entity_id" => "active_employees"}
 
@@ -158,7 +158,7 @@ defmodule SigLive.Individuals.Index do
       <table class="w-full bg-white shadow-lg mb-5">
         <thead class="top-0 sticky">
           <tr class="bg-white">
-            <th colspan="3">
+            <th colspan="4">
               <div class="flex justify-between items-center py-3 px-6 text-gray-500 font-medium tracking-wider">
                 <div class="flex justify-start items-center space-x-3">
                   <Form for={:filter} change="filter_individuals">
@@ -198,7 +198,8 @@ defmodule SigLive.Individuals.Index do
           <tr class="bg-gray-100 uppercase text-xs font-medium text-gray-500 tracking-wider">
             <th class="py-3 px-6 text-left">Nome</th>
             <th class="py-3 px-6 text-left">CPF</th>
-            <th class="py-3 px-6 text-left">Registro Ativo</th>
+            <th class="py-3 px-6 text-left">Registro</th>
+            <th class="py-3 px-6 text-left">Designação</th>
           </tr>
         </thead>
 
@@ -220,6 +221,10 @@ defmodule SigLive.Individuals.Index do
 
               <td class="py-3 px-6 text-left">
                 <span>{handle_company_names(individual.registered_at_companies)}</span>
+              </td>
+
+              <td class="py-3 px-6 text-left">
+                <span>{handle_company_names(individual.assigned_companies)}</span>
               </td>
             </tr>
           {/for}
