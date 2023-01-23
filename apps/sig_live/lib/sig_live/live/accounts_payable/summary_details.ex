@@ -20,7 +20,7 @@ defmodule SigLive.AccountsPayable.SummaryDetails do
     socket =
       socket
       |> assign(assigns)
-      |> assign(payables: Finance.list_payables_by(org, payable_ids: ids, preload: :employee))
+      |> assign(payables: Finance.list_payables_by(org, payable_ids: ids, preload: [:payslip, :employee]))
 
     {:ok, socket}
   end
@@ -32,10 +32,20 @@ defmodule SigLive.AccountsPayable.SummaryDetails do
       <div class="space-y-6 divide-y divide-gray-300">
         <ul role="list" class="bg-gray-50 rounded-lg divide-y divide-gray-200">
           {#for payable <- @payables}
-            <a class="py-3 px-4 block hover:bg-gray-100 hover:rounded-lg" target="_blank">
+            <a
+              class="py-3 px-4 block hover:bg-gray-100 hover:rounded-lg"
+              href={Routes.sig_employee_registrations_show_path(
+                @socket,
+                :payslip,
+                @org,
+                payable.payslip.registration_id,
+                payable.payslip
+              )}
+              target="_blank"
+            >
               <div class="flex items-center space-x-4">
                 <div class="flex-1 min-w-0">
-                  <p class="text-sm font-medium text-gray-900 truncate">
+                  <p class="text-sm font-medium text-gray-900">
                     {#case payable}
                       {#match %{employee: %Ecto.Association.NotLoaded{}}}
                         {payable.description}
@@ -44,7 +54,7 @@ defmodule SigLive.AccountsPayable.SummaryDetails do
                     {/case}
                   </p>
 
-                  <p class="text-sm text-gray-500 truncate">
+                  <p class="text-sm text-gray-500">
                     {format_date(payable.due_date)}
                   </p>
                 </div>
