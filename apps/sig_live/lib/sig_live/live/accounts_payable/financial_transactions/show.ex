@@ -83,7 +83,7 @@ defmodule SigLive.AccountsPayable.FinancialTransactions.Show do
             >
               <div class="flex items-center space-x-4">
                 <div class="flex-1 min-w-0">
-                  <p class="text-sm font-medium text-gray-900 truncate">
+                  <p class="text-sm font-medium text-gray-900">
                     {#case payable}
                       {#match %{employee: %Ecto.Association.NotLoaded{}}}
                         {payable.description}
@@ -92,7 +92,7 @@ defmodule SigLive.AccountsPayable.FinancialTransactions.Show do
                     {/case}
                   </p>
 
-                  <p class="text-sm text-gray-500 truncate">
+                  <p class="text-sm text-gray-500">
                     {format_date(payable.due_date)}
                   </p>
                 </div>
