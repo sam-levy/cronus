@@ -15,6 +15,11 @@ defmodule Sig.Query do
               assoc :: atom()
             ) :: Ecto.Queryable.t()
 
+  @callback do_shallow_preload(
+              queryable :: Ecto.Queryable.t(),
+              custom_field :: atom()
+            ) :: Ecto.Queryable.t()
+
   defmacro __using__(opts) do
     schema = Keyword.fetch!(opts, :schema)
     named_binding = Keyword.fetch!(opts, :as)
@@ -56,8 +61,18 @@ defmodule Sig.Query do
       end
 
       for assoc <- schema.__schema__(:associations) do
-        defp do_shallow_preload(queryable, unquote(assoc)) do
+        def do_shallow_preload(queryable, unquote(assoc)) do
           preload(queryable, [{unquote(assoc), field}], [{unquote(assoc), field}])
+        end
+      end
+
+      def shallow_preload_with_joined(queryable, preload, join) do
+        if has_named_binding?(queryable, join) do
+          do_shallow_preload(queryable, preload)
+        else
+          queryable
+          |> do_join(join)
+          |> do_shallow_preload(preload)
         end
       end
 
