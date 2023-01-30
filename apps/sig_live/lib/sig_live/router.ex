@@ -125,7 +125,7 @@ defmodule SigLive.Router do
     pipe_through [:browser, :require_authenticated_user]
 
     get "/users/settings", UserSettingsController, :edit
-    post "/users/settings", UserSettingsController, :update
+    put "/users/settings", UserSettingsController, :update
     get "/users/settings/confirm_email/:token", UserSettingsController, :confirm_email
 
     get "/users/register", UserRegistrationController, :new

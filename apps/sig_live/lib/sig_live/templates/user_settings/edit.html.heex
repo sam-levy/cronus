@@ -2,7 +2,7 @@
   <div class="px-8 py-6 w-2/6 bg-white shadow-lg">
     <h1 class="text-xl text-gray-600 font-bold text-center">Alteração de Senha</h1>
 
-    <.form let={f} for={@password_changeset} action={Routes.user_settings_path(@conn, :update)} id="update_password" class="flex flex-col space-y-5">
+    <.form let={f} for={@password_changeset} method="put" action={Routes.user_settings_path(@conn, :update)} id="update_password" class="flex flex-col space-y-5">
       <%= hidden_input f, :action, name: "action", value: "update_password" %>
 
       <%= password_input f, :current_password, required: true, name: "current_password", id: "current_password_for_password", class: "form-input", placeholder: "Senha atual" %>

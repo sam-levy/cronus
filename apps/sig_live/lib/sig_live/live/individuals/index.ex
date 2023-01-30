@@ -16,7 +16,8 @@ defmodule SigLive.Individuals.Index do
     preload: [
       :active_registrations,
       :active_registered_at_companies,
-      :active_assigned_companies
+      :active_assigned_companies,
+      :active_registrations_positions
     ]
   ]
 
@@ -207,7 +208,7 @@ defmodule SigLive.Individuals.Index do
       <table class="w-full bg-white shadow-lg mb-5">
         <thead class="top-0 sticky">
           <tr class="bg-white">
-            <th colspan="2">
+            <th colspan="1">
               <div class="flex justify-between items-center py-3 px-6">
                 <ButtonPlus on_click="open_new_individual_modal" />
 
@@ -290,9 +291,9 @@ defmodule SigLive.Individuals.Index do
 
           <tr class="bg-gray-100 uppercase text-xs font-medium text-gray-500 tracking-wider">
             <th class="py-3 px-6 text-left">Nome</th>
-            <th class="py-3 px-6 text-left">CPF</th>
             <th class="py-3 px-6 text-left">Registro</th>
             <th class="py-3 px-6 text-left">Designação</th>
+            <th class="py-3 px-6 text-left">Cargo</th>
           </tr>
         </thead>
 
@@ -308,10 +309,6 @@ defmodule SigLive.Individuals.Index do
                 </LiveRedirect>
               </td>
 
-              <td class="py-3 px-6 text-left select-all">
-                <span>{format_cpf(individual.cpf)}</span>
-              </td>
-
               <td class="py-3 px-6 text-left">
                 <div :if={is_non_empty_list(individual.registrations)}>
                   <LiveRedirect
@@ -323,7 +320,7 @@ defmodule SigLive.Individuals.Index do
                     )}
                     class="hover:underline"
                   >
-                    <span>{first_company_name(individual.registered_at_companies)}</span>
+                    <span>{first_item_attr(individual.registered_at_companies, :trade_name)}</span>
                   </LiveRedirect>
 
                   <span :if={tail_count(individual.registered_at_companies) > 0}>
@@ -333,11 +330,15 @@ defmodule SigLive.Individuals.Index do
 
               <td class="py-3 px-6 text-left">
                 <div :if={is_non_empty_list(individual.assigned_companies)}>
-                  <span>{first_company_name(individual.assigned_companies)}</span>
+                  <span>{first_item_attr(individual.assigned_companies, :trade_name)}</span>
 
                   <span :if={tail_count(individual.assigned_companies) > 0}>
                     + {tail_count(individual.assigned_companies)}</span>
                 </div>
+              </td>
+
+              <td class="py-3 px-6 text-left">
+                <span>{first_item_attr(individual.positions, :name)}</span>
               </td>
             </tr>
           {/for}
@@ -354,9 +355,9 @@ defmodule SigLive.Individuals.Index do
   defp is_non_empty_list([]), do: false
   defp is_non_empty_list([_ | _]), do: true
 
-  defp first_company_name([]), do: ""
-  defp first_company_name([company]), do: company.trade_name
-  defp first_company_name([company | _]), do: company.trade_name
+  defp first_item_attr([], _attr), do: ""
+  defp first_item_attr([item], attr), do: Map.get(item, attr)
+  defp first_item_attr([item | _], attr), do: Map.get(item, attr)
 
   defp tail_count([]), do: 0
   defp tail_count([_]), do: 0

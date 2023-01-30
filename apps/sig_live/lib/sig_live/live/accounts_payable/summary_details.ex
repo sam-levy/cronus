@@ -20,7 +20,9 @@ defmodule SigLive.AccountsPayable.SummaryDetails do
     socket =
       socket
       |> assign(assigns)
-      |> assign(payables: Finance.list_payables_by(org, payable_ids: ids, preload: [:payslip, :employee]))
+      |> assign(
+        payables: Finance.list_payables_by(org, payable_ids: ids, preload: [:payslip, :employee])
+      )
 
     {:ok, socket}
   end
