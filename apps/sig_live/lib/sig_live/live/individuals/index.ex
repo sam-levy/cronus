@@ -286,6 +286,10 @@ defmodule SigLive.Individuals.Index do
                   </select>
                 </div>
               </th>
+
+              <th colspan="1" class="text-gray-500 font-medium tracking-wider">
+                <div class="flex justify-start px-6"></div>
+              </th>
             </Form>
           </tr>
 
