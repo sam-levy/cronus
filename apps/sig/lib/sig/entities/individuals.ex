@@ -107,7 +107,19 @@ defmodule Sig.Entities.Individuals do
   def do_join(queryable, :active_registrations) do
     queryable
     |> join(:left, [individual: i], r in Registration,
-      on: r.org_id == i.org_id and r.individual_id == i.entity_id and is_nil(r.resignation_date),
+      on:
+        r.id in fragment(
+          """
+            SELECT id
+            FROM employee_registrations AS r
+            WHERE r.org_id = ?
+            AND r.individual_id = ?
+            AND r.resignation_date IS NULL
+            ORDER BY r.admission_date DESC
+          """,
+          i.org_id,
+          i.entity_id
+        ),
       as: :active_registrations
     )
   end
