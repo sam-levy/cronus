@@ -8,6 +8,7 @@ defmodule SigLive.Individuals.Show do
   alias SigLive.BankAccounts
   alias SigLive.Components.AppMenu
   alias SigLive.EmployeeRegistrations
+  alias SigLive.Individual
 
   @impl true
   def mount(%{"id" => id}, _session, socket) do
@@ -66,7 +67,7 @@ defmodule SigLive.Individuals.Show do
   @impl true
   def render(assigns) do
     ~F"""
-    <div>
+    <div class="space-y-7">
       <AppMenu id="app_menu" {=@org}>
         <AppMenu.Breadcrumb noslash name="RH" />
         <AppMenu.Breadcrumb
@@ -75,6 +76,12 @@ defmodule SigLive.Individuals.Show do
         />
         <AppMenu.Breadcrumb name={@individual.name} />
       </AppMenu>
+
+      <Individual.PersonalIinfo
+        id="personal_info"
+        {=@org}
+        {=@individual}
+      />
 
       <BankAccounts.List
         id="bank_accounts"
