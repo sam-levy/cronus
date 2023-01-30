@@ -77,11 +77,7 @@ defmodule SigLive.Individuals.Show do
         <AppMenu.Breadcrumb name={@individual.name} />
       </AppMenu>
 
-      <Individual.PersonalIinfo
-        id="personal_info"
-        {=@org}
-        {=@individual}
-      />
+      <Individual.PersonalIinfo id="personal_info" {=@org} {=@individual} />
 
       <BankAccounts.List
         id="bank_accounts"
