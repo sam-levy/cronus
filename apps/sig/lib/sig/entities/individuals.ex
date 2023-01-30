@@ -9,6 +9,7 @@ defmodule Sig.Entities.Individuals do
   alias Sig.Entities.Companies.Company
   alias Sig.Entities.Entity
   alias Sig.Entities.Individuals.Individual
+  alias Sig.HR.Registrations.Registration
   alias Sig.Organizations.Org
   alias Sig.Repo
 
@@ -88,24 +89,49 @@ defmodule Sig.Entities.Individuals do
   defp as_result(nil), do: {:error, :not_found}
 
   @impl Sig.Query
+  def shallow_preload(queryable, :active_registrations) do
+    shallow_preload_with_joined(queryable, :active_registrations, :active_registrations)
+  end
+
+  @impl Sig.Query
   def shallow_preload(queryable, :active_registered_at_companies) do
+    shallow_preload_with_joined(queryable, :active_registered_at_companies, :active_registrations)
+  end
+
+  @impl Sig.Query
+  def shallow_preload(queryable, :active_assigned_companies) do
+    shallow_preload_with_joined(queryable, :active_assigned_companies, :active_registrations)
+  end
+
+  @impl Sig.Query
+  def do_join(queryable, :active_registrations) do
     queryable
-    |> join(
-      :left_lateral,
-      [individual: individual],
-      r in fragment(
-        """
-          SELECT *
-          FROM employee_registrations AS r
-          WHERE r.org_id = ?
-          AND r.individual_id = ? AND
-          r.resignation_date IS NULL
-        """,
-        individual.org_id,
-        individual.entity_id
-      ),
+    |> join(:left, [individual: i], r in Registration,
+      on:
+        r.id in fragment(
+          """
+            SELECT id
+            FROM employee_registrations AS r
+            WHERE r.org_id = ?
+            AND r.individual_id = ?
+            AND r.resignation_date IS NULL
+            ORDER BY r.admission_date DESC
+          """,
+          i.org_id,
+          i.entity_id
+        ),
       as: :active_registrations
     )
+  end
+
+  @impl Sig.Query
+  def do_shallow_preload(queryable, :active_registrations) do
+    preload(queryable, [active_registrations: r], registrations: r)
+  end
+
+  @impl Sig.Query
+  def do_shallow_preload(queryable, :active_registered_at_companies) do
+    queryable
     |> join(:left, [active_registrations: r], c in Company,
       on: c.entity_id == r.registered_at_id,
       as: :active_registered_at_companies
@@ -114,17 +140,7 @@ defmodule Sig.Entities.Individuals do
   end
 
   @impl Sig.Query
-  def shallow_preload(queryable, :active_assigned_companies) do
-    if has_named_binding?(queryable, :active_registered_at_companies) do
-      do_shallow_preload(queryable, :active_assigned_companies)
-    else
-      queryable
-      |> shallow_preload(:active_registered_at_companies)
-      |> do_shallow_preload(:active_assigned_companies)
-    end
-  end
-
-  defp do_shallow_preload(queryable, :active_assigned_companies) do
+  def do_shallow_preload(queryable, :active_assigned_companies) do
     queryable
     |> join(
       :left_lateral,

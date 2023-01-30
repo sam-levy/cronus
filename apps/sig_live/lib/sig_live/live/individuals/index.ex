@@ -12,7 +12,13 @@ defmodule SigLive.Individuals.Index do
   alias SigLive.Components.ButtonPlus
   alias SigLive.Individuals.New
 
-  @individuals_list_opts [preload: [:active_registered_at_companies, :active_assigned_companies]]
+  @individuals_list_opts [
+    preload: [
+      :active_registrations,
+      :active_registered_at_companies,
+      :active_assigned_companies
+    ]
+  ]
 
   @default_filters %{
     "registered_at_company_entity_id" => "active_employees",
@@ -307,11 +313,31 @@ defmodule SigLive.Individuals.Index do
               </td>
 
               <td class="py-3 px-6 text-left">
-                <span>{handle_company_names(individual.registered_at_companies)}</span>
+                <div :if={is_non_empty_list(individual.registrations)}>
+                  <LiveRedirect
+                    to={Routes.sig_employee_registrations_show_path(
+                      @socket,
+                      :registration_summary,
+                      @org,
+                      List.first(individual.registrations)
+                    )}
+                    class="hover:underline"
+                  >
+                    <span>{first_company_name(individual.registered_at_companies)}</span>
+                  </LiveRedirect>
+
+                  <span :if={tail_count(individual.registered_at_companies) > 0}>
+                    + {tail_count(individual.registered_at_companies)}</span>
+                </div>
               </td>
 
               <td class="py-3 px-6 text-left">
-                <span>{handle_company_names(individual.assigned_companies)}</span>
+                <div :if={is_non_empty_list(individual.assigned_companies)}>
+                  <span>{first_company_name(individual.assigned_companies)}</span>
+
+                  <span :if={tail_count(individual.assigned_companies) > 0}>
+                    + {tail_count(individual.assigned_companies)}</span>
+                </div>
               </td>
             </tr>
           {/for}
@@ -325,11 +351,14 @@ defmodule SigLive.Individuals.Index do
     [new_individual_modal_open: false]
   end
 
-  defp handle_company_names([]), do: ""
+  defp is_non_empty_list([]), do: false
+  defp is_non_empty_list([_ | _]), do: true
 
-  defp handle_company_names([company]), do: company.trade_name
+  defp first_company_name([]), do: ""
+  defp first_company_name([company]), do: company.trade_name
+  defp first_company_name([company | _]), do: company.trade_name
 
-  defp handle_company_names([company | others]) do
-    "#{company.trade_name} + #{Enum.count(others)}"
-  end
+  defp tail_count([]), do: 0
+  defp tail_count([_]), do: 0
+  defp tail_count([_ | tail]), do: Enum.count(tail)
 end
