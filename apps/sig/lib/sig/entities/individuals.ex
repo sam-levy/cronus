@@ -10,6 +10,7 @@ defmodule Sig.Entities.Individuals do
   alias Sig.Entities.Entity
   alias Sig.Entities.Individuals.Individual
   alias Sig.HR.Registrations.Registration
+  alias Sig.Organizations.Position
   alias Sig.Organizations.Org
   alias Sig.Repo
 
@@ -104,6 +105,11 @@ defmodule Sig.Entities.Individuals do
   end
 
   @impl Sig.Query
+  def shallow_preload(queryable, :active_registrations_positions) do
+    shallow_preload_with_joined(queryable, :active_registrations_positions, :active_registrations)
+  end
+
+  @impl Sig.Query
   def do_join(queryable, :active_registrations) do
     queryable
     |> join(:left, [individual: i], r in Registration,
@@ -166,5 +172,35 @@ defmodule Sig.Entities.Individuals do
       as: :active_assigned_companies
     )
     |> preload([active_assigned_companies: aac], assigned_companies: aac)
+  end
+
+  @impl Sig.Query
+  def do_shallow_preload(queryable, :active_registrations_positions) do
+    queryable
+    |> join(
+      :left_lateral,
+      [
+        individual: individual,
+        active_registrations: active_registrations
+      ],
+      ca in fragment(
+        """
+          SELECT DISTINCT ON (rop.registration_id) *
+          FROM registration_org_positions AS rop
+          WHERE rop.org_id = ?
+          AND rop.registration_id = ?
+          AND rop.start_date <= CURRENT_DATE
+          ORDER BY rop.registration_id, rop.start_date DESC
+        """,
+        individual.org_id,
+        active_registrations.id
+      ),
+      as: :active_registrations_org_positions
+    )
+    |> join(:left, [active_registrations_org_positions: arop], p in Position,
+      on: p.id == arop.position_id,
+      as: :active_org_positions
+    )
+    |> preload([active_org_positions: aop], positions: aop)
   end
 end
