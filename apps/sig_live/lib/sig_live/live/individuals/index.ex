@@ -207,7 +207,7 @@ defmodule SigLive.Individuals.Index do
       <table class="w-full bg-white shadow-lg mb-5">
         <thead class="top-0 sticky">
           <tr class="bg-white">
-            <th colspan="2">
+            <th colspan="1">
               <div class="flex justify-between items-center py-3 px-6">
                 <ButtonPlus on_click="open_new_individual_modal" />
 
@@ -284,10 +284,6 @@ defmodule SigLive.Individuals.Index do
                     {/for}
                   </select>
                 </div>
-              </th>
-
-              <th colspan="1" class="text-gray-500 font-medium tracking-wider">
-                <div class="flex justify-start px-6"></div>
               </th>
             </Form>
           </tr>
