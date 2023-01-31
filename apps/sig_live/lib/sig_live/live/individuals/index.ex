@@ -208,7 +208,7 @@ defmodule SigLive.Individuals.Index do
       <table class="w-full bg-white shadow-lg mb-5">
         <thead class="top-0 sticky">
           <tr class="bg-white">
-            <th colspan="1">
+            <th colspan="2">
               <div class="flex justify-between items-center py-3 px-6">
                 <ButtonPlus on_click="open_new_individual_modal" />
 
@@ -297,7 +297,6 @@ defmodule SigLive.Individuals.Index do
             <th class="py-3 px-6 text-left">Nome</th>
             <th class="py-3 px-6 text-left">Registro</th>
             <th class="py-3 px-6 text-left">Designação</th>
-            <th class="py-3 px-6 text-left">Cargo</th>
           </tr>
         </thead>
 
@@ -339,10 +338,6 @@ defmodule SigLive.Individuals.Index do
                   <span :if={tail_count(individual.assigned_companies) > 0}>
                     + {tail_count(individual.assigned_companies)}</span>
                 </div>
-              </td>
-
-              <td class="py-3 px-6 text-left">
-                <span>{first_item_attr(individual.positions, :name)}</span>
               </td>
             </tr>
           {/for}
