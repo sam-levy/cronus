@@ -10,7 +10,6 @@ defmodule Sig.Entities.Individuals do
   alias Sig.Entities.Entity
   alias Sig.Entities.Individuals.Individual
   alias Sig.HR.Registrations.Registration
-  alias Sig.Organizations.Position
   alias Sig.Organizations.Org
   alias Sig.Repo
 

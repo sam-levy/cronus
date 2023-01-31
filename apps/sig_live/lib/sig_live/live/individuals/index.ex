@@ -16,8 +16,7 @@ defmodule SigLive.Individuals.Index do
     preload: [
       :active_registrations,
       :active_registered_at_companies,
-      :active_assigned_companies,
-      :active_registrations_positions
+      :active_assigned_companies
     ]
   ]
 
