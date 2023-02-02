@@ -35,7 +35,6 @@ defmodule Sig.Accounting.Invoices.Invoice do
     %__MODULE__{}
     |> cast(attrs, @required_fields ++ [:number, :delivery_date])
     |> validate_required(@required_fields)
-    |> validate_length(:nfe_access_key, max: 44)
     |> validate_length(:number, max: 255)
     |> validate_money(:amount, [:gt, :eq], 0)
     |> unique_constraint([:number, :invoiced_by_id])
