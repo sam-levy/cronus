@@ -10,7 +10,7 @@ defmodule Sig.Repo.Migrations.CreateInvoicesTable do
 
       add :type, :invoice_type, null: false
       add :nfe_access_key, :string, size: 44
-      add :number, :string, size: 9
+      add :number, :string, size: 9, null: false
       add :issue_date, :date, null: false
       add :delivery_date, :date
       add :amount, :integer, null: false
@@ -21,7 +21,7 @@ defmodule Sig.Repo.Migrations.CreateInvoicesTable do
       timestamps()
     end
 
-    create unique_index(:invoices, :nfe_access_key)
+    create unique_index(:invoices, [:nfe_access_key])
 
     create unique_index(
              :invoices,
