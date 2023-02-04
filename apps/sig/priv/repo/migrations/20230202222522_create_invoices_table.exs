@@ -10,7 +10,7 @@ defmodule Sig.Repo.Migrations.CreateInvoicesTable do
 
       add :type, :invoice_type, null: false
       add :nfe_access_key, :string, size: 44
-      add :number, :string
+      add :number, :string, size: 9
       add :issue_date, :date, null: false
       add :delivery_date, :date
       add :amount, :integer, null: false
