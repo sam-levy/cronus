@@ -162,6 +162,26 @@ defmodule Sig.Accounting.Invoices.InvoiceTest do
                number: ["should be at most 9 character(s)"]
              }
     end
+
+    test "string number numericality" do
+      attrs = %{
+        org_id: UUID.generate(),
+        number: 123,
+        issue_date: random_past_date(30),
+        delivery_date: random_past_date(30),
+        invoiced_by_id: UUID.generate(),
+        invoiced_to_id: UUID.generate(),
+        amount: Enum.random(100_00..5_000_00)
+      }
+
+      assert changeset = Invoice.create_non_nfe_changeset(attrs)
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+               number: ["is invalid"]
+             }
+    end
   end
 
   describe "create_nfe_changeset/1" do
@@ -310,6 +330,28 @@ defmodule Sig.Accounting.Invoices.InvoiceTest do
                nfe_access_key: ["should be at most 44 character(s)"]
              }
     end
+
+    test "string number numericality" do
+      attrs = %{
+        org_id: UUID.generate(),
+        nfe_access_key: 123,
+        number: 123,
+        issue_date: random_past_date(30),
+        delivery_date: random_past_date(30),
+        invoiced_by_id: UUID.generate(),
+        invoiced_to_id: UUID.generate(),
+        amount: Enum.random(100_00..5_000_00)
+      }
+
+      assert changeset = Invoice.create_nfe_changeset(attrs)
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+               nfe_access_key: ["is invalid"],
+               number: ["is invalid"]
+             }
+    end
   end
 
   describe "create_tax_changeset/1" do
@@ -440,6 +482,25 @@ defmodule Sig.Accounting.Invoices.InvoiceTest do
 
       assert errors_on(changeset) == %{
                number: ["should be at most 9 character(s)"]
+             }
+    end
+
+    test "string number numericality" do
+      attrs = %{
+        org_id: UUID.generate(),
+        number: 123,
+        issue_date: random_past_date(30),
+        invoiced_by_id: UUID.generate(),
+        invoiced_to_id: UUID.generate(),
+        amount: Enum.random(100_00..5_000_00)
+      }
+
+      assert changeset = Invoice.create_tax_changeset(attrs)
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+               number: ["is invalid"]
              }
     end
   end
