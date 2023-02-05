@@ -1,10 +1,10 @@
-defmodule Sig.Factories.SectorFactory do
+defmodule Sig.Factories.ChartOfAccountFactory do
   defmacro __using__(_opts \\ []) do
     quote do
-      alias Sig.Organizations.Sector
+      alias Sig.Accounting.ChartOfAccounts.ChartOfAccount
 
-      def factory(:org_sector) do
-        %Sector{
+      def factory(:chart_of_account) do
+        %ChartOfAccount{
           org: build(:org),
           name: sequence(&"#{Faker.Company.bullshit_prefix()}_#{&1}")
         }
