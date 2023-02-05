@@ -182,6 +182,27 @@ defmodule Sig.Accounting.Invoices.InvoiceTest do
                number: ["is invalid"]
              }
     end
+
+    test "insert changeset" do
+      org = insert(:org)
+      invoiced_by = insert(:entity, org: org)
+      invoiced_to = insert(:entity, org: org)
+
+      attrs = %{
+        org_id: org.id,
+        number: random_string_number(9),
+        issue_date: random_past_date(30),
+        delivery_date: random_past_date(30),
+        invoiced_by_id: invoiced_by.id,
+        invoiced_to_id: invoiced_to.id,
+        amount: Enum.random(100_00..5_000_00)
+      }
+
+      assert {:ok, _invoice} =
+               attrs
+               |> Invoice.create_non_nfe_changeset()
+               |> Repo.insert()
+    end
   end
 
   describe "create_nfe_changeset/1" do
@@ -352,6 +373,28 @@ defmodule Sig.Accounting.Invoices.InvoiceTest do
                number: ["is invalid"]
              }
     end
+
+    test "insert changeset" do
+      org = insert(:org)
+      invoiced_by = insert(:entity, org: org)
+      invoiced_to = insert(:entity, org: org)
+
+      attrs = %{
+        org_id: org.id,
+        nfe_access_key: random_string_number(44),
+        number: random_string_number(9),
+        issue_date: random_past_date(30),
+        delivery_date: random_past_date(30),
+        invoiced_by_id: invoiced_by.id,
+        invoiced_to_id: invoiced_to.id,
+        amount: Enum.random(100_00..5_000_00)
+      }
+
+      assert {:ok, _invoice} =
+               attrs
+               |> Invoice.create_nfe_changeset()
+               |> Repo.insert()
+    end
   end
 
   describe "create_tax_changeset/1" do
@@ -502,6 +545,26 @@ defmodule Sig.Accounting.Invoices.InvoiceTest do
       assert errors_on(changeset) == %{
                number: ["is invalid"]
              }
+    end
+
+    test "insert changeset" do
+      org = insert(:org)
+      invoiced_by = insert(:entity, org: org)
+      invoiced_to = insert(:entity, org: org)
+
+      attrs = %{
+        org_id: org.id,
+        number: random_string_number(9),
+        issue_date: random_past_date(30),
+        invoiced_by_id: invoiced_by.id,
+        invoiced_to_id: invoiced_to.id,
+        amount: Enum.random(100_00..5_000_00)
+      }
+
+      assert {:ok, _invoice} =
+               attrs
+               |> Invoice.create_tax_changeset()
+               |> Repo.insert()
     end
   end
 end
