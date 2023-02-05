@@ -31,7 +31,7 @@ defmodule Sig.Repo.Migrations.CreateInvoicesTable do
 
     create constraint(
              :invoices,
-             :invoices_amount_positive_positive,
+             :invoices_amount_positive,
              check: "amount >= 0"
            )
   end
