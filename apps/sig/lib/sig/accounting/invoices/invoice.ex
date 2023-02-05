@@ -27,8 +27,8 @@ defmodule Sig.Accounting.Invoices.Invoice do
     :number,
     :issue_date,
     :amount,
-    :invoiced_by,
-    :invoiced_to
+    :invoiced_by_id,
+    :invoiced_to_id
   ]
 
   def create_non_nfe_changeset(attrs) do
@@ -42,7 +42,7 @@ defmodule Sig.Accounting.Invoices.Invoice do
   def create_nfe_changeset(attrs) do
     %__MODULE__{}
     |> cast(attrs, @required_fields ++ [:delivery_date, :nfe_access_key])
-    |> validate_required(@required_fields)
+    |> validate_required(@required_fields ++ [:nfe_access_key])
     |> put_change(:type, :goods_and_services)
     |> validate_numericality(:nfe_access_key)
     |> validate_length(:nfe_access_key, max: 44)
@@ -57,7 +57,7 @@ defmodule Sig.Accounting.Invoices.Invoice do
     |> base_validations()
   end
 
-  def base_validations(changeset) do
+  defp base_validations(changeset) do
     changeset
     |> validate_required([:type])
     |> validate_numericality(:number)
