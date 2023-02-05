@@ -64,6 +64,8 @@ defmodule Sig.Accounting.Invoices.Invoice do
     |> validate_numericality(:number)
     |> validate_length(:number, max: 9)
     |> validate_money(:amount, [:gt, :eq], 0)
-    |> unique_constraint([:number, :invoiced_by_id, :org_id])
+    |> unique_constraint([:number, :invoiced_by_id, :org_id],
+      name: :invoices_number_invoiced_by_id_unique
+    )
   end
 end
