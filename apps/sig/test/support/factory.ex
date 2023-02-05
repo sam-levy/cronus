@@ -31,6 +31,7 @@ defmodule Sig.Factory do
   use Sig.Factories.PayslipPayableFactory
   use Sig.Factories.FinancialTransactionFactory
   use Sig.Factories.BankTransactionFactory
+  use Sig.Factories.InvoiceFactory
 
   def build(factory_name, attributes \\ []) do
     factory_name |> factory(attributes) |> struct(attributes)
@@ -53,9 +54,15 @@ defmodule Sig.Factory do
   def random_enum_value(:entry_type), do: random_enum_value(Sig.EntryType)
   def random_enum_value(enum), do: Enum.random(enum.__enums__())
 
-  def random_string_number, do: 100..1_000_000 |> Enum.random() |> to_string()
+  def random_string_number(size \\ 7) do
+    1..size
+    |> Enum.reduce([], fn _, acc -> [Enum.random(0..9) | acc] end)
+    |> Enum.join()
+  end
 
-  def random_past_date, do: 1..500_000 |> Enum.random() |> Faker.Date.backward()
+  def random_past_date(days_ago \\ 500_000) do
+    1..days_ago |> Enum.random() |> Faker.Date.backward()
+  end
 
   defp sequence(fun) when is_function(fun, 1) do
     fun.(System.unique_integer([:positive, :monotonic]))

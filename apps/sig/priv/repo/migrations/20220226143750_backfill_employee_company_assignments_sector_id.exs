@@ -3,7 +3,6 @@ defmodule Sig.Repo.Migrations.BackfillEmployeeCompanyAssignmentsSectorId do
 
   import Ecto.Query
 
-  alias Ecto.UUID
   alias Sig.Repo
 
   @disable_migration_lock true
