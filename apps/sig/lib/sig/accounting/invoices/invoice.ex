@@ -45,7 +45,7 @@ defmodule Sig.Accounting.Invoices.Invoice do
     |> validate_required(@required_fields ++ [:nfe_access_key])
     |> put_change(:type, :goods_and_services)
     |> validate_numericality(:nfe_access_key)
-    |> validate_length(:nfe_access_key, max: 44)
+    |> validate_length(:nfe_access_key, is: 44)
     |> base_validations()
   end
 

@@ -34,5 +34,11 @@ defmodule Sig.Repo.Migrations.CreateInvoicesTable do
              :invoices_amount_positive,
              check: "amount >= 0"
            )
+
+    create constraint(
+             :invoices,
+             :invoices_nfe_access_key_length,
+             check: "length(nfe_access_key) = 44"
+           )
   end
 end

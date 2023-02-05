@@ -23,6 +23,27 @@ defmodule Sig.Accounting.Invoices.InvoiceTest do
                    ~r/invoices_amount_positive \(check_constraint\)/,
                    fn -> Repo.insert(invoice) end
     end
+
+    test "invoices_nfe_access_key_length constraint" do
+      org = insert(:org)
+      invoiced_by = insert(:entity, org: org, type: :company)
+      invoiced_to = insert(:entity, org: org, type: :company)
+
+      invoice = %Invoice{
+        org_id: org.id,
+        type: random_enum_value(:invoice_type),
+        nfe_access_key: random_string_number(43),
+        number: random_string_number(9),
+        issue_date: random_past_date(30),
+        invoiced_by_id: invoiced_by.id,
+        invoiced_to_id: invoiced_to.id,
+        amount: 1
+      }
+
+      assert_raise Ecto.ConstraintError,
+                   ~r/invoices_nfe_access_key_length \(check_constraint\)/,
+                   fn -> Repo.insert(invoice) end
+    end
   end
 
   describe "create_non_nfe_changeset/1" do
@@ -348,7 +369,7 @@ defmodule Sig.Accounting.Invoices.InvoiceTest do
 
       assert errors_on(changeset) == %{
                number: ["should be at most 9 character(s)"],
-               nfe_access_key: ["should be at most 44 character(s)"]
+               nfe_access_key: ["should be 44 character(s)"]
              }
     end
 
