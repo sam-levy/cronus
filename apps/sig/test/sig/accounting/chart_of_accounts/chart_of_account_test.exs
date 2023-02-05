@@ -3,22 +3,6 @@ defmodule Sig.Accounting.ChartOfAccounts.ChartOfAccountTest do
 
   alias Sig.Accounting.ChartOfAccounts.ChartOfAccount
 
-  describe "chart_of_accounts table base constraints" do
-    test "[:name, :org_id] citext unique_constraint" do
-      org = insert(:org)
-      insert(:chart_of_account, org: org, name: "CHAIN 1")
-
-      sector = %ChartOfAccount{
-        org_id: org.id,
-        name: "Chain 1"
-      }
-
-      assert_raise Ecto.ConstraintError,
-                   ~r/chart_of_accounts_name_org_id_index \(unique_constraint\)/,
-                   fn -> Repo.insert(sector) end
-    end
-  end
-
   describe "changeset/2" do
     test "valid attrs" do
       attrs = %{
@@ -63,6 +47,21 @@ defmodule Sig.Accounting.ChartOfAccounts.ChartOfAccountTest do
              }
     end
 
+    test "string field max length" do
+      attrs = %{
+        org_id: UUID.generate(),
+        name: String.duplicate("a", 256)
+      }
+
+      assert changeset = ChartOfAccount.changeset(attrs)
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+               name: ["should be at most 255 character(s)"]
+             }
+    end
+
     test "[:name, :org_id] citext unique constraint" do
       org = insert(:org)
       insert(:chart_of_account, org: org, name: "CHAIN 1")
@@ -82,6 +81,20 @@ defmodule Sig.Accounting.ChartOfAccounts.ChartOfAccountTest do
       assert errors_on(changeset) == %{
                name: ["has already been taken"]
              }
+    end
+
+    test "insert changeset" do
+      org = insert(:org)
+
+      attrs = %{
+        org_id: org.id,
+        name: "Chain 1"
+      }
+
+      assert {:ok, _coa} =
+               attrs
+               |> ChartOfAccount.changeset()
+               |> Repo.insert()
     end
   end
 end
