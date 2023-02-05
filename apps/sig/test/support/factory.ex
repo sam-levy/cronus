@@ -33,6 +33,7 @@ defmodule Sig.Factory do
   use Sig.Factories.BankTransactionFactory
   use Sig.Factories.InvoiceFactory
   use Sig.Factories.ChartOfAccountFactory
+  use Sig.Factories.LedgerCategoryFactory
 
   def build(factory_name, attributes \\ []) do
     factory_name |> factory(attributes) |> struct(attributes)
