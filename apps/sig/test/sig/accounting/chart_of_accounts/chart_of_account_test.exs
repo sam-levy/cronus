@@ -91,7 +91,7 @@ defmodule Sig.Accounting.ChartOfAccounts.ChartOfAccountTest do
         name: "Chain 1"
       }
 
-      assert {:ok, _coa} =
+      assert {:ok, _} =
                attrs
                |> ChartOfAccount.changeset()
                |> Repo.insert()
