@@ -187,7 +187,7 @@ defmodule Sig.Accounting.Invoices.InvoiceTest do
     test "string number numericality" do
       attrs = %{
         org_id: UUID.generate(),
-        number: 123,
+        number: "NAN",
         issue_date: random_past_date(30),
         delivery_date: random_past_date(30),
         invoiced_by_id: UUID.generate(),
@@ -200,7 +200,59 @@ defmodule Sig.Accounting.Invoices.InvoiceTest do
       refute changeset.valid?
 
       assert errors_on(changeset) == %{
-               number: ["is invalid"]
+               number: ["has invalid format"]
+             }
+    end
+
+    test "invoiced_by assoc constraint" do
+      org = insert(:org)
+      invoiced_to = insert(:entity, org: org)
+
+      attrs = %{
+        org_id: org.id,
+        number: random_string_number(9),
+        issue_date: random_past_date(30),
+        delivery_date: random_past_date(30),
+        invoiced_by_id: UUID.generate(),
+        invoiced_to_id: invoiced_to.id,
+        amount: Enum.random(100_00..5_000_00)
+      }
+
+      assert {:error, changeset} =
+               attrs
+               |> Invoice.create_non_nfe_changeset()
+               |> Repo.insert()
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+               invoiced_by: ["does not exist"]
+             }
+    end
+
+    test "invoiced_to assoc constraint" do
+      org = insert(:org)
+      invoiced_by = insert(:entity, org: org)
+
+      attrs = %{
+        org_id: org.id,
+        number: random_string_number(9),
+        issue_date: random_past_date(30),
+        delivery_date: random_past_date(30),
+        invoiced_by_id: invoiced_by.id,
+        invoiced_to_id: UUID.generate(),
+        amount: Enum.random(100_00..5_000_00)
+      }
+
+      assert {:error, changeset} =
+               attrs
+               |> Invoice.create_non_nfe_changeset()
+               |> Repo.insert()
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+               invoiced_to: ["does not exist"]
              }
     end
 
@@ -407,8 +459,8 @@ defmodule Sig.Accounting.Invoices.InvoiceTest do
     test "string number numericality" do
       attrs = %{
         org_id: UUID.generate(),
-        nfe_access_key: 123,
-        number: 123,
+        nfe_access_key: String.duplicate("a", 44),
+        number: "NAN",
         issue_date: random_past_date(30),
         delivery_date: random_past_date(30),
         invoiced_by_id: UUID.generate(),
@@ -421,8 +473,62 @@ defmodule Sig.Accounting.Invoices.InvoiceTest do
       refute changeset.valid?
 
       assert errors_on(changeset) == %{
-               nfe_access_key: ["is invalid"],
-               number: ["is invalid"]
+               nfe_access_key: ["has invalid format"],
+               number: ["has invalid format"]
+             }
+    end
+
+    test "invoiced_by assoc constraint" do
+      org = insert(:org)
+      invoiced_to = insert(:entity, org: org)
+
+      attrs = %{
+        org_id: org.id,
+        nfe_access_key: random_string_number(44),
+        number: random_string_number(9),
+        issue_date: random_past_date(30),
+        delivery_date: random_past_date(30),
+        invoiced_by_id: UUID.generate(),
+        invoiced_to_id: invoiced_to.id,
+        amount: Enum.random(100_00..5_000_00)
+      }
+
+      assert {:error, changeset} =
+               attrs
+               |> Invoice.create_nfe_changeset()
+               |> Repo.insert()
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+               invoiced_by: ["does not exist"]
+             }
+    end
+
+    test "invoiced_to assoc constraint" do
+      org = insert(:org)
+      invoiced_by = insert(:entity, org: org)
+
+      attrs = %{
+        org_id: org.id,
+        nfe_access_key: random_string_number(44),
+        number: random_string_number(9),
+        issue_date: random_past_date(30),
+        delivery_date: random_past_date(30),
+        invoiced_by_id: invoiced_by.id,
+        invoiced_to_id: UUID.generate(),
+        amount: Enum.random(100_00..5_000_00)
+      }
+
+      assert {:error, changeset} =
+               attrs
+               |> Invoice.create_nfe_changeset()
+               |> Repo.insert()
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+               invoiced_to: ["does not exist"]
              }
     end
 
@@ -647,7 +753,7 @@ defmodule Sig.Accounting.Invoices.InvoiceTest do
     test "string number numericality" do
       attrs = %{
         org_id: UUID.generate(),
-        number: 123,
+        number: "NAN",
         issue_date: random_past_date(30),
         invoiced_by_id: UUID.generate(),
         invoiced_to_id: UUID.generate(),
@@ -659,7 +765,57 @@ defmodule Sig.Accounting.Invoices.InvoiceTest do
       refute changeset.valid?
 
       assert errors_on(changeset) == %{
-               number: ["is invalid"]
+               number: ["has invalid format"]
+             }
+    end
+
+    test "invoiced_by assoc constraint" do
+      org = insert(:org)
+      invoiced_to = insert(:entity, org: org)
+
+      attrs = %{
+        org_id: org.id,
+        number: random_string_number(9),
+        issue_date: random_past_date(30),
+        invoiced_by_id: UUID.generate(),
+        invoiced_to_id: invoiced_to.id,
+        amount: Enum.random(100_00..5_000_00)
+      }
+
+      assert {:error, changeset} =
+               attrs
+               |> Invoice.create_tax_changeset()
+               |> Repo.insert()
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+               invoiced_by: ["does not exist"]
+             }
+    end
+
+    test "invoiced_to assoc constraint" do
+      org = insert(:org)
+      invoiced_by = insert(:entity, org: org)
+
+      attrs = %{
+        org_id: org.id,
+        number: random_string_number(9),
+        issue_date: random_past_date(30),
+        invoiced_by_id: invoiced_by.id,
+        invoiced_to_id: UUID.generate(),
+        amount: Enum.random(100_00..5_000_00)
+      }
+
+      assert {:error, changeset} =
+               attrs
+               |> Invoice.create_tax_changeset()
+               |> Repo.insert()
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+               invoiced_to: ["does not exist"]
              }
     end
 
