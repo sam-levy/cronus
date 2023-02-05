@@ -204,6 +204,37 @@ defmodule Sig.Accounting.Invoices.InvoiceTest do
              }
     end
 
+    test "[:number, :invoiced_by_id, :org_id] unique constraint" do
+      org = insert(:org)
+      invoiced_by = insert(:entity, org: org)
+      invoiced_to = insert(:entity, org: org)
+
+      number = random_string_number(9)
+
+      insert(:non_nfe_invoice, org: org, invoiced_by: invoiced_by, number: number)
+
+      attrs = %{
+        org_id: org.id,
+        number: number,
+        issue_date: random_past_date(30),
+        delivery_date: random_past_date(30),
+        invoiced_by_id: invoiced_by.id,
+        invoiced_to_id: invoiced_to.id,
+        amount: Enum.random(100_00..5_000_00)
+      }
+
+      assert {:error, changeset} =
+               attrs
+               |> Invoice.create_non_nfe_changeset()
+               |> Repo.insert()
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+               number: ["has already been taken"]
+             }
+    end
+
     test "insert changeset" do
       org = insert(:org)
       invoiced_by = insert(:entity, org: org)
@@ -395,6 +426,70 @@ defmodule Sig.Accounting.Invoices.InvoiceTest do
              }
     end
 
+    test "[:nfe_access_key, :org_id] unique constraint" do
+      org = insert(:org)
+      invoiced_by = insert(:entity, org: org)
+      invoiced_to = insert(:entity, org: org)
+
+      nfe_access_key = random_string_number(44)
+
+      insert(:nfe_invoice, org: org, nfe_access_key: nfe_access_key)
+
+      attrs = %{
+        org_id: org.id,
+        nfe_access_key: nfe_access_key,
+        number: random_string_number(9),
+        issue_date: random_past_date(30),
+        delivery_date: random_past_date(30),
+        invoiced_by_id: invoiced_by.id,
+        invoiced_to_id: invoiced_to.id,
+        amount: Enum.random(100_00..5_000_00)
+      }
+
+      assert {:error, changeset} =
+               attrs
+               |> Invoice.create_nfe_changeset()
+               |> Repo.insert()
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+               nfe_access_key: ["has already been taken"]
+             }
+    end
+
+    test "[:number, :invoiced_by_id, :org_id] unique constraint" do
+      org = insert(:org)
+      invoiced_by = insert(:entity, org: org)
+      invoiced_to = insert(:entity, org: org)
+
+      number = random_string_number(9)
+
+      insert(:nfe_invoice, org: org, invoiced_by: invoiced_by, number: number)
+
+      attrs = %{
+        org_id: org.id,
+        nfe_access_key: random_string_number(44),
+        number: number,
+        issue_date: random_past_date(30),
+        delivery_date: random_past_date(30),
+        invoiced_by_id: invoiced_by.id,
+        invoiced_to_id: invoiced_to.id,
+        amount: Enum.random(100_00..5_000_00)
+      }
+
+      assert {:error, changeset} =
+               attrs
+               |> Invoice.create_nfe_changeset()
+               |> Repo.insert()
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+               number: ["has already been taken"]
+             }
+    end
+
     test "insert changeset" do
       org = insert(:org)
       invoiced_by = insert(:entity, org: org)
@@ -565,6 +660,37 @@ defmodule Sig.Accounting.Invoices.InvoiceTest do
 
       assert errors_on(changeset) == %{
                number: ["is invalid"]
+             }
+    end
+
+    test "[:number, :invoiced_by_id, :org_id] unique constraint" do
+      org = insert(:org)
+      invoiced_by = insert(:entity, org: org)
+      invoiced_to = insert(:entity, org: org)
+
+      number = random_string_number(9)
+
+      insert(:tax_invoice, org: org, invoiced_by: invoiced_by, number: number)
+
+      attrs = %{
+        org_id: org.id,
+        number: number,
+        issue_date: random_past_date(30),
+        delivery_date: random_past_date(30),
+        invoiced_by_id: invoiced_by.id,
+        invoiced_to_id: invoiced_to.id,
+        amount: Enum.random(100_00..5_000_00)
+      }
+
+      assert {:error, changeset} =
+               attrs
+               |> Invoice.create_tax_changeset()
+               |> Repo.insert()
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+               number: ["has already been taken"]
              }
     end
 

@@ -21,11 +21,11 @@ defmodule Sig.Repo.Migrations.CreateInvoicesTable do
       timestamps()
     end
 
-    create unique_index(:invoices, [:nfe_access_key])
+    create unique_index(:invoices, [:nfe_access_key, :org_id])
 
     create unique_index(
              :invoices,
-             [:number, :invoiced_by_id],
+             [:number, :invoiced_by_id, :org_id],
              name: :invoices_number_invoiced_by_id_unique
            )
 
