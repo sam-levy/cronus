@@ -12,7 +12,7 @@ defmodule Sig.Repo.Migrations.CreateSalablesTable do
       add :type, :salable_type, null: false
       add :code, :citext, null: false
       add :description, :citext, null: false
-      add :unit, :citext, null: false
+      add :unit, :string, size: 10, null: false
 
       add :entity_id, references(:entities, with: [org_id: :org_id]), null: false
 
@@ -25,6 +25,12 @@ defmodule Sig.Repo.Migrations.CreateSalablesTable do
 
     create unique_index(:salables, [:description, :entity_id, :org_id],
              name: :salables_description_entity_id_org_id_unique
+           )
+
+    create constraint(
+             :salables,
+             :salables_unit_uppercase,
+             check: "unit = UPPER(unit)"
            )
   end
 end

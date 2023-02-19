@@ -1,0 +1,468 @@
+[
+  {
+    "description": "Ano",
+    "popular_code": "AN",
+    "rf_code": null
+	},
+	{
+    "description": "Blister",
+    "popular_code": "BT",
+    "rf_code": null
+	},
+  {
+    "description": "Bolsa",
+    "popular_code": "BS",
+    "rf_code": null
+	},
+  {
+    "description": "Garrafa",
+    "popular_code": "GR",
+    "rf_code": "GF"
+	},
+  {
+    "description": "Espiga",
+    "popular_code": "ES",
+    "rf_code": null
+	},
+  {
+    "description": "Unidade",
+    "popular_code": "UN",
+    "rf_code": "UNID"
+	},
+  {
+    "description": "Caixa",
+    "popular_code": "CX",
+    "rf_code": "CX"
+	},
+  {
+    "description": "Peça",
+    "popular_code": "PC",
+    "rf_code": "PC"
+	},
+  {
+    "description": "Centilit",
+    "popular_code": "CE",
+    "rf_code": null
+	},
+  {
+    "description": "Cartucho",
+    "popular_code": "CA",
+    "rf_code": null
+	},
+  {
+    "description": "Duzia",
+    "popular_code": "DZ",
+    "rf_code": "DUZIA"
+	},
+  {
+    "description": "Frasco",
+    "popular_code": "FR",
+    "rf_code": "FRASCO"
+	},
+  {
+    "description": "Galao",
+    "popular_code": "GL",
+    "rf_code": "GALAO"
+	},
+  {
+    "description": "Grama",
+    "popular_code": "G",
+    "rf_code": "GRAMAS"
+	},
+  {
+    "description": "Miligrama",
+    "popular_code": "MG",
+    "rf_code": null
+	},
+  {
+    "description": "Quilograma",
+    "popular_code": "KG",
+    "rf_code": "KG"
+	},
+  {
+    "description": "Litro",
+    "popular_code": "L",
+    "rf_code": "LITRO"
+	},
+  {
+    "description": "Meses",
+    "popular_code": "ME",
+    "rf_code": null
+	},
+  {
+    "description": "Mililitro",
+    "popular_code": "ML",
+    "rf_code": "ML"
+	},
+  {
+    "description": "Pacote",
+    "popular_code": "PT",
+    "rf_code": "PACOTE"
+	},
+  {
+    "description": "Pares",
+    "popular_code": "PR",
+    "rf_code": "PARES"
+	},
+  {
+    "description": "Resma",
+    "popular_code": "RS",
+    "rf_code": "RESMA"
+	},
+  {
+    "description": "Tambor",
+    "popular_code": "TA",
+    "rf_code": "TAMBOR"
+	},
+  {
+    "description": "Bloco",
+    "popular_code": "BL",
+    "rf_code": "BLOCO"
+	},
+  {
+    "description": "Rolo",
+    "popular_code": "RL",
+    "rf_code": "ROLO"
+	},
+  {
+    "description": "Servicos",
+    "popular_code": "SE",
+    "rf_code": null
+	},
+  {
+    "description": "Ampola",
+    "popular_code": "AP",
+    "rf_code": "AMPOLA"
+	},
+  {
+    "description": "Comprimido",
+    "popular_code": "CP",
+    "rf_code": null
+	},
+  {
+    "description": "Metro(s)",
+    "popular_code": "M",
+    "rf_code": "M"
+	},
+  {
+    "description": "Latex",
+    "popular_code": "LX",
+    "rf_code": null
+	},
+  {
+    "description": "Jogo(s)",
+    "popular_code": "JG",
+    "rf_code": "JOGO"
+	},
+  {
+    "description": "Copo",
+    "popular_code": "CO",
+    "rf_code": null
+	},
+  {
+    "description": "Cento",
+    "popular_code": "CT",
+    "rf_code": "CENTO"
+	},
+  {
+    "description": "Fardo",
+    "popular_code": "FD",
+    "rf_code": "FARDO"
+	},
+  {
+    "description": "Folha",
+    "popular_code": "FL",
+    "rf_code": "FOLHA"
+	},
+  {
+    "description": "Kit",
+    "popular_code": "KT",
+    "rf_code": "KIT"
+	},
+  {
+    "description": "Lata",
+    "popular_code": "LA",
+    "rf_code": "LATA"
+	},
+  {
+    "description": "Metro Quadrado",
+    "popular_code": "M2",
+    "rf_code": "M2"
+	},
+  {
+    "description": "Metro Cúbico",
+    "popular_code": "M3",
+    "rf_code": "M3"
+	},
+  {
+    "description": "1 Maço",
+    "popular_code": "MC",
+    "rf_code": null
+	},
+  {
+    "description": "1 Pé",
+    "popular_code": "PE",
+    "rf_code": null
+	},
+  {
+    "description": "Pote",
+    "popular_code": "PO",
+    "rf_code": "POTE"
+	},
+  {
+    "description": "Tubo",
+    "popular_code": "TB",
+    "rf_code": "TUBO"
+	},
+  {
+    "description": "Seringa",
+    "popular_code": "SR",
+    "rf_code": null
+	},
+  {
+    "description": "Capsula",
+    "popular_code": "CS",
+    "rf_code": "CAPS"
+	},
+  {
+    "description": "Frasco/Ampola",
+    "popular_code": "FA",
+    "rf_code": null
+	},
+  {
+    "description": "Centimetro",
+    "popular_code": "CM",
+    "rf_code": "CM"
+	},
+  {
+    "description": "Bisnaga",
+    "popular_code": "BI",
+    "rf_code": "BISNAGA"
+	},
+  {
+    "description": "Milheiro",
+    "popular_code": "MI",
+    "rf_code": "MILHEI"
+	},
+  {
+    "description": "Dragea",
+    "popular_code": "DR",
+    "rf_code": null
+	},
+  {
+    "description": "Envelope",
+    "popular_code": "EN",
+    "rf_code": null
+	},
+  {
+    "description": "Conjunto",
+    "popular_code": "CJ",
+    "rf_code": "CJ"
+	},
+  {
+    "description": "Balde",
+    "popular_code": "BD",
+    "rf_code": "BALDE"
+	},
+  {
+    "description": "Saco",
+    "popular_code": "SC",
+    "rf_code": "SACO"
+	},
+  {
+    "description": "Vidro",
+    "popular_code": "VD",
+    "rf_code": "VIDRO"
+	},
+  {
+    "description": "Bombona",
+    "popular_code": "BB",
+    "rf_code": "BOMB"
+	},
+  {
+    "description": "Refil",
+    "popular_code": "BB",
+    "rf_code": null
+	},
+  {
+    "description": "Bandeja",
+    "popular_code": "BJ",
+    "rf_code": "BANDEJ"
+	},
+  {
+    "description": "Bobina",
+    "popular_code": "BN",
+    "rf_code": "BOBINA"
+	},
+  {
+    "description": "Tubete",
+    "popular_code": "TU",
+    "rf_code": null
+	},
+  {
+    "description": "Tetrapack",
+    "popular_code": "TP",
+    "rf_code": null
+	},
+  {
+    "description": "Barra",
+    "popular_code": "BR",
+    "rf_code": "BARRA"
+	},
+  {
+    "description": "Cilindro",
+    "popular_code": "CL",
+    "rf_code": null
+	},
+  {
+    "description": "Dose",
+    "popular_code": "DS",
+    "rf_code": null
+	},
+  {
+    "description": "Embalagem",
+    "popular_code": "EM",
+    "rf_code": "EMBAL"
+	},
+  {
+    "description": "Garrafão",
+    "popular_code": "GF",
+    "rf_code": null
+	},
+  {
+    "description": "Talão",
+    "popular_code": "TL",
+    "rf_code": null
+	},
+  {
+    "description": "Tetrapack",
+    "popular_code": "TP",
+    "rf_code": null
+	},
+  {
+    "description": "Estojo",
+    "popular_code": "ES",
+    "rf_code": null
+	},
+  {
+    "description": "Determinação",
+    "popular_code": "DE",
+    "rf_code": null
+	},
+  {
+    "description": "Disco",
+    "popular_code": "DI",
+    "rf_code": null
+	},
+  {
+    "description": "Flaconete",
+    "popular_code": "FC",
+    "rf_code": null
+	},
+  {
+    "description": "Cartela",
+    "popular_code": null,
+    "rf_code": "CART"
+	},
+  {
+    "description": "Centimetro Quadrado",
+    "popular_code": null,
+    "rf_code": "CM2"
+	},
+  {
+    "description": "Caixa com 2 unidades",
+    "popular_code": null,
+    "rf_code": "CX2"
+	},
+  {
+    "description": "Caixa com 3 unidades",
+    "popular_code": null,
+    "rf_code": "CX3"
+	},
+  {
+    "description": "Caixa com 5 unidades",
+    "popular_code": null,
+    "rf_code": "CX5"
+	},
+  {
+    "description": "Caixa com 5 unidades",
+    "popular_code": null,
+    "rf_code": "CX5"
+	},
+  {
+    "description": "Caixa com 10 unidades",
+    "popular_code": null,
+    "rf_code": "CX10"
+	},
+  {
+    "description": "Caixa com 15 unidades",
+    "popular_code": null,
+    "rf_code": "CX15"
+	},
+  {
+    "description": "Caixa com 20 unidades",
+    "popular_code": null,
+    "rf_code": "CX20"
+	},
+  {
+    "description": "Caixa com 25 unidades",
+    "popular_code": null,
+    "rf_code": "CX25"
+	},
+  {
+    "description": "Caixa com 50 unidades",
+    "popular_code": null,
+    "rf_code": "CX50"
+	},
+  {
+    "description": "Caixa com 100 unidades",
+    "popular_code": null,
+    "rf_code": "CX100"
+	},
+  {
+    "description": "Display",
+    "popular_code": null,
+    "rf_code": "DISP"
+	},
+  {
+    "description": "Megawatt Hora",
+    "popular_code": null,
+    "rf_code": "MWH"
+	},
+  {
+    "description": "Palete",
+    "popular_code": null,
+    "rf_code": "PALETE"
+	},
+  {
+    "description": "Quilate",
+    "popular_code": null,
+    "rf_code": "K"
+	},
+  {
+    "description": "Sacola",
+    "popular_code": null,
+    "rf_code": "SACOLA"
+	},
+  {
+    "description": "Tanque",
+    "popular_code": null,
+    "rf_code": "TANQUE"
+	},
+  {
+    "description": "Tonelada",
+    "popular_code": null,
+    "rf_code": "TON"
+	},
+  {
+    "description": "Tubo",
+    "popular_code": null,
+    "rf_code": "T"
+	},
+  {
+    "description": "Vasilhame",
+    "popular_code": null,
+    "rf_code": "VASIL"
+	}
+]
+	

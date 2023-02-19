@@ -3,6 +3,44 @@ defmodule Sig.Accounting.Salables.SalableTest do
 
   alias Sig.Accounting.Salables.Salable
 
+  describe "salables table base constraints" do
+    test "unit string size" do
+      org = insert(:org)
+      entity = insert(:entity, org: org)
+
+      salable = %Salable{
+        org_id: org.id,
+        type: random_enum_value(:salable_type),
+        code: random_string_number(5),
+        description: Faker.Commerce.product_name(),
+        unit: "INVALID_UNIT",
+        entity_id: entity.id
+      }
+
+      assert_raise Postgrex.Error,
+                   ~r/value too long for type character varying\(10\)/,
+                   fn -> Repo.insert(salable) end
+    end
+
+    test "salables_unit_uppercase constraint" do
+      org = insert(:org)
+      entity = insert(:entity, org: org)
+
+      salable = %Salable{
+        org_id: org.id,
+        type: random_enum_value(:salable_type),
+        code: random_string_number(5),
+        description: Faker.Commerce.product_name(),
+        unit: "gramas",
+        entity_id: entity.id
+      }
+
+      assert_raise Ecto.ConstraintError,
+                   ~r/salables_unit_uppercase \(check_constraint\)/,
+                   fn -> Repo.insert(salable) end
+    end
+  end
+
   describe "create_changeset/1" do
     test "valid attrs" do
       attrs = %{
@@ -10,7 +48,7 @@ defmodule Sig.Accounting.Salables.SalableTest do
         type: random_enum_value(:salable_type),
         code: random_string_number(5),
         description: Faker.Commerce.product_name(),
-        unit: "Kg",
+        unit: "KG",
         entity_id: UUID.generate()
       }
 
@@ -73,7 +111,7 @@ defmodule Sig.Accounting.Salables.SalableTest do
         type: random_enum_value(:salable_type),
         code: String.duplicate("a", 51),
         description: String.duplicate("a", 51),
-        unit: "Kg",
+        unit: "KG",
         entity_id: UUID.generate()
       }
 
@@ -95,7 +133,7 @@ defmodule Sig.Accounting.Salables.SalableTest do
         type: random_enum_value(:salable_type),
         code: random_string_number(5),
         description: Faker.Commerce.product_name(),
-        unit: "Kg",
+        unit: "KG",
         entity_id: UUID.generate()
       }
 
@@ -111,6 +149,31 @@ defmodule Sig.Accounting.Salables.SalableTest do
              }
     end
 
+    test "invalid unit" do
+      org = insert(:org)
+      entity = insert(:entity, org: org)
+
+      attrs = %{
+        org_id: org.id,
+        type: random_enum_value(:salable_type),
+        code: random_string_number(5),
+        description: Faker.Commerce.product_name(),
+        unit: "INVALD",
+        entity_id: entity.id
+      }
+
+      assert {:error, changeset} =
+               attrs
+               |> Salable.create_changeset()
+               |> Repo.insert()
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+               unit: ["does not exist"]
+             }
+    end
+
     test "[:code, :entity_id, :org_id] citext unique constraint" do
       org = insert(:org)
       entity = insert(:entity, org: org)
@@ -122,7 +185,7 @@ defmodule Sig.Accounting.Salables.SalableTest do
         type: random_enum_value(:salable_type),
         code: "AA11",
         description: Faker.Commerce.product_name(),
-        unit: "Kg",
+        unit: "KG",
         entity_id: entity.id
       }
 
@@ -149,7 +212,7 @@ defmodule Sig.Accounting.Salables.SalableTest do
         type: random_enum_value(:salable_type),
         code: random_string_number(5),
         description: "PRODUCT 1",
-        unit: "Kg",
+        unit: "KG",
         entity_id: entity.id
       }
 
@@ -174,7 +237,7 @@ defmodule Sig.Accounting.Salables.SalableTest do
         type: random_enum_value(:salable_type),
         code: random_string_number(5),
         description: Faker.Commerce.product_name(),
-        unit: "Kg",
+        unit: "KG",
         entity_id: entity.id
       }
 
@@ -193,7 +256,7 @@ defmodule Sig.Accounting.Salables.SalableTest do
         type: :good,
         code: random_string_number(5),
         description: Faker.Commerce.product_name(),
-        unit: "Gr"
+        unit: "GR"
       }
 
       assert changeset = Salable.update_changeset(salable, attrs)
@@ -216,7 +279,7 @@ defmodule Sig.Accounting.Salables.SalableTest do
         type: :good,
         code: random_string_number(5),
         description: Faker.Commerce.product_name(),
-        unit: "Gr",
+        unit: "GR",
         entity_id: UUID.generate()
       }
 
@@ -239,7 +302,7 @@ defmodule Sig.Accounting.Salables.SalableTest do
         type: random_enum_value(:salable_type),
         code: String.duplicate("a", 51),
         description: String.duplicate("a", 51),
-        unit: "Gr"
+        unit: "GR"
       }
 
       assert changeset = Salable.update_changeset(salable, attrs)
@@ -249,6 +312,28 @@ defmodule Sig.Accounting.Salables.SalableTest do
       assert errors_on(changeset) == %{
                code: ["should be at most 50 character(s)"],
                description: ["should be at most 50 character(s)"]
+             }
+    end
+
+    test "invalid unit" do
+      salable = insert(:salable)
+
+      attrs = %{
+        type: random_enum_value(:salable_type),
+        code: random_string_number(5),
+        description: Faker.Commerce.product_name(),
+        unit: "INVALD"
+      }
+
+      assert {:error, changeset} =
+               salable
+               |> Salable.update_changeset(attrs)
+               |> Repo.update()
+
+      refute changeset.valid?
+
+      assert errors_on(changeset) == %{
+               unit: ["does not exist"]
              }
     end
 
@@ -264,7 +349,7 @@ defmodule Sig.Accounting.Salables.SalableTest do
         type: random_enum_value(:salable_type),
         code: "AA11",
         description: Faker.Commerce.product_name(),
-        unit: "Gr"
+        unit: "GR"
       }
 
       assert {:error, changeset} =
@@ -291,7 +376,7 @@ defmodule Sig.Accounting.Salables.SalableTest do
         type: random_enum_value(:salable_type),
         code: random_string_number(5),
         description: "PRODUCT 1",
-        unit: "Kg"
+        unit: "KG"
       }
 
       assert {:error, changeset} =
@@ -313,7 +398,7 @@ defmodule Sig.Accounting.Salables.SalableTest do
         type: random_enum_value(:salable_type),
         code: random_string_number(5),
         description: Faker.Commerce.product_name(),
-        unit: "Kg"
+        unit: "KG"
       }
 
       assert {:ok, _salable} =
