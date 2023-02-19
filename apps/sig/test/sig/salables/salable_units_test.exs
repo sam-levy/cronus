@@ -1,4 +1,4 @@
-defmodule Sig.Accounting.Salables.SalableTest do
+defmodule Sig.Accounting.Salables.SalableUnitsTest do
   use Sig.DataCase, async: true
 
   alias Sig.Accounting.Salables.SalableUnits
