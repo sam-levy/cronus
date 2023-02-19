@@ -18,7 +18,7 @@ defmodule Sig.Accounting.Salables.SalableTest do
       }
 
       assert_raise Postgrex.Error,
-                   ~r/value too long for type character varying\(6\)/,
+                   ~r/value too long for type character varying\(10\)/,
                    fn -> Repo.insert(salable) end
     end
 

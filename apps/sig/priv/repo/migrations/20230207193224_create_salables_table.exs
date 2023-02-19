@@ -12,7 +12,7 @@ defmodule Sig.Repo.Migrations.CreateSalablesTable do
       add :type, :salable_type, null: false
       add :code, :citext, null: false
       add :description, :citext, null: false
-      add :unit, :string, size: 6, null: false
+      add :unit, :string, size: 10, null: false
 
       add :entity_id, references(:entities, with: [org_id: :org_id]), null: false
 
