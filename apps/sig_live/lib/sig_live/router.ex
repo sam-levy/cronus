@@ -141,4 +141,10 @@ defmodule SigLive.Router do
     get "/users/confirm/:token", UserConfirmationController, :edit
     post "/users/confirm/:token", UserConfirmationController, :update
   end
+
+  scope "/api/v1", SigLive.Api.V1 do
+    pipe_through [:api]
+
+    get "/companies", CompanyController, :index
+  end
 end
