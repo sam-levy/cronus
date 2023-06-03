@@ -51,6 +51,7 @@ defmodule SigLive.MixProject do
       {:sig, in_umbrella: true},
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.5"},
+      {:tarams, "~> 1.0.0"},
 
       # Sentry deps
       {:sentry, "~> 8.0"},
