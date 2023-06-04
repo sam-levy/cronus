@@ -2,7 +2,7 @@ defmodule SigLive.Api.V1.CompanyView do
   use SigLive, :view
 
   def render("index.json", %{companies: companies}) do
-    render_many(companies, __MODULE__, "company.json")
+    %{data: render_many(companies, __MODULE__, "company.json")}
   end
 
   def render("company.json", %{company: company}) do
