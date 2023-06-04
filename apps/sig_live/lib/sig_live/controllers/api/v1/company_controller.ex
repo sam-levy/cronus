@@ -10,11 +10,10 @@ defmodule SigLive.Api.V1.CompanyController do
 
   def index(conn, params) do
     with {:ok, %{org_id: org_id}} <- Tarams.cast(params, @index),
-         {:ok, org} <- Organizations.fetch_org(org_id),
-         companies <- Entities.list_companies(org) do
+         {:ok, org} <- Organizations.fetch_org(org_id) do
       conn
       |> put_status(:ok)
-      |> render(companies: companies)
+      |> render(companies: Entities.list_companies(org))
     else
       {:error, reason} ->
         conn
