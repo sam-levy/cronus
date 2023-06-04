@@ -14,11 +14,6 @@ defmodule SigLive.Api.V1.CompanyController do
       conn
       |> put_status(:ok)
       |> render(companies: Entities.list_companies(org))
-    else
-      {:error, reason} ->
-        conn
-        |> put_status(:bad_request)
-        |> json(reason)
     end
   end
 end

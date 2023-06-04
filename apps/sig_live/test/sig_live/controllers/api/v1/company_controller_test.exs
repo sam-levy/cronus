@@ -26,15 +26,28 @@ defmodule SigLive.Api.V1.CompanyControllerTest do
              ] = response
     end
 
-    test "when org id is invalid", %{conn: conn} do
+    test "when org does not exist", %{conn: conn} do
       org_id = UUID.generate()
 
       response =
         conn
         |> get(Routes.company_path(conn, :index, org_id))
+        |> json_response(404)
+
+      assert response == %{"error" => "Not found"}
+    end
+
+    test "when uuid is invalid", %{conn: conn} do
+      response =
+        conn
+        |> get(Routes.company_path(conn, :index, "invalid UUID"))
         |> json_response(400)
 
-      assert response == "not_found"
+      assert response == %{
+               "error" => %{
+                 "org_id" => ["is in valid"]
+               }
+             }
     end
   end
 end

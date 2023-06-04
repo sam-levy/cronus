@@ -4,7 +4,7 @@ defmodule SigLive.Plugs.FetchOrg do
   import Plug.Conn
 
   alias Sig.Organizations
-  alias SigLive.Fallback
+  alias SigLive.FallbackController
 
   @impl Plug
   def init(opts), do: opts
@@ -17,7 +17,7 @@ defmodule SigLive.Plugs.FetchOrg do
 
       {:error, :not_found} ->
         conn
-        |> Fallback.call({:error, :not_found})
+        |> FallbackController.call({:error, :not_found})
         |> halt()
     end
   end

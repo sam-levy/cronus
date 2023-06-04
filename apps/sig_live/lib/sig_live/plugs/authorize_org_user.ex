@@ -4,7 +4,7 @@ defmodule SigLive.Plugs.AuthorizeOrgUser do
   import Plug.Conn
 
   alias Sig.Accounts
-  alias SigLive.Fallback
+  alias SigLive.FallbackController
 
   @impl Plug
   def init(opts), do: opts
@@ -23,7 +23,7 @@ defmodule SigLive.Plugs.AuthorizeOrgUser do
 
   defp forbid(conn) do
     conn
-    |> Fallback.call({:error, :forbidden})
+    |> FallbackController.call({:error, :forbidden})
     |> halt()
   end
 end
