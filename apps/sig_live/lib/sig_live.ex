@@ -38,6 +38,8 @@ defmodule SigLive do
       import Plug.Conn
       import SigLive.Gettext
       alias SigLive.Router.Helpers, as: Routes
+
+      action_fallback SigLive.FallbackController
     end
   end
 

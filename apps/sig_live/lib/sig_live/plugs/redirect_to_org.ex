@@ -20,7 +20,7 @@ defmodule SigLive.Plugs.RedirectToOrg do
 
   defp forbid(conn) do
     conn
-    |> SigLive.Fallback.call({:error, :forbidden})
+    |> SigLive.FallbackController.call({:error, :forbidden})
     |> Plug.Conn.halt()
   end
 end
