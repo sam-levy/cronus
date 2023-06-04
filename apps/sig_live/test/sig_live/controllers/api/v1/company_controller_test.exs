@@ -12,18 +12,20 @@ defmodule SigLive.Api.V1.CompanyControllerTest do
         |> get(Routes.company_path(conn, :index, org.id))
         |> json_response(200)
 
-      assert [
-               %{
-                 "entity_id" => _,
-                 "org_id" => _,
-                 "trade_name" => _
-               },
-               %{
-                 "entity_id" => _,
-                 "org_id" => _,
-                 "trade_name" => _
-               }
-             ] = response
+      assert %{
+               "data" => [
+                 %{
+                   "entity_id" => _,
+                   "org_id" => _,
+                   "trade_name" => _
+                 },
+                 %{
+                   "entity_id" => _,
+                   "org_id" => _,
+                   "trade_name" => _
+                 }
+               ]
+             } = response
     end
 
     test "when org does not exist", %{conn: conn} do
