@@ -17,12 +17,14 @@ defmodule SigLive.Api.V1.CompanyControllerTest do
                  %{
                    "entity_id" => _,
                    "org_id" => _,
-                   "trade_name" => _
+                   "trade_name" => _,
+                   "is_virtual" => _
                  },
                  %{
                    "entity_id" => _,
                    "org_id" => _,
-                   "trade_name" => _
+                   "trade_name" => _,
+                   "is_virtual" => _
                  }
                ]
              } = response

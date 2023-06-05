@@ -9,7 +9,8 @@ defmodule SigLive.Api.V1.CompanyView do
     %{
       org_id: company.org_id,
       entity_id: company.entity_id,
-      trade_name: company.trade_name
+      trade_name: company.trade_name,
+      is_virtual: company.is_virtual
     }
   end
 end
