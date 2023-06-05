@@ -1,8 +1,6 @@
 defmodule SigLive.FallbackController do
   use Phoenix.Controller
 
-  # TODO: Create nice error templates
-
   def call(conn, {:error, :forbidden}) do
     conn
     |> put_status(403)
