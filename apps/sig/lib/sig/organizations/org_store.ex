@@ -57,6 +57,8 @@ defmodule Sig.Organizations.OrgStore do
   def handle_info(:clear_table, table) do
     :ets.delete_all_objects(table)
 
+    Process.send_after(self(), :clear_table, @clear_interval)
+
     {:noreply, table}
   end
 end
