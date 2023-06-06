@@ -47,6 +47,9 @@ defmodule Sig.MixProject do
       {:brazilian_documents, "~> 0.3.0"},
       {:money, "~> 1.4"},
       {:extep, git: "https://github.com/sam-levy/extep.git"},
+      {:nimble_options, "~> 1.0.2"},
+
+      # test/dev
       {:faker, "~> 0.17.0", only: [:dev, :test]}
     ]
   end
