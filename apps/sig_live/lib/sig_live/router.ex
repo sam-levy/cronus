@@ -142,9 +142,15 @@ defmodule SigLive.Router do
     post "/users/confirm/:token", UserConfirmationController, :update
   end
 
+  ## API routes
+
   scope "/api/v1/orgs/:org_id", SigLive.Api.V1 do
     pipe_through [:api]
 
     get "/companies", CompanyController, :index
+
+    get "/sector_name/:sector_name/employee_registrations",
+        EmployeeRegistrationController,
+        :index_by_sector
   end
 end
