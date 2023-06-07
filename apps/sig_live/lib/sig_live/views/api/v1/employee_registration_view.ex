@@ -13,6 +13,9 @@ defmodule SigLive.Api.V1.EmployeeRegistrationView do
       individual: %{
         entity_id: registration.individual.entity_id,
         name: registration.individual.name
+      },
+      sector: %{
+        name: registration.last_sector.name
       }
     }
   end

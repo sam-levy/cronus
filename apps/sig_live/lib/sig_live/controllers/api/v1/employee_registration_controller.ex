@@ -13,7 +13,8 @@ defmodule SigLive.Api.V1.EmployeeRegistrationController do
     with {:ok, params} <- Tarams.cast(params, @index_by_sector),
          {:ok, sector} <-
            Organizations.fetch_org_sector_by(org_id: params.org_id, name: params.sector_name) do
-      registrations = HR.list_registrations_by(sector, preload: [:registered_at, :individual])
+      registrations =
+        HR.list_registrations_by(sector, preload: [:registered_at, :individual, :last_sector])
 
       conn
       |> put_status(:ok)
