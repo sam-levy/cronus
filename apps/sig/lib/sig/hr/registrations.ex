@@ -73,6 +73,7 @@ defmodule Sig.HR.Registrations do
   def list_by(schema, opts \\ [])
   def list_by(%Org{} = schema, opts), do: do_list_by(schema, opts)
   def list_by(%Individual{} = schema, opts), do: do_list_by(schema, opts)
+  def list_by(%Sector{} = schema, opts), do: do_list_by(schema, opts)
 
   def get(schema, id, opts \\ [])
   def get(%Org{} = schema, id, opts) when is_binary(id), do: do_get(schema, id, opts)
