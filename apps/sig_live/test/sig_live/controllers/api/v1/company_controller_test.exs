@@ -1,7 +1,7 @@
 defmodule SigLive.Api.V1.CompanyControllerTest do
   use SigLive.ConnCase, async: true
 
-  describe "GET /users/confirm" do
+  describe "GET /api/v1/orgs/:org_id/companies [:index]" do
     test "returns a list of companies from an organization", %{conn: conn} do
       org = insert(:org)
       insert_list(2, :company, org: org)
