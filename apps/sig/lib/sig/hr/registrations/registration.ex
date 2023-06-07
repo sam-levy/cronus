@@ -24,6 +24,7 @@ defmodule Sig.HR.Registrations.Registration do
     field :resignation_type, ResignationType
 
     belongs_to :individual, Individual, references: :entity_id
+    # TODO: Rename registered_at to company
     belongs_to :registered_at, Company, references: :entity_id
 
     has_many :salaries, Salary
