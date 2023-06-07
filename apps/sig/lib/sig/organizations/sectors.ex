@@ -25,6 +25,36 @@ defmodule Sig.Organizations.Sectors do
     |> Repo.one()
   end
 
+  @fetch_by_filters [
+    org_id: [type: :string, required: true],
+    name: [type: :string]
+  ]
+
+  def fetch_by(filters) do
+    case NimbleOptions.validate(filters, @fetch_by_filters) do
+      {:ok, filters} ->
+        Sector
+        |> filter_by(filters)
+        |> Repo.one()
+        |> to_fetch()
+
+      error ->
+        error
+    end
+  end
+
+  # TODO: Refator Sig.Query to accept this functionality
+  defp filter_by(queryable, [{key, _values} | _] = filters) when is_atom(key) do
+    Enum.reduce(filters, queryable, fn
+      {key, nil}, acc -> where(acc, [schema], schema |> field(^key) |> is_nil())
+      {key, values}, acc -> where(acc, [schema], field(schema, ^key) in ^List.wrap(values))
+    end)
+  end
+
+  # TODO: Extract this to Sig.Query
+  defp to_fetch(%_module{} = struct), do: {:ok, struct}
+  defp to_fetch(nil), do: {:error, :not_found}
+
   def create(%Org{} = org, %{} = attrs) do
     attrs
     |> Map.put(:org_id, org.id)

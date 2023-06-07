@@ -63,6 +63,64 @@ defmodule Sig.Organizations.SectorsTest do
     end
   end
 
+  describe "fetch_by/1" do
+    test "fetches a sector" do
+      org = insert(:org)
+      insert(:org_sector, org: org, name: "Entrega")
+      insert(:org_sector, org: org, name: "Cozinha")
+
+      assert {:ok, %Sector{name: "Entrega"}} = Sectors.fetch_by(org_id: org.id, name: "Entrega")
+    end
+
+    test "when sector doesn't belong to the org" do
+      org = insert(:org)
+      insert(:org_sector, name: "Entrega")
+
+      assert Sectors.fetch_by(org_id: org.id, name: "Entrega") == {:error, :not_found}
+    end
+
+    test "when sector doesn't exist" do
+      org = insert(:org)
+
+      assert Sectors.fetch_by(org_id: org.id, name: "Entrega") == {:error, :not_found}
+    end
+
+    test "when org doesn't exist" do
+      insert(:org_sector, name: "Entrega")
+
+      assert Sectors.fetch_by(org_id: UUID.generate(), name: "Entrega") == {:error, :not_found}
+    end
+
+    test "when org_id is not in the filters" do
+      insert(:org_sector, name: "Entrega")
+
+      assert {:error,
+              %{
+                message: "required :org_id option not found, received options: [:name]"
+              }} = Sectors.fetch_by(name: "Entrega")
+    end
+
+    test "invalid filter" do
+      org = insert(:org)
+      insert(:org_sector, org: org, name: "Entrega")
+
+      assert {:error,
+              %{
+                message: "unknown options [:invalid_option], valid options are: [:org_id, :name]"
+              }} = Sectors.fetch_by(org_id: org.id, name: "Entrega", invalid_option: "invalid")
+    end
+
+    test "raises on more then one result" do
+      org = insert(:org)
+      insert(:org_sector, org: org, name: "Entrega")
+      insert(:org_sector, org: org, name: "Cozinha")
+
+      assert_raise Ecto.MultipleResultsError, fn ->
+        Sectors.fetch_by(org_id: org.id)
+      end
+    end
+  end
+
   describe "create/2" do
     test "creates a sector" do
       org = insert(:org)

@@ -9,6 +9,7 @@ defmodule Sig.Organizations do
   defdelegate org_sector_change(sector_or_attrs \\ %{}), to: Sectors, as: :change
   defdelegate list_org_sectors(org), to: Sectors, as: :list
   defdelegate get_org_sector(org, id), to: Sectors, as: :get
+  defdelegate fetch_org_sector_by(filters), to: Sectors, as: :fetch_by
   defdelegate create_org_sector(org, attrs), to: Sectors, as: :create
   defdelegate update_org_sector(sector, attrs), to: Sectors, as: :update
   defdelegate delete_org_sector(sector), to: Sectors, as: :delete
