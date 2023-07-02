@@ -66,6 +66,8 @@ defmodule SigLive.ViewHelpers do
     end
   end
 
+  def format_cpf(_), do: nil
+
   def format_cnpj(%CNPJ{number: cnpj}), do: format_cnpj(cnpj)
 
   def format_cnpj(cnpj) when is_binary(cnpj) do
@@ -74,6 +76,8 @@ defmodule SigLive.ViewHelpers do
       _ -> ""
     end
   end
+
+  def format_cnpj(_), do: nil
 
   def format_document(nil), do: ""
 
