@@ -10,6 +10,7 @@ defmodule SigLive.Api.V1.CompanyView do
       org_id: company.org_id,
       entity_id: company.entity_id,
       trade_name: company.trade_name,
+      cnpj: format_cnpj(company.cnpj),
       is_virtual: company.is_virtual
     }
   end

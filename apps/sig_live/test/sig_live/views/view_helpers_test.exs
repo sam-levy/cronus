@@ -1,7 +1,7 @@
 defmodule SigLive.ViewHelpersTest do
   use Sig.DataCase
 
-  alias BrazilianDocuments.Types.CPF
+  alias BrazilianDocuments.Types.{CPF, CNPJ}
 
   alias Sig.Finance.Banks.Bank
   alias SigLive.ViewHelpers
@@ -125,6 +125,21 @@ defmodule SigLive.ViewHelpersTest do
 
     test "wrong cpf" do
       assert ViewHelpers.format_cpf("wrong") == ""
+    end
+  end
+
+  describe "format_cnpj/1" do
+    test "returns a formatted cnpj for a CNPJ struct" do
+      assert ViewHelpers.format_cnpj(%CNPJ{number: "79452654000106"}) == "79.452.654/0001-06"
+    end
+
+    test "returns a formatted cnpj for a CNPJ string" do
+      assert ViewHelpers.format_cnpj("79452654000106") == "79.452.654/0001-06"
+      assert ViewHelpers.format_cnpj("79.452.654/0001-06") == "79.452.654/0001-06"
+    end
+
+    test "wrong cnpj" do
+      assert ViewHelpers.format_cnpj("wrong") == ""
     end
   end
 
