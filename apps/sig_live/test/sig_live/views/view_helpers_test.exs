@@ -126,6 +126,10 @@ defmodule SigLive.ViewHelpersTest do
     test "wrong cpf" do
       assert ViewHelpers.format_cpf("wrong") == ""
     end
+
+    test "cpf is nil" do
+      assert ViewHelpers.format_cpf(nil) == nil
+    end
   end
 
   describe "format_cnpj/1" do
@@ -140,6 +144,10 @@ defmodule SigLive.ViewHelpersTest do
 
     test "wrong cnpj" do
       assert ViewHelpers.format_cnpj("wrong") == ""
+    end
+
+    test "cnpj is nil" do
+      assert ViewHelpers.format_cnpj(nil) == nil
     end
   end
 
