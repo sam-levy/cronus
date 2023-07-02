@@ -12,7 +12,8 @@ defmodule SigLive.Api.V1.EmployeeRegistrationView do
       resignation_date: registration.resignation_date,
       individual: %{
         entity_id: registration.individual.entity_id,
-        name: registration.individual.name
+        name: registration.individual.name,
+        cpf: format_cpf(registration.individual.cpf)
       },
       sector: %{
         name: registration.last_sector.name

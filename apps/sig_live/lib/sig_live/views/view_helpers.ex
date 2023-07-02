@@ -1,5 +1,5 @@
 defmodule SigLive.ViewHelpers do
-  alias BrazilianDocuments.Types.CPF
+  alias BrazilianDocuments.Types.{CPF, CNPJ}
 
   alias Sig.Documents
   alias Sig.Entities.Companies.Company
@@ -62,6 +62,15 @@ defmodule SigLive.ViewHelpers do
   def format_cpf(cpf) when is_binary(cpf) do
     case BrazilianDocuments.format_cpf(cpf) do
       {:ok, formatted_cpf} -> formatted_cpf
+      _ -> ""
+    end
+  end
+
+  def format_cnpj(%CNPJ{number: cnpj}), do: format_cnpj(cnpj)
+
+  def format_cnpj(cnpj) when is_binary(cnpj) do
+    case BrazilianDocuments.format_cnpj(cnpj) do
+      {:ok, formatted_cnpj} -> formatted_cnpj
       _ -> ""
     end
   end

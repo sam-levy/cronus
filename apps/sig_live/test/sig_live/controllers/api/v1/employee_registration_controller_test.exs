@@ -67,7 +67,8 @@ defmodule SigLive.Api.V1.EmployeeRegistrationControllerTest do
                    "company_entity_id" => _,
                    "individual" => %{
                      "entity_id" => _,
-                     "name" => _
+                     "name" => _,
+                     "cpf" => _
                    },
                    "sector" => %{
                      "name" => "Delivery"
@@ -79,7 +80,8 @@ defmodule SigLive.Api.V1.EmployeeRegistrationControllerTest do
                    "company_entity_id" => _,
                    "individual" => %{
                      "entity_id" => _,
-                     "name" => _
+                     "name" => _,
+                     "cpf" => _
                    },
                    "sector" => %{
                      "name" => "Delivery"
@@ -141,7 +143,8 @@ defmodule SigLive.Api.V1.EmployeeRegistrationControllerTest do
                    "company_entity_id" => _,
                    "individual" => %{
                      "entity_id" => _,
-                     "name" => _
+                     "name" => _,
+                     "cpf" => _
                    },
                    "sector" => %{
                      "name" => "Delivery"
